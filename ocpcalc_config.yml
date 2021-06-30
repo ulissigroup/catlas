@@ -1,0 +1,49 @@
+## YOU MUST CHANGE THE CONFIG PATH IN THE INPUTS OF predictions.py and calculator_upload.py
+
+checkpoint_path:
+  path: /home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt # path to pretrained model checkpoint
+
+dataset:
+  - src: /home/jovyan/ocp/data/OC20/is2re/all/train/data.lmdb
+    normalize_labels: True
+    target_mean: -1.525913953781128
+    target_std: 2.279365062713623
+  - src: /home/jovyan/ocp/data/OC20/is2re/all/val_id/data.lmdb
+
+task:
+  dataset: single_point_lmdb
+  description: "Relaxed state energy prediction from initial structure."
+  type: regression
+  metric: mae
+  labels:
+    - relaxed energy
+
+model:
+  name: dimenetplusplus
+  hidden_channels: 256
+  out_emb_channels: 192
+  num_blocks: 3
+  cutoff: 6.0
+  num_radial: 6
+  num_spherical: 7
+  num_before_skip: 1
+  num_after_skip: 2
+  num_output_layers: 3
+  regress_forces: False
+  use_pbc: True
+  
+  
+optim:
+  batch_size: 4
+  eval_batch_size: 20
+  num_workers: 16
+  lr_initial: 0.0001
+  lr_gamma: 0.1
+  lr_milestones: # epochs at which lr_initial <- lr_initial * lr_gamma
+    - 4
+    - 8
+    - 12
+  warmup_epochs: 2
+  warmup_factor: 0.2
+  max_epochs: 20
+
