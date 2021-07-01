@@ -22,23 +22,23 @@ predictions = predictions_bag.compute()
 and the results will be stored in your local RAM and may be queried like a list.
 
 Getting started:
-In addition to the OCP repo, you need to have access to the following files:
-predictions.ipynb - the main file! I find a notebook to be more convenient in this case than a .py file because as you will see, you need to perform some downstream operations on your data
-calculator_upload.py - this instantiates the OCP calculator on each of your dask workers. It also contains a function called predict_E that will be used to make predictions.
-enumeration_helper_script.py - this has been adapted from Pari’s script with the same name. It contains three functions which are used to generate the slabs, convert the slab object, and then generate the adslab.
-worker-spec.yaml - as the name implies, this contains the worker specifications.
-ocpcalc_config.yaml - this contakes the checkpoint, model specs, dataset specs, task specs, and optim specs
-bulk_object_lookup_dict.pkl - this is use to grab the bulk object given the bulk mpid
+In addition to the OCP repo, you need to have access to the files in this repo, here is a description of their purpose:
+ - predictions.ipynb - the main file! I find a notebook to be more convenient in this case than a .py file because as you will see, you need to perform some downstream operations on your data
+ - calculator_upload.py - this instantiates the OCP calculator on each of your dask workers. It also contains a function called predict_E that will be used to make predictions.
+ - enumeration_helper_script.py - this has been adapted from Pari’s script with the same name. It contains three functions which are used to generate the slabs, convert the slab object, and then generate the adslab.
+ - worker-spec.yaml - as the name implies, this contains the worker specifications.
+ - ocpcalc_config.yaml - this contakes the checkpoint, model specs, dataset specs, task specs, and optim specs
+ - bulk_object_lookup_dict.pkl - this is use to grab the bulk object given the bulk mpid
 
 File Placement:
 calculator_upload.py, predictions.pynb, and enumeration_helper_script.py should be placed in your main ocp folder (where main.py is)
 
 File Paths:
 There are several path references that you have to make sure correctly align with your file structure. I highly recommend using absolute file paths for all paths. This is because the workers use the files too and their default working directory is not home/jovyan, rather it is a subfolder. Here they are:
-predictions.ipynb - paths are specified as inputs
-calculator_upload.py - the config path. Make sure it matches the one specified in predictions as well
-enumeration_helper_script.py - the bulk_db path
-Ocpcalc_config.yml - checkpoint_path, dataset paths (train and val)
+ - predictions.ipynb - paths are specified as inputs
+ - calculator_upload.py - the config path. Make sure it matches the one specified in predictions as well
+ - enumeration_helper_script.py - the bulk_db path
+ - ocpcalc_config.yml - checkpoint_path, dataset paths (train and val)
 I recommend mimicking what I did and place the yamls in the shared-scratch. The workers will be mounting the OC20 data volume and the shared scratch volume the same way you have them mounted to your workspace. Otherwise you will just have to play around with things.
 
 Volume Mounts:
@@ -55,10 +55,6 @@ Make the appropriate edits (####, your_namespace_name, your_pod_name). The #### 
 
 Downstream use:
 If your dataset is small you can simply push it into your local RAM and do with it what you please. If it is not, I would recommend converting the dask bag of results into a dask dataframe. This makes it easy to filter by some characteristic or find the minimum energy on a per surface / per bulk basis. Once you have performed these size reductions, you can convert your dask dataframe into a regular dataframe and take things from there. I have left the cell blocks to perform df operations in the notebook in case you want them.
-
-File Access:
-The notebook, python, and yaml files are in the ulissigroup github! The pickle file is in my folder on the shared-scratch (shared-scratch/Brook/bulk_object_lookup_dict.pkl).
-https://github.com/ulissigroup/dask-predictions
 
 Help:
 I (Brook) am happy to help! :) 
