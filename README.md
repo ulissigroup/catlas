@@ -31,8 +31,8 @@ In addition to the OCP repo, you need to have access to the files in this repo, 
  - calculator_upload.py - this instantiates the OCP calculator on each of your dask workers. It also contains a function called predict_E that will be used to make predictions.
  - enumeration_helper_script.py - this has been adapted from Pari’s script with the same name. It contains three functions which are used to generate the slabs, convert the slab object, and then generate the adslab.
  - worker-spec.yaml - as the name implies, this contains the worker specifications.
- - ocpcalc_config.yaml - this contakes the checkpoint, model specs, dataset specs, task specs, and optim specs
- - bulk_object_lookup_dict.pkl - this is use to grab the bulk object given the bulk mpid
+ - ocpcalc_config.yaml - this contains the checkpoint, model specs, dataset specs, task specs, and optim specs
+ - bulk_object_lookup_dict.pkl - this is used to grab the bulk object given the bulk mpid
 
 
 File Placement:
@@ -52,18 +52,18 @@ I recommend mimicking what I did and place the yamls in the shared-scratch. The 
 
 Volume Mounts:
 
-You have to mount 3 volumes and perform 4 volume mounts to your workers. This is specified in the worker-spec.yml. The oc20data and the scratch-vol volumes should be fine. But make sure the mount path specified mirrors the file structure of your workspace.
-Note: oc20data = shared-datasets as specified in the yaml so the OC20 is a subfolder just like it should be in your volume.You also have to change the volume mounts for your workspace. Change workspace-ocp to be workspace-”your workspace name here”. The file paths, however, should be the same! Don’t change them!
+You have to mount 3 volumes and perform 4 volume mounts to your workers. This is specified in the worker-spec.yml. The oc20data and the scratch-vol volume names should be fine, but make sure the mount path specified mirrors the file structure of your workspace.
+Note: oc20data = shared-datasets as specified in the yaml so the OC20 is a subfolder just like it should be in your volume. You have to change the volume mount names for your workspace. Change workspace-ocp to be workspace-”your workspace name here”. The file paths, however, should be the same unless you have a different file structure.
 
 
 Docker Image:
 
-You can use may docker image which is in ulissigroup:kubeflow/predictions or make sure you have all the same things. 
+You can use my docker image which is in ulissigroup:kubeflow/predictions or make sure you have all the same things. 
 
 
 Use:
 
-Once you have things up, adjust your inputs appropriately. Run cells 1-3 in the notebook. Cell 1 creates the workers and loads the model locally. Cell 2 grabs the adsorbates and bulks from pkl files. Cell 3 sends the work to the dask workers. You can look at the logs of your workers in Rancher. This is useful for troubleshooting problems. You can monitor your progress using the dask dashboard at this url:
+Once you have things set up, adjust your inputs appropriately. Run cells 1-3 in the notebook. Cell 1 creates the workers and loads the model locally. Cell 2 grabs the adsorbates and bulks from pkl files. Cell 3 sends the work to the dask workers. You can look at the logs of your workers in Rancher. This is useful for troubleshooting problems. You can monitor your progress using the dask dashboard at this url:
 https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/your_namespace_name/pods/your_pod_name-0:####/proxy/status
 Make the appropriate edits (####, your_namespace_name, your_pod_name). The #### is the port number which is printed out in the notebook.
 
@@ -71,6 +71,20 @@ Make the appropriate edits (####, your_namespace_name, your_pod_name). The #### 
 Downstream use:
 
 If your dataset is small you can simply push it into your local RAM and do with it what you please. If it is not, I would recommend converting the dask bag of results into a dask dataframe. This makes it easy to filter by some characteristic or find the minimum energy on a per surface / per bulk basis. Once you have performed these size reductions, you can convert your dask dataframe into a regular dataframe and take things from there. I have left the cell blocks to perform df operations in the notebook in case you want them.
+
+
+Just want adslabs?:
+comment out: 
+
+# generate prediction mappings
+predictions_bag = adslab_bag.map(memory.cache(predict_E))
+
+# execute operations (go to all work)
+predictions = predictions_bag.persist() # change to .compute() to push to local RAM
+
+and add:
+
+adslabs = adslab_bag.persist()
 
 
 Help:
