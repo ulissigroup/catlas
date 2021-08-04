@@ -3,6 +3,7 @@ from ocpmodels import models
 from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 import yaml
+from ocdata.combined import Combined
 
 # Load the calculator
 config_path = '/home/jovyan/shared-scratch/Brook/ocpcalc_config.yml'
@@ -33,16 +34,22 @@ trainer.load_pretrained(checkpoint_path, True)
 # Initialize the calculator
 calc = OCPCalculator(trainer)
 
-def predict_E(adslab):
-          
+def predict_E(surface_adsorbate_combo, max_size):
+    surface_info_object, adsorbate_obj = surface_adsorbate_combo
+    surface_obj, mpid, miller, shift, top = surface_info_object
+    adslabs = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
+    adsorbate = adsorbate_obj.smiles
+    predictions_list = []
+    adslabs_list = adslabs.adsorbed_surface_atoms
+    size = len(adslabs_list[0].get_tags())
+    if size <= max_size:
     # Create a copy of the adslab so that python doesnt change the calculator of the adslab input
-    adslab = copy.deepcopy(adslab)
-    
-    # Unpack data
-    mpid, surface_info, adsorbate, adslab_atoms = adslab
-    
-    #Iterate over sites and predict on each
-    adslab_atoms.set_calculator(calc)
-    energy_now = adslab_atoms.get_potential_energy()
-    pred = [mpid,surface_info, adsorbate, energy_now]
+        for adslab in adslabs.adsorbed_surface_atoms:
+            adslab.set_calculator(calc)
+            energy_now = adslab.get_potential_energy()
+            predictions_list.append(energy_now)
+    else:
+        predictions_list =[f'size = {size}']
+    surface_info = [miller,shift,top]
+    pred = [mpid,surface_info, adsorbate, predictions_list]
     return pred

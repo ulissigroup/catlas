@@ -9,11 +9,12 @@ The workflow I have made takes as input:
  - List of adsorbate smiles
  - Model config yaml
  - Worker spec yaml
+ - Maximum atoms object size
  - Number of workers
 
 It generates adslabs for all adsorbates, on all sites, on all surfaces with miller index <= 2. It then uses the model specified in the model config yaml to make direct predictions of the adsorption energy. These values are returned into a dask bag as a list with the following info:
 ```
-return = [mpid,surface_info, adsorbate, energy_now]
+return = [mpid,surface_info, adsorbate, [list of site energies]
 ```
 Here surface info is a tuple of the following form:
 ```
@@ -30,10 +31,10 @@ and the results will be stored in your local RAM and may be queried like a list.
 
 In addition to the OCP repo, you need to have access to the files in this repo, here is a description of their purpose:
  - predictions.ipynb - the main file! I find a notebook to be more convenient in this case than a .py file because as you will see, you need to perform some downstream operations on your data
- - calculator_upload.py - this instantiates the OCP calculator on each of your dask workers. It also contains a function called predict_E that will be used to make predictions.
- - enumeration_helper_script.py - this has been adapted from Pari’s script with the same name. It contains three functions which are used to generate the slabs, convert the slab object, and then generate the adslab.
+ - calculator_upload.py - this instantiates the OCP calculator on each of your dask workers. It also contains a function called predict_E that will be used to make adslabs on all sites and make predictions.
+ - enumeration_helper_script.py - this has been adapted from Pari’s script with the same name. It contains one function which is used to generate slabs.  
  - worker-spec.yaml - as the name implies, this contains the worker specifications.
- - ocpcalc_config.yaml - this contains the checkpoint, model specs, dataset specs, task specs, and optim specs
+ - ocpcalc_config.yaml - this contains the checkpoint, model specs, dataset specs, task specs, and optim specs. This mirrors the existing infrastructure in ocp configs
  - bulk_object_lookup_dict.pkl - this is used to grab the bulk object given the bulk mpid
 
 
@@ -73,21 +74,6 @@ Make the appropriate edits (####, your_namespace_name, your_pod_name). The #### 
 ## Downstream use:
 
 If your dataset is small you can simply push it into your local RAM and do with it what you please. If it is not, I would recommend converting the dask bag of results into a dask dataframe. This makes it easy to filter by some characteristic or find the minimum energy on a per surface / per bulk basis. Once you have performed these size reductions, you can convert your dask dataframe into a regular dataframe and take things from there. I have left the cell blocks to perform df operations in the notebook in case you want them.
-
-
-## Just want adslabs?:
-comment out: 
-```
-# generate prediction mappings
-predictions_bag = adslab_bag.map(memory.cache(predict_E))
-
-# execute operations (go to all work)
-predictions = predictions_bag.persist() # change to .compute() to push to local RAM
-```
-and add:
-```
-adslabs = adslab_bag.persist()
-```
 
 # Help:
 

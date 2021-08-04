@@ -6,18 +6,18 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions # maybe change this
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '4',--nprocs,'1', --no-dashboard, --memory-limit,'16e9',--death-timeout, '60']
+    args: [dask-worker, --nthreads, '4',--nprocs,'1', --no-dashboard, --memory-limit,'16e9',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
       value: 1
     resources:
       limits:
-        cpu: "8"
+        cpu: "4"
         memory: 10G
       requests:
-        cpu: "2"
-        memory: 7G
+        cpu: "4"
+        memory: 10G
     volumeMounts:
     - mountPath: /home/jovyan
       name: workspace-ocp
