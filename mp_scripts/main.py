@@ -144,4 +144,3 @@ if __name__=="__main__":
     chunked_inputs = np.array_split(input_args, args.num_jobs)
 
     run_predictions(chunked_inputs[args.job_idx], args.job_idx, args.num_procs, args.out_path)
-    command = f"name='job-{idx}' cpu_request={n_procs} cpu_limit={n_procs} bash_command='python run.py '"
