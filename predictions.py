@@ -17,6 +17,7 @@ from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 from ocdata.base_atoms.pkls import BULK_PKL, ADSORBATE_PKL
 from dask import delayed
+import dask
 
 # ----------------------------------------------------------------------------
 # Bulk inputs
@@ -79,20 +80,28 @@ adsorbate_bag = db.from_delayed([adsorbates_delayed])
 #create a dask bag of bulks
 bulks_delayed = dask.delayed(load_bulk_pkl)()
 bulk_bag = db.from_delayed([bulks_delayed]).repartition(npartitions=num_workers)
-bulk_bag = bulk_bag.filter(filter_bulk_by_number_elements)
-bulk_bag = bulk_bag.filter(filter_bulk_by_elements)
-bulk_bag = bulk_bag.filter(filter_out_bad_mpids).repartition(npartitions=num_workers)
+print('Number of bulks = %d' % bulk_bag.count().compute())
+
+# Filter the bulks
+filtered_bulk_bag = bulk_bag.filter(filter_bulk_by_number_elements)
+filtered_bulk_bag = filtered_bulk_bag.filter(filter_bulk_by_elements)
+filtered_bulk_bag = filtered_bulk_bag.filter(filter_out_bad_mpids)
+filtered_bulk_bag = filtered_bulk_bag.repartition(npartitions=1).repartition(npartitions=filtered_bulk_bag.count().compute())
+print('Number of filtered bulks = %d' % filtered_bulk_bag.count().compute())
 
 # generate the adslab mappings
-surfaces_bag = bulk_bag.map(memory_slabs.cache(enumerate_surface_wrap)).flatten()
-surface_ads_combos = surfaces_bag.product(adsorbate_bag).repartition(npartitions=num_workers*20)
+surfaces_bag = filtered_bulk_bag.map(memory_slabs.cache(enumerate_surface_wrap)).flatten()
+print('Number of surfaces = %d' % surfaces_bag.count().compute())
+
+# generate surface/adsorbate combos
+surface_ads_combos = surfaces_bag.product(adsorbate_bag)
+surface_ads_combos = surface_ads_combos.repartition(npartitions=1).repartition(npartitions=surface_ads_combos.count().compute())
+print('Number of surface/adsorbate combos = %d' % surfaces_ads_combos.count().compute())
 
 # generate prediction mappings
 predictions_bag = surface_ads_combos.map(memory_preds.cache(predict_E), max_size, direct)
 
+print('Number of adslab relaxations = %d' % predictions_bag.flatten().count().compute())
+
 # execute operations (go to all work)
 predictions = predictions_bag.compute()
-
-
-
-
