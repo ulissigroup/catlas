@@ -7,7 +7,6 @@ from ocdata.combined import Combined
 
 
 bulk_db = pickle.load(open('/home/jovyan/shared-scratch/Brook/bulk_object_lookup_dict.pkl', 'rb'))
- 
 
 def enumerate_surface_wrap(bulk):
     bulk_atoms, mpid = bulk
@@ -20,6 +19,3 @@ def enumerate_surface_wrap(bulk):
         surface_info = [surface_object, mpid, millers, shift, top]
         surface_list.append(surface_info)
     return surface_list
-
-
-

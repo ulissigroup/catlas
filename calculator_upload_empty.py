@@ -5,7 +5,7 @@ from ase.optimize import LBFGS
 
 
 # specify paths
-config_path = '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet-dT.yml'
+config_path = '/home/jovyan/ocp/configs/s2ef/2M/gemnet/gemnet-dT.yml'
 checkpoint_path = '/home/jovyan/shared-scratch/Brook/gemnet_t_direct_h512_all.pt'
 # # File paths
 # config_path = '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'

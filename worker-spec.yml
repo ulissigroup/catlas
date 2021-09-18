@@ -6,17 +6,19 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions # maybe change this
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '4',--nprocs,'1', --no-dashboard, --memory-limit,'16e9',--death-timeout, '600']
+    args: [pip,uninstall,torch-sparse,'&&',dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16e9',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
       value: 1
+    - name: PYTHONPATH
+      value: "/home/jovyan/ocp/dask-predictions:
     resources:
       limits:
-        cpu: "4"
+        cpu: "2"
         memory: 10G
       requests:
-        cpu: "4"
+        cpu: "2"
         memory: 10G
     volumeMounts:
     - mountPath: /home/jovyan
