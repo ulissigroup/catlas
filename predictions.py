@@ -18,25 +18,26 @@ from ocdata.bulk_obj import Bulk
 from ocdata.base_atoms.pkls import BULK_PKL, ADSORBATE_PKL
 from dask import delayed
 import dask
+from dask_utils import bag_split_individual_partitions
 
 # ----------------------------------------------------------------------------
 # Bulk inputs
-direct = False # boolean True = direct method, False = relaxations
+direct = True # boolean True = direct method, False = relaxations
 
 # File paths
 worker_spec_path = './dask-predictions/worker-spec-relax.yml'
 your_shared_scratch_path = '/home/jovyan/shared-scratch/zulissi' # this will be used to create a cache dir in your folder
 
 # Other
-max_size = 100 # This is the maximum number of atoms you will allow in your slabs. Any greater will return size = Number rather than a prediction.
 num_workers = 100 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
 
 # -----------------------------------------------------------------------------
 # Create the workers
 # -----------------------------------------------------------------------------
-# Set the up a kube dask cluster 
+# Set the up a kube dask cluster
+#dask.config.set({'distributed.logging.distributed':'warning'})
 cluster = KubeCluster(worker_spec_path, deploy_mode='local')
-cluster.adapt(minimum=1, maximum = num_workers, interval = '30000 ms')
+cluster.adapt(minimum=4, maximum = num_workers, interval = '30000 ms')
 client = Client(cluster)
 
 # Set up the cache directory - this will also be the local directory on each worker that will store cached results
@@ -59,7 +60,7 @@ def filter_bulk_by_number_elements(bulk, max_elements=2):
     unique_elements = np.unique(atoms.get_chemical_symbols())
     return len(unique_elements)<=max_elements
 
-def filter_bulk_by_elements(bulk,  elements_to_include = set(['Pt', 'Cu', 'Pd', 'Ag', 'Co','Ni','Au','Sn','Fe','Rh','Ru','Zn','Hg','Pb'])):
+def filter_bulk_by_elements(bulk,  elements_to_include = set(['Pt', 'Cu', 'Pd', 'Ag','Au'])):
     atoms, mpid = bulk
     unique_elements = np.unique(atoms.get_chemical_symbols())
     return set(unique_elements).issubset(elements_to_include)
@@ -70,38 +71,42 @@ def filter_out_bad_mpids(bulk, mpids_to_exclude = ['mp-672234', 'mp-632250', 'mp
     atoms, mpid = bulk
     return mpid not in mpids_to_exclude
 
-def filter_adsorbates_smile_list(adsorbate, adsorbates_smile = ['*C', '*CO', '*OH']):
+def filter_adsorbates_smile_list(adsorbate, adsorbates_smile = ['*C', '*CO']):
     return adsorbate.smiles in adsorbates_smile
+
+def filter_surfaces_by_size(surface, max_size=80):
+    surface_object, mpid, millers, shift, top = surface
+    return len(surface_object.surface_atoms)<max_size
+
 
 #create a dask bag of adsorbates
 adsorbates_delayed = dask.delayed(load_all_ads)()
 adsorbate_bag = db.from_delayed([adsorbates_delayed])
+adsorbate_bag_filtered = adsorbate_bag.filter(filter_adsorbates_smile_list)
 
 #create a dask bag of bulks
 bulks_delayed = dask.delayed(load_bulk_pkl)()
 bulk_bag = db.from_delayed([bulks_delayed]).repartition(npartitions=num_workers)
-print('Number of bulks = %d' % bulk_bag.count().compute())
 
 # Filter the bulks
 filtered_bulk_bag = bulk_bag.filter(filter_bulk_by_number_elements)
 filtered_bulk_bag = filtered_bulk_bag.filter(filter_bulk_by_elements)
 filtered_bulk_bag = filtered_bulk_bag.filter(filter_out_bad_mpids)
-filtered_bulk_bag = filtered_bulk_bag.repartition(npartitions=1).repartition(npartitions=filtered_bulk_bag.count().compute())
-print('Number of filtered bulks = %d' % filtered_bulk_bag.count().compute())
+filtered_bulk_bag = bag_split_individual_partitions(filtered_bulk_bag)
 
 # generate the adslab mappings
 surfaces_bag = filtered_bulk_bag.map(memory_slabs.cache(enumerate_surface_wrap)).flatten()
-print('Number of surfaces = %d' % surfaces_bag.count().compute())
+surfaces_bag = bag_split_individual_partitions(surfaces_bag)
+
+# filter surfaces to find those with less than the desired number of atoms
+surfaces_bag_filtered = surfaces_bag.filter(filter_surfaces_by_size)
 
 # generate surface/adsorbate combos
-surface_ads_combos = surfaces_bag.product(adsorbate_bag)
-surface_ads_combos = surface_ads_combos.repartition(npartitions=1).repartition(npartitions=surface_ads_combos.count().compute())
-print('Number of surface/adsorbate combos = %d' % surfaces_ads_combos.count().compute())
+surface_ads_combos = surfaces_bag_filtered.product(adsorbate_bag_filtered)
+surface_ads_combos = bag_split_individual_partitions(surface_ads_combos)
 
 # generate prediction mappings
-predictions_bag = surface_ads_combos.map(memory_preds.cache(predict_E), max_size, direct)
-
-print('Number of adslab relaxations = %d' % predictions_bag.flatten().count().compute())
+predictions_bag = surface_ads_combos.map(memory_preds.cache(predict_E), 80, direct)
 
 # execute operations (go to all work)
 predictions = predictions_bag.compute()
