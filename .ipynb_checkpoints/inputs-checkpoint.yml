@@ -1,0 +1,29 @@
+
+# general
+num_workers: 50
+direct_prediction_mode: True # False -> relaxation approach
+adsorbate_smile_list: ['*C']
+
+# optional filters
+filter_by_mpids: 
+  enable: True
+  mpid_list: ['mp-101', 'mp-126']
+
+filter_by_elements:
+  enable: False
+  element_list: ['Cu', 'Pt']
+
+filter_by_number_elements: 
+  enable: False
+  number_of_els: [1,2]
+  
+filter_by_object_size:
+  enable: False
+  max_size: 100
+
+# paths
+config_path: '/home/jovyan/ocp/configs/is2re/dimenet_plus_plus/dpp.yml'
+checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenet_all.pt'
+shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
+worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
+

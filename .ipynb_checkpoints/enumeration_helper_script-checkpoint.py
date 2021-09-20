@@ -1,8 +1,9 @@
 import pickle
 import numpy as np
 from ocdata import precompute_sample_structures as compute
+from ocdata.base_atoms.pkls import BULK_PKL, ADSORBATE_PKL
 from ocdata.surfaces import Surface
-
+from ocdata.combined import Combined
 
 
 bulk_db = pickle.load(open('/home/jovyan/shared-scratch/Brook/bulk_object_lookup_dict.pkl', 'rb'))
