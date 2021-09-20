@@ -16,14 +16,19 @@ def enumerate_adslabs(surface_adsorbate_combo):
     adslabs = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
     adsorbate = adsorbate_obj.smiles
 
-    return [surface_adsorbate_combo, adslabs]
+    return [surface_info_object, surface_adsorbate_combo, adslabs]
 
-def direct_energy_prediction(enumerated_adslabs, direct):
+def direct_energy_prediction(enumerated_adslabs):
+
+    global calc
 
     if calc is None:
         calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
 
-    surface_info_object, adslabs = enumerated_adslabs
+    surface_info_object, surface_adsorbate_combo, adslabs = enumerated_adslabs
+    surface_obj, mpid, miller, shift, top = surface_info_object
+    surface_info_object, adsorbate_obj = surface_adsorbate_combo
+    adsorbate = adsorbate_obj.smiles
 
     predictions_list = []
     adslabs_list = adslabs.adsorbed_surface_atoms
@@ -35,7 +40,8 @@ def direct_energy_prediction(enumerated_adslabs, direct):
     else:
         size = len(adslabs_list[0].get_tags())
 
-        for adslab in adslabs.adsorbed_surface_atoms:
+        for adslab in adslabs_list:
+            adslab = adslab.copy()
             adslab.set_calculator(calc)
             energy_now = adslab.get_potential_energy()
             predictions_list.append(energy_now)

@@ -6,7 +6,7 @@ import functools
 import yaml
 from dask_kubernetes import KubeCluster
 from joblib import Memory
-from dask.distributed import Client, progress
+from dask.distributed import Client, progress, wait
 from calculator_upload_empty import enumerate_adslabs, direct_energy_prediction
 
 from ocpmodels.models.dimenet_plus_plus import DimeNetPlusPlusWrap
@@ -97,20 +97,26 @@ memory = Memory(cache_location,verbose=1)
 # Other
 num_workers = 100 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
 
-with KubeCluster('./dask-predictions/worker-spec.yml', deploy_mode='local') as cluster:
-    cluster.adapt(minimum=2, maximum = num_workers, interval = '30000 ms')
-    client = Client(cluster)
+cluster = KubeCluster('./dask-predictions/worker-spec.yml', deploy_mode='local')
+cluster.adapt(minimum=2, maximum = num_workers, interval = '30000 ms')
+client = Client(cluster)
 
-    enumerated_adslabs = run_filter_bulks_enumerate_adslabs()
-    enumerated_adslabs.persist()
-    progress(enumerated_adslabs)
+enumerated_adslabs = run_filter_bulks_enumerate_adslabs().persist()
+wait(enumerated_adslabs)
 
-with KubeCluster('./dask-predictions/worker-spec-gpu.yml', deploy_mode='local') as cluster:
-    cluster.adapt(minimum=2, maximum = num_workers, interval = '30000 ms')
-    client = Client(cluster)
+cluster.close()
+#client.shutdown()
+client.close()
 
-    enumerated_adslabs = run_filter_bulks_enumerate_adslabs()
-    predictions = run_predictions(enumerated_adslabs)
-    predictions.persist()
-    progress(predictions)
+import time
+time.sleep(30)
+
+cluster  = KubeCluster('./dask-predictions/worker-spec-gpu.yml', deploy_mode='local')
+cluster.adapt(minimum=2, maximum = num_workers, interval = '30000 ms')
+client = Client(cluster)
+
+enumerated_adslabs = run_filter_bulks_enumerate_adslabs()
+predictions = run_predictions(enumerated_adslabs)
+final_predictions = predictions.compute()
+#progress(predictions)
 
