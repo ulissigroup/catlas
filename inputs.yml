@@ -1,0 +1,29 @@
+
+# general
+num_workers: 70 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
+direct_prediction_mode: True # False -> relaxation approach
+adsorbate_smile_list: ['*C']
+
+# optional filters
+filter_by_mpids: 
+  enable: False
+  mpid_list: ['mp-30']
+
+filter_by_elements:
+  enable: True
+  element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au', 'Pd', 'Zn']
+
+filter_by_number_elements: 
+  enable: True
+  number_of_els: [1,2]
+  
+filter_by_object_size:
+  enable: True
+  max_size: 60
+
+# paths
+config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
+checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
+shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
+worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
+
