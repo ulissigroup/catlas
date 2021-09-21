@@ -177,6 +177,5 @@ client = Client(cluster)
 
 enumerated_adslabs = run_filter_bulks_enumerate_adslabs()
 predictions = run_predictions(enumerated_adslabs, inputs["direct_prediction_mode"])
-final_predictions = predictions.compute()
-with open('/home/jovyan/ocp/dask-predictions/testrun.pkl', 'wb') as f:
-    pickle.dump(final_predictions, f)
+final_predictions = predictions.persist()
+
