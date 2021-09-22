@@ -24,6 +24,7 @@ from dask import delayed
 import dask
 from dask_utils import bag_split_individual_partitions
 import sys
+import time
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -45,6 +46,7 @@ num_elements = num_elements_filter["number_of_els"]
 elements_to_include = element_filter["element_list"]
 mpids_to_include = mpid_filter["mpid_list"]
 max_size = size_filter["max_size"]
+output_options = inputs["output_options"]
 
 
 def load_bulk_pkl():
@@ -177,5 +179,14 @@ client = Client(cluster)
 
 enumerated_adslabs = run_filter_bulks_enumerate_adslabs()
 predictions = run_predictions(enumerated_adslabs, inputs["direct_prediction_mode"])
-final_predictions = predictions.persist()
+
+if output_options['pickle']:
+    final_predictions = predictions.compute()
+    timestr = time.strftime("%Y%m%d-%H%M%S")
+    file_name = inputs["shared_scratch_path"]+ '/' + timestr + output_options['optional_additional_path_str'] + '.pkl'
+    with open(file_name, 'wb') as f:
+        pickle.dump(final_predictions, f)
+    
+else:
+    final_predictions = predictions.persist()
 

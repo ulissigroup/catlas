@@ -4,21 +4,25 @@ num_workers: 70 # should be scaled with workload. Use 1 to troubleshoot. 10 is a
 direct_prediction_mode: True # False -> relaxation approach
 adsorbate_smile_list: ['*C']
 
+output_options:
+  pickle: True # True pickles the resulting predictions
+  optional_additional_path_str: 'my_experiment'
+
 # optional filters
 filter_by_mpids: 
-  enable: False
+  enable: True
   mpid_list: ['mp-30']
 
 filter_by_elements:
-  enable: True
+  enable: False
   element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au', 'Pd', 'Zn']
 
 filter_by_number_elements: 
-  enable: True
+  enable: False
   number_of_els: [1,2]
   
 filter_by_object_size:
-  enable: True
+  enable: False
   max_size: 60
 
 # paths
