@@ -1,21 +1,21 @@
 
 # general
-num_workers: 70 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
+num_workers: 10 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
 direct_prediction_mode: True # False -> relaxation approach
-adsorbate_smile_list: ['*C']
+adsorbate_smile_list: ['*CH2']
 
 output_options:
-  pickle: True # True pickles the resulting predictions
+  pickle: False # True pickles the resulting predictions
   optional_additional_path_str: 'my_experiment'
 
 # optional filters
 filter_by_mpids: 
   enable: True
-  mpid_list: ['mp-30']
+  mpid_list: ['mp-10004']
 
 filter_by_elements:
   enable: False
-  element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au', 'Pd', 'Zn']
+  element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
 filter_by_number_elements: 
   enable: False
@@ -24,6 +24,15 @@ filter_by_number_elements:
 filter_by_object_size:
   enable: False
   max_size: 60
+  
+filter_by_Pourbaix_stability:
+  enable: True
+  pH: [3,3]
+  pH_step: 0.5 # step size between pH points considered
+  applied_potential: [-1.3, -0.6]
+  applied_potential_step: 0.05 # step size between applied potential points considered
+  max_decomposition_E: 0.1 #unit? eV/fu?
+
 
 # paths
 config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
