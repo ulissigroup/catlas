@@ -36,6 +36,8 @@ adsorbate_filters:
 # paths
 config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
 checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
-shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
+# config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
+# checkpoint_path : '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
+shared_scratch_path: '/home/jovyan/shared-scratch/Inference'
 worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
 
