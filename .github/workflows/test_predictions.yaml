@@ -16,4 +16,4 @@ jobs:
     - uses: actions/checkout@v2
     - name: Test with pytest
       run: |
-          python bin/predictions.py configs/input.yaml
+          PYTHONPATH=/home/jovyan/dask-predictions/ python bin/predictions.py configs/input.yaml
