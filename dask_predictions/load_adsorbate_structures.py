@@ -8,7 +8,8 @@ def load_ocdata_adsorbates():
         adsorbates = pickle.load(fhandle)
 
         adsorbate_list = []
-        for atoms, smiles, bond_indices in adsorbates:
+        for index  in adsorbates:
+            atoms, smiles, bond_indices = adsorbates[index]
             adsorbate_list.append({'adsorbate.atoms': atoms,
                                    'adsorbate.smiles': smiles,
                                    'adsorbate.bond_indices': bond_indices,
