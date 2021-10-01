@@ -28,7 +28,8 @@ def enumerate_slabs(bulk_atoms, max_miller=2):
         surface_list.append({'slab_surface_object': surface_object,
                              'slab_millers': millers,
                              'slab_shift': shift,
-                             'slab_top': top})
+                             'slab_top': top,
+                             'slab_natoms': len(surface_object.surface_atoms)})
     return surface_list
 
 def enumerate_adslabs(row):

@@ -28,7 +28,7 @@ bulk_filters:
 adsorbate_filters:
     filter_by_smiles: ['*H']
 
-surface_filters:
+slab_filters:
     filter_by_object_size: 100
     
 adslab_filtering_steps:
