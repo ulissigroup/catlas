@@ -2,6 +2,7 @@ import yaml
 from dask_predictions.load_bulk_structures import load_ocdata_bulks
 from dask_predictions.filters import bulk_filter, adsorbate_filter
 from dask_predictions.load_adsorbate_structures import load_ocdata_adsorbates
+from dask_predictions.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
 import dask.bag as db
 import dask
 import sys
@@ -24,15 +25,24 @@ if __name__ == "__main__":
     # Load and filter the bulks
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_dataframe = bulk_bag.to_dataframe()
-    filtered_bulk_dataframe = bulk_filter(config, bulk_dataframe)
-    filtered_bulk_dataframe = filtered_bulk_dataframe.persist()
-    print("Total number of filtered bulks is %d" % filtered_bulk_dataframe.shape[0])
-
+    bulk_df = bulk_bag.to_dataframe()
+    filtered_catalyst_df = bulk_filter(config, bulk_df)
+    
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
-    adsorbate_dataframe = adsorbate_bag.to_dataframe()
-    adsorbate_dataframe = adsorbate_dataframe.persist()
-    filtered_adsorbate_dataframe = adsorbate_filter(config, adsorbate_dataframe)
-    print("Total number of filtered adsorbates is %d" % filtered_adsorbate_dataframe.shape[0])
+    adsorbate_df = adsorbate_bag.to_dataframe()
+    filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
+    filtered_adsorbate_df = filtered_adsorbate_df.persist()
+    
+    # Enumerate surfaces
+    filtered_catalyst_df['surfaces'] = filtered_catalyst_df.bulk_atoms.apply(memory.cache(enumerate_slabs), meta=('surfaces', 'object'))
+    filtered_catalyst_df = filtered_catalyst_df.explode('surfaces')
+    filtered_catalyst_df = filtered_catalyst_df.persist()
+    
+    # Enumerate surface_adsorbate combinations
+    df = filtered_catalyst_df.assign(key=1).merge(filtered_adsorbate_df.assign(key=1), how='outer', on='key')
+    df['adslabs'] = df.apply(memory.cache(enumerate_adslabs), meta=('adslabs', 'object'), axis = 1)
+    dfout = df.persist()
+    
+  

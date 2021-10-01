@@ -6,7 +6,7 @@ dask_config: |
   from dask.distributed import Client
   client = Client()
 
-memory_config_location: '/home/jovyan/inference_cache'
+memory_cache_location: '/home/jovyan/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
@@ -14,7 +14,7 @@ output_options:
 
 # optional filters
 bulk_filters:
-    filter_by_mpids: ['mp-10004']
+    filter_by_mpids: ['mp-101']
 
     filter_by_elements: None # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
@@ -30,7 +30,7 @@ bulk_filters:
       max_decomposition_E: 0.1 # eV/(metal atom)
       
 adsorbate_filters:
-    filter_by_smiles: ['*CH2']
+    filter_by_smiles: ['*CH2','*CO']
 
 
 direct_prediction_mode: True # False -> relaxation approach
