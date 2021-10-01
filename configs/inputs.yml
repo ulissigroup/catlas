@@ -2,7 +2,7 @@
 # general
 
 direct_prediction_mode: True # False -> relaxation approach
-adsorbate_smile_list: ['*CH2']
+
 
 dask_config: |
   from dask.distributed import Client
@@ -13,29 +13,24 @@ output_options:
   optional_additional_path_str: 'my_experiment'
 
 # optional filters
-filter_by_mpids: 
-  enable: True
-  mpid_list: ['mp-10004']
+bulk_filters:
+    filter_by_mpids: ['mp-10004']
 
-filter_by_elements:
-  enable: False
-  element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
+    filter_by_elements: None # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
-filter_by_number_elements: 
-  enable: False
-  number_of_els: [1,2]
-  
-filter_by_object_size:
-  enable: False
-  max_size: 60
-  
-filter_by_Pourbaix_stability:
-  enable: True
-  pH: [3,3]
-  pH_step: 0.5 # step size between pH points considered
-  applied_potential: [-1.3, -0.6]
-  applied_potential_step: 0.05 # step size between applied potential points considered
-  max_decomposition_E: 0.1 #unit? eV/fu?
+    filter_by_number_elements: None # [1,2]
+
+    filter_by_object_size: None # 60
+
+    filter_by_Pourbaix_stability: 
+      pH: [3,3]
+      pH_step: 0.5 # step size between pH points considered
+      applied_potential: [-1.3, -0.6]
+      applied_potential_step: 0.05 # step size between applied potential points considered
+      max_decomposition_E: 0.1 # eV/(metal atom)
+      
+adsorbate_filters:
+    filter_by_smiles: ['*CH2']
 
 
 # paths

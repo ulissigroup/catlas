@@ -1,5 +1,6 @@
 from ase.db import connect
 import os.path
+import numpy as np
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -12,13 +13,14 @@ def load_ocdata_bulks():
         for row in db.select():
             bulk_list.append(
                 {
-                    "bulk.atoms": row.toatoms(),
-                    "bulk.mpid": row.mpid,
-                    "bulk.data_source": "ocdata_bulks",
-                    "bulk.natoms": row.natoms,
-                    "bulk.xc": "RPBE",
-                    "bulk.symbols": row.symbols,
-                    "bulk.nsymbols": len(row.symbols),
+                    "bulk_atoms": row.toatoms(),
+                    "bulk_mpid": row.mpid,
+                    "bulk_data_source": "ocdata_bulks",
+                    "bulk_natoms": row.natoms,
+                    "bulk_xc": "RPBE",
+                    "bulk_symbols": row.symbols,
+                    "bulk_nsymbols": len(row.symbols),
+                    "bulk_elements": np.unique(row.toatoms().get_chemical_symbols()),
                 }
             )
 

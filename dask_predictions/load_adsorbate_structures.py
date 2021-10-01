@@ -13,10 +13,10 @@ def load_ocdata_adsorbates():
             atoms, smiles, bond_indices = adsorbates[index]
             adsorbate_list.append(
                 {
-                    "adsorbate.atoms": atoms,
-                    "adsorbate.smiles": smiles,
-                    "adsorbate.bond_indices": bond_indices,
-                    "adsorbate.data_source": "ocdata_adsorbates",
+                    "adsorbate_atoms": atoms,
+                    "adsorbate_smiles": smiles,
+                    "adsorbate_bond_indices": bond_indices,
+                    "adsorbate_data_source": "ocdata_adsorbates",
                 }
             )
 
