@@ -1,7 +1,3 @@
-
-# general
-
-
 dask_config: |
   from dask.distributed import Client
   client = Client()
@@ -32,15 +28,20 @@ bulk_filters:
 adsorbate_filters:
     filter_by_smiles: ['*H']
 
-
-direct_prediction_mode: True # False -> relaxation approach
-
-# paths
-config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
-checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
-# config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
-# checkpoint_path : '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
-shared_scratch_path: '/home/jovyan/shared-scratch/Inference'
-worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
-
+surface_filters:
+    filter_by_object_size: 100
+    
+adslab_filtering_steps:
+  - predict: 
+    - type: direct
+      config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
+      checkpoint:path: '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
+  - filter:
+     - adsorbate: '*H'
+       min: -0.6
+       max: 0.4
+  - predict: 
+    - type: relaxation
+      config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
+      checkpoint:path: '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
 
