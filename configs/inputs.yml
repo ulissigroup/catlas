@@ -1,12 +1,12 @@
 
 # general
 
-direct_prediction_mode: True # False -> relaxation approach
-
 
 dask_config: |
   from dask.distributed import Client
   client = Client()
+
+memory_config_location: '/home/jovyan/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
@@ -33,9 +33,11 @@ adsorbate_filters:
     filter_by_smiles: ['*CH2']
 
 
+direct_prediction_mode: True # False -> relaxation approach
+
 # paths
-config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
-checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
-shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
-worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
+#config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
+#checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
+#shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
+#worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
 
