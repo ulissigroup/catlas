@@ -19,11 +19,11 @@ def filterparse_config(config):
     
     bulk_filters = {name:val for name,val in filters.items() if name[10:] in all_bulk_filters}
     surf_filters = {name:val for name,val in filters.items() if name[10:] in all_surf_filters}
+    unknown_filters = {name:val for name,val in filters.items() if (name not in bulk_filters) and (name not in surf_filters)}
     
-    unknown_filters = {name:val for name,val in filters.items() if (name not in all_bulk_filters) and (name not in all_surf_filters)}
     if len(unknown_filters)>0:
         warnings.warn('Filters could not be parsed: ' + str([c for c in unknown_filters.keys()]))
-        
+    
     return bulk_filters, surf_filters
     
         
