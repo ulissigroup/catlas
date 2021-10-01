@@ -10,5 +10,5 @@ setup(name='dask-predictions',
       author='Brook Wander, Kirby Broderick, and others in the ulissi research group',
       author_email='bwander@andrew.cmu.edu',
       url='https://github.com/ulissigroup/dask-predictions',
-      packages=['dask-predictions'],
+      packages=['dask_predictions'],
      )
