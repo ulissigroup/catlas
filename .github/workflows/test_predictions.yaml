@@ -17,4 +17,4 @@ jobs:
     - name: Run example predictions
       run: |
           python setup.py develop && 
-          python bin/predictions.py configs/inputs.yml
+          python bin/predictions.py /home/jovyan/__w/dask-predictions/configs/inputs.yml
