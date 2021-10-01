@@ -1,0 +1,20 @@
+name: Example predictions with docker
+
+# workflow triggered by any push on any branch
+on: [push]
+jobs:
+  build:
+    name: Run example predictions
+    # runs on the latest Ubuntu
+    runs-on: [self-hosted, linux]
+    # runs within your Docker container
+    container:
+      image: docker://ulissigroup/kubeflow:predictions
+    # checkout your code from your repository
+    # and runs pytest in your pipenv environment
+    steps:
+    - uses: actions/checkout@v2
+    - name: Run example predictions
+      run: |
+          python setup.py develop && 
+          python bin/predictions.py configs/inputs.yml

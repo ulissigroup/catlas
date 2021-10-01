@@ -1,5 +1,3 @@
-import dask.bag as db
-import dask
 from ase.db import connect
 import os.path
 import numpy as np
