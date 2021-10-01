@@ -13,7 +13,7 @@ if __name__ == "__main__":
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    exec config['dask_config']
+    exec config["dask_config"]
 
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
     bulk_bag = db.from_delayed([bulks_delayed])
@@ -22,11 +22,7 @@ if __name__ == "__main__":
     filtered_bulk_dataframe = bulk_filter(config, bulk_dataframe)
     filtered_bulk_dataframe = filtered_bulk_dataframe.compute()
 
-<<<<<<< HEAD
     print("Total number of bulks is %d" % filtered_bulk_dataframe.shape[0])
-=======
-    print('Total number of bulks is %d' % filtered_bulk_dataframe.shape[0])
->>>>>>> 40fd8ba05eeacb3b2f731259b6c8e7b4354bfb72
 
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])

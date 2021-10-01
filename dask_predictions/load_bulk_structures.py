@@ -12,7 +12,6 @@ def load_ocdata_bulks():
         bulk_list = []
         for row in db.select():
             bulk_list.append(
-<<<<<<< HEAD
                 {
                     "bulk_atoms": row.toatoms(),
                     "bulk_mpid": row.mpid,
@@ -22,16 +21,6 @@ def load_ocdata_bulks():
                     "bulk_symbols": row.symbols,
                     "bulk_nsymbols": len(row.symbols),
                     "bulk_elements": np.unique(row.toatoms().get_chemical_symbols()),
-=======
-                {'bulk_atoms': row.toatoms(),
-                              'bulk_mpid': row.mpid,
-                              'bulk_data_source': 'ocdata_bulks',
-                              'bulk_natoms': row.natoms,
-                              'bulk_xc': 'RPBE',
-                              'bulk_symbols': row.symbols,
-                              'bulk_nsymbols': len(row.symbols),
-                              'bulk_elements': np.unique(row.toatoms().get_chemical_symbols()),
->>>>>>> 40fd8ba05eeacb3b2f731259b6c8e7b4354bfb72
                 }
             )
 
