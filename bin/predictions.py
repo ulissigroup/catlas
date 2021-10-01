@@ -14,8 +14,8 @@ if __name__ == "__main__":
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_dataframe = bulk_bag.to_dataframe()
-    bulk_dataframe.compute()
+    bulk_dataframe = bulk_dataframe.compute()
 
-
+    print('Total number of filtered bulks is %d' %bulk_dataframe.size)
 
 
