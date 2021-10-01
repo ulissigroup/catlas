@@ -13,7 +13,7 @@ if __name__ == "__main__":
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
-    exec config["dask_config"]
+    exec(config["dask_config"])
 
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
     bulk_bag = db.from_delayed([bulks_delayed])
