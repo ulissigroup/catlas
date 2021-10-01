@@ -1,8 +1,12 @@
 
 # general
-num_workers: 10 # should be scaled with workload. Use 1 to troubleshoot. 10 is a good place to start
+
 direct_prediction_mode: True # False -> relaxation approach
 
+
+dask_config: |
+  from dask.distributed import Client
+  client = Client()
 
 output_options:
   pickle: False # True pickles the resulting predictions
