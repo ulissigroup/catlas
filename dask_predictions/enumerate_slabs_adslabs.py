@@ -6,6 +6,7 @@ from dask_predictions.bulk_object import CustomBulk
 from dask_predictions.adsorbate_object import CustomAdsorbate
 from ocdata.combined import Combined
 
+
 def enumerate_slabs(bulk_atoms):
     bulk_obj = CustomBulk(bulk_atoms)
     surfaces = compute.enumerate_surfaces_for_saving(bulk_atoms, max_miller=2)

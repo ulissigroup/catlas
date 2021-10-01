@@ -1,7 +1,3 @@
-
-# general
-
-
 dask_config: |
   from dask.distributed import Client
   client = Client()
@@ -10,11 +6,15 @@ memory_cache_location: '/home/jovyan/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'my_experiment'
+  optional_additional_path_str: 'HER_test_screen'
 
 # optional filters
 bulk_filters:
+<<<<<<< HEAD
     filter_by_mpids: ['mp-101']
+=======
+    filter_by_mpids: ['mp-126']
+>>>>>>> c69a69a86ac27a87a5bbb1857a1998761c33db57
 
     filter_by_elements: None # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
@@ -30,6 +30,7 @@ bulk_filters:
       max_decomposition_E: 0.1 # eV/(metal atom)
       
 adsorbate_filters:
+<<<<<<< HEAD
     filter_by_smiles: ['*CH2','*CO']
 
 
@@ -40,4 +41,24 @@ direct_prediction_mode: True # False -> relaxation approach
 #checkpoint_path : '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
 #shared_scratch_path: '/home/jovyan/shared-scratch/Brook'
 #worker_spec_path: '/home/jovyan/ocp/dask-predictions/worker-spec.yml'
+=======
+    filter_by_smiles: ['*H']
+
+surface_filters:
+    filter_by_object_size: 100
+    
+adslab_filtering_steps:
+  - predict: 
+    - type: direct
+      config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
+      checkpoint:path: '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
+  - filter:
+     - adsorbate: '*H'
+       min: -0.4
+       max: 0.0
+  - predict: 
+    - type: relaxation
+      config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
+      checkpoint:path: '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
+>>>>>>> c69a69a86ac27a87a5bbb1857a1998761c33db57
 
