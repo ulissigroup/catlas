@@ -48,6 +48,10 @@ if __name__ == "__main__":
     )
     filtered_catalyst_df = filtered_catalyst_df.explode("surfaces")
     filtered_catalyst_df = filtered_catalyst_df.persist()
+    print(
+        "Total number of surfaces is %d"
+        % filtered_catalyst_df.shape[0].compute()
+    )
 
     # Enumerate surface_adsorbate combinations
     df = filtered_catalyst_df.assign(key=1).merge(
@@ -57,3 +61,7 @@ if __name__ == "__main__":
         memory.cache(enumerate_adslabs), meta=("adslabs", "object"), axis=1
     )
     dfout = df.persist()
+        print(
+        "Total number of adslabs is %d"
+        % filtered_catalyst_df.shape[0].compute()
+    )
