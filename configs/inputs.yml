@@ -6,7 +6,7 @@ memory_cache_location: '/home/jovyan/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'my_experiment'
+  optional_additional_path_str: 'HER_test_screen'
 
 # optional filters
 bulk_filters:
@@ -38,8 +38,8 @@ adslab_filtering_steps:
       checkpoint:path: '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
   - filter:
      - adsorbate: '*H'
-       min: -0.6
-       max: 0.4
+       min: -0.4
+       max: 0.0
   - predict: 
     - type: relaxation
       config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
