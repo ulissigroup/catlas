@@ -10,7 +10,7 @@ from ocdata.surfaces import Surface
 #)
 
 
-def enumerate_surfaces(bulk):
+def enumerate_slabs(bulk):
     bulk_atoms, mpid = bulk
     bulk_obj = bulk_db[mpid]
     surfaces = compute.enumerate_surfaces_for_saving(bulk_atoms, max_miller=2)
