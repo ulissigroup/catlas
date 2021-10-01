@@ -23,6 +23,7 @@ def bulk_filter(config, dask_df):
                 warnings.warn("Filter is not implemented: " + name)
     return dask_df
 
+
 def slab_filter(config, dask_df):
     slab_filters = config["slab_filters"]
 

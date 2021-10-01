@@ -8,15 +8,18 @@ from ocdata.combined import Combined
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 
+
 class CustomAdsorbate(Adsorbate):
     def __init__(self, ads_atoms, bond_indicies, smiles):
         self.atoms = ads_atoms
         self.bond_indices = bond_indicies
         self.smiles = smiles
 
+
 class CustomBulk(Bulk):
     def __init__(self, bulk_atoms):
         self.bulk_atoms = bulk_atoms
+
 
 def enumerate_slabs(bulk_atoms, max_miller=2):
     bulk_obj = CustomBulk(bulk_atoms)
@@ -25,12 +28,17 @@ def enumerate_slabs(bulk_atoms, max_miller=2):
     for surface in surfaces:
         surface_struct, millers, shift, top = surface
         surface_object = Surface(bulk_obj, surface, np.nan, np.nan)
-        surface_list.append({'slab_surface_object': surface_object,
-                             'slab_millers': millers,
-                             'slab_shift': shift,
-                             'slab_top': top,
-                             'slab_natoms': len(surface_object.surface_atoms)})
+        surface_list.append(
+            {
+                "slab_surface_object": surface_object,
+                "slab_millers": millers,
+                "slab_shift": shift,
+                "slab_top": top,
+                "slab_natoms": len(surface_object.surface_atoms),
+            }
+        )
     return surface_list
+
 
 def enumerate_adslabs(row):
     surface_obj = row.slab_surface_object
