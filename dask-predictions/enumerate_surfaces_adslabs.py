@@ -4,9 +4,10 @@ from ocdata import precompute_sample_structures as compute
 from ocdata.surfaces import Surface
 
 
-bulk_db = pickle.load(
-    open("/home/jovyan/shared-scratch/Brook/bulk_object_lookup_dict.pkl", "rb")
-)
+# We shouldn't need things like this
+#bulk_db = pickle.load(
+#    open("/home/jovyan/shared-scratch/Brook/bulk_object_lookup_dict.pkl", "rb")
+#)
 
 
 def enumerate_surfaces(bulk):
@@ -20,3 +21,12 @@ def enumerate_surfaces(bulk):
         surface_info = [surface_object, mpid, millers, shift, top]
         surface_list.append(surface_info)
     return surface_list
+
+def enumerate_adslabs(surface_adsorbate_combo):
+    print(surface_adsorbate_combo)
+    surface_info_object, adsorbate_obj = surface_adsorbate_combo
+    surface_obj, mpid, miller, shift, top = surface_info_object
+    adslabs = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
+    adsorbate = adsorbate_obj.smiles
+
+    return [surface_info_object, surface_adsorbate_combo, adslabs]

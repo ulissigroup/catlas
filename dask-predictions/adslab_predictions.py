@@ -7,16 +7,6 @@ from ase.optimize import LBFGS
 calc = None
 
 
-def enumerate_adslabs(surface_adsorbate_combo):
-    print(surface_adsorbate_combo)
-    surface_info_object, adsorbate_obj = surface_adsorbate_combo
-    surface_obj, mpid, miller, shift, top = surface_info_object
-    adslabs = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
-    adsorbate = adsorbate_obj.smiles
-
-    return [surface_info_object, surface_adsorbate_combo, adslabs]
-
-
 def direct_energy_prediction(enumerated_adslabs, config_path, checkpoint_path):
 
     global calc
