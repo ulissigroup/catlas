@@ -19,7 +19,7 @@ if __name__ == "__main__":
     exec(config["dask_config"])
 
     # Set up joblib memory to use for caching hard steps
-    memory = Memory(config['memory_cache_location'], verbose=1)
+    memory = Memory(config["memory_cache_location"], verbose=1)
 
     # Load and filter the bulks
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
@@ -35,4 +35,7 @@ if __name__ == "__main__":
     adsorbate_dataframe = adsorbate_bag.to_dataframe()
     adsorbate_dataframe = adsorbate_dataframe.persist()
     filtered_adsorbate_dataframe = adsorbate_filter(config, adsorbate_dataframe)
-    print("Total number of filtered adsorbates is %d" % filtered_adsorbate_dataframe.shape[0])
+    print(
+        "Total number of filtered adsorbates is %d"
+        % filtered_adsorbate_dataframe.shape[0]
+    )
