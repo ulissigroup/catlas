@@ -5,9 +5,9 @@ from ocdata.surfaces import Surface
 
 
 # We shouldn't need things like this
-#bulk_db = pickle.load(
+# bulk_db = pickle.load(
 #    open("/home/jovyan/shared-scratch/Brook/bulk_object_lookup_dict.pkl", "rb")
-#)
+# )
 
 
 def enumerate_slabs(bulk):
@@ -21,6 +21,7 @@ def enumerate_slabs(bulk):
         surface_info = [surface_object, mpid, millers, shift, top]
         surface_list.append(surface_info)
     return surface_list
+
 
 def enumerate_adslabs(surface_adsorbate_combo):
     print(surface_adsorbate_combo)
