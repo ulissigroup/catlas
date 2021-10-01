@@ -1,0 +1,1 @@
+BULK_STRUCTURE_FOLDER = __file__

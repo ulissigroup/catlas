@@ -20,7 +20,11 @@ if __name__ == "__main__":
     filtered_bulk_dataframe = bulk_filter(config, bulk_dataframe)
     filtered_bulk_dataframe = filtered_bulk_dataframe.compute()
 
+<<<<<<< HEAD
     print("Total number of bulks is %d" % filtered_bulk_dataframe.shape[0])
+=======
+    print('Total number of bulks is %d' % filtered_bulk_dataframe.shape[0])
+>>>>>>> 40fd8ba05eeacb3b2f731259b6c8e7b4354bfb72
 
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
