@@ -27,7 +27,10 @@ if __name__ == "__main__":
     bulk_dataframe = bulk_bag.to_dataframe()
     filtered_bulk_dataframe = bulk_filter(config, bulk_dataframe)
     filtered_bulk_dataframe = filtered_bulk_dataframe.persist()
-    print("Total number of filtered bulks is %d" % filtered_bulk_dataframe.compute().shape[0])
+    print(
+        "Total number of filtered bulks is %d"
+        % filtered_bulk_dataframe.compute().shape[0]
+    )
 
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
