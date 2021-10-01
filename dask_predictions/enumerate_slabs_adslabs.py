@@ -5,7 +5,6 @@ from ocdata.surfaces import Surface
 from bulk_object import CustomBulk
 
 
-
 def enumerate_slabs(bulk):
     bulk_atoms, mpid = bulk
     bulk_obj = CustomBulk(bulk)
@@ -16,6 +15,7 @@ def enumerate_slabs(bulk):
         surface_object = Surface(bulk_obj, surface, np.nan, np.nan)
         surface_list.append(surface_object)
     return surface_list
+
 
 def enumerate_adslabs(surface_adsorbate_combo):
     surface_info_object, adsorbate_obj = surface_adsorbate_combo
