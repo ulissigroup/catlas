@@ -4,7 +4,7 @@ import os.path
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def load_ocdata_adsorbates():
-    with open(dir_path+'/adsorbates/adsorbates.pkl','rb') as fhandle:
+    with open(dir_path+'/adsorbate_structures/adsorbates.pkl','rb') as fhandle:
         adsorbates = pickle.load(fhandle)
 
         adsorbate_list = []
