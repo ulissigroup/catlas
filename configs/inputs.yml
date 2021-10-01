@@ -6,7 +6,7 @@ dask_config: |
   from dask.distributed import Client
   client = Client()
 
-memory_config_location: '/home/jovyan/inference_cache'
+memory_cache_location: '/home/jovyan/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
