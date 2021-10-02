@@ -16,7 +16,7 @@ def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     predictions_list = []
 
-    for adslab in row.adslabs_list:
+    for adslab in adslabs_list:
         adslab = adslab.copy()
         adslab.set_calculator(calc)
         predictions_list.append(adslab.get_potential_energy())
