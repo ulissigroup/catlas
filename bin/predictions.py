@@ -4,7 +4,10 @@ from dask_predictions.filters import bulk_filter, adsorbate_filter, slab_filter
 from dask_predictions.load_adsorbate_structures import load_ocdata_adsorbates
 from dask_predictions.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
 from dask_predictions.dask_utils import dataframe_split_individual_partitions
-from dask_predictions.adslab_predictions import direct_energy_prediction, relaxation_energy_prediction
+from dask_predictions.adslab_predictions import (
+    direct_energy_prediction,
+    relaxation_energy_prediction,
+)
 import dask.bag as db
 import dask
 import sys
@@ -89,16 +92,20 @@ if __name__ == "__main__":
 
     # Run adslab predictions
     for step in config["adslab_prediction_steps"]:
-        if step['step'] == "predict":
+        if step["step"] == "predict":
             if step["type"] == "direct":
-                filtered_catalyst_df["adslab_dE_direct"] = filtered_catalyst_df['adslabs'].apply(
+                filtered_catalyst_df["adslab_dE_direct"] = filtered_catalyst_df[
+                    "adslabs"
+                ].apply(
                     memory.cache(direct_energy_prediction),
                     meta=("adslab_dE", "object"),
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
             elif step["type"] == "relaxation":
-                filtered_catalyst_df["adslab_dE_relaxation"] = filtered_catalyst_df['adslabs'].apply(
+                filtered_catalyst_df["adslab_dE_relaxation"] = filtered_catalyst_df[
+                    "adslabs"
+                ].apply(
                     memory.cache(relaxation_energy_prediction),
                     meta=("adslab_dE", "object"),
                     config_path=step["config_path"],
