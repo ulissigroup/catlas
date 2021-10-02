@@ -2,7 +2,7 @@ dask_config: |
   from dask.distributed import Client
   client = Client()
 
-memory_cache_location: '/home/jovyan/inference_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
@@ -31,16 +31,12 @@ adsorbate_filters:
 slab_filters:
     filter_by_object_size: 100
     
-adslab_filtering_steps:
-  - predict: 
-    - type: direct
-      config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
-      checkpoint:path: '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
-  - filter:
-     - adsorbate: '*H'
-       min: -0.4
-       max: 0.0
-  - predict: 
-    - type: relaxation
-      config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
-      checkpoint:path: '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    config_path: 'configs/s2ef/all/gemnet/gemnet-dT.yml'
+    checkpoint_path: '/home/jovyan/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+  - step: predict
+    type: relaxation
+    config_path: 'configs/s2ef/all/gemnet/gemnet-dT.yml'
+    checkpoint_path: '/home/jovyan/software/dask_predictions/configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
