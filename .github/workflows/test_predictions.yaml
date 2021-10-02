@@ -17,7 +17,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with: 
-        lfs: 'True'
+        lfs: true
     - name: Run example predictions
       run: |
           python setup.py develop &&
