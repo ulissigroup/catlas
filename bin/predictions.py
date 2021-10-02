@@ -1,12 +1,15 @@
 import yaml
 from dask_predictions.load_bulk_structures import load_ocdata_bulks
-from dask_predictions.filters import bulk_filter, adsorbate_filter
+from dask_predictions.filters import bulk_filter, adsorbate_filter, slab_filter
 from dask_predictions.load_adsorbate_structures import load_ocdata_adsorbates
 from dask_predictions.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
+from dask_predictions.dask_utils import dataframe_split_individual_partitions
 import dask.bag as db
 import dask
 import sys
+import dask.dataframe as ddf
 from joblib import Memory
+import pandas as pd
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -20,16 +23,19 @@ if __name__ == "__main__":
     exec(config["dask_config"])
 
     # Set up joblib memory to use for caching hard steps
-    memory = Memory(config["memory_cache_location"], verbose=1)
+    memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load and filter the bulks
     bulks_delayed = dask.delayed(load_ocdata_bulks)()
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe()
+    bulk_df = bulk_bag.to_dataframe().persist()
+    print("Number of bulks: %d" % bulk_df.shape[0].compute())
+
     filtered_catalyst_df = bulk_filter(config, bulk_df)
-    print(
-        "Total number of filtered bulks is %d" % filtered_catalyst_df.compute().shape[0]
-    )
+    filtered_catalyst_df = dataframe_split_individual_partitions(
+        filtered_catalyst_df
+    ).persist()
+    print("Number of filtered bulks: %d" % filtered_catalyst_df.shape[0].compute())
 
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
@@ -38,8 +44,7 @@ if __name__ == "__main__":
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
     filtered_adsorbate_df = filtered_adsorbate_df.persist()
     print(
-        "Total number of filtered adsorbates is %d"
-        % filtered_adsorbate_df.shape[0].compute()
+        "Number of filtered adsorbates: %d" % filtered_adsorbate_df.shape[0].compute()
     )
 
     # Enumerate surfaces
@@ -47,15 +52,38 @@ if __name__ == "__main__":
         memory.cache(enumerate_slabs), meta=("surfaces", "object")
     )
     filtered_catalyst_df = filtered_catalyst_df.explode("surfaces")
+    filtered_catalyst_df = ddf.concat(
+        [
+            filtered_catalyst_df.drop(["surfaces"], axis=1),
+            filtered_catalyst_df["surfaces"].apply(
+                pd.Series,
+                meta={
+                    "slab_surface_object": "object",
+                    "slab_millers": "object",
+                    "slab_shift": "float",
+                    "slab_top": "bool",
+                    "slab_natoms": "int",
+                },
+            ),
+        ],
+        axis=1,
+    ).persist()
+    print("Number of surfaces: %d" % filtered_catalyst_df.shape[0].compute())
+
+    # Filter and repartition the surfaces
+    filtered_catalyst_df = slab_filter(config, filtered_catalyst_df)
     filtered_catalyst_df = filtered_catalyst_df.persist()
-    print("Total number of surfaces is %d" % filtered_catalyst_df.shape[0].compute())
+    print("Number of filtered surfaces: %d" % filtered_catalyst_df.shape[0].compute())
 
     # Enumerate surface_adsorbate combinations
-    df = filtered_catalyst_df.assign(key=1).merge(
+    filtered_catalyst_df = filtered_catalyst_df.assign(key=1).merge(
         filtered_adsorbate_df.assign(key=1), how="outer", on="key"
     )
-    df["adslabs"] = df.apply(
+    filtered_catalyst_df = dataframe_split_individual_partitions(filtered_catalyst_df)
+    filtered_catalyst_df["adslabs"] = filtered_catalyst_df.apply(
         memory.cache(enumerate_adslabs), meta=("adslabs", "object"), axis=1
     )
-    dfout = df.persist()
-    print("Total number of adslabs is %d" % filtered_catalyst_df.shape[0].compute())
+    filtered_catalyst_df = filtered_catalyst_df.persist()
+    print("Number of adslab combos: %d" % filtered_catalyst_df.shape[0].compute())
+
+

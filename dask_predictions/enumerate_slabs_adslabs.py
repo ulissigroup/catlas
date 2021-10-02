@@ -2,8 +2,6 @@ import pickle
 import numpy as np
 from ocdata import precompute_sample_structures as compute
 from ocdata.surfaces import Surface
-from dask_predictions.bulk_object import CustomBulk
-from dask_predictions.adsorbate_object import CustomAdsorbate
 from ocdata.combined import Combined
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
