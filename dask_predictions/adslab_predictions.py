@@ -4,21 +4,22 @@ from ocdata.combined import Combined
 from ase.optimize import LBFGS
 
 # Module calculator to be shared
-calc = None
+direct_calc = None
+relax_calc = None
 
 
 def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
-    global calc
+    global direct_calc
 
-    if calc is None:
-        calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
+    if direct_calc is None:
+        direct_calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
 
     predictions_list = []
 
     for adslab in adslabs_list:
         adslab = adslab.copy()
-        adslab.set_calculator(calc)
+        adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
 
     return predictions_list
@@ -26,16 +27,16 @@ def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
 def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
-    global calc
+    global relax_calc
 
-    if calc is None:
-        calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
+    if relax_calc is None:
+        relax_calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
 
     predictions_list = []
 
     for adslab in adslabs_list:
         adslab = adslab.copy()
-        adslab.set_calculator(calc)
+        adslab.set_calculator(relax_calc)
         opt = LBFGS(
             adslab,
             maxstep=0.04,
