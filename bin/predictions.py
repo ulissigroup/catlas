@@ -95,7 +95,7 @@ if __name__ == "__main__":
     for step in config["adslab_prediction_steps"]:
         if step["step"] == "predict":
             if step["type"] == "direct":
-                filtered_catalyst_df[step['label']] = filtered_catalyst_df[
+                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
                     "adslabs"
                 ].apply(
                     memory.cache(direct_energy_prediction),
@@ -103,9 +103,11 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
-                filtered_catalyst_df['min_'+step['label']] = filtered_catalyst_df[step['label']].apply(min)
+                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
+                    step["label"]
+                ].apply(min)
             elif step["type"] == "relaxation":
-                filtered_catalyst_df[step['label']] = filtered_catalyst_df[
+                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
                     "adslabs"
                 ].apply(
                     memory.cache(relaxation_energy_prediction),
@@ -113,8 +115,11 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
-                filtered_catalyst_df['min_'+step['label']] = filtered_catalyst_df[step['label']].apply(min)
+                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
+                    step["label"]
+                ].apply(min)
             else:
                 print("Unsupported prediction type: %s" % step["type"])
 
     results = filtered_catalyst_df.compute()
+    print(results)
