@@ -1,5 +1,7 @@
 name: Example predictions with docker
 
+env: 
+  GITHUB_WORKSPACE: '/home/jovyan/software/dask-predictions
 # workflow triggered by any push on any branch
 on: [push]
 jobs:
@@ -14,7 +16,11 @@ jobs:
     # and runs pytest in your pipenv environment
     steps:
     - uses: actions/checkout@v2
+      with: 
+        lfs: 'True'
     - name: Run example predictions
       run: |
-          python setup.py develop && 
-          python bin/predictions.py configs/inputs.yml
+          python setup.py develop &&
+          REPO_DIR = $PWD && 
+          cd /home/jovyan/ocp &&
+          python /home/jovyan/software/dask-predictions/bin/predictions.py /home/jovyan/software/dask-predictions/configs/inputs.yml
