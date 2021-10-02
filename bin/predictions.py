@@ -85,5 +85,3 @@ if __name__ == "__main__":
     )
     filtered_catalyst_df = filtered_catalyst_df.persist()
     print("Number of adslab combos: %d" % filtered_catalyst_df.shape[0].compute())
-
-

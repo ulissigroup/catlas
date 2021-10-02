@@ -3,80 +3,48 @@ import copy
 from ocdata.combined import Combined
 from ase.optimize import LBFGS
 
-# Module calculator to be chared
+# Module calculator to be shared
 calc = None
 
 
-def direct_energy_prediction(enumerated_adslabs, config_path, checkpoint_path):
+def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     global calc
 
     if calc is None:
         calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
 
-    surface_info_object, surface_adsorbate_combo, adslabs = enumerated_adslabs
-    surface_obj, mpid, miller, shift, top = surface_info_object
-    surface_info_object, adsorbate_obj = surface_adsorbate_combo
-    adsorbate = adsorbate_obj.smiles
-
     predictions_list = []
-    adslabs_list = adslabs.adsorbed_surface_atoms
 
-    if len(adslabs_list) == 0:
-        surface_info = [miller, shift, top]
-        pred = [mpid, surface_info, adsorbate, "no valid placements"]
+    for adslab in adslabs_list:
+        adslab = adslab.copy()
+        adslab.set_calculator(calc)
+        predictions_list.append(adslab.get_potential_energy())
 
-    else:
-
-        for adslab in adslabs_list:
-            adslab = adslab.copy()
-            adslab.set_calculator(calc)
-            energy_now = adslab.get_potential_energy()
-            predictions_list.append(energy_now)
-
-        surface_info = [miller, shift, top]
-        pred = [mpid, surface_info, adsorbate, predictions_list]
-
-    return pred
+    return predictions_list
 
 
-def relaxation_energy_prediction(enumerated_adslabs, config_path, checkpoint_path):
+def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     global calc
 
     if calc is None:
         calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
 
-    surface_info_object, surface_adsorbate_combo, adslabs = enumerated_adslabs
-    surface_obj, mpid, miller, shift, top = surface_info_object
-    surface_info_object, adsorbate_obj = surface_adsorbate_combo
-    adsorbate = adsorbate_obj.smiles
-
     predictions_list = []
-    adslabs_list = adslabs.adsorbed_surface_atoms
 
-    if len(adslabs_list) == 0:
-        surface_info = [miller, shift, top]
-        pred = [mpid, surface_info, adsorbate, "no valid placements"]
+    for adslab in adslabs_list:
+        adslab = adslab.copy()
+        adslab.set_calculator(calc)
+        opt = LBFGS(
+            adslab,
+            maxstep=0.04,
+            memory=1,
+            damping=1.0,
+            alpha=70.0,
+            trajectory=None,
+        )
+        opt.run(fmax=0.05, steps=200)
+        predictions_list.append(adslab.get_potential_energy())
 
-    else:
-
-        for adslab in adslabs_list:
-            adslab = adslab.copy()
-            adslab.set_calculator(calc)
-            opt = LBFGS(
-                adslab,
-                maxstep=0.04,
-                memory=1,
-                damping=1.0,
-                alpha=70.0,
-                trajectory=None,
-            )
-            opt.run(fmax=0.05, steps=200)
-            energy_now = adslab.get_potential_energy()
-            predictions_list.append(energy_now)
-
-        surface_info = [miller, shift, top]
-        pred = [mpid, surface_info, adsorbate, predictions_list]
-
-    return pred
+    return predictions_list
