@@ -1,5 +1,7 @@
 name: Example predictions with docker
 
+env:
+  OMP_NUM_THREADS: '1'
 # workflow triggered by any push on any branch
 on: [push]
 jobs:
