@@ -22,6 +22,6 @@ jobs:
       with: 
         lfs: true
     - run: |
-        (cd /home/jovyan/ocp && git checkout ocpcalc-fix) 
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc-fix) 
         python setup.py develop
         python bin/predictions.py configs/inputs.yml
