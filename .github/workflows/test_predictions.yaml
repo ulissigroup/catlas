@@ -21,5 +21,4 @@ jobs:
         lfs: true
     - run: |
         python setup.py develop &&
-        cd /home/jovyan/ocp &&
-        python /home/jovyan/software/dask-predictions/bin/predictions.py /home/jovyan/software/dask-predictions/configs/inputs.yml
+        python bin/predictions.py configs/inputs.yml
