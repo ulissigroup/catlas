@@ -64,6 +64,7 @@ if __name__ == "__main__":
                 meta={
                     "slab_surface_object": "object",
                     "slab_millers": "object",
+                    "slab_max_miller_index": "int",
                     "slab_shift": "float",
                     "slab_top": "bool",
                     "slab_natoms": "int",
@@ -94,7 +95,7 @@ if __name__ == "__main__":
     for step in config["adslab_prediction_steps"]:
         if step["step"] == "predict":
             if step["type"] == "direct":
-                filtered_catalyst_df["adslab_dE_direct"] = filtered_catalyst_df[
+                filtered_catalyst_df[step['label']] = filtered_catalyst_df[
                     "adslabs"
                 ].apply(
                     memory.cache(direct_energy_prediction),
@@ -102,8 +103,9 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
+                filtered_catalyst_df['min_'+step['label']] = filtered_catalyst_df[step['label']].apply(min)
             elif step["type"] == "relaxation":
-                filtered_catalyst_df["adslab_dE_relaxation"] = filtered_catalyst_df[
+                filtered_catalyst_df[step['label']] = filtered_catalyst_df[
                     "adslabs"
                 ].apply(
                     memory.cache(relaxation_energy_prediction),
@@ -111,7 +113,8 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
+                filtered_catalyst_df['min_'+step['label']] = filtered_catalyst_df[step['label']].apply(min)
             else:
                 print("Unsupported prediction type: %s" % step["type"])
 
-    filtered_catalyst_df.compute()
+    results = filtered_catalyst_df.compute()

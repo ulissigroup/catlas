@@ -1,5 +1,6 @@
 import warnings
 import numpy as np
+import copy
 
 
 def bulk_filter(config, dask_df):
@@ -9,18 +10,33 @@ def bulk_filter(config, dask_df):
         if val != "None":
             if name == "filter_by_mpids":
                 dask_df = dask_df[dask_df.bulk_mpid.isin(val)]
-            elif name == "filter_by_Pourbaix_stability":
-                pass
-            elif name == "filter_by_elements":
+            elif name == "filter_by_acceptable_elements":
                 dask_df = dask_df[
-                    dask_df.bulk_elements.apply(lambda x: all([el in val for el in x]))
+                    dask_df.bulk_elements.apply(
+                        lambda x, valid_elements: all(
+                            [el in valid_elements for el in x]
+                        ),
+                        valid_elements=val,
+                    )
                 ]
             elif name == "filter_by_num_elements":
-                dask_df = dask_df[dask_df.bulk_elements.apply(len).isin(val)]
+                dask_df = dask_df[dask_df.bulk_nelements.isin(val)]
+            elif name == "filter_by_required_elements":
+                dask_df = dask_df[
+                    dask_df.bulk_elements.apply(
+                        lambda x, required_elements: all(
+                            [
+                                any([el in [req_el] for el in x])
+                                for req_el in required_elements
+                            ]
+                        ),
+                        required_elements=val,
+                    )
+                ]
             elif name == "filter_by_object_size":
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             else:
-                warnings.warn("Filter is not implemented: " + name)
+                warnings.warn("Bulk filter is not implemented: " + name)
     return dask_df
 
 
@@ -31,8 +47,10 @@ def slab_filter(config, dask_df):
         if val != "None":
             if name == "filter_by_object_size":
                 dask_df = dask_df[dask_df.slab_natoms <= val]
+            elif name == "filter_by_max_miller_index":
+                dask_df = dask_df[dask_df.slab_max_miller_index <= val]
             else:
-                warnings.warn("Filter is not implemented: " + name)
+                warnings.warn("Slab filter is not implemented: " + name)
     return dask_df
 
 
@@ -44,6 +62,6 @@ def adsorbate_filter(config, dask_df):
             if name == "filter_by_smiles":
                 dask_df = dask_df[dask_df.adsorbate_smiles.isin(val)]
             else:
-                warnings.warn("Filter is not implemented: " + name)
+                warnings.warn("Adsorbate filter is not implemented: " + name)
 
     return dask_df
