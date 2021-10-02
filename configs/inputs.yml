@@ -34,9 +34,9 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: direct
-    config_path: 'configs/s2ef/all/gemnet/gemnet-dT.yml'
-    checkpoint_path: '/home/jovyan/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+    config_path: 'configs/s2ef/2M/gemnet/gemnet-dT.yml'
+    checkpoint_path: '/home/jovyan/software/dask-predictions/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
   - step: predict
     type: relaxation
-    config_path: 'configs/s2ef/all/gemnet/gemnet-dT.yml'
-    checkpoint_path: '/home/jovyan/software/dask_predictions/configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
+    config_path: 'configs/s2ef/2M/gemnet/gemnet-dT.yml'
+    checkpoint_path: '/home/jovyan/software/dask-predictions/configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
