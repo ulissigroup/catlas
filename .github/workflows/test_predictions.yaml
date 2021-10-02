@@ -1,7 +1,5 @@
 name: Example predictions with docker
 
-env: 
-  GITHUB_WORKSPACE: '/home/jovyan/software/dask-predictions
 # workflow triggered by any push on any branch
 on: [push]
 jobs:
@@ -20,5 +18,6 @@ jobs:
       with: 
         lfs: true
     - run: |
-        python setup.py develop &&
+        (cd /home/jovyan/ocp && git checkout ocpcalc-fix) 
+        python setup.py develop
         python bin/predictions.py configs/inputs.yml
