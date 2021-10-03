@@ -122,4 +122,14 @@ if __name__ == "__main__":
                 print("Unsupported prediction type: %s" % step["type"])
 
     results = filtered_catalyst_df.compute()
-    print(results[['bulk_elements', 'bulk_mpid','slab_millers','adsorbate_smiles','min_dE_gemnet_is2re_finetuned']])
+    print(
+        results[
+            [
+                "bulk_elements",
+                "bulk_mpid",
+                "slab_millers",
+                "adsorbate_smiles",
+                "min_dE_gemnet_is2re_finetuned",
+            ]
+        ]
+    )

@@ -26,7 +26,7 @@ def bulk_filter(config, dask_df):
                     dask_df.bulk_elements.apply(
                         lambda x, required_elements: all(
                             [
-                                any([el in [req_el] for el in x])
+                                any([el == req_el for el in x])
                                 for req_el in required_elements
                             ]
                         ),
