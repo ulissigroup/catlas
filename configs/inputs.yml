@@ -1,8 +1,9 @@
 dask_config: |
-  from dask.distributed import Client
-  client = Client()
+  from dask.distributed import Client, LocalCluster
+  cluster = LocalCluster(n_workers=4, threads_per_worker=1)
+  client = Client(cluster)
 
-memory_cache_location: '/home/jovyan/inference_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
@@ -10,13 +11,13 @@ output_options:
 
 # optional filters
 bulk_filters:
-    filter_by_mpids: ['mp-126']
+    filter_by_mpids: None # ['mp-126']
 
-    filter_by_elements: None # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
+    filter_by_acceptable_elements: ['Pt'] # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
-    filter_by_number_elements: None # [1,2]
+    filter_by_num_elements: [1] # [1,2]
 
-    filter_by_object_size: None # 60
+    filter_by_object_size: 60 # 60
 
     filter_by_Pourbaix_stability: 
       pH: [3,3]
@@ -31,16 +32,15 @@ adsorbate_filters:
 slab_filters:
     filter_by_object_size: 100
     
-adslab_filtering_steps:
-  - predict: 
-    - type: direct
-      config_path: '/home/jovyan/ocp/configs/is2re/all/dimenet_plus_plus/dpp.yml'
-      checkpoint:path: '/home/jovyan/ocp/data/OC20/pretrained/is2re/dimenetpp_all.pt'
-  - filter:
-     - adsorbate: '*H'
-       min: -0.4
-       max: 0.0
-  - predict: 
-    - type: relaxation
-      config_path: '/home/jovyan/ocp/configs/s2ef/all/gemnet/gemnet_dT.yml'
-      checkpoint:path: '/home/jovyan/ocp/data/OC20/checkpoints/s2ef/gemnet_t_direct_h512_all.pt'
+    filter_by_max_miller_index: 1
+    
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    label: 'dE_gemnet_is2re_finetuned'
+    config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
+    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+  #- step: predict
+  #  type: relaxation
+  #  config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
+  #  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'

@@ -18,8 +18,9 @@ def load_ocdata_bulks():
                     "bulk_data_source": "ocdata_bulks",
                     "bulk_natoms": row.natoms,
                     "bulk_xc": "RPBE",
-                    "bulk_symbols": row.symbols,
-                    "bulk_nsymbols": len(row.symbols),
+                    "bulk_nelements": len(
+                        np.unique(row.toatoms().get_chemical_symbols())
+                    ),
                     "bulk_elements": np.unique(row.toatoms().get_chemical_symbols()),
                 }
             )

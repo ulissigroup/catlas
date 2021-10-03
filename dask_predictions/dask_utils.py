@@ -8,15 +8,6 @@ from operator import getitem
 def dataframe_split_individual_partitions(df):
     new_name = "repartition-%s" % (tokenize(df))
 
-    def get_len(partition):
-        # If the bag is the result of bag.filter(),
-        # then each partition is actually a 'filter' object,
-        # which has no __len__.
-        # In that case, we must convert it to a list first.
-        if hasattr(partition, "__len__"):
-            return len(partition)
-        return len(list(partition))
-
     df = df.persist()
     nsplits = df.map_partitions(len).compute()
 

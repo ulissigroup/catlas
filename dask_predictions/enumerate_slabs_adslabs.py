@@ -30,6 +30,7 @@ def enumerate_slabs(bulk_atoms, max_miller=2):
             {
                 "slab_surface_object": surface_object,
                 "slab_millers": millers,
+                "slab_max_miller_index": np.max(millers),
                 "slab_shift": shift,
                 "slab_top": top,
                 "slab_natoms": len(surface_object.surface_atoms),

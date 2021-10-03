@@ -4,6 +4,10 @@ from dask_predictions.filters import bulk_filter, adsorbate_filter, slab_filter
 from dask_predictions.load_adsorbate_structures import load_ocdata_adsorbates
 from dask_predictions.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
 from dask_predictions.dask_utils import dataframe_split_individual_partitions
+from dask_predictions.adslab_predictions import (
+    direct_energy_prediction,
+    relaxation_energy_prediction,
+)
 import dask.bag as db
 import dask
 import sys
@@ -26,7 +30,7 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load and filter the bulks
-    bulks_delayed = dask.delayed(load_ocdata_bulks)()
+    bulks_delayed = dask.delayed(memory.cache(load_ocdata_bulks))()
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_df = bulk_bag.to_dataframe().persist()
     print("Number of bulks: %d" % bulk_df.shape[0].compute())
@@ -60,6 +64,7 @@ if __name__ == "__main__":
                 meta={
                     "slab_surface_object": "object",
                     "slab_millers": "object",
+                    "slab_max_miller_index": "int",
                     "slab_shift": "float",
                     "slab_top": "bool",
                     "slab_natoms": "int",
@@ -85,3 +90,36 @@ if __name__ == "__main__":
     )
     filtered_catalyst_df = filtered_catalyst_df.persist()
     print("Number of adslab combos: %d" % filtered_catalyst_df.shape[0].compute())
+
+    # Run adslab predictions
+    for step in config["adslab_prediction_steps"]:
+        if step["step"] == "predict":
+            if step["type"] == "direct":
+                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
+                    "adslabs"
+                ].apply(
+                    memory.cache(direct_energy_prediction),
+                    meta=("adslab_dE", "object"),
+                    config_path=step["config_path"],
+                    checkpoint_path=step["checkpoint_path"],
+                )
+                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
+                    step["label"]
+                ].apply(min)
+            elif step["type"] == "relaxation":
+                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
+                    "adslabs"
+                ].apply(
+                    memory.cache(relaxation_energy_prediction),
+                    meta=("adslab_dE", "object"),
+                    config_path=step["config_path"],
+                    checkpoint_path=step["checkpoint_path"],
+                )
+                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
+                    step["label"]
+                ].apply(min)
+            else:
+                print("Unsupported prediction type: %s" % step["type"])
+
+    results = filtered_catalyst_df.compute()
+    print(results)
