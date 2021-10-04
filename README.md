@@ -1,6 +1,13 @@
 # dask-predictions
 files for dask parallelization of OCPCalculator energy predictions. Assumes you have the ocp repo cloned, access to laikapack, and access to the shared volume mounts on laikapack
 
+Before running inference, run the following commands:
+ - `cd ~/ocp && python setup.py develop`
+ - `cd ~/dask-predictions && python setup.py develop`
+
+To run:
+`python -i bin/predictions.py config/something.yml`
+
 How to use kubeflow workers for predictions:
 - make a volume workspace-inference
 - start a notebook server mounting workspace-inference and normal shared-datasets/shared-scratch
