@@ -6,8 +6,8 @@ dask_config: |
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'HER_test_screen'
+  pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
+  verbose: False
 
 # optional filters
 bulk_filters:

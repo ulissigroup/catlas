@@ -103,9 +103,7 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
-                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
-                    step["label"]
-                ].apply(min)
+
             elif step["type"] == "relaxation":
                 filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
                     "adslabs"
@@ -115,21 +113,28 @@ if __name__ == "__main__":
                     config_path=step["config_path"],
                     checkpoint_path=step["checkpoint_path"],
                 )
-                filtered_catalyst_df["min_" + step["label"]] = filtered_catalyst_df[
-                    step["label"]
-                ].apply(min)
             else:
                 print("Unsupported prediction type: %s" % step["type"])
 
+            most_recent_step = "min_" + step["label"]
+            filtered_catalyst_df[most_recent_step] = filtered_catalyst_df[
+                step["label"]
+            ].apply(min)
     results = filtered_catalyst_df.compute()
-    print(
-        results[
-            [
-                "bulk_elements",
-                "bulk_mpid",
-                "slab_millers",
-                "adsorbate_smiles",
-                "min_dE_gemnet_is2re_finetuned",
+
+    if config["output_options"]["verbose"]:
+        print(
+            results[
+                [
+                    "bulk_elements",
+                    "bulk_mpid",
+                    "slab_millers",
+                    "adsorbate_smiles",
+                    most_recent_step,
+                ]
             ]
-        ]
-    )
+        )
+
+    pickle_path = config["output_options"]["pickle_path"]
+    if pickle_path != "None":
+        results.to_pickle(pickle_path)
