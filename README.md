@@ -1,4 +1,4 @@
-# dask-predictions
+# CATlas
 files for dask parallelization of OCPCalculator energy predictions. Assumes you have the ocp repo cloned, access to laikapack, and access to the shared volume mounts on laikapack
 
 Before running inference, run the following commands:
