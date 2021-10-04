@@ -138,3 +138,6 @@ dmypy.json
 cython_debug/
 
 dask-worker-space
+
+# Vi
+*.swp
