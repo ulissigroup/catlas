@@ -1,7 +1,7 @@
 # dask-predictions
 files for dask parallelization of OCPCalculator energy predictions. Assumes you have the ocp repo cloned, access to laikapack, and access to the shared volume mounts on laikapack
 
-Usage:
+How to use kubeflow workers for predictions:
 - make a volume workspace-inference
 - start a notebook server mounting workspace-inference and normal shared-datasets/shared-scratch
 - sudo apt update && sudo apt install git-lfs
