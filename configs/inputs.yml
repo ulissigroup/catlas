@@ -1,12 +1,12 @@
 dask_config: |
   from dask.distributed import Client, LocalCluster
-  cluster = LocalCluster(n_workers=4, threads_per_worker=1)
+  cluster = LocalCluster(n_workers=1, threads_per_worker=1)
   client = Client(cluster)
 
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
 output_options:
-  pickle_path: None '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
+  pickle_path: '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
   verbose: False
 
 # optional filters
@@ -29,8 +29,8 @@ bulk_filters:
 adsorbate_filters:
     filter_by_smiles: ['*H']
 
-#slab_filters:
-#    filter_by_object_size: 100
+slab_filters:
+    filter_by_object_size: None
     
 #    filter_by_max_miller_index: 1
     
