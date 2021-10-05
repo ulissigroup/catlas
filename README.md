@@ -13,5 +13,5 @@ How to use kubeflow workers for predictions:
 - start a notebook server mounting workspace-inference and normal shared-datasets/shared-scratch
 - sudo apt update && sudo apt install git-lfs
 - git clone ocp, checkout the ocpcalc_fix branch, python setup.py develop
-- git clone dask-predictions, python setup.py develop
-- go to dask-predictions, then python bin/predictions.py config/inputs_nitrides_kube.yml. I set one up just to see if I could get the nitride thing to run, but don't plan on actually seeing that through
+- git clone CATlas, python setup.py develop
+- go to CATlas, then python bin/predictions.py config/inputs_nitrides_kube.yml. I set one up just to see if I could get the nitride thing to run, but don't plan on actually seeing that through
