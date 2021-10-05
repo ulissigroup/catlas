@@ -27,7 +27,7 @@ spec:
     - mountPath: /home/jovyan/CATlas
       name: workspace-inference
       subPath: CATlas
-    - mountPath: /home/jovyan/ocp/data
+    - mountPath: /home/jovyan/shared-datasets
       name: shared-datasets
     - mountPath: /home/jovyan/shared-scratch
       name: scratch-scratch

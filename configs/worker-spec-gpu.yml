@@ -12,7 +12,7 @@ spec:
     - name: OMP_NUM_THREADS
       value: 1
     - name: PYTHONPATH
-      value: "/home/jovyan/ocp:/home/jovyan/ocp/dask-predictions"
+      value: "/home/jovyan/ocp:/home/jovyan/CATlas"
     resources:
       limits:
         cpu: "4"

@@ -1,10 +1,10 @@
 import yaml
-from dask_predictions.load_bulk_structures import load_ocdata_bulks
-from dask_predictions.filters import bulk_filter, adsorbate_filter, slab_filter
-from dask_predictions.load_adsorbate_structures import load_ocdata_adsorbates
-from dask_predictions.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
-from dask_predictions.dask_utils import dataframe_split_individual_partitions
-from dask_predictions.adslab_predictions import (
+from CATlas.load_bulk_structures import load_ocdata_bulks
+from CATlas.filters import bulk_filter, adsorbate_filter, slab_filter
+from CATlas.load_adsorbate_structures import load_ocdata_adsorbates
+from CATlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
+from CATlas.dask_utils import dataframe_split_individual_partitions
+from CATlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
 )
