@@ -12,7 +12,7 @@ spec:
     - name: OMP_NUM_THREADS
       value: 1
     - name: PYTHONPATH
-      value: "/home/jovyan/ocp:/home/jovyan/dask-predictions"
+      value: "/home/jovyan/ocp:/home/jovyan/CATlas"
     resources:
       limits:
         cpu: "2"
@@ -24,10 +24,10 @@ spec:
     - mountPath: /home/jovyan/ocp
       name: workspace-inference
       subPath: ocp
-    - mountPath: /home/jovyan/dask-predictions
+    - mountPath: /home/jovyan/CATlas
       name: workspace-inference
-      subPath: dask-predictions
-    - mountPath: /home/jovyan/shared-data
+      subPath: CATlas
+    - mountPath: /home/jovyan/ocp/data
       name: shared-datasets
     - mountPath: /home/jovyan/shared-scratch
       name: scratch-scratch
