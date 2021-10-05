@@ -3,7 +3,7 @@ files for dask parallelization of OCPCalculator energy predictions. Assumes you 
 
 Before running inference, run the following commands:
  - `cd ~/ocp && python setup.py develop`
- - `cd ~/dask-predictions && python setup.py develop`
+ - `cd ~/CATlas && python setup.py develop`
 
 To run:
 `python -i bin/predictions.py config/something.yml`
