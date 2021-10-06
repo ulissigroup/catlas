@@ -136,5 +136,5 @@ if __name__ == "__main__":
         )
 
     pickle_path = config["output_options"]["pickle_path"]
-    if pickle_path != "None":
+    if str(pickle_path) != "None":
         results.to_pickle(pickle_path)
