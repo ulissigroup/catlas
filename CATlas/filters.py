@@ -7,7 +7,9 @@ def bulk_filter(config, dask_df):
     bulk_filters = config["bulk_filters"]
 
     for name, val in bulk_filters.items():
-        if str(val) != "None": # depending on how yaml is created, val may either be "None" or NoneType
+        if (
+            str(val) != "None"
+        ):  # depending on how yaml is created, val may either be "None" or NoneType
             if name == "filter_by_mpids":
                 dask_df = dask_df[dask_df.bulk_mpid.isin(val)]
             elif name == "filter_by_acceptable_elements":
@@ -17,7 +19,7 @@ def bulk_filter(config, dask_df):
                             [el in valid_elements for el in x]
                         ),
                         valid_elements=val,
-                    meta=('bulk_elements', 'bool')
+                        meta=("bulk_elements", "bool"),
                     )
                 ]
             elif name == "filter_by_num_elements":
@@ -38,8 +40,13 @@ def bulk_filter(config, dask_df):
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
-            if config['output_options']['verbose']:
-                print('filter "' + name + '" filtered bulk df down to length ' + str(len(dask_df)))
+            if config["output_options"]["verbose"]:
+                print(
+                    'filter "'
+                    + name
+                    + '" filtered bulk df down to length '
+                    + str(len(dask_df))
+                )
     return dask_df
 
 
