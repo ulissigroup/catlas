@@ -3,7 +3,7 @@ from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
-from catlas.dask_utils import dataframe_split_individual_partitions
+from catlas.dask_utils import split_balance_df_partitions
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         config = yaml.safe_load(f)
 
     # set up the dask cluster using the config block
-    exec(config["dask_config"])
+    exec(config["dask"]["config"])
 
     # Set up joblib memory to use for caching hard steps
     memory = Memory(config["memory_cache_location"], verbose=0)
@@ -36,8 +36,8 @@ if __name__ == "__main__":
     print("Number of bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)
-    filtered_catalyst_df = dataframe_split_individual_partitions(
-        filtered_catalyst_df
+    filtered_catalyst_df = split_balance_df_partitions(
+        filtered_catalyst_df, config["dask"]["partitions"]
     ).persist()
     print("Number of filtered bulks: %d" % filtered_catalyst_df.shape[0].compute())
 
@@ -84,7 +84,9 @@ if __name__ == "__main__":
     filtered_catalyst_df = filtered_catalyst_df.assign(key=1).merge(
         filtered_adsorbate_df.assign(key=1), how="outer", on="key"
     )
-    filtered_catalyst_df = dataframe_split_individual_partitions(filtered_catalyst_df)
+    filtered_catalyst_df = split_balance_df_partitions(
+        filtered_catalyst_df, config["dask"]["partitions"]
+    )
     filtered_catalyst_df["adslabs"] = filtered_catalyst_df.apply(
         memory.cache(enumerate_adslabs), meta=("adslabs", "object"), axis=1
     )
@@ -92,34 +94,35 @@ if __name__ == "__main__":
     print("Number of adslab combos: %d" % filtered_catalyst_df.shape[0].compute())
 
     # Run adslab predictions
-    for step in config["adslab_prediction_steps"]:
-        if step["step"] == "predict":
-            if step["type"] == "direct":
-                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
-                    "adslabs"
-                ].apply(
-                    memory.cache(direct_energy_prediction),
-                    meta=("adslab_dE", "object"),
-                    config_path=step["config_path"],
-                    checkpoint_path=step["checkpoint_path"],
-                )
+    if "adslab_prediction_steps" in config:
+        for step in config["adslab_prediction_steps"]:
+            if step["step"] == "predict":
+                if step["type"] == "direct":
+                    filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
+                        "adslabs"
+                    ].apply(
+                        memory.cache(direct_energy_prediction),
+                        meta=("adslab_dE", "object"),
+                        config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"],
+                    )
+                elif step["type"] == "relaxation":
+                    filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
+                        "adslabs"
+                    ].apply(
+                        memory.cache(relaxation_energy_prediction),
+                        meta=("adslab_dE", "object"),
+                        config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"],
+                    )
+                else:
+                    print("Unsupported prediction type: %s" % step["type"])
 
-            elif step["type"] == "relaxation":
-                filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
-                    "adslabs"
-                ].apply(
-                    memory.cache(relaxation_energy_prediction),
-                    meta=("adslab_dE", "object"),
-                    config_path=step["config_path"],
-                    checkpoint_path=step["checkpoint_path"],
-                )
-            else:
-                print("Unsupported prediction type: %s" % step["type"])
+                most_recent_step = "min_" + step["label"]
+                filtered_catalyst_df[most_recent_step] = filtered_catalyst_df[
+                    step["label"]
+                ].apply(min)
 
-            most_recent_step = "min_" + step["label"]
-            filtered_catalyst_df[most_recent_step] = filtered_catalyst_df[
-                step["label"]
-            ].apply(min)
     results = filtered_catalyst_df.compute()
 
     if "verbose" in config["output_options"] and config["output_options"]["verbose"]:
