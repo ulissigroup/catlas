@@ -12,7 +12,7 @@ spec:
     - name: OMP_NUM_THREADS
       value: 1
     - name: PYTHONPATH
-      value: "/home/jovyan/ocp:/home/jovyan/CATlas"
+      value: "/home/jovyan/ocp:/home/jovyan/catlas"
     resources:
       limits:
         cpu: "4"

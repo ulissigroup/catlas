@@ -12,7 +12,7 @@ spec:
     - name: OMP_NUM_THREADS
       value: 1
     - name: PYTHONPATH
-      value: "/home/jovyan/ocp:/home/jovyan/CATlas"
+      value: "/home/jovyan/ocp:/home/jovyan/catlas"
     resources:
       limits:
         cpu: "2"
@@ -24,9 +24,9 @@ spec:
     - mountPath: /home/jovyan/ocp
       name: workspace-inference
       subPath: ocp
-    - mountPath: /home/jovyan/CATlas
+    - mountPath: /home/jovyan/catlas
       name: workspace-inference
-      subPath: CATlas
+      subPath: catlas
     - mountPath: /home/jovyan/shared-datasets
       name: shared-datasets
     - mountPath: /home/jovyan/shared-scratch
