@@ -2,41 +2,43 @@ dask_config: |
   from dask.distributed import Client
   from dask_kubernetes import KubeCluster
   cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
-  cluster.adapt(minimum=4, maximum=100, interval="30000 ms")
+  cluster.adapt(minimum=1, maximum=15, interval="30000 ms")
   client = Client(cluster)
 
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'HER_test_screen'
+  pickle_path: '/home/jovyan/shared-scratch/Inference/BW_pkl_outputs/TMN_1.pkl'
+  verbose: False
+
 
 # optional filters
 bulk_filters:
-    filter_by_mpids: None # ['mp-126']
+    filter_by_mpids: ['mp-754628','mp-999549','mp-684903','mp-22631','mp-555','mp-1804','mp-21476','mp-1018027','mp-925','mp-974435','mp-684744','mp-448','mp-1019077','mp-1019052','mp-535','mp-248','mp-1018948','mp-1014558','mp-1014345','mp-1014303','mp-8780','mp-1014358','mp-754553','mp-9460','mp-7790','mp-2811','mp-13036','mp-999517','mp-8282','mp-27953','mvc-13876','mp-505622','mp-1014318','mp-1018157','mp-9981','mp-492','mp-6933','mp-1009130','mp-7927','mp-569167','mp-754556','mp-685050','mp-1014369','mp-2634','mp-32913','mp-1014379','mp-7234','mp-2701','mp-1080204','mp-1096898','mp-1057785','mp-906903','mp-1065394','mp-1097822','mp-991219','mp-1069841'] #,
+# 'mp-1079585','mp-1009152','mp-1077232','mp-1078389','mp-1096882','mp-1097796','mp-1077354','mp-1101178','mp-1101173','mp-1019319','mp-754381','mp-1014265','mp-2828','mp-1352','mp-1014160','mp-2114','mp-1642','mp-754353','mp-33046','mp-11661','mp-8046','mp-277','mp-1093992','mp-754434','mp-11660','mp-776470','mp-1459','mp-6913','mp-27488','mp-866083','mp-1017987','mp-755988','mp-1079438','mp-32994','mp-1096994','mp-2857','mp-1279','mp-864647','mp-1224388','mp-1216464','mp-1188869','mp-1224383','mp-1208406','mp-1224391','mp-1183691','mp-1217048','mp-1216195','mp-1187591','mp-1205986','mp-1221793','mp-1221525','mp-1188283','mp-1216242','mp-1102441','mp-1216851','mp-12857','mp-580234','mp-16334','mp-579496','mp-505341','mp-505628','mp-542316','mp-15226','mp-510380','mp-21244','mp-20362','mp-644838','mp-1014257','mp-1016108','mp-542154','mp-9374','mp-22502','mp-15805','mp-582028','mp-697075','mp-1014227','mp-7070','mp-570666','mp-996940','mp-29026','mp-10374','mp-10198','mp-20133','mp-35869','mp-10373','mp-1029257','mp-1017554','mp-1029262','mp-1029269','mp-1029458','mp-1068484','mp-1029367','mp-1029422','mp-1069270','mp-4091','mp-1029354','mp-1017553','mp-510619','mp-28452','mp-989557','mp-37808','mp-1014251','mp-989609','mp-989576','mp-989617','mp-1014252','mp-989645','mp-1014244','mp-989640','mp-9587','mp-989615','mp-989407','mp-1029387','mp-1014226','mp-989604','mp-1216767','mp-1191068','mp-1215898','mp-1218049','mp-1215918','mp-1218060','mp-1225023','mp-1224286','mp-1215188','mp-1225260','mp-1224419','mp-1215374','mp-1224257','mp-1216865','mp-1216799','mp-1208952','mp-1215180','mp-1215256','mp-1224247','mp-1222092','mp-1222181','mp-1225420','mp-1246609','mp-1245636','mp-1245706','mp-1245538','mp-1245505','mp-1245537','mp-1245673','mp-1215416','mp-1245861','mp-1245698','mp-1245850','mp-1245451','mp-1247538','mp-1247289','mp-989647','mp-1247361','mp-1245401','mp-1246793','mp-1246571','mp-1247277','mp-1194044','mp-1246637','mp-1225423','mp-989611','mp-1246648','mp-1246116','mp-1246926','mp-1245699','mp-1247185','mp-1245642','mp-1246954','mp-1247394','mp-1246430','mp-1246223','mp-1246797','mp-1246517','mp-1246060','mp-1247541','mp-1245664','mp-1246446','mp-1245967','mp-1220138']
 
-    filter_by_acceptable_elements: ['N', 'Pt','Cu','Pd','Au','Ag', 'Cu', 'Pt', 'Sn', 'Al', 'Au', 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
+    #filter_by_acceptable_elements: None
 
-    filter_by_num_elements: [2,3] # [1,2]
+    filter_by_num_elements: [1,2,3] # [1,2]
 
-    filter_by_object_size: 60 # 60
+    filter_by_object_size: 999 # 60
 
-    filter_by_required_elements: ['N']
+    #filter_by_required_elements: None
 
 adsorbate_filters:
     filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-    filter_by_object_size: 100
+    filter_by_object_size: 999
     
-    filter_by_max_miller_index: 1
+    filter_by_max_miller_index: 2
     
-#adslab_prediction_steps:
-#  - step: predict
-#    type: direct
-#    label: 'dE_gemnet_is2re_finetuned'
-#    config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
-#    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+adslab_prediction_steps:
+ - step: predict
+   type: direct
+   label: 'dE_gemnet_is2re_finetuned'
+   config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
+   checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
 
   #- step: predict
   #  type: relaxation
