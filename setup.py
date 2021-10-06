@@ -11,5 +11,5 @@ setup(
     author="Brook Wander, Kirby Broderick, and others in the Ulissi research group",
     author_email="bwander@andrew.cmu.edu",
     url="https://github.com/ulissigroup/CATlas",
-    packages=["CATlas"],
+    packages=["catlas"],
 )

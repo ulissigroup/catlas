@@ -1,10 +1,10 @@
 import yaml
-from CATlas.load_bulk_structures import load_ocdata_bulks
-from CATlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from CATlas.load_adsorbate_structures import load_ocdata_adsorbates
-from CATlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
-from CATlas.dask_utils import dataframe_split_individual_partitions
-from CATlas.adslab_predictions import (
+from catlas.load_bulk_structures import load_ocdata_bulks
+from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
+from catlas.load_adsorbate_structures import load_ocdata_adsorbates
+from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
+from catlas.dask_utils import dataframe_split_individual_partitions
+from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
 )
@@ -32,7 +32,7 @@ if __name__ == "__main__":
     # Load and filter the bulks
     bulks_delayed = dask.delayed(memory.cache(load_ocdata_bulks))()
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().persist()
+    bulk_df = bulk_bag.to_dataframe().reset_index().set_index('mpid').persist()
     print("Number of bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)
@@ -122,7 +122,7 @@ if __name__ == "__main__":
             ].apply(min)
     results = filtered_catalyst_df.compute()
 
-    if config["output_options"]["verbose"]:
+    if "verbose" in config["output_options"] and config["output_options"]["verbose"]:
         print(
             results[
                 [
@@ -135,6 +135,7 @@ if __name__ == "__main__":
             ]
         )
 
-    pickle_path = config["output_options"]["pickle_path"]
-    if pickle_path != "None":
-        results.to_pickle(pickle_path)
+    if "pickle_path" in config["output_options"]:
+        pickle_path = config["output_options"]["pickle_path"]
+        if pickle_path != "None":
+            results.to_pickle(pickle_path)
