@@ -1,0 +1,46 @@
+dask:
+  config: |
+    from dask.distributed import Client
+    from dask_kubernetes import KubeCluster
+    cluster = KubeCluster('configs/worker-spec-gpu.yml', deploy_mode="local")
+    cluster.adapt(minimum=4, maximum=10, interval="30000 ms")
+    client = Client(cluster)
+  partitions: 1000 # if -1, 1 row per surface otherwise number of partitions
+
+memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
+
+output_options:
+  pickle: False # True pickles the resulting predictions
+  optional_additional_path_str: 'HER_test_screen'
+  verbose: true
+
+bulk_filters:
+    filter_by_mpids: None # ['mp-126']
+
+    filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
+
+    filter_by_num_elements: [2,3] # [1,2]
+
+    filter_by_object_size: 10 # 60
+
+    filter_by_required_elements: ['N']
+
+adsorbate_filters:
+    filter_by_smiles: ['*H', '*CO','*OH','*CHO']
+
+slab_filters:
+    filter_by_object_size: 100
+    
+    filter_by_max_miller_index: 2
+    
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    label: 'dE_gemnet_is2re_finetuned'
+    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
+    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+
+  #- step: predict
+  #  type: relaxation
+  #  config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
+  #  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'

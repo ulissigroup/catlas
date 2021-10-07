@@ -6,7 +6,7 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
@@ -23,26 +23,23 @@ spec:
         memory: 16G
         nvidia.com/gpu: "1"
     volumeMounts:
-    - mountPath: /home/jovyan
-      name: workspace-ocp
-      subPath: dask-temp
-    - mountPath: /home/jovyan/ocp/
-      name: workspace-ocp
-      subPath: ocp/
-    - mountPath: /home/jovyan/shared-datasets #Ensure that the mount path mirrors your local directory
+    - mountPath: /home/jovyan/ocp
+      name: workspace-inference
+      subPath: ocp
+    - mountPath: /home/jovyan/catlas
+      name: workspace-inference
+      subPath: catlas
+    - mountPath: /home/jovyan/shared-datasets
       name: shared-datasets
     - mountPath: /home/jovyan/shared-scratch
       name: scratch-scratch
   volumes:
+  - name: workspace-inference
+    persistentVolumeClaim:
+      claimName: workspace-inference
   - name: shared-datasets
     persistentVolumeClaim:
       claimName: shared-datasets
-  - name: workspace-ocp
-    persistentVolumeClaim:
-      claimName: workspace-ocp
   - name: scratch-scratch
     persistentVolumeClaim:
       claimName: shared-scratch
-      
-      
-      
