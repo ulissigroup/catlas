@@ -84,9 +84,11 @@ if __name__ == "__main__":
     client.rebalance()
 
     # Enumerate surface_adsorbate combinations
-    filtered_catalyst_df = filtered_catalyst_df.assign(key=1).merge(
-        filtered_adsorbate_df.assign(key=1), how="outer", on="key"
-    ).persist()
+    filtered_catalyst_df = (
+        filtered_catalyst_df.assign(key=1)
+        .merge(filtered_adsorbate_df.assign(key=1), how="outer", on="key")
+        .persist()
+    )
     filtered_catalyst_df = split_balance_df_partitions(
         filtered_catalyst_df, config["dask"]["partitions"]
     )
