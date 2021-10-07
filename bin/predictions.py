@@ -144,4 +144,4 @@ if __name__ == "__main__":
     if "pickle_path" in config["output_options"]:
         pickle_path = config["output_options"]["pickle_path"]
         if pickle_path != "None":
-            results.to_pickle(pickle_path)
+            results.drop(['slab_surface_object',], axis=1).to_pickle(pickle_path)
