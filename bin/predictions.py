@@ -36,7 +36,7 @@ if __name__ == "__main__":
     bulk_df = bulk_bag.to_dataframe().persist()
     print("Number of bulks: %d" % bulk_df.shape[0].compute())
 
-    filtered_catalyst_df = bulk_filter(config, bulk_df)
+    filtered_catalyst_df = bulk_filter(config, bulk_df).persist()
     filtered_catalyst_df = split_balance_df_partitions(
         filtered_catalyst_df, config["dask"]["partitions"]
     ).persist()
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     # Enumerate surface_adsorbate combinations
     filtered_catalyst_df = filtered_catalyst_df.assign(key=1).merge(
         filtered_adsorbate_df.assign(key=1), how="outer", on="key"
-    )
+    ).persist()
     filtered_catalyst_df = split_balance_df_partitions(
         filtered_catalyst_df, config["dask"]["partitions"]
     )
