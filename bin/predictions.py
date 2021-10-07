@@ -41,6 +41,7 @@ if __name__ == "__main__":
         filtered_catalyst_df, config["dask"]["partitions"]
     ).persist()
     print("Number of filtered bulks: %d" % filtered_catalyst_df.shape[0].compute())
+    client.rebalance()
 
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
@@ -80,6 +81,7 @@ if __name__ == "__main__":
     filtered_catalyst_df = slab_filter(config, filtered_catalyst_df)
     filtered_catalyst_df = filtered_catalyst_df.persist()
     print("Number of filtered surfaces: %d" % filtered_catalyst_df.shape[0].compute())
+    client.rebalance()
 
     # Enumerate surface_adsorbate combinations
     filtered_catalyst_df = filtered_catalyst_df.assign(key=1).merge(
