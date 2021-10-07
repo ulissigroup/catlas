@@ -2,10 +2,10 @@ dask:
   config: |
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
-    cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
-    cluster.adapt(minimum=100, maximum=100, interval="30000 ms")
+    cluster = KubeCluster('configs/worker-spec-gpu.yml', deploy_mode="local")
+    cluster.adapt(minimum=4, maximum=10, interval="30000 ms")
     client = Client(cluster)
-  partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
+  partitions: 1000 # if -1, 1 row per surface otherwise number of partitions
 
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
@@ -33,3 +33,14 @@ slab_filters:
     
     filter_by_max_miller_index: 2
     
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    label: 'dE_gemnet_is2re_finetuned'
+    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
+    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+
+  #- step: predict
+  #  type: relaxation
+  #  config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
+  #  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
