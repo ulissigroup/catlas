@@ -40,6 +40,7 @@ def bulk_filter(config, dask_df):
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
+
             if config["output_options"]["verbose"]:
                 print(
                     'filter "'
