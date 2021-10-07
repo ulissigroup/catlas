@@ -4,6 +4,7 @@ from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
 from catlas.dask_utils import split_balance_df_partitions
+
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
@@ -144,3 +145,4 @@ if __name__ == "__main__":
         pickle_path = config["output_options"]["pickle_path"]
         if pickle_path != "None":
             results.to_pickle(pickle_path)
+
