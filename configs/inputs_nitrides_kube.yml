@@ -1,9 +1,11 @@
-dask_config: |
-  from dask.distributed import Client
-  from dask_kubernetes import KubeCluster
-  cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
-  cluster.adapt(minimum=4, maximum=100, interval="30000 ms")
-  client = Client(cluster)
+dask:
+  config: |
+    from dask.distributed import Client
+    from dask_kubernetes import KubeCluster
+    cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
+    cluster.adapt(minimum=4, maximum=100, interval="30000 ms")
+    client = Client(cluster)
+  partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
