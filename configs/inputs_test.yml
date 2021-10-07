@@ -3,9 +3,9 @@ dask:
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
     cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
-    cluster.adapt(minimum=10, maximum=15, interval="30000 ms")
+    cluster.adapt(minimum=4, maximum=100, interval="30000 ms")
     client = Client(cluster)
-  partitions: 3
+  partitions: -1
 
 memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
 
@@ -27,10 +27,10 @@ bulk_filters:
     filter_by_required_elements: ['W']
 
 adsorbate_filters:
-    filter_by_smiles: ['*H'] #, '*CO','*OH','*CHO']
+    filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-    filter_by_object_size: 999
+    filter_by_object_size: 100
     
     filter_by_max_miller_index: 2
     
