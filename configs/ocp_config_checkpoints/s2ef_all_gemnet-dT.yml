@@ -1,5 +1,5 @@
 includes:
-- configs/ocp_config_checkpoints/s2ef_all_base.yml
+- /home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_base.yml
 
 model:
   name: gemnet_t
@@ -29,7 +29,7 @@ model:
   otf_graph: False
   output_init: HeOrthogonal
   activation: silu
-  scale_file: configs/ocp_config_checkpoints/scaling_factors/gemnet-dT.json
+  scale_file: /home/jovyan/catlas/configs/ocp_config_checkpoints/scaling_factors/gemnet-dT.json
 
   regress_forces: True
   direct_forces: True
