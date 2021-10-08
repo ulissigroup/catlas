@@ -2,7 +2,7 @@
 trainer: energy
 
 dataset:
-  - src: /home/jovyan/catlas/configs/ocp_config_checkpoints/
+  - src: /home/jovyan/catlas/configs/ocp_config_checkpoints/data.lmdb
     normalize_labels: True
     target_mean: -1.525913953781128
     target_std: 2.279365062713623
@@ -46,7 +46,7 @@ model:
   rbf:
     name: gaussian
   regress_forces: false
-  scale_file: configs/s2ef/all/gemnet/scaling_factors/gemnet-dT.json
+  scale_file: /home/jovyan/configs/s2ef/all/gemnet/scaling_factors/gemnet-dT.json
 
 optim:
   batch_size: 32

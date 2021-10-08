@@ -1,7 +1,9 @@
 dask:
   config: |
-    from dask.distributed import Client, LocalCluster
-    cluster = LocalCluster(n_workers=4, threads_per_worker=1)
+    from dask.distributed import Client
+    from dask_kubernetes import KubeCluster
+    cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
+    cluster.adapt(minimum=4, maximum=10, interval="30000 ms")
     client = Client(cluster)
     
   partitions: -1 
