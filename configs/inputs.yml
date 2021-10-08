@@ -15,9 +15,9 @@ output_options:
 
 # optional filters
 bulk_filters:
-    filter_by_mpids: ['mp-126',]
+    filter_by_mpids: ['mp-126','mp-30', 'mp-101']
 
-    filter_by_acceptable_elements: ['Pt'] # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
+    #filter_by_acceptable_elements: ['Pt'] # element_list: ['Cu', 'Pt', 'Sn', 'Al', 'Au'] #, 'Pd', 'Zn', 'Rh', 'Ru', 'Ir', 'Cr', 'In', 'Ga', 'Bi', 'Po', 'Tl', 'W', 'Y', 'Fe']
 
 #    filter_by_num_elements: [1] # [1,2]
 

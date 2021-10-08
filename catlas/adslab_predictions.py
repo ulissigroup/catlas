@@ -8,7 +8,7 @@ direct_calc = None
 relax_calc = None
 
 
-def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
+def direct_energy_prediction(adslab_dict, config_path, checkpoint_path):
 
     global direct_calc
 
@@ -17,15 +17,19 @@ def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     predictions_list = []
 
-    for adslab in adslabs_list:
+    for adslab in adslab_dict['adslab_atoms']:
         adslab = adslab.copy()
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
+        
+    adslabs_dict.pop('adslab_atoms', None)
+    adslabs_dict['predictions'] = predictions_list
+    adslabs_dict['min_E'] = min(predictions_list)
+    
+    return adslabs_dict
 
-    return predictions_list
 
-
-def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
+def relaxation_energy_prediction(adslabs_dict, config_path, checkpoint_path):
 
     global relax_calc
 
@@ -34,7 +38,7 @@ def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     predictions_list = []
 
-    for adslab in adslabs_list:
+    for adslab in adslab_dict['adslab_atoms']:
         adslab = adslab.copy()
         adslab.set_calculator(relax_calc)
         opt = LBFGS(
@@ -47,5 +51,8 @@ def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
         )
         opt.run(fmax=0.05, steps=200)
         predictions_list.append(adslab.get_potential_energy())
-
-    return predictions_list
+    adslabs_dict.pop('adslab_atoms', None)
+    adslabs_dict['predictions'] = predictions_list
+    adslabs_dict['min_E'] = min(predictions_list)
+    
+    return adslabs_dict

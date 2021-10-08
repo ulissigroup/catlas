@@ -36,119 +36,95 @@ if __name__ == "__main__":
     bulk_df = bulk_bag.to_dataframe().persist()
     print("Number of bulks: %d" % bulk_df.shape[0].compute())
 
-    filtered_catalyst_df = bulk_filter(config, bulk_df).persist()
-    filtered_catalyst_df = split_balance_df_partitions(
-        filtered_catalyst_df, config["dask"]["partitions"]
-    ).persist()
-    print("Number of filtered bulks: %d" % filtered_catalyst_df.shape[0].compute())
-    client.rebalance()
-
+    filtered_catalyst_df = bulk_filter(config, bulk_df)
+    bulk_num = filtered_catalyst_df.shape[0].compute()
+    print("Number of filtered bulks: %d" % bulk_num)
+    filtered_catalyst_bag = filtered_catalyst_df.to_bag().persist()
+    bulk_num = 3
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
-    filtered_adsorbate_df = filtered_adsorbate_df.persist()
+    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag()
+    print(filtered_adsorbate_bag)
     print(
         "Number of filtered adsorbates: %d" % filtered_adsorbate_df.shape[0].compute()
     )
-
+    
+    
     # Enumerate surfaces
-    filtered_catalyst_df["surfaces"] = filtered_catalyst_df.bulk_atoms.apply(
-        memory.cache(enumerate_slabs), meta=("surfaces", "object")
-    )
-    filtered_catalyst_df = filtered_catalyst_df.explode("surfaces")
-    filtered_catalyst_df = ddf.concat(
-        [
-            filtered_catalyst_df.drop(["surfaces"], axis=1),
-            filtered_catalyst_df["surfaces"].apply(
-                pd.Series,
-                meta={
-                    "slab_surface_object": "object",
-                    "slab_millers": "object",
-                    "slab_max_miller_index": "int",
-                    "slab_shift": "float",
-                    "slab_top": "bool",
-                    "slab_natoms": "int",
-                },
-            ),
-        ],
-        axis=1,
-    ).persist()
-    print("Number of surfaces: %d" % filtered_catalyst_df.shape[0].compute())
+    if config["dask"]["partitions"] == -1:
+        num_partitions = min(bulk_num * 70, 10000)
+    else:
+        num_partitions = config["dask"]["partitions"]
+        
+    surface_bag= filtered_catalyst_bag.map(
+        memory.cache(enumerate_slabs)
+    ).flatten().repartition(npartitions=num_partitions) # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
+    
+    # Enumerate slab - adsorbate combos
+    surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(adsorbate_bag).persist()
+    # Filter and repartition the surfaces ??
 
-    # Filter and repartition the surfaces
-    filtered_catalyst_df = slab_filter(config, filtered_catalyst_df)
-    filtered_catalyst_df = filtered_catalyst_df.persist()
-    print("Number of filtered surfaces: %d" % filtered_catalyst_df.shape[0].compute())
-    client.rebalance()
+    adslab_bag = surface_adsorbate_combo_bag.map(
+        memory.cache(enumerate_adslabs)
+    )
+    
 
-    # Enumerate surface_adsorbate combinations
-    filtered_catalyst_df = (
-        filtered_catalyst_df.assign(key=1)
-        .merge(filtered_adsorbate_df.assign(key=1), how="outer", on="key")
-        .persist()
-    )
-    filtered_catalyst_df = split_balance_df_partitions(
-        filtered_catalyst_df, config["dask"]["partitions"]
-    )
-    filtered_catalyst_df["adslabs"] = filtered_catalyst_df.apply(
-        memory.cache(enumerate_adslabs), meta=("adslabs", "object"), axis=1
-    )
-    filtered_catalyst_df = filtered_catalyst_df.persist()
-    print("Number of adslab combos: %d" % filtered_catalyst_df.shape[0].compute())
 
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
                 if step["type"] == "direct":
-                    filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
-                        "adslabs"
-                    ].apply(
-                        memory.cache(direct_energy_prediction),
-                        meta=("adslab_dE", "object"),
-                        config_path=step["config_path"],
-                        checkpoint_path=step["checkpoint_path"],
-                    )
+                    predictions_bag = adslab_bag.map(memory.cache(direct_energy_prediction), config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"])
+                    
                 elif step["type"] == "relaxation":
-                    filtered_catalyst_df[step["label"]] = filtered_catalyst_df[
-                        "adslabs"
-                    ].apply(
-                        memory.cache(relaxation_energy_prediction),
-                        meta=("adslab_dE", "object"),
-                        config_path=step["config_path"],
-                        checkpoint_path=step["checkpoint_path"],
-                    )
+                    predictions_bag = adslab_bag.map(memory.cache(relaxation_energy_prediction), config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"])
                 else:
                     print("Unsupported prediction type: %s" % step["type"])
 
-                most_recent_step = "min_" + step["label"]
-                filtered_catalyst_df[most_recent_step] = filtered_catalyst_df[
-                    step["label"]
-                ].apply(min)
+#                 most_recent_step = "min_" + step["label"]
+                
 
     results = filtered_catalyst_df.compute()
-
-    if "verbose" in config["output_options"] and config["output_options"]["verbose"]:
-        print(
-            results[
-                [
-                    "bulk_elements",
-                    "bulk_mpid",
-                    "slab_millers",
-                    "adsorbate_smiles",
-                    most_recent_step,
+    
+    verbose = "verbose" in config["output_options"] and config["output_options"]["verbose"]
+    pickle = "pickle_path" in config["output_options"]
+    
+    if verbose or pickle:
+        results = predictions_bag.compute()
+        df_results = pd.DataFrame(results)
+        
+        if verbose:
+            
+            print(
+                df_results[
+                    [
+                        "composition",
+                        "mpid",
+                        "source"
+                        "slab_millers",
+                        "adsorbate_smiles",
+                        "min_E",
+                    ]
                 ]
-            ]
-        )
+            )
 
-    if "pickle_path" in config["output_options"]:
-        pickle_path = config["output_options"]["pickle_path"]
-        if pickle_path != "None":
-            results.drop(
-                [
-                    "slab_surface_object",
-                ],
-                axis=1,
-            ).to_pickle(pickle_path)
+        if pickle:
+            pickle_path = config["output_options"]["pickle_path"]
+            if pickle_path != "None":
+                results.drop(
+                    [
+                        "slab_surface_object",
+                    ],
+                    axis=1,
+                ).to_pickle(pickle_path)
+                
+    else:
+        results = predictions_bag.persist()
+
+        

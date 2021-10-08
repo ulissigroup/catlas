@@ -19,9 +19,10 @@ class CustomBulk(Bulk):
         self.bulk_atoms = bulk_atoms
 
 
-def enumerate_slabs(bulk_atoms, max_miller=2):
+def enumerate_slabs(bulk_info, max_miller=2):
+    bulk_atoms, mpid, source, ns, functional, ns2, composition = bulk_info
     bulk_obj = CustomBulk(bulk_atoms)
-    surfaces = compute.enumerate_surfaces_for_saving(bulk_atoms, max_miller)
+    surfaces = compute.enumerate_surfaces_for_saving(bulk_atoms, max_miller=2)
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface
@@ -30,7 +31,10 @@ def enumerate_slabs(bulk_atoms, max_miller=2):
             {
                 "slab_surface_object": surface_object,
                 "slab_millers": millers,
-                "slab_max_miller_index": np.max(millers),
+                "mpid": mpid,
+                "source" : source,
+                "composition" : composition,
+                "bulk_functional": functional,
                 "slab_shift": shift,
                 "slab_top": top,
                 "slab_natoms": len(surface_object.surface_atoms),
@@ -39,12 +43,24 @@ def enumerate_slabs(bulk_atoms, max_miller=2):
     return surface_list
 
 
-def enumerate_adslabs(row):
-    surface_obj = row.slab_surface_object
-    adsorbate_atoms = row.adsorbate_atoms
-    bond_indices = row.adsorbate_bond_indices
-    smiles = row.adsorbate_smiles
+def enumerate_adslabs(surface_ads_combo):
+    surface_stuff = surface_ads_combo[0]
+    adsorbate_stuff = surface_ads_combo[1]
+    surface_obj = surface_stuff['slab_surface_object']
+    adsorbate_atoms = adsorbate_stuff['adsorbate_atoms']
+    bond_indices = adsorbate_stuff['adsorbate_bond_indices']
+    smiles = adsorbate_stuff['adsorbate_smiles']
     adsorbate_obj = CustomAdsorbate(adsorbate_atoms, bond_indices, smiles)
     combo_obj = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
     adslabs_list = combo_obj.adsorbed_surface_atoms
-    return adslabs_list
+    dict_to_return = {
+        'adsorbate_smile' : smiles,
+        'mpid': surface_stuff['mpid'],
+        'bulk_source': surface_stuff['source'],
+        'shift': surface_stuff['slab_shift'],
+        'slab_top': surface_stuff['slab_top'],
+        'bulk_functional': surface_stuff['bulk_functional'],
+        'slab_millers': surface_stuff['slab_millers'],
+        'adslab_atoms': adslabs_list
+    }
+    return dict_to_return
