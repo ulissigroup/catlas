@@ -46,7 +46,7 @@ model:
   rbf:
     name: gaussian
   regress_forces: false
-  scale_file: /home/jovyan/configs/s2ef/all/gemnet/scaling_factors/gemnet-dT.json
+  scale_file:  /home/jovyan/catlas/configs/ocp_config_checkpoints/scaling_factors/gemnet-dT.json
 
 optim:
   batch_size: 32

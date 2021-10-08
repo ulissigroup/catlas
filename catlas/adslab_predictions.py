@@ -22,14 +22,13 @@ def direct_energy_prediction(adslab_dict, config_path, checkpoint_path):
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
 
-    adslabs_dict.pop("adslab_atoms", None)
-    adslabs_dict["predictions"] = predictions_list
-    adslabs_dict["min_E"] = min(predictions_list)
+    adslab_dict.pop("adslab_atoms", None)
+    adslab_dict["inferred_E"] = predictions_list
 
-    return adslabs_dict
+    return adslab_dict
 
 
-def relaxation_energy_prediction(adslabs_dict, config_path, checkpoint_path):
+def relaxation_energy_prediction(adslab_dict, config_path, checkpoint_path):
 
     global relax_calc
 
@@ -51,8 +50,7 @@ def relaxation_energy_prediction(adslabs_dict, config_path, checkpoint_path):
         )
         opt.run(fmax=0.05, steps=200)
         predictions_list.append(adslab.get_potential_energy())
-    adslabs_dict.pop("adslab_atoms", None)
-    adslabs_dict["predictions"] = predictions_list
-    adslabs_dict["min_E"] = min(predictions_list)
+    adslab_dict.pop("adslab_atoms", None)
+    adslab_dict["inferred_E"] = predictions_list
 
-    return adslabs_dict
+    return adslab_dict
