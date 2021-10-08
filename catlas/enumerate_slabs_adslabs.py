@@ -32,8 +32,8 @@ def enumerate_slabs(bulk_info, max_miller=2):
                 "slab_surface_object": surface_object,
                 "slab_millers": millers,
                 "mpid": mpid,
-                "source" : source,
-                "composition" : composition,
+                "source": source,
+                "composition": composition,
                 "bulk_functional": functional,
                 "slab_shift": shift,
                 "slab_top": top,
@@ -46,21 +46,21 @@ def enumerate_slabs(bulk_info, max_miller=2):
 def enumerate_adslabs(surface_ads_combo):
     surface_stuff = surface_ads_combo[0]
     adsorbate_stuff = surface_ads_combo[1]
-    surface_obj = surface_stuff['slab_surface_object']
-    adsorbate_atoms = adsorbate_stuff['adsorbate_atoms']
-    bond_indices = adsorbate_stuff['adsorbate_bond_indices']
-    smiles = adsorbate_stuff['adsorbate_smiles']
+    surface_obj = surface_stuff["slab_surface_object"]
+    adsorbate_atoms = adsorbate_stuff["adsorbate_atoms"]
+    bond_indices = adsorbate_stuff["adsorbate_bond_indices"]
+    smiles = adsorbate_stuff["adsorbate_smiles"]
     adsorbate_obj = CustomAdsorbate(adsorbate_atoms, bond_indices, smiles)
     combo_obj = Combined(adsorbate_obj, surface_obj, enumerate_all_configs=True)
     adslabs_list = combo_obj.adsorbed_surface_atoms
     dict_to_return = {
-        'adsorbate_smile' : smiles,
-        'mpid': surface_stuff['mpid'],
-        'bulk_source': surface_stuff['source'],
-        'shift': surface_stuff['slab_shift'],
-        'slab_top': surface_stuff['slab_top'],
-        'bulk_functional': surface_stuff['bulk_functional'],
-        'slab_millers': surface_stuff['slab_millers'],
-        'adslab_atoms': adslabs_list
+        "adsorbate_smile": smiles,
+        "mpid": surface_stuff["mpid"],
+        "bulk_source": surface_stuff["source"],
+        "shift": surface_stuff["slab_shift"],
+        "slab_top": surface_stuff["slab_top"],
+        "bulk_functional": surface_stuff["bulk_functional"],
+        "slab_millers": surface_stuff["slab_millers"],
+        "adslab_atoms": adslabs_list,
     }
     return dict_to_return

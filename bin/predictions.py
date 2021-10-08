@@ -51,63 +51,68 @@ if __name__ == "__main__":
     print(
         "Number of filtered adsorbates: %d" % filtered_adsorbate_df.shape[0].compute()
     )
-    
-    
+
     # Enumerate surfaces
     if config["dask"]["partitions"] == -1:
         num_partitions = min(bulk_num * 70, 10000)
     else:
         num_partitions = config["dask"]["partitions"]
-        
-    surface_bag= filtered_catalyst_bag.map(
-        memory.cache(enumerate_slabs)
-    ).flatten().repartition(npartitions=num_partitions) # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
-    
+
+    surface_bag = (
+        filtered_catalyst_bag.map(memory.cache(enumerate_slabs))
+        .flatten()
+        .repartition(npartitions=num_partitions)
+    )  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
+
     # Enumerate slab - adsorbate combos
-    surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(adsorbate_bag).persist()
+    surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(
+        adsorbate_bag
+    ).persist()
     # Filter and repartition the surfaces ??
 
-    adslab_bag = surface_adsorbate_combo_bag.map(
-        memory.cache(enumerate_adslabs)
-    )
-    
-
+    adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
 
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
                 if step["type"] == "direct":
-                    predictions_bag = adslab_bag.map(memory.cache(direct_energy_prediction), config_path=step["config_path"],
-                        checkpoint_path=step["checkpoint_path"])
-                    
+                    predictions_bag = adslab_bag.map(
+                        memory.cache(direct_energy_prediction),
+                        config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"],
+                    )
+
                 elif step["type"] == "relaxation":
-                    predictions_bag = adslab_bag.map(memory.cache(relaxation_energy_prediction), config_path=step["config_path"],
-                        checkpoint_path=step["checkpoint_path"])
+                    predictions_bag = adslab_bag.map(
+                        memory.cache(relaxation_energy_prediction),
+                        config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"],
+                    )
                 else:
                     print("Unsupported prediction type: %s" % step["type"])
 
-#                 most_recent_step = "min_" + step["label"]
-                
+    #                 most_recent_step = "min_" + step["label"]
 
     results = filtered_catalyst_df.compute()
-    
-    verbose = "verbose" in config["output_options"] and config["output_options"]["verbose"]
+
+    verbose = (
+        "verbose" in config["output_options"] and config["output_options"]["verbose"]
+    )
     pickle = "pickle_path" in config["output_options"]
-    
+
     if verbose or pickle:
         results = predictions_bag.compute()
         df_results = pd.DataFrame(results)
-        
+
         if verbose:
-            
+
             print(
                 df_results[
                     [
                         "composition",
                         "mpid",
-                        "source"
-                        "slab_millers",
+                        "source" "slab_millers",
                         "adsorbate_smiles",
                         "min_E",
                     ]
@@ -123,8 +128,6 @@ if __name__ == "__main__":
                     ],
                     axis=1,
                 ).to_pickle(pickle_path)
-                
+
     else:
         results = predictions_bag.persist()
-
-        
