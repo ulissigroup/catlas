@@ -53,12 +53,9 @@ if __name__ == "__main__":
 
     # Enumerate surfaces
 
-
-    surface_bag = (
-        filtered_catalyst_bag.map(memory.cache(enumerate_slabs))
-        .flatten()
-        
-    )  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
+    surface_bag = filtered_catalyst_bag.map(
+        memory.cache(enumerate_slabs)
+    ).flatten()  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
 
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
