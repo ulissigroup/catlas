@@ -129,4 +129,4 @@ if __name__ == "__main__":
                 ).to_pickle(pickle_path)
 
     else:
-        results = predictions_bag.persist()
+        results = adslab_bag.persist()
