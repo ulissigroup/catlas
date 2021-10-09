@@ -17,13 +17,14 @@ jobs:
     steps:
     - run: |
         sudo apt update && sudo apt install git-lfs
-    - name: Run example predictions
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
       with: 
         lfs: true
+        path: catlas
     - run: |
-        scp -r ./ /home/runner/shared-scratch/catlas_runners/$GITHUB_RUN_NUMBER
+        scp -r catlas shared-scratch/catlas_runners/$GITHUB_RUN_ID
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
+        cd catlas
         python setup.py develop
         python bin/predictions.py configs/inputs.yml
