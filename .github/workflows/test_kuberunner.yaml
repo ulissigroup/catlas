@@ -12,6 +12,9 @@ jobs:
     # runs within your Docker container
     container:
       image: docker://ulissigroup/kubeflow:predictions
+      volumes:
+        - /home/jovyan/shared-scratch
+
     # checkout your code from your repository
     # and runs pytest in your pipenv environment
     steps:
@@ -20,12 +23,10 @@ jobs:
     - uses: actions/checkout@v2
       with: 
         lfs: true
-        path: catlas
     - run: |
-        ls -latr
-        scp -r catlas catlas_runners/$GITHUB_RUN_ID
+        mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
+        scp -r ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
-        cd catlas
         python setup.py develop
         python bin/predictions.py configs/inputs.yml
