@@ -22,6 +22,7 @@ jobs:
         lfs: true
         path: catlas
     - run: |
+        ls -latr
         scp -r catlas catlas_runners/$GITHUB_RUN_ID
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
