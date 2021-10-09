@@ -8,7 +8,9 @@ direct_calc = None
 relax_calc = None
 
 
-def direct_energy_prediction(adslab_dict, config_path, checkpoint_path):
+def direct_energy_prediction(adslab_dict, config_path, checkpoint_path, column_name):
+
+    adslab_results = copy.deepcopy(adslab_dict)
 
     global direct_calc
 
@@ -22,14 +24,17 @@ def direct_energy_prediction(adslab_dict, config_path, checkpoint_path):
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
 
-    adslabs_dict.pop("adslab_atoms", None)
-    adslabs_dict["predictions"] = predictions_list
-    adslabs_dict["min_E"] = min(predictions_list)
+    adslab_results[column_name] = predictions_list
+    adslab_results["min_" + column_name] = min(predictions_list)
 
-    return adslabs_dict
+    return adslab_results
 
 
-def relaxation_energy_prediction(adslabs_dict, config_path, checkpoint_path):
+def relaxation_energy_prediction(
+    adslabs_dict, config_path, checkpoint_path, column_name
+):
+
+    adslab_results = copy.deepcopy(adslab_dict)
 
     global relax_calc
 
@@ -51,8 +56,8 @@ def relaxation_energy_prediction(adslabs_dict, config_path, checkpoint_path):
         )
         opt.run(fmax=0.05, steps=200)
         predictions_list.append(adslab.get_potential_energy())
-    adslabs_dict.pop("adslab_atoms", None)
-    adslabs_dict["predictions"] = predictions_list
-    adslabs_dict["min_E"] = min(predictions_list)
 
-    return adslabs_dict
+    adslab_results[column_name] = predictions_list
+    adslab_results["min_" + column_name] = min(predictions_list)
+
+    return adslab_results

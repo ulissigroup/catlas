@@ -39,15 +39,14 @@ if __name__ == "__main__":
     filtered_catalyst_df = bulk_filter(config, bulk_df)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
-    filtered_catalyst_bag = filtered_catalyst_df.to_bag().persist()
-    bulk_num = 3
+    filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
-    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag()
-    print(filtered_adsorbate_bag)
+    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print(
         "Number of filtered adsorbates: %d" % filtered_adsorbate_df.shape[0].compute()
     )
@@ -66,7 +65,7 @@ if __name__ == "__main__":
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(
-        adsorbate_bag
+        filtered_adsorbate_bag
     ).persist()
     # Filter and repartition the surfaces ??
 
@@ -77,24 +76,24 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
                 if step["type"] == "direct":
-                    predictions_bag = adslab_bag.map(
+                    adslab_bag = adslab_bag.map(
                         memory.cache(direct_energy_prediction),
                         config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
+                        column_name=step["label"],
                     )
 
                 elif step["type"] == "relaxation":
-                    predictions_bag = adslab_bag.map(
+                    adslab_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
                         config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
+                        column_name=step["label"],
                     )
                 else:
                     print("Unsupported prediction type: %s" % step["type"])
 
-    #                 most_recent_step = "min_" + step["label"]
-
-    results = filtered_catalyst_df.compute()
+                most_recent_step = "min_" + step["label"]
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
@@ -102,7 +101,7 @@ if __name__ == "__main__":
     pickle = "pickle_path" in config["output_options"]
 
     if verbose or pickle:
-        results = predictions_bag.compute()
+        results = adslab_bag.compute()
         df_results = pd.DataFrame(results)
 
         if verbose:
@@ -110,11 +109,12 @@ if __name__ == "__main__":
             print(
                 df_results[
                     [
-                        "composition",
-                        "mpid",
-                        "source" "slab_millers",
+                        "bulk_elements",
+                        "bulk_mpid",
+                        "bulk_data_source",
+                        "slab_millers",
                         "adsorbate_smiles",
-                        "min_E",
+                        most_recent_step,
                     ]
                 ]
             )
