@@ -18,16 +18,18 @@ jobs:
     # checkout your code from your repository
     # and runs pytest in your pipenv environment
     steps:
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.ZULISSI_KUBECONFIG }}
+        context: ulissigroup-desktops-fqdn
+      id: setcontext
     - run: |
         sudo apt update && sudo apt install git-lfs
     - uses: actions/checkout@v2
       with: 
         lfs: true
     - run: |
-        #ls -latr /home/
-        #ls -latr /home/jovyan/
-        #ls -latr /home/jovyan/shared-scratch
-        #ls -latr /home/jovyan/shared-scratch/catlas_runners/
         mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
     - run: |
