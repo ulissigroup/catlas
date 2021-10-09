@@ -1,36 +1,38 @@
 includes:
-- /home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_base.yml
+- configs/ocp_config_checkpoints/s2ef_all_base.yml
 
 model:
   name: gemnet_t
-  activation: silu
-  cbf:
-    name: spherical_harmonics
-  cutoff: 6.0
-  direct_forces: true
-  emb_size_atom: 512
-  emb_size_bil_trip: 64
-  emb_size_cbf: 16
-  emb_size_edge: 512
-  emb_size_rbf: 16
-  emb_size_trip: 64
-  envelope:
-    exponent: 5
-    name: polynomial
-  extensive: true
-  num_after_skip: 2
-  num_atom: 3
-  num_before_skip: 1
-  num_blocks: 3
-  num_concat: 1
-  num_radial: 128
   num_spherical: 7
-  otf_graph: false
-  output_init: HeOrthogonal
+  num_radial: 128
+  num_blocks: 3
+  emb_size_atom: 512
+  emb_size_edge: 512
+  emb_size_trip: 64
+  emb_size_rbf: 16
+  emb_size_cbf: 16
+  emb_size_bil_trip: 64
+  num_before_skip: 1
+  num_after_skip: 2
+  num_concat: 1
+  num_atom: 3
+  cutoff: 6.0
+  max_neighbors: 50
   rbf:
     name: gaussian
-  regress_forces: false
-  scale_file: configs/s2ef/all/gemnet/scaling_factors/gemnet-dT.json
+  envelope:
+    name: polynomial
+    exponent: 5
+  cbf:
+    name: spherical_harmonics
+  extensive: True
+  otf_graph: False
+  output_init: HeOrthogonal
+  activation: silu
+  scale_file: configs/ocp_config_checkpoints/scaling_factors/gemnet-dT.json
+
+  regress_forces: True
+  direct_forces: True
 
 optim:
   batch_size: 32
