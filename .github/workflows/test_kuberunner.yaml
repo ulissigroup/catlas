@@ -12,8 +12,8 @@ jobs:
     # runs within your Docker container
     container:
       image: docker://ulissigroup/kubeflow:predictions
-      volumes:
-        - /home/jovyan/shared-scratch
+      #volumes:
+      #  - /home/jovyan/shared-scratch
 
     # checkout your code from your repository
     # and runs pytest in your pipenv environment
@@ -22,10 +22,10 @@ jobs:
         sudo apt update && sudo apt install git-lfs
     - uses: actions/checkout@v2
       with: 
-        lfs: true
+        lfs: false
     - run: |
-        mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        scp -r ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
+        mkdir /__w/catlas_runners/$GITHUB_RUN_ID
+        scp -r ./ /__w/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
         python setup.py develop
