@@ -22,7 +22,7 @@ jobs:
       with: 
         lfs: true
     - run: |
-        scp -r ./ /home/runner/shared-scratch/catlas_runners/${{ GITHUB_RUN_NUMBER }}
+        scp -r ./ /home/runner/shared-scratch/catlas_runners/$GITHUB_RUN_NUMBER
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
         python setup.py develop
