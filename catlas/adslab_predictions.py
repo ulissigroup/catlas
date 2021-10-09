@@ -61,3 +61,4 @@ def relaxation_energy_prediction(
     adslab_results["min_" + column_name] = min(predictions_list)
 
     return adslab_results
+
