@@ -1,0 +1,29 @@
+name: Test kube catlas runners
+
+env:
+  OMP_NUM_THREADS: '1'
+# workflow triggered by any push on any branch
+on: [push]
+jobs:
+  build:
+    name: Run example predictions
+    # runs on the latest Ubuntu
+    runs-on: [self-hosted, linux, catlas]
+    # runs within your Docker container
+    container:
+      image: docker://ulissigroup/kubeflow:predictions
+    # checkout your code from your repository
+    # and runs pytest in your pipenv environment
+    steps:
+    - run: |
+        sudo apt update && sudo apt install git-lfs
+    - name: Run example predictions
+      uses: actions/checkout@v2
+      with: 
+        lfs: true
+    - run: |
+        scp -r ./ /home/runner/shared-scratch/catlas_runners/${{ GITHUB_RUN_NUMBER }}
+    - run: |
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
+        python setup.py develop
+        python bin/predictions.py configs/inputs.yml
