@@ -24,6 +24,10 @@ jobs:
       with: 
         lfs: true
     - run: |
+        ls -latr /home/
+        ls -latr /home/jovyan/
+        ls -latr /home/jovyan/shared-scratch
+        ls -latr /home/jovyan/shared-scratch/catlas_runners/
         mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
     - run: |
