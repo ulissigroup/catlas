@@ -62,5 +62,7 @@ def enumerate_adslabs(surface_ads_combo):
         "bulk_functional": surface_stuff["bulk_functional"],
         "slab_millers": surface_stuff["slab_millers"],
         "adslab_atoms": adslabs_list,
+        "composition" : surface_stuff["composition"],
+        "source": surface_stuff["source"],
     }
     return dict_to_return

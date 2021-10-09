@@ -54,20 +54,21 @@ if __name__ == "__main__":
 
     # Enumerate surfaces
 
-    surface_bag = filtered_catalyst_bag.map(
-        memory.cache(enumerate_slabs)
-    ).flatten()  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
+
+    surface_bag = (
+        filtered_catalyst_bag.map(memory.cache(enumerate_slabs))
+        .flatten()
+        
+    )  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
 
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
         num_partitions = min(bulk_num * 70, 10000)
     else:
         num_partitions = config["dask"]["partitions"]
-    surface_adsorbate_combo_bag = surface_ads_combos = (
-        surface_bag.product(adsorbate_bag)
-        .repartition(npartitions=num_partitions)
-        .persist()
-    )
+    surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(
+        adsorbate_bag
+    ).repartition(npartitions=num_partitions).persist()
     # Filter and repartition the surfaces ??
 
     adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
@@ -112,8 +113,9 @@ if __name__ == "__main__":
                     [
                         "composition",
                         "mpid",
-                        "source" "slab_millers",
-                        "adsorbate_smiles",
+                        "source" ,
+                        "slab_millers",
+                        "adsorbate_smile",
                         "inferred_E",
                     ]
                 ]
