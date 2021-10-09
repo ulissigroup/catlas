@@ -24,8 +24,8 @@ jobs:
       with: 
         lfs: false
     - run: |
-        mkdir /__w/catlas_runners/$GITHUB_RUN_ID
-        scp -r ./ /__w/catlas_runners/$GITHUB_RUN_ID/
+        sudo mkdir /__w/catlas_runners/$GITHUB_RUN_ID
+        sudo scp -r ./ /__w/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
         python setup.py develop
