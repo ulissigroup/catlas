@@ -9,7 +9,7 @@ jobs:
   build:
     name: Run example predictions
 
-    runs-on: [self-hosted, linux, catlas-runner]
+    runs-on: [self-hosted, linux, shared-scratch]
 
     container:
       image: docker://ulissigroup/kubeflow:predictions

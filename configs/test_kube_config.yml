@@ -7,7 +7,7 @@ dask:
 
     template = Template(open('configs/worker-specs/github-workers-cpu.tmpl').read())
     with open('./configs/worker-specs/github-workers-cpu.yml','w') as fhandle:
-        fhandle.write(template.render(env=os.environ))
+        fhandle.write(template.render(**os.environ))
 
     print(os.environ)
     cluster = KubeCluster(pod_template = 'configs/worker-specs/github-workers-cpu.yml', 
