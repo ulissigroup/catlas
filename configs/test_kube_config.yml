@@ -11,7 +11,7 @@ dask:
 
     cluster = KubeCluster(pod_template = 'configs/worker-specs/github-workers-cpu.yml', 
                           namespace='zulissi',
-                          name='dask-catlas-%s-' % os.environ['GITHUB_RUN_ID'])
+                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'])
     cluster.adapt(minimum=2, maximum=2, interval="30000 ms")
     client = Client(cluster)
 
