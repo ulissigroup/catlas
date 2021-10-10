@@ -30,7 +30,7 @@ jobs:
       with: 
         lfs: true
     - run: |
-        mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
+        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
