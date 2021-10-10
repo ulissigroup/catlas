@@ -2,21 +2,20 @@ name: Test kube catlas runners
 
 env:
   OMP_NUM_THREADS: '1'
-# workflow triggered by any push on any branch
+
 on: [push]
+
 jobs:
   build:
     name: Run example predictions
-    # runs on the latest Ubuntu
+
     runs-on: [self-hosted, linux, catlas-runner]
-    # runs within your Docker container
+
     container:
       image: docker://ulissigroup/kubeflow:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
-    # checkout your code from your repository
-    # and runs pytest in your pipenv environment
     steps:
     - uses: azure/k8s-set-context@v1
       with:
@@ -26,13 +25,14 @@ jobs:
       id: setcontext
     - run: |
         sudo apt update && sudo apt install git-lfs
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
     - uses: actions/checkout@v2
       with: 
         lfs: true
     - run: |
         mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
+        rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
+        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/ocp
     - run: |
-        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
         python setup.py develop
-        python bin/predictions.py configs/inputs.yml
+        python bin/predictions.py configs/test_kube_config.yml
