@@ -24,7 +24,7 @@ jobs:
     - run: |
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
         python setup.py develop
-        python bin/predictions.py configs/inputs.yml
+        python bin/predictions.py configs/test/test_local_scheduler.yml
 
   test_kubecluster:
     name: Test catlas with kubecluster
