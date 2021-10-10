@@ -32,6 +32,7 @@ def split_balance_df_partitions(df, npartitions):
     df = df.repartition(npartitions=npartitions)
     return _rebalance_ddf(df)
 
+
 def bag_split_individual_partitions(bag):
     new_name = "repartition-%s" % (tokenize(bag))
 

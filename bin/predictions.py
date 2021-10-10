@@ -3,12 +3,16 @@ from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
-from catlas.dask_utils import split_balance_df_partitions
+from catlas.dask_utils import (
+    split_balance_df_partitions,
+    bag_split_individual_partitions,
+)
 
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
 )
+
 import dask.bag as db
 import dask
 import sys
@@ -40,6 +44,7 @@ if __name__ == "__main__":
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+    filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
@@ -62,9 +67,13 @@ if __name__ == "__main__":
         num_partitions = min(bulk_num * 70, 10000)
     else:
         num_partitions = config["dask"]["partitions"]
+
     surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(
         filtered_adsorbate_bag
     ).persist()
+    surface_adsorbate_combo_bag = bag_split_individual_partitions(
+        surface_adsorbate_combo_bag
+    )
 
     # Filter and repartition the surfaces ??
 
