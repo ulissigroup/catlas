@@ -32,7 +32,7 @@ jobs:
     - run: |
         mkdir /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/ocp
+        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         python setup.py develop
         python bin/predictions.py configs/test_kube_config.yml
