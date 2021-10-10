@@ -19,7 +19,7 @@ def direct_energy_prediction(adslab_dict, config_path, checkpoint_path, column_n
 
     predictions_list = []
 
-    for adslab in adslab_dict["adslab_atoms"]:
+    for adslab in adslab_results["adslab_atoms"]:
         adslab = adslab.copy()
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
@@ -43,7 +43,7 @@ def relaxation_energy_prediction(
 
     predictions_list = []
 
-    for adslab in adslab_dict["adslab_atoms"]:
+    for adslab in adslab_results["adslab_atoms"]:
         adslab = adslab.copy()
         adslab.set_calculator(relax_calc)
         opt = LBFGS(
