@@ -6,7 +6,8 @@ from operator import getitem
 import numpy as np
 import dask.dataframe as dd
 from dask.dataframe.io.io import sorted_division_locations
-
+import operator
+from dask.bag import Bag
 
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
