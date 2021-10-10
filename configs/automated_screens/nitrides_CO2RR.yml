@@ -16,7 +16,7 @@ dask:
     client = Client(cluster)
   partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions

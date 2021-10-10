@@ -17,7 +17,7 @@ dask:
 
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/inference_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
   pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
