@@ -21,10 +21,10 @@ spec:
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: shared-scratch
-      subPath: catlas_runners/${{ GITHUB_RUN_ID }}/ocp
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/ocp
     - mountPath: /home/jovyan/catlas
       name: shared-scratch
-      subPath: catlas_runners/${{ GITHUB_RUN_ID }}/catlas
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/catlas
     - mountPath: /home/jovyan/shared-scratch
       name: shared-scratch
   volumes:
