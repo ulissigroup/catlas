@@ -1,4 +1,4 @@
-name: Test kube catlas runners
+name: Test catlas with simple screening
 
 env:
   OMP_NUM_THREADS: '1'
@@ -6,8 +6,28 @@ env:
 on: [push]
 
 jobs:
-  build:
-    name: Run example predictions
+  test_local_scheduler:
+    name: Test catlas with local scheduler
+
+    runs-on: [self-hosted, linux]
+
+    container:
+      image: docker://ulissigroup/kubeflow:predictions
+
+    steps:
+    - run: |
+        sudo apt update && sudo apt install git-lfs
+    - name: Run example predictions
+      uses: actions/checkout@v2
+      with: 
+        lfs: true
+    - run: |
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
+        python setup.py develop
+        python bin/predictions.py configs/inputs.yml
+
+  test_kubecluster:
+    name: Test catlas with kubecluster
 
     runs-on: [self-hosted, linux, shared-scratch]
 
@@ -28,13 +48,14 @@ jobs:
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix)
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v2
-      with: 
+      with:
         lfs: true
         path: catlas
     - run: |
         cd catlas
         python setup.py develop
-        python bin/predictions.py configs/test_kube_config.yml
+        python bin/predictions.py configs/tests/test_kubecluster.yml
+

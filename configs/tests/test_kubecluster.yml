@@ -5,11 +5,11 @@ dask:
     import os
     from jinja2 import Template
 
-    template = Template(open('configs/worker-specs/github-workers-cpu.tmpl').read())
-    with open('./configs/worker-specs/github-workers-cpu.yml','w') as fhandle:
+    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
+    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
         fhandle.write(template.render(**os.environ))
 
-    cluster = KubeCluster(pod_template = 'configs/worker-specs/github-workers-cpu.yml', 
+    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml', 
                           namespace='zulissi',
                           name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'])
     cluster.adapt(minimum=2, maximum=2, interval="30000 ms")
