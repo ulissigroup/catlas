@@ -2,8 +2,17 @@ dask:
   config: |
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
-    cluster = KubeCluster('configs/worker-spec-cpu-inference.yml', deploy_mode="local")
-    cluster.adapt(minimum=50, maximum=50, interval="30000 ms")
+    import os
+    from jinja2 import Template
+
+    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
+    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
+        fhandle.write(template.render(**os.environ))
+
+    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml',
+                          namespace='zulissi',
+                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'])
+    cluster.adapt(minimum=2, maximum=100, interval="30000 ms")
     client = Client(cluster)
   partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
@@ -15,13 +24,9 @@ output_options:
   verbose: true
 
 bulk_filters:
-    #filter_by_mpids: None # ['mp-126']
-
     filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
 
-    #filter_by_num_elements: [2,3] # [1,2]
-
-    filter_by_object_size: 40 # 60
+    filter_by_object_size: 60 # 60
 
     filter_by_required_elements: ['N']
 
@@ -30,7 +35,6 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-    
     filter_by_max_miller_index: 2
     
 adslab_prediction_steps:

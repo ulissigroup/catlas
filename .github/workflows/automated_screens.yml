@@ -1,0 +1,42 @@
+name: Automated screening
+
+env:
+  OMP_NUM_THREADS: '1'
+
+on: [push]
+
+jobs:
+
+  nitrides_CO2RR:
+    name: Screen nitrides for CO2RR
+
+    runs-on: [self-hosted, linux, shared-scratch]
+
+    container:
+      image: docker://ulissigroup/kubeflow:predictions
+      volumes:
+        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
+
+    steps:
+    - uses: azure/k8s-set-context@v1
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.ZULISSI_KUBECONFIG }}
+        context: ulissigroup-desktops-fqdn
+      id: setcontext
+    - run: |
+        sudo apt update && sudo apt install git-lfs
+        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
+        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
+        ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
+        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix)
+        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
+    - uses: actions/checkout@v2
+      with:
+        lfs: true
+        path: catlas
+    - run: |
+        cd catlas
+        python setup.py develop
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml
+
