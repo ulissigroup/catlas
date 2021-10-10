@@ -3,6 +3,7 @@ dask:
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
     import os
+    from jinja2 import Template
 
     template = Template(open('configs/worker-specs/github-workers-cpu.tmpl').read())
     with open('./configs/worker-specs/github-workers-cpu.yml','w') as fhandle:
