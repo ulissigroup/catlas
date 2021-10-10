@@ -25,14 +25,14 @@ jobs:
       id: setcontext
     - run: |
         sudo apt update && sudo apt install git-lfs
+        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
+        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
+        ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix) 
+        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v2
       with: 
         lfs: true
-    - run: |
-        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        rsync -a ./ /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         python setup.py develop
         python bin/predictions.py configs/test_kube_config.yml
