@@ -27,6 +27,8 @@ spec:
     - mountPath: /home/jovyan/catlas
       name: shared-scratch
       subPath: catlas_runners/${{ RUNNER_ID }}/catlas
+    - mountPath: /home/jovyan/shared-scratch
+      name: shared-scratch
   volumes:
   - name: scratch-scratch
     persistentVolumeClaim:
