@@ -53,9 +53,7 @@ if __name__ == "__main__":
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
-    print(
-        "Number of filtered adsorbates: %d" % adsorbate_num
-    )
+    print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate surfaces
 
@@ -69,13 +67,13 @@ if __name__ == "__main__":
     else:
         num_partitions = config["dask"]["partitions"]
 
-    surface_adsorbate_combo_bag surface_bag.product(
-        filtered_adsorbate_bag
-    ).persist()
-    surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(npartitions=bulk_num * adsorbate_num * 20)
-    #surface_adsorbate_combo_bag = bag_split_individual_partitions(
+    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag).persist()
+    surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
+        npartitions=bulk_num * adsorbate_num * 20
+    )
+    # surface_adsorbate_combo_bag = bag_split_individual_partitions(
     #    surface_adsorbate_combo_bag
-    #)
+    # )
 
     # Filter and repartition the surfaces ??
 
