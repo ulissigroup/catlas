@@ -21,7 +21,7 @@ memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'HER_test_screen'
+  optional_additional_path_str: 'CO2RR_test_screen'
   verbose: true
 
 bulk_filters:

@@ -7,23 +7,21 @@ dask:
     from jinja2 import Template
 
     dask.config.set({"distributed.comm.timeouts.connect":120})
-    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
-    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
-        fhandle.write(template.render(**os.environ))
 
-    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml',
-                          namespace='kbroderick',
-                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'],
+    cluster = KubeCluster(pod_template = 'configs/tests/workers-cpu-dev.yml',
+                          namespace='zulissi',
+                          name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
     cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
     client = Client(cluster)
+
   partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
   pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'CO2RR_screen'
+  optional_additional_path_str: 'HER_test_screen'
   verbose: true
 
 bulk_filters:
