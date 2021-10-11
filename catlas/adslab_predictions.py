@@ -19,16 +19,12 @@ def direct_energy_prediction(adslab_dict, config_path, checkpoint_path, column_n
 
     predictions_list = []
 
-    try:
-        for adslab in adslab_results["adslab_atoms"]:
-            adslab = adslab.copy()
-            adslab.set_calculator(direct_calc)
-            predictions_list.append(adslab.get_potential_energy())
-        adslab_results[column_name] = predictions_list
-        adslab_results["min_" + column_name] = min(predictions_list)
-    except BaseException as err:
-        adslab_results[column_name] = print(err)
-        adslab_results["min_" + column_name] = print(err)
+    for adslab in adslab_results["adslab_atoms"]:
+        adslab = adslab.copy()
+        adslab.set_calculator(direct_calc)
+        predictions_list.append(adslab.get_potential_energy())
+    adslab_results[column_name] = predictions_list
+    adslab_results["min_" + column_name] = min(predictions_list)
 
     return adslab_results
 
