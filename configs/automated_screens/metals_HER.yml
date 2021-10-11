@@ -1,6 +1,6 @@
 adslab_prediction_steps:
-- checkpoint_path: /home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt
-  config_path: /home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml
+- config_path: /home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml
+  checkpoint_path: /home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt
   label: dE_gemnet_is2re_finetuned
   step: predict
   type: direct
@@ -13,9 +13,9 @@ dask:
       from dask.distributed import Client
       from dask_kubernetes import KubeCluster
       cluster = KubeCluster('configs/worker-spec.yml', deploy_mode="local")
-      cluster.adapt(minimum=1, maximum=100, interval="30000 ms")
+      cluster.adapt(minimum=10, maximum=80, interval="30000 ms")
       client = Client(cluster)
-    partitions: 1
+    partitions: 250
 # |
 #   from dask.distributed import Client, LocalCluster
 #   cluster = LocalCluster(n_workers=1, threads_per_worker=1)

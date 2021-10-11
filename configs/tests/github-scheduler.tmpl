@@ -1,0 +1,33 @@
+kind: Pod
+spec:
+  restartPolicy: Never
+  containers:
+  - image: ulissigroup/kubeflow:predictions
+    imagePullPolicy: Always
+    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
+    name: dask
+    env:
+    - name: OMP_NUM_THREADS
+      value: 1
+    - name: PYTHONPATH
+      value: "/home/jovyan/ocp:/home/jovyan/catlas"
+    resources:
+      limits:
+        cpu: "2"
+        memory: 16G
+      requests:
+        cpu: "2"
+        memory: 16G
+    volumeMounts:
+    - mountPath: /home/jovyan/ocp
+      name: shared-scratch
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/ocp
+    - mountPath: /home/jovyan/catlas
+      name: shared-scratch
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/catlas
+    - mountPath: /home/jovyan/shared-scratch
+      name: shared-scratch
+  volumes:
+  - name: shared-scratch
+    persistentVolumeClaim:
+      claimName: shared-scratch

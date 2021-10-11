@@ -2,13 +2,16 @@ from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 from ocdata.combined import Combined
 from ase.optimize import LBFGS
+import numpy as np
 
 # Module calculator to be shared
 direct_calc = None
 relax_calc = None
 
 
-def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
+def direct_energy_prediction(adslab_dict, config_path, checkpoint_path, column_name):
+
+    adslab_results = copy.deepcopy(adslab_dict)
 
     global direct_calc
 
@@ -17,15 +20,25 @@ def direct_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     predictions_list = []
 
-    for adslab in adslabs_list:
+    for adslab in adslab_results["adslab_atoms"]:
         adslab = adslab.copy()
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
+    adslab_results[column_name] = predictions_list
 
-    return predictions_list
+    if len(predictions_list) > 0:
+        adslab_results["min_" + column_name] = min(predictions_list)
+    else:
+        adslab_results["min_" + column_name] = np.nan
+
+    return adslab_results
 
 
-def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
+def relaxation_energy_prediction(
+    adslabs_dict, config_path, checkpoint_path, column_name
+):
+
+    adslab_results = copy.deepcopy(adslab_dict)
 
     global relax_calc
 
@@ -34,7 +47,7 @@ def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
 
     predictions_list = []
 
-    for adslab in adslabs_list:
+    for adslab in adslab_results["adslab_atoms"]:
         adslab = adslab.copy()
         adslab.set_calculator(relax_calc)
         opt = LBFGS(
@@ -48,4 +61,7 @@ def relaxation_energy_prediction(adslabs_list, config_path, checkpoint_path):
         opt.run(fmax=0.05, steps=200)
         predictions_list.append(adslab.get_potential_energy())
 
-    return predictions_list
+    adslab_results[column_name] = predictions_list
+    adslab_results["min_" + column_name] = min(predictions_list)
+
+    return adslab_results

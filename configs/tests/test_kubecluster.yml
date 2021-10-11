@@ -1,0 +1,45 @@
+dask:
+  config: |
+    from dask.distributed import Client
+    from dask_kubernetes import KubeCluster
+    import os
+    from jinja2 import Template
+
+    dask.config.set({"distributed.comm.timeouts.connect":120})
+    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
+    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
+        fhandle.write(template.render(**os.environ))
+
+    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml', 
+                          namespace='zulissi',
+                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'],
+                          scheduler_service_wait_timeout = 120)
+    cluster.adapt(minimum=2, maximum=2, interval="30000 ms")
+    client = Client(cluster)
+
+  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
+
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
+
+output_options:
+  pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
+  verbose: false
+
+bulk_filters:
+    filter_by_mpids: ['mp-126','mp-30', 'mp-101']
+
+adsorbate_filters:
+    filter_by_smiles: ['*H']
+
+slab_filters:
+    filter_by_object_size: 100
+    
+    filter_by_max_miller_index: 1
+
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    label: 'dE_gemnet_is2re_finetuned'
+    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
+    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+
