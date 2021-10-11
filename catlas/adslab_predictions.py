@@ -2,6 +2,7 @@ from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 from ocdata.combined import Combined
 from ase.optimize import LBFGS
+import numpy as np
 
 # Module calculator to be shared
 direct_calc = None
@@ -23,9 +24,12 @@ def direct_energy_prediction(adslab_dict, config_path, checkpoint_path, column_n
         adslab = adslab.copy()
         adslab.set_calculator(direct_calc)
         predictions_list.append(adslab.get_potential_energy())
-
     adslab_results[column_name] = predictions_list
-    adslab_results["min_" + column_name] = min(predictions_list)
+
+    if len(predictions_list) > 0:
+        adslab_results["min_" + column_name] = min(predictions_list)
+    else:
+        adslab_results["min_" + column_name] = np.nan
 
     return adslab_results
 

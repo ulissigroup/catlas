@@ -3,18 +3,23 @@ from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
-from catlas.dask_utils import split_balance_df_partitions
+from catlas.dask_utils import (
+    split_balance_df_partitions,
+    bag_split_individual_partitions,
+)
 
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
 )
+
 import dask.bag as db
 import dask
 import sys
 import dask.dataframe as ddf
 from joblib import Memory
 import pandas as pd
+from dask.distributed import wait
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -40,16 +45,16 @@ if __name__ == "__main__":
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+    filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
+    adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
-    print(
-        "Number of filtered adsorbates: %d" % filtered_adsorbate_df.shape[0].compute()
-    )
+    print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate surfaces
 
@@ -62,9 +67,14 @@ if __name__ == "__main__":
         num_partitions = min(bulk_num * 70, 10000)
     else:
         num_partitions = config["dask"]["partitions"]
-    surface_adsorbate_combo_bag = surface_ads_combos = surface_bag.product(
-        filtered_adsorbate_bag
-    ).persist()
+
+    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag).persist()
+    surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
+        npartitions=bulk_num * adsorbate_num * 20
+    )
+    # surface_adsorbate_combo_bag = bag_split_individual_partitions(
+    #    surface_adsorbate_combo_bag
+    # )
 
     # Filter and repartition the surfaces ??
 
@@ -130,3 +140,5 @@ if __name__ == "__main__":
 
     else:
         results = adslab_bag.persist()
+        wait(results)
+
