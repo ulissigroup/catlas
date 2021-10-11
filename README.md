@@ -17,4 +17,15 @@ How to use kubeflow workers for predictions:
 - go to CATlas, then python bin/predictions.py config/inputs_nitrides_kube.yml. I set one up just to see if I could get the nitride thing to run, but don't plan on actually seeing that through
 
 
+## Automated screens:
+
+This repo runs automated screens either on pushing to the repo or locally.
 Find scheduler pods using `kubectl get po -l 'dask.org/component=scheduler'`
+
+If the scheduler leaves pods behind, clean them up using any of these commands:
+`kubectl delete service -l 'app=dask'`
+`kubectl delete po -l 'app=dask'`
+`kubectl delete poddisruptionbudgets dask-catlas-dev`
+
+Find scheduler pods using `kubectl get po -l 'dask.org/component=scheduler'`
+
