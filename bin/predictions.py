@@ -19,6 +19,7 @@ import sys
 import dask.dataframe as ddf
 from joblib import Memory
 import pandas as pd
+from dask.distributed import wait
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -138,4 +139,5 @@ if __name__ == "__main__":
                 ).to_pickle(pickle_path)
 
     else:
-        results = predictions_bag.persist()
+        results = adslab_bag.persist()
+        wait(results)
