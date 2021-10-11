@@ -26,3 +26,6 @@ If the scheduler leaves pods behind, clean them up using any of these commands:
 `kubectl delete service -l 'app=dask'`
 `kubectl delete po -l 'app=dask'`
 `kubectl delete poddisruptionbudgets dask-catlas-dev`
+
+Find scheduler pods using `kubectl get po -l 'dask.org/component=scheduler'`
+
