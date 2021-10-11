@@ -39,7 +39,7 @@ if __name__ == "__main__":
     bulks_delayed = dask.delayed(memory.cache(load_ocdata_bulks))()
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_df = bulk_bag.to_dataframe().persist()
-    print("Number of bulks: %d" % bulk_df.shape[0].compute())
+    print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)
     bulk_num = filtered_catalyst_df.shape[0].compute()
