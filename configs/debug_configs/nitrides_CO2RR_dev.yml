@@ -2,40 +2,42 @@ dask:
   config: |
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
+    import dask
     import os
     from jinja2 import Template
 
     dask.config.set({"distributed.comm.timeouts.connect":120})
-    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
-    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
-        fhandle.write(template.render(**os.environ))
 
-    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml', 
+    cluster = KubeCluster(pod_template = 'configs/tests/workers-cpu-dev.yml',
                           namespace='zulissi',
-                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'],
+                          name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=2, maximum=2, interval="30000 ms")
+    cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
     client = Client(cluster)
 
-  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
+  partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
-  pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
-  verbose: false
+  pickle: False # True pickles the resulting predictions
+  optional_additional_path_str: 'HER_test_screen'
+  verbose: true
 
 bulk_filters:
-    filter_by_mpids: ['mp-126','mp-30', 'mp-101']
+    filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
+
+    filter_by_object_size: 60 # 60
+
+    filter_by_required_elements: ['N']
 
 adsorbate_filters:
-    filter_by_smiles: ['*H']
+    filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
     filter_by_object_size: 100
+    filter_by_max_miller_index: 2
     
-    filter_by_max_miller_index: 1
-
 adslab_prediction_steps:
   - step: predict
     type: direct
