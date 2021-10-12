@@ -24,7 +24,8 @@ Find scheduler pods using `kubectl get po -l 'dask.org/component=scheduler'`
 
 Monitor a pod at the url https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/<namespace>/pods/<pod>:8787/proxy/status
 
-If the scheduler leaves pods behind, clean them up using any of these commands:
-`kubectl delete service -l 'app=dask'`
-`kubectl delete po -l 'app=dask'`
-`kubectl delete poddisruptionbudgets dask-catlas-dev`
+At the end of a run, delete extra pods and services:
+ 
+- `kubectl delete service -l 'app=dask'`
+- `kubectl delete po -l 'app=dask'`
+- `kubectl delete poddisruptionbudgets dask-catlas-dev`
