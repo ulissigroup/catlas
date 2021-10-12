@@ -68,7 +68,7 @@ if __name__ == "__main__":
     else:
         num_partitions = config["dask"]["partitions"]
 
-    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag).persist()
+    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
         npartitions=bulk_num * adsorbate_num * 20
     )
@@ -140,4 +140,3 @@ if __name__ == "__main__":
 
     else:
         results = adslab_bag.persist()
-        wait(results)

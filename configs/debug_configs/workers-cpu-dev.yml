@@ -4,20 +4,20 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
-      value: 2
+      value: 1
     - name: PYTHONPATH
       value: "/home/jovyan/ocp:/home/jovyan/catlas"
     resources:
       limits:
-        cpu: "4"
-        memory: 32G
+        cpu: "1"
+        memory: 16G
       requests:
-        cpu: "4"
-        memory: 32G
+        cpu: "1"
+        memory: 16G
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: workspace-inference
