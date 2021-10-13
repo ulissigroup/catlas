@@ -62,20 +62,24 @@ if __name__ == "__main__":
         memory.cache(enumerate_slabs)
     ).flatten()  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
 
+    surface_df = surface_bag.to_dataframe()
+    filtered_surface_df = slab_filter(config, surface_df)
+    filtered_surface_bag = filtered_surface_df.to_bag(format='dict')
+    
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
         num_partitions = min(bulk_num * 70, 10000)
     else:
         num_partitions = config["dask"]["partitions"]
 
-    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
+    surface_adsorbate_combo_bag = filtered_surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
         npartitions=bulk_num * adsorbate_num * 20
     )
     # surface_adsorbate_combo_bag = bag_split_individual_partitions(
     #    surface_adsorbate_combo_bag
     # )
-
+    
     # Filter and repartition the surfaces ??
 
     adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
@@ -128,15 +132,14 @@ if __name__ == "__main__":
                 ]
             )
 
-        if pickle:
-            pickle_path = config["output_options"]["pickle_path"]
-            if pickle_path != "None":
-                results.drop(
-                    [
-                        "slab_surface_object",
-                    ],
-                    axis=1,
-                ).to_pickle(pickle_path)
-
     else:
         results = adslab_bag.persist()
+    if pickle:
+        pickle_path = config["output_options"]["pickle_path"]
+        if pickle_path != "None":
+            results.drop(
+                [
+                    "slab_surface_object",
+                ],
+                axis=1,
+            ).to_pickle(pickle_path)
