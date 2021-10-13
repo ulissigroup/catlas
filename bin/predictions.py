@@ -80,8 +80,6 @@ if __name__ == "__main__":
     #    surface_adsorbate_combo_bag
     # )
     
-    # Filter and repartition the surfaces ??
-
     adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
 
     # Run adslab predictions
