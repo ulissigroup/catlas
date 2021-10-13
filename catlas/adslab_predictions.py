@@ -65,3 +65,10 @@ def relaxation_energy_prediction(
     adslab_results["min_" + column_name] = min(predictions_list)
 
     return adslab_results
+
+
+def pop_surface_adslab_atoms(adslab_dict):
+    adslab_dict = copy.deepcopy(adslab_dict)
+    adslab_dict.pop("slab_surface_object")
+    adslab_dict.pop("adslab_atoms")
+    return adslab_dict

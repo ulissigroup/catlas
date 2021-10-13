@@ -11,7 +11,7 @@ from catlas.dask_utils import (
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
-    pop_surface_adslab_atoms
+    pop_surface_adslab_atoms,
 )
 
 import dask.bag as db
