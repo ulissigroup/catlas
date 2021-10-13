@@ -16,6 +16,10 @@ How to use kubeflow workers for predictions:
 - git clone CATlas, python setup.py develop
 - go to CATlas, then python bin/predictions.py config/inputs_nitrides_kube.yml. I set one up just to see if I could get the nitride thing to run, but don't plan on actually seeing that through
 
+Install git-lfs
+- `pip install git-lfs`
+- `git-lfs install`
+
 
 ## Automated screens:
 
