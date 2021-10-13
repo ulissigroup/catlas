@@ -22,8 +22,7 @@ How to use kubeflow workers for predictions:
 This repo runs automated screens either on pushing to the repo or locally.
 Find scheduler pods using `kubectl get po -l 'dask.org/component=scheduler'`
 
-Monitor a pod at the url https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/$namespace/pods/$podname:8787/proxy/status
-
+Monitor a pod at the url https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/$namespace/services/dask-catlas-dev:8787/proxy/status
 At the end of a run, delete extra pods and services:
  
 - `kubectl delete service -l 'app=dask'`
