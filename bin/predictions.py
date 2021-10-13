@@ -11,6 +11,7 @@ from catlas.dask_utils import (
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
+    pop_surface_adslab_atoms
 )
 
 import dask.bag as db
@@ -103,6 +104,9 @@ if __name__ == "__main__":
                     print("Unsupported prediction type: %s" % step["type"])
 
                 most_recent_step = "min_" + step["label"]
+
+    # Remove the slab and adslab atoms to make the resulting item much smaller
+    adslab_bag = adslab_bag.map(pop_surface_adslab_atoms)
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
