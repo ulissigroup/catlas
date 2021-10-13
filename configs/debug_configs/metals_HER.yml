@@ -20,7 +20,7 @@ dask:
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
+  pickle: True # True pickles the resulting predictions
   pickle_path: '/home/jovyan/shared-scratch/Inference/HER_test_screen.pkl'
   verbose: true
 
