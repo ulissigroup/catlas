@@ -86,11 +86,15 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
                 if step["type"] == "direct":
+#                     with dask.annotate(resources={'GPU': 1},
+#                                        executor="gpu"):
                     adslab_bag = adslab_bag.map(
-                        memory.cache(direct_energy_prediction),
-                        config_path=step["config_path"],
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
+                    direct_energy_prediction,
+                    config_path=step["config_path"],
+                    checkpoint_path=step["checkpoint_path"],
+                    column_name=step["label"],
+                    batch_size=2,
+                    cpu=False
                     )
 
                 elif step["type"] == "relaxation":

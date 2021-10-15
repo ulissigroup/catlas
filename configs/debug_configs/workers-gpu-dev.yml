@@ -1,0 +1,39 @@
+kind: Pod
+spec:
+  restartPolicy: Never
+  containers:
+  - image: ulissigroup/kubeflow:predictions
+    imagePullPolicy: Always
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600']
+    name: dask
+    env:
+    - name: OMP_NUM_THREADS
+      value: 1
+    - name: PYTHONPATH
+      value: "/home/jovyan/ocp:/home/jovyan/catlas"
+    resources:
+      limits:
+        cpu: "4"
+        memory: 16G
+        nvidia.com/gpu: "1"
+      requests:
+        cpu: "4"
+        memory: 16G
+        nvidia.com/gpu: "1"
+    volumeMounts:
+    - mountPath: /home/jovyan/ocp
+      name: workspace-inference
+      subPath: ocp
+    - mountPath: /home/jovyan/catlas
+      name: workspace-inference
+      subPath: catlas
+    - mountPath: /home/jovyan/shared-scratch
+      name: scratch-scratch
+  volumes:
+  - name: workspace-inference
+    persistentVolumeClaim:
+      claimName: workspace-inference
+  - name: scratch-scratch
+    persistentVolumeClaim:
+      claimName: shared-scratch
+      
