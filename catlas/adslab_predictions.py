@@ -59,9 +59,9 @@ class BatchOCPPredictor:
         self.config = copy.deepcopy(config)
         self.config["checkpoint"] = checkpoint
         self.batch_size = batch_size
-        
+
         # tweak!
-        self.config["optim"]["num_workers"] = 0
+        #self.config["optim"]["num_workers"] = 0
 
         self.trainer = registry.get_trainer_class(self.config.get("trainer", "simple"))(
             task=self.config["task"],

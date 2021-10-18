@@ -2,28 +2,49 @@ dask:
   config: |
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
+    from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
     import dask
     import os
     from jinja2 import Template
-
+    
     dask.config.set({"distributed.comm.timeouts.connect":120})
-    dask.config.set({"distributed.worker.resources.GPU": 1})
+    dask.config.set({"distributed.worker.daemon":False})
+    
+    with open('configs/debug_configs/scheduler-cpu-dev.yml') as f:
+        scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
+                    yaml.safe_load(f)
+                ))
 
     cluster = KubeCluster(pod_template = 'configs/debug_configs/workers-gpu-dev.yml',
+                          scheduler_pod_template = scheduler_pod_template,
                           namespace='zulissi',
                           name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=2, maximum=4, interval="30000 ms")
+    cluster.scale(6)
+    
+    def kube_cluster_new_worker(cluster, config_path):
+    
+        with open(config_path) as f:
+            worker_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
+                        yaml.safe_load(f)
+                    ))
+            clean_worker_template = clean_pod_template(worker_pod_template, pod_type="worker")
+            cluster.pod_template = cluster._fill_pod_templates(clean_worker_template,  pod_type="worker")
+            cluster.new_spec["options"]["pod_template"]=cluster.pod_template
+        
+    kube_cluster_new_worker(cluster, 'configs/debug_configs/workers-cpu-dev.yml')
+    cluster.scale(12)
+    #cluster.adapt(minimum=2, maximum=4, interval="30000 ms")
     client = Client(cluster)
 
   partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
   pickle: False # True pickles the resulting predictions
   optional_additional_path_str: 'CO2RR_test_screen'
-  verbose: true
+  verbose: False
 
 bulk_filters:
     filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']

@@ -69,9 +69,9 @@ if __name__ == "__main__":
     else:
         num_partitions = config["dask"]["partitions"]
 
-    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag).persist()
+    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
-        npartitions=bulk_num * adsorbate_num * 20
+        npartitions=bulk_num * adsorbate_num * 2
     )
     # surface_adsorbate_combo_bag = bag_split_individual_partitions(
     #    surface_adsorbate_combo_bag
@@ -86,16 +86,18 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
                 if step["type"] == "direct":
-#                     with dask.annotate(resources={'GPU': 1},
-#                                        executor="gpu"):
-                    adslab_bag = adslab_bag.map(
-                    direct_energy_prediction,
-                    config_path=step["config_path"],
-                    checkpoint_path=step["checkpoint_path"],
-                    column_name=step["label"],
-                    batch_size=2,
-                    cpu=False
-                    )
+                    with dask.annotate(executor="gpu",
+                                       resources={'GPU':1},
+                                       priority=10):
+                        adslab_bag = adslab_bag.map(
+                            direct_energy_prediction,
+                            #memory.cache(direct_energy_prediction, ignore=['batch_size']),
+                            config_path=step["config_path"],
+                            checkpoint_path=step["checkpoint_path"],
+                            column_name=step["label"],
+                            batch_size=10,
+                            cpu=False
+                            )
 
                 elif step["type"] == "relaxation":
                     adslab_bag = adslab_bag.map(
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     pickle = "pickle_path" in config["output_options"]
 
     if verbose or pickle:
-        results = adslab_bag.compute()
+        results = adslab_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
 
         if verbose:
@@ -147,5 +149,5 @@ if __name__ == "__main__":
                 ).to_pickle(pickle_path)
 
     else:
-        results = adslab_bag.persist()
+        results = adslab_bag.persist(optimize_graph=False)
         wait(results)
