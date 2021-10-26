@@ -10,6 +10,7 @@ from catlas.dask_utils import (
 
 from catlas.adslab_predictions import (
     direct_energy_prediction,
+    direct_energy_partition_prediction,
     relaxation_energy_prediction,
     pop_surface_adslab_atoms,
 )
@@ -63,6 +64,8 @@ if __name__ == "__main__":
         memory.cache(enumerate_slabs)
     ).flatten()  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
 
+    surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
+
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
         num_partitions = min(bulk_num * 70, 10000)
@@ -73,6 +76,7 @@ if __name__ == "__main__":
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
         npartitions=bulk_num * adsorbate_num * 2
     )
+
     # surface_adsorbate_combo_bag = bag_split_individual_partitions(
     #    surface_adsorbate_combo_bag
     # )
@@ -90,12 +94,12 @@ if __name__ == "__main__":
                                        resources={'GPU':1},
                                        priority=10):
                         adslab_bag = adslab_bag.map(
-                            direct_energy_prediction,
-                            #memory.cache(direct_energy_prediction, ignore=['batch_size']),
+                            #direct_energy_prediction,
+                            memory.cache(direct_energy_prediction, ignore=['batch_size']),
                             config_path=step["config_path"],
                             checkpoint_path=step["checkpoint_path"],
                             column_name=step["label"],
-                            batch_size=10,
+                            batch_size=4,
                             cpu=False
                             )
 
@@ -149,5 +153,6 @@ if __name__ == "__main__":
                 ).to_pickle(pickle_path)
 
     else:
-        results = adslab_bag.persist(optimize_graph=False)
-        wait(results)
+        print('finished making!')
+        #results = adslab_bag.persist(optimize_graph=False)
+        #wait(results)
