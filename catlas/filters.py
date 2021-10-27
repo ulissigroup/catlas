@@ -59,9 +59,9 @@ def slab_filter(config, dask_dict):
     for name, val in slab_filters.items():
         if val != "None":
             if name == "filter_by_object_size":
-                keep = keep and (dask_dict["slab_natoms"]<=val)
+                keep = keep and (dask_dict["slab_natoms"] <= val)
             elif name == "filter_by_max_miller_index":
-                keep = keep and (dask_dict["slab_max_miller_index"]<=val)
+                keep = keep and (dask_dict["slab_max_miller_index"] <= val)
             else:
                 warnings.warn("Slab filter is not implemented: " + name)
     return keep

@@ -1,5 +1,5 @@
 includes:
-- /home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_base.yml
+- /home/jovyan/catlas/configs/ocp_config_checkpoints/is2re_all_base.yml
 
 model:
   name: gemnet_t

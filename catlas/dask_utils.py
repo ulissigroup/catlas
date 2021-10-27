@@ -8,6 +8,7 @@ import dask.dataframe as dd
 from dask.dataframe.io.io import sorted_division_locations
 import operator
 from dask.bag import Bag
+import pickle
 
 
 def _rebalance_ddf(ddf):
@@ -65,3 +66,8 @@ def bag_split_individual_partitions(bag):
 
     graph = HighLevelGraph.from_collections(new_name, dsk, dependencies=[bag])
     return Bag(graph, name=new_name, npartitions=sum(nsplits))
+
+
+class SizeDict(dict):
+    def __sizeof__(self):
+        return len(pickle.dumps(self))

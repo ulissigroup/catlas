@@ -20,32 +20,33 @@ BOCPP = None
 relax_calc = None
 
 
-def pop_surface_adslab_atoms(adslab_dict):
+def pop_keys(adslab_dict, keys):
     adslab_dict = copy.deepcopy(adslab_dict)
-    adslab_dict.pop("slab_surface_object")
-    adslab_dict.pop("adslab_atoms")
+    for key in keys:
+        adslab_dict.pop(key)
     return adslab_dict
 
 
 from torch.utils.data import Dataset
 from ocpmodels.common.registry import registry
 
-class AtomsListDataset(Dataset):
-    def __init__(self, atoms_list, a2g):
-        self.atoms_list = atoms_list
-        self.a2g = a2g
+
+class GraphsListDataset(Dataset):
+    def __init__(self, graphs_list):
+        self.graphs_list = graphs_list
 
     def __len__(self):
-        return len(self.atoms_list)
+        return len(self.graphs_list)
 
     def __getitem__(self, idx):
-        graph = self.a2g.convert(self.atoms_list[idx])
+        graph = self.graphs_list[idx]
         graph.sid = idx
         graph.fid = idx
         return graph
 
+
 class BatchOCPPredictor:
-    def __init__(self, config_yml, checkpoint, cutoff, max_neighbors, batch_size=8, cpu=False):
+    def __init__(self, config_yml, checkpoint, batch_size=8, cpu=False):
 
         setup_imports()
         setup_logging()
@@ -61,7 +62,8 @@ class BatchOCPPredictor:
         self.batch_size = batch_size
 
         # tweak!
-        #self.config["optim"]["num_workers"] = 0
+        self.config["optim"]["num_workers"] = 0
+        self.config["trainer"] = "energy"
 
         self.trainer = registry.get_trainer_class(self.config.get("trainer", "simple"))(
             task=self.config["task"],
@@ -79,14 +81,6 @@ class BatchOCPPredictor:
         if checkpoint is not None:
             self.load_checkpoint(checkpoint)
 
-        self.a2g = AtomsToGraphs(
-            max_neigh=max_neighbors,
-            radius=cutoff,
-            r_energy=False,
-            r_forces=False,
-            r_distances=False,
-        )
-
     def load_checkpoint(self, checkpoint_path):
         """
         Load existing trained model
@@ -99,24 +93,29 @@ class BatchOCPPredictor:
         except NotImplementedError:
             logging.warning("Unable to load checkpoint!")
 
-    def full_predict(self, atoms_list):
+    def full_predict(self, graphs_list):
 
-        atoms_list_dataset = AtomsListDataset(atoms_list, self.a2g)
+        graphs_list_dataset = GraphsListDataset(graphs_list)
 
         data_loader = self.trainer.get_dataloader(
-            atoms_list_dataset, self.trainer.get_sampler(atoms_list_dataset, self.batch_size, shuffle=False)
+            graphs_list_dataset,
+            self.trainer.get_sampler(
+                graphs_list_dataset, self.batch_size, shuffle=False
+            ),
         )
 
-        predictions = self.trainer.predict(data_loader, per_image=True, disable_tqdm=True)
+        predictions = self.trainer.predict(
+            data_loader, per_image=True, disable_tqdm=True
+        )
 
-        return predictions
+        return predictions["energy"]
 
 
 def direct_energy_prediction(
     adslab_dict, config_path, checkpoint_path, column_name, batch_size=8, cpu=False
 ):
 
-    adslab_results = copy.deepcopy(adslab_dict)
+    adslab_results = copy.copy(adslab_dict)
 
     global BOCPP
 
@@ -124,13 +123,11 @@ def direct_energy_prediction(
         BOCPP = BatchOCPPredictor(
             config_yml=config_path,
             checkpoint=checkpoint_path,
-            cutoff=6,
-            max_neighbors=50,
             batch_size=batch_size,
-            cpu=cpu
+            cpu=cpu,
         )
 
-    predictions_list = BOCPP.full_predict(adslab_results["adslab_atoms"])
+    predictions_list = BOCPP.full_predict(adslab_results["adslab_graphs"])
 
     adslab_results[column_name] = predictions_list
 
@@ -140,6 +137,54 @@ def direct_energy_prediction(
         adslab_results["min_" + column_name] = np.nan
 
     return adslab_results
+
+
+def direct_energy_partition_prediction(
+    list_of_adslab_dicts,
+    config_path,
+    checkpoint_path,
+    column_name,
+    batch_size=8,
+    cpu=False,
+):
+
+    list_of_adslab_results = copy.deepcopy(list_of_adslab_dicts)
+
+    structures = []
+    partition_index = []
+    for i, adslab_dict in enumerate(list_of_adslab_results):
+        structures += adslab_dict["adslab_atoms"]
+        partition_index += [i] * len(adslab_dict["adslab_atoms"])
+
+    partition_index = np.array(partition_index)
+
+    global BOCPP
+
+    if BOCPP is None:
+        BOCPP = BatchOCPPredictor(
+            config_yml=config_path,
+            checkpoint=checkpoint_path,
+            batch_size=batch_size,
+            cpu=cpu,
+        )
+
+    print(
+        "Predicting %d structures across %d adslab combos!"
+        % (len(structures), len(list_of_adslab_results))
+    )
+
+    predictions_list = BOCPP.full_predict(structures)
+
+    for i, adslab_results in enumerate(list_of_adslab_results):
+        relevant_predictions = predictions_list[partition_index == i]
+        adslab_results[column_name] = relevant_predictions
+
+        if len(relevant_predictions) > 0:
+            adslab_results["min_" + column_name] = min(relevant_predictions)
+        else:
+            adslab_results["min_" + column_name] = np.nan
+
+    return list_of_adslab_results
 
 
 def relaxation_energy_prediction(

@@ -9,6 +9,12 @@ dask:
     
     dask.config.set({"distributed.comm.timeouts.connect":120})
     dask.config.set({"distributed.worker.daemon":False})
+    dask.config.set({"distributed.worker.memory.target":False})
+    #dask.config.set({"distributed.worker.connections.outgoing":25})
+    #dask.config.set({"distributed.worker.connections.incoming":5})
+    dask.config.set({"distributed.scheduler.allowed_failures":20})
+    dask.config.set({"distributed.comm.timeouts.connect":20})
+    dask.config.set({"distributed.comm.retry.count":2})
     
     with open('configs/debug_configs/scheduler-cpu-dev.yml') as f:
         scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
@@ -33,7 +39,7 @@ dask:
             cluster.new_spec["options"]["pod_template"]=cluster.pod_template
         
     kube_cluster_new_worker(cluster, 'configs/debug_configs/workers-cpu-dev.yml')
-    cluster.scale(12)
+    cluster.scale(40)
     #cluster.adapt(minimum=2, maximum=4, interval="30000 ms")
     client = Client(cluster)
 
@@ -49,7 +55,7 @@ output_options:
 bulk_filters:
     filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
 
-    filter_by_object_size: 60 # 60
+    filter_by_object_size: 40 # 60
 
     filter_by_required_elements: ['N']
 
@@ -57,13 +63,13 @@ adsorbate_filters:
     filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-    filter_by_object_size: 100
+    filter_by_object_size: 80
     filter_by_max_miller_index: 2
     
 adslab_prediction_steps:
   - step: predict
     type: direct
     label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
+    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml'
     checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
 
