@@ -10,11 +10,9 @@ from catlas.dask_utils import (
 
 from catlas.adslab_predictions import (
     direct_energy_prediction,
-    direct_energy_partition_prediction,
     relaxation_energy_prediction,
     pop_keys,
 )
-
 import dask.bag as db
 import dask
 import sys
@@ -58,32 +56,28 @@ if __name__ == "__main__":
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
-    # Enumerate surfaces
-
+    # Enumerate and filter surfaces
     surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
-
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
-        num_partitions = min(bulk_num * 70, 10000)
+        npartitions = min(bulk_num * adsorbate_num * 4, 10000)
     else:
-        num_partitions = config["dask"]["partitions"]
+        npartitions = config["dask"]["partitions"]
 
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
-        npartitions=bulk_num * adsorbate_num * 2
+        npartitions=npartitions
     )
 
     adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
-
-    adslab_bag = adslab_bag.map(pop_keys, keys=["adslab_atoms", "slab_surface_object"])
 
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
-                if step["type"] == "direct":
+                if step["type"] == "direct" and step["gpu"] == True:
                     with dask.annotate(
                         executor="gpu", resources={"GPU": 1}, priority=10
                     ):
@@ -98,6 +92,16 @@ if __name__ == "__main__":
                             cpu=False,
                         )
 
+                elif step["type"] == "direct" and step["gpu"] == False:
+                    adslab_bag = adslab_bag.map(
+                        memory.cache(direct_energy_prediction, ignore=["batch_size"]),
+                        config_path=step["config_path"],
+                        checkpoint_path=step["checkpoint_path"],
+                        column_name=step["label"],
+                        batch_size=4,
+                        cpu=True,
+                    )
+
                 elif step["type"] == "relaxation":
                     adslab_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
@@ -111,7 +115,9 @@ if __name__ == "__main__":
                 most_recent_step = "min_" + step["label"]
 
     # Remove the slab and adslab atoms to make the resulting item much smaller
-    adslab_bag = adslab_bag.map(pop_keys, keys=["adslab_graphs"])
+    adslab_bag = adslab_bag.map(
+        pop_keys, keys=["adslab_graphs", "adslab_atoms", "slab_surface_object"]
+    )
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]

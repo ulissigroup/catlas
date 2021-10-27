@@ -9,6 +9,9 @@ from dask.dataframe.io.io import sorted_division_locations
 import operator
 from dask.bag import Bag
 import pickle
+from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
+import yaml
+import dask
 
 
 def _rebalance_ddf(ddf):
@@ -71,3 +74,17 @@ def bag_split_individual_partitions(bag):
 class SizeDict(dict):
     def __sizeof__(self):
         return len(pickle.dumps(self))
+
+
+def kube_cluster_new_worker(cluster, config_path):
+    with open(config_path) as f:
+        worker_pod_template = make_pod_from_dict(
+            dask.config.expand_environment_variables(yaml.safe_load(f))
+        )
+        clean_worker_template = clean_pod_template(
+            worker_pod_template, pod_type="worker"
+        )
+        cluster.pod_template = cluster._fill_pod_templates(
+            clean_worker_template, pod_type="worker"
+        )
+        cluster.new_spec["options"]["pod_template"] = cluster.pod_template

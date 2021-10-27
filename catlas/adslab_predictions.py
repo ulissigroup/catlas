@@ -7,6 +7,7 @@ from ocpmodels.preprocessing import AtomsToGraphs
 import yaml
 import copy
 from ocpmodels.datasets.trajectory_lmdb import data_list_collater
+from ase.calculators.singlepoint import SinglePointCalculator
 
 from ocpmodels.common.utils import (
     radius_graph_pbc,
@@ -132,59 +133,24 @@ def direct_energy_prediction(
     adslab_results[column_name] = predictions_list
 
     if len(predictions_list) > 0:
-        adslab_results["min_" + column_name] = min(predictions_list)
+        best_energy = np.min(predictions_list)
+        best_atoms = adslab_results["adslab_atoms"][np.argmin(predictions_list)].copy()
+        adslab_results["min_" + column_name] = best_energy
+        best_atoms.set_calculator(
+            SinglePointCalculator(
+                atoms=best_atoms,
+                energy=best_energy,
+                forces=None,
+                stresses=None,
+                magmoms=None,
+            )
+        )
+        adslab_results["atoms_min_" + column_name] = best_atoms
     else:
         adslab_results["min_" + column_name] = np.nan
+        adslab_results["atoms_min_" + column_name] = None
 
     return adslab_results
-
-
-def direct_energy_partition_prediction(
-    list_of_adslab_dicts,
-    config_path,
-    checkpoint_path,
-    column_name,
-    batch_size=8,
-    cpu=False,
-):
-
-    list_of_adslab_results = copy.deepcopy(list_of_adslab_dicts)
-
-    structures = []
-    partition_index = []
-    for i, adslab_dict in enumerate(list_of_adslab_results):
-        structures += adslab_dict["adslab_atoms"]
-        partition_index += [i] * len(adslab_dict["adslab_atoms"])
-
-    partition_index = np.array(partition_index)
-
-    global BOCPP
-
-    if BOCPP is None:
-        BOCPP = BatchOCPPredictor(
-            config_yml=config_path,
-            checkpoint=checkpoint_path,
-            batch_size=batch_size,
-            cpu=cpu,
-        )
-
-    print(
-        "Predicting %d structures across %d adslab combos!"
-        % (len(structures), len(list_of_adslab_results))
-    )
-
-    predictions_list = BOCPP.full_predict(structures)
-
-    for i, adslab_results in enumerate(list_of_adslab_results):
-        relevant_predictions = predictions_list[partition_index == i]
-        adslab_results[column_name] = relevant_predictions
-
-        if len(relevant_predictions) > 0:
-            adslab_results["min_" + column_name] = min(relevant_predictions)
-        else:
-            adslab_results["min_" + column_name] = np.nan
-
-    return list_of_adslab_results
 
 
 def relaxation_energy_prediction(

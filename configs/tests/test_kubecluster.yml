@@ -39,7 +39,8 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: direct
+    gpu: false
     label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
+    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml'
     checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
 

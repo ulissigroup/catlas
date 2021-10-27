@@ -18,11 +18,11 @@ spec:
     resources:
       limits:
         cpu: "4"
-        memory: 16G
+        memory: 17G
         nvidia.com/gpu: "0"
       requests:
         cpu: "4"
-        memory: 16G
+        memory: 17G
         nvidia.com/gpu: "0"
     volumeMounts:
     - mountPath: /home/jovyan/ocp
