@@ -113,6 +113,7 @@ class BatchOCPPredictor:
 def direct_energy_prediction(
     adslab_dict,
     adslab_atoms,
+    graphs_dict,
     config_path,
     checkpoint_path,
     column_name,
@@ -132,7 +133,7 @@ def direct_energy_prediction(
             cpu=cpu,
         )
 
-    predictions_list = BOCPP.full_predict(adslab_atoms["adslab_graphs"])
+    predictions_list = BOCPP.full_predict(graphs_dict["adslab_graphs"])
 
     adslab_results[column_name] = predictions_list
 

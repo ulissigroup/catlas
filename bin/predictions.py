@@ -5,6 +5,7 @@ from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
     enumerate_adslabs,
+    convert_adslabs_to_graphs,
     merge_surface_adsorbate_combo,
 )
 from catlas.dask_utils import (
@@ -76,6 +77,7 @@ if __name__ == "__main__":
     )
 
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
     # Run adslab predictions
@@ -88,9 +90,11 @@ if __name__ == "__main__":
                     ):
                         results_bag = results_bag.map(
                             memory.cache(
-                                direct_energy_prediction, ignore=["batch_size"]
+                                direct_energy_prediction,
+                                ignore=["batch_size", "graphs_dict"],
                             ),
                             adslab_atoms=adslab_atoms_bag,
+                            graphs_dict=graphs_bag,
                             config_path=step["config_path"],
                             checkpoint_path=step["checkpoint_path"],
                             column_name=step["label"],
@@ -100,8 +104,12 @@ if __name__ == "__main__":
 
                 elif step["type"] == "direct" and step["gpu"] == False:
                     results_bag = results_bag.map(
-                        memory.cache(direct_energy_prediction, ignore=["batch_size"]),
+                        memory.cache(
+                            direct_energy_prediction,
+                            ignore=["batch_size", "graphs_dict"],
+                        ),
                         adslab_atoms=adslab_atoms_bag,
+                        graphs_dict=graphs_bag,
                         config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
@@ -109,7 +117,7 @@ if __name__ == "__main__":
                         cpu=True,
                     )
 
-                elif step["type"] == "relaxation":
+                elif step["type"] == "relaxation":  # Old, needs to be updated
                     surface_adsorbate_combo_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
                         config_path=step["config_path"],

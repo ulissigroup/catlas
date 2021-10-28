@@ -52,7 +52,7 @@ def enumerate_slabs(bulk_dict, max_miller=2):
     return surface_list
 
 
-def enumerate_adslabs(surface_ads_combo, max_neighbors=50, cutoff=6):
+def enumerate_adslabs(surface_ads_combo):
     surface_dict, ads_dict = surface_ads_combo
 
     # Prep the new adslab result from the adsorbate and surface info dicts
@@ -69,6 +69,13 @@ def enumerate_adslabs(surface_ads_combo, max_neighbors=50, cutoff=6):
 
     adslab_result["adslab_atoms"] = combo_obj.adsorbed_surface_atoms
 
+    return adslab_result
+
+
+def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
+
+    graph_dict = SizeDict()
+
     a2g = AtomsToGraphs(
         max_neigh=max_neighbors,
         radius=cutoff,
@@ -76,15 +83,16 @@ def enumerate_adslabs(surface_ads_combo, max_neighbors=50, cutoff=6):
         r_forces=False,
         r_distances=False,
     )
-    adslab_result["adslab_graphs"] = [
+
+    graph_dict["adslab_graphs"] = [
         a2g.convert(atoms) for atoms in adslab_result["adslab_atoms"]
     ]
 
-    for graph in adslab_result["adslab_graphs"]:
+    for graph in graph_dict["adslab_graphs"]:
         graph.fid = 0
         graph.sid = 0
 
-    return adslab_result
+    return graph_dict
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
