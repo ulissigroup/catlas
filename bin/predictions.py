@@ -2,7 +2,7 @@ import yaml
 from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
-from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
+from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs, merge_surface_adsorbate_combo
 from catlas.dask_utils import (
     split_balance_df_partitions,
     bag_split_individual_partitions,
@@ -71,7 +71,8 @@ if __name__ == "__main__":
         npartitions=npartitions
     )
 
-    adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
@@ -81,29 +82,31 @@ if __name__ == "__main__":
                     with dask.annotate(
                         executor="gpu", resources={"GPU": 1}, priority=10
                     ):
-                        adslab_bag = adslab_bag.map(
+                        results_bag = results_bag.map(
                             memory.cache(
                                 direct_energy_prediction, ignore=["batch_size"]
                             ),
+                            adslab_atoms=adslab_atoms_bag,
                             config_path=step["config_path"],
                             checkpoint_path=step["checkpoint_path"],
                             column_name=step["label"],
-                            batch_size=4,
+                            batch_size=step["batch_size"],
                             cpu=False,
                         )
 
                 elif step["type"] == "direct" and step["gpu"] == False:
-                    adslab_bag = adslab_bag.map(
+                    results_bag = results_bag.map(
                         memory.cache(direct_energy_prediction, ignore=["batch_size"]),
+                        adslab_atoms=adslab_atoms_bag,
                         config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
-                        batch_size=4,
+                        batch_size=step["batch_size"],
                         cpu=True,
                     )
 
                 elif step["type"] == "relaxation":
-                    adslab_bag = adslab_bag.map(
+                    surface_adsorbate_combo_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
                         config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
@@ -115,9 +118,10 @@ if __name__ == "__main__":
                 most_recent_step = "min_" + step["label"]
 
     # Remove the slab and adslab atoms to make the resulting item much smaller
-    adslab_bag = adslab_bag.map(
-        pop_keys, keys=["adslab_graphs", "adslab_atoms", "slab_surface_object"]
-    )
+    # with dask.annotate(priority=10):
+    #    adslab_bag = adslab_bag.map(
+    #        pop_keys, keys=["adslab_graphs", "adslab_atoms", "slab_surface_object"]
+    #    )
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
@@ -125,7 +129,7 @@ if __name__ == "__main__":
     pickle = "pickle_path" in config["output_options"]
 
     if verbose or pickle:
-        results = adslab_bag.compute(optimize_graph=False)
+        results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
 
         if verbose:
@@ -154,5 +158,5 @@ if __name__ == "__main__":
                 ).to_pickle(pickle_path)
 
     else:
-        results = adslab_bag.persist(optimize_graph=False)
+        results = results_bag.persist(optimize_graph=False)
         wait(results)

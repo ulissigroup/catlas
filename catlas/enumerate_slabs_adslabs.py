@@ -57,8 +57,6 @@ def enumerate_adslabs(surface_ads_combo, max_neighbors=50, cutoff=6):
 
     # Prep the new adslab result from the adsorbate and surface info dicts
     adslab_result = SizeDict()
-    adslab_result.update(copy.deepcopy(surface_dict))
-    adslab_result.update(copy.deepcopy(ads_dict))
 
     adsorbate_obj = CustomAdsorbate(
         ads_dict["adsorbate_atoms"],
@@ -81,5 +79,20 @@ def enumerate_adslabs(surface_ads_combo, max_neighbors=50, cutoff=6):
     adslab_result["adslab_graphs"] = [
         a2g.convert(atoms) for atoms in adslab_result["adslab_atoms"]
     ]
+
+    for graph in adslab_result["adslab_graphs"]:
+        graph.fid = 0
+        graph.sid = 0
+
+    return adslab_result
+
+
+def merge_surface_adsorbate_combo(surface_adsorbate_combo):
+    surface_dict, ads_dict = surface_adsorbate_combo
+
+    # Prep the new adslab result from the adsorbate and surface info dicts
+    adslab_result = SizeDict()
+    adslab_result.update(copy.deepcopy(surface_dict))
+    adslab_result.update(copy.deepcopy(ads_dict))
 
     return adslab_result

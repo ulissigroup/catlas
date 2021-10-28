@@ -41,8 +41,6 @@ class GraphsListDataset(Dataset):
 
     def __getitem__(self, idx):
         graph = self.graphs_list[idx]
-        graph.sid = idx
-        graph.fid = idx
         return graph
 
 
@@ -113,7 +111,13 @@ class BatchOCPPredictor:
 
 
 def direct_energy_prediction(
-    adslab_dict, config_path, checkpoint_path, column_name, batch_size=8, cpu=False
+    adslab_dict,
+    adslab_atoms,
+    config_path,
+    checkpoint_path,
+    column_name,
+    batch_size=8,
+    cpu=False,
 ):
 
     adslab_results = copy.copy(adslab_dict)
@@ -128,13 +132,13 @@ def direct_energy_prediction(
             cpu=cpu,
         )
 
-    predictions_list = BOCPP.full_predict(adslab_results["adslab_graphs"])
+    predictions_list = BOCPP.full_predict(adslab_atoms["adslab_graphs"])
 
     adslab_results[column_name] = predictions_list
 
     if len(predictions_list) > 0:
         best_energy = np.min(predictions_list)
-        best_atoms = adslab_results["adslab_atoms"][np.argmin(predictions_list)].copy()
+        best_atoms = adslab_atoms["adslab_atoms"][np.argmin(predictions_list)].copy()
         adslab_results["min_" + column_name] = best_energy
         best_atoms.set_calculator(
             SinglePointCalculator(

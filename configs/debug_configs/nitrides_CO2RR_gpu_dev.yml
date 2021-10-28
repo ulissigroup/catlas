@@ -55,11 +55,13 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 80
-    filter_by_max_miller_index: 2
+    filter_by_max_miller_index: 1
     
 adslab_prediction_steps:
   - step: predict
     type: direct
+    gpu: true
+    batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml'
     checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
