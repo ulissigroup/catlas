@@ -2,7 +2,11 @@ import yaml
 from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
-from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs, merge_surface_adsorbate_combo
+from catlas.enumerate_slabs_adslabs import (
+    enumerate_slabs,
+    enumerate_adslabs,
+    merge_surface_adsorbate_combo,
+)
 from catlas.dask_utils import (
     split_balance_df_partitions,
     bag_split_individual_partitions,
