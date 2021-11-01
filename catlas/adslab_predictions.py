@@ -16,6 +16,7 @@ from ocpmodels.common.utils import (
 )
 
 from torch.utils.data import DataLoader
+import torch
 
 BOCPP = None
 relax_calc = None
@@ -50,31 +51,44 @@ class BatchOCPPredictor:
         setup_imports()
         setup_logging()
 
-        config = yaml.safe_load(open(config_yml, "r"))
-        if "includes" in config:
-            for include in config["includes"]:
-                include_config = yaml.safe_load(open(include, "r"))
-                config.update(include_config)
+        config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
+
+        # Load the trainer based on the dataset used
+        if config["task"]["dataset"] == "trajectory_lmdb":
+            config["trainer"] = "forces"
+        else:
+            config["trainer"] = "energy"
+
+        config["model_attributes"]["name"] = config.pop("model")
+        config["model"] = config["model_attributes"]
+
+        if "normalizer" not in config:
+            del config["dataset"]["src"]
+            config["normalizer"] = config["dataset"]
+
+        config["checkpoint"] = checkpoint
+        config["optim"]["num_workers"] = 0
 
         self.config = copy.deepcopy(config)
-        self.config["checkpoint"] = checkpoint
+
         self.batch_size = batch_size
 
         # tweak!
-        self.config["optim"]["num_workers"] = 0
-        self.config["trainer"] = "energy"
+        # self.config["trainer"] = "energy"
 
-        self.trainer = registry.get_trainer_class(self.config.get("trainer", "simple"))(
+        print(self.config["model"]["name"])
+
+        self.trainer = registry.get_trainer_class(self.config.get("trainer", "energy"))(
             task=self.config["task"],
             model=self.config["model"],
-            dataset=self.config["dataset"],
+            dataset=None,
+            normalizer=self.config["normalizer"],
             optimizer=self.config["optim"],
             identifier="",
             slurm=self.config.get("slurm", {}),
             local_rank=self.config.get("local_rank", 0),
             is_debug=self.config.get("is_debug", True),
             cpu=cpu,
-            ocp_calc=True,
         )
 
         if checkpoint is not None:
@@ -117,6 +131,8 @@ def direct_energy_prediction(
     config_path,
     checkpoint_path,
     column_name,
+    cutoff=6,
+    max_neighbors=50,
     batch_size=8,
     cpu=False,
 ):
