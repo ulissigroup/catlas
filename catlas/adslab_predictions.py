@@ -128,7 +128,6 @@ def direct_energy_prediction(
     adslab_dict,
     adslab_atoms,
     graphs_dict,
-    config_path,
     checkpoint_path,
     column_name,
     cutoff=6,

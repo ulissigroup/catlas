@@ -86,8 +86,9 @@ if __name__ == "__main__":
             if step["step"] == "predict":
                 if step["type"] == "direct" and step["gpu"] == True:
                     with dask.annotate(
-                        resources={"GPU": 1}, priority=10
-                        #executor="gpu", resources={"GPU": 1}, priority=10
+                        resources={"GPU": 1},
+                        priority=10
+                        # executor="gpu", resources={"GPU": 1}, priority=10
                     ):
                         results_bag = results_bag.map(
                             memory.cache(
