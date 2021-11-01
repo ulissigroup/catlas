@@ -46,7 +46,7 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
-    def __init__(self, config_yml, checkpoint, batch_size=8, cpu=False):
+    def __init__(self, checkpoint, batch_size=8, cpu=False):
 
         setup_imports()
         setup_logging()
@@ -143,7 +143,6 @@ def direct_energy_prediction(
 
     if BOCPP is None:
         BOCPP = BatchOCPPredictor(
-            config_yml=config_path,
             checkpoint=checkpoint_path,
             batch_size=batch_size,
             cpu=cpu,
