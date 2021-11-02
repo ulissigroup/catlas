@@ -161,7 +161,7 @@ if __name__ == "__main__":
     else:
         results = results_bag.persist(optimize_graph=False)
         wait(results)
-        
+
     if pickle:
         pickle_path = config["output_options"]["pickle_path"]
         if pickle_path != "None":
@@ -171,4 +171,3 @@ if __name__ == "__main__":
                 ],
                 axis=1,
             ).to_pickle(pickle_path)
-
