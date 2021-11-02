@@ -8,11 +8,11 @@ dask:
 
     dask.config.set({"distributed.comm.timeouts.connect":120})
 
-    cluster = KubeCluster(pod_template = 'configs/tests/workers-cpu-dev.yml',
-                          namespace='zulissi',
+    cluster = KubeCluster(pod_template = 'configs/debug_configs/workers-cpu-dev.yml',
+                          namespace='kbroderick',
                           name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
+    cluster.adapt(minimum=1, maximum=40, interval="30000 ms")
     client = Client(cluster)
 
   partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
@@ -20,8 +20,8 @@ dask:
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'HER_test_screen'
+  pickle: True # True pickles the resulting predictions
+  pickle_path: '/home/jovyan/shared-scratch/Inference/HER_test_screen.pkl'
   verbose: true
 
 bulk_filters:
