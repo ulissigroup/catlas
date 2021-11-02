@@ -73,7 +73,7 @@ class BatchOCPPredictor:
             config["model_attributes"][
                 "scale_file"
             ] = "%s/configs/ocp_config_checkpoints/%s" % (
-                os.path.join(os.path.dirname(catlas.__file__),os.pardir),
+                os.path.join(os.path.dirname(catlas.__file__), os.pardir),
                 config["model_attributes"]["scale_file"],
             )
 
