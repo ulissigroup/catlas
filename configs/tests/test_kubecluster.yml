@@ -13,7 +13,7 @@ dask:
     cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml', 
                           namespace='zulissi',
                           name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'],
-                          scheduler_service_wait_timeout = 120)
+                          scheduler_service_wait_timeout = 480)
     cluster.adapt(minimum=2, maximum=2, interval="30000 ms")
     client = Client(cluster)
 
@@ -42,6 +42,5 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml'
-    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 

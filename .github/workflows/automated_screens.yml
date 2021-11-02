@@ -29,7 +29,7 @@ jobs:
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        (cd /home/jovyan/ocp && git pull && git checkout ocpcalc_fix)
+        (cd /home/jovyan/ocp && git pull)
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v2
       with:

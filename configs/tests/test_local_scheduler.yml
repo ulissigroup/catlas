@@ -29,6 +29,6 @@ adslab_prediction_steps:
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     config_path: 'configs/ocp_config_checkpoints/gemnet_actual.yml'
-    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 
 

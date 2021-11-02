@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
-        npartitions = min(bulk_num * adsorbate_num * 4, 10000)
+        npartitions = min(bulk_num * adsorbate_num * 4, 2000)
     else:
         npartitions = config["dask"]["partitions"]
 
@@ -86,7 +86,9 @@ if __name__ == "__main__":
             if step["step"] == "predict":
                 if step["type"] == "direct" and step["gpu"] == True:
                     with dask.annotate(
-                        executor="gpu", resources={"GPU": 1}, priority=10
+                        resources={"GPU": 1},
+                        priority=10
+                        # executor="gpu", resources={"GPU": 1}, priority=10
                     ):
                         results_bag = results_bag.map(
                             memory.cache(
@@ -95,7 +97,6 @@ if __name__ == "__main__":
                             ),
                             adslab_atoms=adslab_atoms_bag,
                             graphs_dict=graphs_bag,
-                            config_path=step["config_path"],
                             checkpoint_path=step["checkpoint_path"],
                             column_name=step["label"],
                             batch_size=step["batch_size"],
@@ -110,7 +111,6 @@ if __name__ == "__main__":
                         ),
                         adslab_atoms=adslab_atoms_bag,
                         graphs_dict=graphs_bag,
-                        config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
@@ -120,7 +120,6 @@ if __name__ == "__main__":
                 elif step["type"] == "relaxation":  # Old, needs to be updated
                     surface_adsorbate_combo_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
-                        config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                     )
