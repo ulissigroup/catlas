@@ -50,6 +50,8 @@ if __name__ == "__main__":
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+
+    # partition to 1 bulk per partition
     filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
@@ -65,17 +67,19 @@ if __name__ == "__main__":
     surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
-    # Enumerate slab - adsorbate combos
+    # choose the number of partitions after to use after making adslab combos
     if config["dask"]["partitions"] == -1:
         npartitions = min(bulk_num * adsorbate_num * 4, 2000)
     else:
         npartitions = config["dask"]["partitions"]
 
+    # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
         npartitions=npartitions
     )
 
+    # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
@@ -84,11 +88,11 @@ if __name__ == "__main__":
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
+
+                # GPU inference, only on GPU workers
                 if step["type"] == "direct" and step["gpu"] == True:
                     with dask.annotate(
-                        resources={"GPU": 1},
-                        priority=10
-                        # executor="gpu", resources={"GPU": 1}, priority=10
+                        executor="gpu", resources={"GPU": 1}, priority=10
                     ):
                         results_bag = results_bag.map(
                             memory.cache(
@@ -103,6 +107,7 @@ if __name__ == "__main__":
                             cpu=False,
                         )
 
+                # CPU inference on any worker
                 elif step["type"] == "direct" and step["gpu"] == False:
                     results_bag = results_bag.map(
                         memory.cache(
@@ -117,7 +122,8 @@ if __name__ == "__main__":
                         cpu=True,
                     )
 
-                elif step["type"] == "relaxation":  # Old, needs to be updated
+                # Old relaxation code; needs to be updated
+                elif step["type"] == "relaxation":
                     surface_adsorbate_combo_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
                         checkpoint_path=step["checkpoint_path"],
@@ -127,12 +133,6 @@ if __name__ == "__main__":
                     print("Unsupported prediction type: %s" % step["type"])
 
                 most_recent_step = "min_" + step["label"]
-
-    # Remove the slab and adslab atoms to make the resulting item much smaller
-    # with dask.annotate(priority=10):
-    #    adslab_bag = adslab_bag.map(
-    #        pop_keys, keys=["adslab_graphs", "adslab_atoms", "slab_surface_object"]
-    #    )
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
@@ -159,6 +159,8 @@ if __name__ == "__main__":
             )
 
     else:
+        # Important to use optimize_grap=False so that the information
+        # on only running GPU inference on GPUs is saved
         results = results_bag.persist(optimize_graph=False)
         wait(results)
 

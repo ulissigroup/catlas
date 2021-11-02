@@ -78,16 +78,14 @@ class BatchOCPPredictor:
             )
 
         config["checkpoint"] = checkpoint
+
+        # Turn off parallel data loading since this doesn't place nicely
+        # with dask threads and dask nanny
         config["optim"]["num_workers"] = 0
 
         self.config = copy.deepcopy(config)
 
         self.batch_size = batch_size
-
-        # tweak!
-        # self.config["trainer"] = "energy"
-
-        print(self.config["model"]["name"])
 
         self.trainer = registry.get_trainer_class(self.config.get("trainer", "energy"))(
             task=self.config["task"],
@@ -119,8 +117,10 @@ class BatchOCPPredictor:
 
     def full_predict(self, graphs_list):
 
+        # Make a dataset
         graphs_list_dataset = GraphsListDataset(graphs_list)
 
+        # Make a loader
         data_loader = self.trainer.get_dataloader(
             graphs_list_dataset,
             self.trainer.get_sampler(
@@ -128,6 +128,7 @@ class BatchOCPPredictor:
             ),
         )
 
+        # Batch inference
         predictions = self.trainer.predict(
             data_loader, per_image=True, disable_tqdm=True
         )
@@ -141,8 +142,6 @@ def direct_energy_prediction(
     graphs_dict,
     checkpoint_path,
     column_name,
-    cutoff=6,
-    max_neighbors=50,
     batch_size=8,
     cpu=False,
 ):
@@ -151,6 +150,9 @@ def direct_energy_prediction(
 
     global BOCPP
 
+    # This is problematic in that it assumes there is only
+    # ever one BOCPP. If two different models were used for inference
+    # this would lead to issues
     if BOCPP is None:
         BOCPP = BatchOCPPredictor(
             checkpoint=checkpoint_path,
@@ -158,10 +160,11 @@ def direct_energy_prediction(
             cpu=cpu,
         )
 
+    # Get the energy predictions and save them
     predictions_list = BOCPP.full_predict(graphs_dict["adslab_graphs"])
-
     adslab_results[column_name] = predictions_list
 
+    # Identify the best configuration and energy and save that too
     if len(predictions_list) > 0:
         best_energy = np.min(predictions_list)
         best_atoms = adslab_atoms["adslab_atoms"][np.argmin(predictions_list)].copy()
@@ -183,6 +186,8 @@ def direct_energy_prediction(
     return adslab_results
 
 
+# This is currently not working; it should be revised
+# based on direct_energy_prediction
 def relaxation_energy_prediction(
     adslabs_dict, config_path, checkpoint_path, column_name
 ):
