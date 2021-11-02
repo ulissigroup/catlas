@@ -5,7 +5,7 @@ dask:
     client = Client(cluster)
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
   pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
@@ -13,13 +13,6 @@ output_options:
 
 bulk_filters:
     filter_by_mpids: ['mp-126','mp-30', 'mp-101']
-
-    filter_by_Pourbaix_stability:
-      pH: [3,3]
-      pH_step: 0.5 # step size between pH points considered
-      applied_potential: [-1.3, -0.6]
-      applied_potential_step: 0.05 # step size between applied potential points considered
-      max_decomposition_E: 0.1 # eV/(metal atom)
 
 adsorbate_filters:
     filter_by_smiles: ['*H']
@@ -32,8 +25,10 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: direct
+    gpu: false
+    batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
-    config_path: 'configs/ocp_config_checkpoints/s2ef_all_gemnet-dT.yml'
-    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+    config_path: 'configs/ocp_config_checkpoints/gemnet_actual.yml'
+    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 
 

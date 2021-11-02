@@ -51,18 +51,20 @@ def bulk_filter(config, dask_df):
     return dask_df
 
 
-def slab_filter(config, dask_df):
+def slab_filter(config, dask_dict):
     slab_filters = config["slab_filters"]
+
+    keep = True
 
     for name, val in slab_filters.items():
         if val != "None":
             if name == "filter_by_object_size":
-                dask_df = dask_df[dask_df.slab_natoms <= val]
+                keep = keep and (dask_dict["slab_natoms"] <= val)
             elif name == "filter_by_max_miller_index":
-                dask_df = dask_df[dask_df.slab_max_miller_index <= val]
+                keep = keep and (dask_dict["slab_max_miller_index"] <= val)
             else:
                 warnings.warn("Slab filter is not implemented: " + name)
-    return dask_df
+    return keep
 
 
 def adsorbate_filter(config, dask_df):
