@@ -1,6 +1,7 @@
 from ase.db import connect
 import os.path
 import numpy as np
+from .dask_utils import SizeDict
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -12,17 +13,21 @@ def load_ocdata_bulks():
         bulk_list = []
         for row in db.select():
             bulk_list.append(
-                {
-                    "bulk_atoms": row.toatoms(),
-                    "bulk_mpid": row.mpid,
-                    "bulk_data_source": "ocdata_bulks",
-                    "bulk_natoms": row.natoms,
-                    "bulk_xc": "RPBE",
-                    "bulk_nelements": len(
-                        np.unique(row.toatoms().get_chemical_symbols())
-                    ),
-                    "bulk_elements": np.unique(row.toatoms().get_chemical_symbols()),
-                }
+                SizeDict(
+                    {
+                        "bulk_atoms": row.toatoms(),
+                        "bulk_mpid": row.mpid,
+                        "bulk_data_source": "ocdata_bulks",
+                        "bulk_natoms": row.natoms,
+                        "bulk_xc": "RPBE",
+                        "bulk_nelements": len(
+                            np.unique(row.toatoms().get_chemical_symbols())
+                        ),
+                        "bulk_elements": np.unique(
+                            row.toatoms().get_chemical_symbols()
+                        ),
+                    }
+                )
             )
 
         return bulk_list

@@ -1,29 +1,37 @@
 kind: Pod
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: nvidia.com/gpu.product
+            operator: In
+            values:
+            - RTX-A6000
   restartPolicy: Never
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'8 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'15 GiB',--death-timeout, '600',--resources,"GPU=1"]
+    #args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'28 GiB',--death-timeout, '600',--resources,"GPU=1",--no-nanny]
     name: dask
     env:
     - name: OMP_NUM_THREADS
-      value: 4
+      value: 1
     - name: PYTHONPATH
       value: "/home/jovyan/ocp:/home/jovyan/catlas"
-    - name: NVIDIA_VISIBLE_DEVICES
-      value: "none"
     - name: MALLOC_TRIM_THRESHOLD_
       value: 0
     resources:
       limits:
-        cpu: "4"
-        memory: 17G
-        nvidia.com/gpu: "0"
+        cpu: "2"
+        memory: 16G
+        nvidia.com/gpu: "1"
       requests:
-        cpu: "4"
-        memory: 17G
-        nvidia.com/gpu: "0"
+        cpu: "2"
+        memory: 16G
+        nvidia.com/gpu: "1"
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: workspace-inference
@@ -43,4 +51,3 @@ spec:
   - name: shared-scratch
     persistentVolumeClaim:
       claimName: shared-scratch
-      

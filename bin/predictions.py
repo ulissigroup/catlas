@@ -2,7 +2,12 @@ import yaml
 from catlas.load_bulk_structures import load_ocdata_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
-from catlas.enumerate_slabs_adslabs import enumerate_slabs, enumerate_adslabs
+from catlas.enumerate_slabs_adslabs import (
+    enumerate_slabs,
+    enumerate_adslabs,
+    convert_adslabs_to_graphs,
+    merge_surface_adsorbate_combo,
+)
 from catlas.dask_utils import (
     split_balance_df_partitions,
     bag_split_individual_partitions,
@@ -11,8 +16,8 @@ from catlas.dask_utils import (
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
+    pop_keys,
 )
-
 import dask.bag as db
 import dask
 import sys
@@ -56,48 +61,65 @@ if __name__ == "__main__":
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
-    # Enumerate surfaces
+    # Enumerate and filter surfaces
+    surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
+    surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
-    surface_bag = filtered_catalyst_bag.map(
-        memory.cache(enumerate_slabs)
-    ).flatten()  # WOULD BE NICE TO MAINTAIN SOME OF ZACK'S NICE PARTITIONING
-
-    surface_df = surface_bag.to_dataframe()
-    filtered_surface_df = slab_filter(config, surface_df)
-    filtered_surface_bag = filtered_surface_df.to_bag(format='dict')
-    
     # Enumerate slab - adsorbate combos
     if config["dask"]["partitions"] == -1:
-        num_partitions = min(bulk_num * 70, 10000)
+        npartitions = min(bulk_num * adsorbate_num * 4, 2000)
     else:
-        num_partitions = config["dask"]["partitions"]
+        npartitions = config["dask"]["partitions"]
 
-    surface_adsorbate_combo_bag = filtered_surface_bag.product(filtered_adsorbate_bag)
+    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
     surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
-        npartitions=bulk_num * adsorbate_num * 20
+        npartitions=npartitions
     )
-    # surface_adsorbate_combo_bag = bag_split_individual_partitions(
-    #    surface_adsorbate_combo_bag
-    # )
-    
-    adslab_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+
+    adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
+    results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
-                if step["type"] == "direct":
-                    adslab_bag = adslab_bag.map(
-                        memory.cache(direct_energy_prediction),
-                        config_path=step["config_path"],
+                if step["type"] == "direct" and step["gpu"] == True:
+                    with dask.annotate(
+                        resources={"GPU": 1},
+                        priority=10
+                        # executor="gpu", resources={"GPU": 1}, priority=10
+                    ):
+                        results_bag = results_bag.map(
+                            memory.cache(
+                                direct_energy_prediction,
+                                ignore=["batch_size", "graphs_dict"],
+                            ),
+                            adslab_atoms=adslab_atoms_bag,
+                            graphs_dict=graphs_bag,
+                            checkpoint_path=step["checkpoint_path"],
+                            column_name=step["label"],
+                            batch_size=step["batch_size"],
+                            cpu=False,
+                        )
+
+                elif step["type"] == "direct" and step["gpu"] == False:
+                    results_bag = results_bag.map(
+                        memory.cache(
+                            direct_energy_prediction,
+                            ignore=["batch_size", "graphs_dict"],
+                        ),
+                        adslab_atoms=adslab_atoms_bag,
+                        graphs_dict=graphs_bag,
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
+                        batch_size=step["batch_size"],
+                        cpu=True,
                     )
 
-                elif step["type"] == "relaxation":
-                    adslab_bag = adslab_bag.map(
+                elif step["type"] == "relaxation":  # Old, needs to be updated
+                    surface_adsorbate_combo_bag = adslab_bag.map(
                         memory.cache(relaxation_energy_prediction),
-                        config_path=step["config_path"],
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                     )
@@ -106,13 +128,19 @@ if __name__ == "__main__":
 
                 most_recent_step = "min_" + step["label"]
 
+    # Remove the slab and adslab atoms to make the resulting item much smaller
+    # with dask.annotate(priority=10):
+    #    adslab_bag = adslab_bag.map(
+    #        pop_keys, keys=["adslab_graphs", "adslab_atoms", "slab_surface_object"]
+    #    )
+
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
     pickle = "pickle_path" in config["output_options"]
 
     if verbose or pickle:
-        results = adslab_bag.compute()
+        results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
 
         if verbose:
@@ -131,7 +159,9 @@ if __name__ == "__main__":
             )
 
     else:
-        results = adslab_bag.persist()
+        results = results_bag.persist(optimize_graph=False)
+        wait(results)
+        
     if pickle:
         pickle_path = config["output_options"]["pickle_path"]
         if pickle_path != "None":
@@ -141,3 +171,4 @@ if __name__ == "__main__":
                 ],
                 axis=1,
             ).to_pickle(pickle_path)
+
