@@ -167,7 +167,7 @@ if __name__ == "__main__":
     if pickle:
         pickle_path = config["output_options"]["pickle_path"]
         if pickle_path != "None":
-            results.drop(
+            df_results.drop(
                 [
                     "slab_surface_object",
                 ],
