@@ -1,19 +1,19 @@
 kind: Pod
 spec:
-  affinity:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: nvidia.com/gpu.product
-            operator: In
-            values:
-            - RTX-A6000
+  #affinity:
+  #  nodeAffinity:
+  #    requiredDuringSchedulingIgnoredDuringExecution:
+  #      nodeSelectorTerms:
+  #      - matchExpressions:
+  #        - key: nvidia.com/gpu.product
+  #          operator: In
+  #          values:
+  #          - RTX-A6000
   restartPolicy: Never
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'15 GiB',--death-timeout, '600',--resources,"GPU=1"]
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'20 GiB',--death-timeout, '600',--resources,"GPU=1"]
     #args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'28 GiB',--death-timeout, '600',--resources,"GPU=1",--no-nanny]
     name: dask
     env:
@@ -25,12 +25,12 @@ spec:
       value: 0
     resources:
       limits:
-        cpu: "2"
-        memory: 16G
+        cpu: "4"
+        memory: 21G
         nvidia.com/gpu: "1"
       requests:
-        cpu: "2"
-        memory: 16G
+        cpu: "4"
+        memory: 21G
         nvidia.com/gpu: "1"
     volumeMounts:
     - mountPath: /home/jovyan/ocp

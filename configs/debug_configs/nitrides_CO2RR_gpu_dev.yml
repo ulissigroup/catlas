@@ -9,13 +9,12 @@ dask:
     from jinja2 import Template
     
     dask.config.set({"distributed.comm.timeouts.connect":120})
-    #dask.config.set({"distributed.worker.daemon":False})
+    dask.config.set({"distributed.worker.daemon":False})
     #dask.config.set({"distributed.worker.memory.target":False})
     #dask.config.set({"distributed.worker.connections.outgoing":25})
     #dask.config.set({"distributed.worker.connections.incoming":5})
-    dask.config.set({"distributed.scheduler.allowed_failures":2})
-    dask.config.set({"distributed.comm.timeouts.connect":120})
-    dask.config.set({"distributed.comm.retry.count":2})
+    dask.config.set({"distributed.scheduler.allowed_failures":20})
+    dask.config.set({"distributed.comm.retry.count":20})
     
     with open('configs/debug_configs/scheduler-cpu-dev.yml') as f:
         scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
@@ -27,10 +26,10 @@ dask:
                           namespace='zulissi',
                           name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
-    cluster.scale(6)
+    cluster.scale(10)
     
     kube_cluster_new_worker(cluster, 'configs/debug_configs/workers-cpu-dev.yml')
-    cluster.scale(40)
+    cluster.scale(60)
     #cluster.adapt(minimum=2, maximum=4, interval="30000 ms")
     client = Client(cluster)
 
@@ -39,30 +38,28 @@ dask:
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
+  pickle: True # True pickles the resulting predictions
+  pickle_path: '/home/jovyan/shared-scratch/zulissi/co2rr_nitrides_miller2.pkl'
   optional_additional_path_str: 'CO2RR_test_screen'
   verbose: False
 
 bulk_filters:
-    filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
-
-    filter_by_object_size: 40 # 60
-
-    filter_by_required_elements: ['N']
+  filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
+  filter_by_object_size: 40 # 60
+  filter_by_required_elements: ['N']
 
 adsorbate_filters:
-    filter_by_smiles: ['*H', '*CO','*OH','*CHO']
+  filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-    filter_by_object_size: 80
-    filter_by_max_miller_index: 1
-    
+  filter_by_object_size: 80
+  filter_by_max_miller_index: 2
+
 adslab_prediction_steps:
-  - step: predict
-    type: direct
-    gpu: true
-    batch_size: 4
-    label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_actual.yml'
-    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+- step: predict
+  type: direct
+  gpu: true
+  batch_size: 4
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 

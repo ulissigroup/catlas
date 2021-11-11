@@ -97,7 +97,7 @@ if __name__ == "__main__":
                         results_bag = results_bag.map(
                             memory.cache(
                                 direct_energy_prediction,
-                                ignore=["batch_size", "graphs_dict"],
+                                ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
                             adslab_atoms=adslab_atoms_bag,
                             graphs_dict=graphs_bag,
@@ -112,7 +112,7 @@ if __name__ == "__main__":
                     results_bag = results_bag.map(
                         memory.cache(
                             direct_energy_prediction,
-                            ignore=["batch_size", "graphs_dict"],
+                            ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
                         adslab_atoms=adslab_atoms_bag,
                         graphs_dict=graphs_bag,
