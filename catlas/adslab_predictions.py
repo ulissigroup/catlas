@@ -64,6 +64,8 @@ class BatchOCPPredictor:
         config["model_attributes"]["name"] = config.pop("model")
         config["model"] = config["model_attributes"]
 
+        config["model_attributes"]["otf_graph"] = True
+
         if "normalizer" not in config:
             del config["dataset"]["src"]
             config["normalizer"] = config["dataset"]

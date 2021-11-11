@@ -52,7 +52,7 @@ adsorbate_filters:
   filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-  filter_by_object_size: 80
+  filter_by_object_size: 90
   filter_by_max_miller_index: 2
 
 adslab_prediction_steps:
