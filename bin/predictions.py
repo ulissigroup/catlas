@@ -38,7 +38,7 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
 
     template = Template(open(config_path).read())
-    config = template.render(**os.environ)
+    config = yaml.load(template.render(**os.environ))
 
     # set up the dask cluster using the config block
     exec(config["dask"]["config"])
