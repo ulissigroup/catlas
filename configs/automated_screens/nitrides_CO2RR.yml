@@ -26,14 +26,14 @@ dask:
                           namespace='zulissi',
                           name='dask-catlas-{{ GITHUB_RUN_ID }}',
                           scheduler_service_wait_timeout = 120)
-    cluster.scale(2)
+    cluster.scale(4)
 
     template = Template(open('configs/automated_screens/github-workers-cpu.tmpl').read())
     with open('./configs/automated_screens/github-workers-cpu.yml','w') as fhandle:
         fhandle.write(template.render(**os.environ))
     
     kube_cluster_new_worker(cluster, 'configs/automated_screens/github-workers-cpu.yml')
-    cluster.scale(20)
+    cluster.scale(80)
     client = Client(cluster)
 
   partitions: -1 # Use automatic guess for number of partitions
