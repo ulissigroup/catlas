@@ -2,48 +2,67 @@ dask:
   config: |
     from dask.distributed import Client
     from dask_kubernetes import KubeCluster
+    from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
+    from catlas.dask_utils import kube_cluster_new_worker
     import dask
     import os
     from jinja2 import Template
-
+    
     dask.config.set({"distributed.comm.timeouts.connect":120})
+    dask.config.set({"distributed.scheduler.allowed_failures":20})
+    dask.config.set({"distributed.comm.retry.count":20})
+
+    template = Template(open('configs/tests/github-workers-gpu.tmpl').read())
+    with open('./configs/tests/github-workers-gpu.yml','w') as fhandle:
+        fhandle.write(template.render(**os.environ))
+    
+    with open('configs/debug_configs/scheduler-cpu-dev.yml') as f:
+        scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
+                    yaml.safe_load(f)
+                ))
+
+    cluster = KubeCluster(pod_template = 'configs/automated_screens/github-workers-gpu.yml',
+                          scheduler_pod_template = scheduler_pod_template,
+                          namespace='zulissi',
+                          name='dask-catlas-{{ GITHUB_RUN_ID }}',
+                          scheduler_service_wait_timeout = 120)
+    cluster.scale(2)
+
     template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
     with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
         fhandle.write(template.render(**os.environ))
-
-    cluster = KubeCluster(pod_template = 'configs/tests/github-workers-cpu.yml',
-                          namespace='zulissi',
-                          name='dask-catlas-%s' % os.environ['GITHUB_RUN_ID'],
-                          scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
+    
+    kube_cluster_new_worker(cluster, 'configs/automated_screens/github-workers-cpu.yml')
+    cluster.scale(20)
     client = Client(cluster)
-  partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
+  partitions: -1 # Use automatic guess for number of partitions
+
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_github'
 
 output_options:
-  pickle: False # True pickles the resulting predictions
-  optional_additional_path_str: 'HER_test_screen'
-  verbose: true
+  pickle: True # True pickles the resulting predictions
+  pickle_path: '/home/jovyan/shared-scratch/catlas/outputs/nitrides_CO2RR_{{ GITHUB_RUN_ID }}.pkl'
+  cnofig_path: '/home/jovyan/shared-scratch/catlas/outputs/nitrides_CO2RR_{{ GITHUB_RUN_ID }}.yml'
+  verbose: False
 
 bulk_filters:
-    filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
-
-    filter_by_object_size: 60 # 60
-
-    filter_by_required_elements: ['N']
+  filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', Pb', 'Bi', 'In']
+  filter_by_object_size: 40 # 60
+  filter_by_required_elements: ['N']
 
 adsorbate_filters:
-    filter_by_smiles: ['*H', '*CO','*OH','*CHO']
+  filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
-    filter_by_object_size: 100
-    filter_by_max_miller_index: 2
-    
+  filter_by_object_size: 90
+  filter_by_max_miller_index: 2
+
 adslab_prediction_steps:
-  - step: predict
-    type: direct
-    label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
-    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+- step: predict
+  type: direct
+  gpu: true
+  batch_size: 4
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 

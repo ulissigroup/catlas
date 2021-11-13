@@ -40,7 +40,7 @@ memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 output_options:
   pickle: True # True pickles the resulting predictions
   pickle_path: '/home/jovyan/shared-scratch/zulissi/co2rr_nitrides_miller2.pkl'
-  optional_additional_path_str: 'CO2RR_test_screen'
+  config_path: '/home/jovyan/shared-scratch/zulissi/co2rr_nitrides_miller2.yml'
   verbose: False
 
 bulk_filters:
