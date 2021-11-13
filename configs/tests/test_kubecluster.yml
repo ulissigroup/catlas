@@ -19,10 +19,10 @@ dask:
 
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
-  pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
+  pickle_path: None #
   verbose: false
 
 bulk_filters:
@@ -33,7 +33,6 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-    
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
