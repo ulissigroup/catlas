@@ -11,6 +11,9 @@ from catlas.enumerate_slabs_adslabs import (
 from catlas.dask_utils import (
     split_balance_df_partitions,
     bag_split_individual_partitions,
+    check_if_memorized,
+    cache_if_not_cached,
+    load_cache,
 )
 
 from catlas.adslab_predictions import (
@@ -90,11 +93,10 @@ if __name__ == "__main__":
             if step["step"] == "predict":
 
                 # GPU inference, only on GPU workers
-                if step["type"] == "direct" and step["gpu"] == True:
-                    with dask.annotate(
-                        executor="gpu", resources={"GPU": 1}, priority=10
-                    ):
-                        results_bag = results_bag.map(
+                if step["type"] == "direct":
+                    if step["gpu"] == True:
+                        memorized_bag = results_bag.map(
+                            check_if_memorized,
                             memory.cache(
                                 direct_energy_prediction,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
@@ -107,19 +109,34 @@ if __name__ == "__main__":
                             cpu=False,
                         )
 
-                # CPU inference on any worker
-                elif step["type"] == "direct" and step["gpu"] == False:
+                        with dask.annotate(resources={"GPU": 1}, priority=10):
+                            memorized_bag = memorized_bag.map(
+                                cache_if_not_cached,
+                                memory.cache(
+                                    direct_energy_prediction,
+                                    ignore=["batch_size", "graphs_dict", "cpu"],
+                                ),
+                                adslab_atoms=adslab_atoms_bag,
+                                graphs_dict=graphs_bag,
+                                checkpoint_path=step["checkpoint_path"],
+                                column_name=step["label"],
+                                batch_size=step["batch_size"],
+                                cpu=False,
+                            )
+
                     results_bag = results_bag.map(
+                        load_cache,
                         memory.cache(
                             direct_energy_prediction,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
+                        memorized_bag,
                         adslab_atoms=adslab_atoms_bag,
                         graphs_dict=graphs_bag,
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=True,
+                        cpu=step["gpu"],
                     )
 
                 # Old relaxation code; needs to be updated
