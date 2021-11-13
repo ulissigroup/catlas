@@ -123,6 +123,8 @@ if __name__ == "__main__":
                                 batch_size=step["batch_size"],
                                 cpu=False,
                             )
+                    else:
+                        memorized_bag = None
 
                     results_bag = results_bag.map(
                         load_cache,
