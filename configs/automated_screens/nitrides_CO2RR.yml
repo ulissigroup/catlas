@@ -12,11 +12,11 @@ dask:
     dask.config.set({"distributed.scheduler.allowed_failures":20})
     dask.config.set({"distributed.comm.retry.count":20})
 
-    template = Template(open('configs/tests/github-workers-gpu.tmpl').read())
-    with open('./configs/tests/github-workers-gpu.yml','w') as fhandle:
+    template = Template(open('configs/automated_screens/github-workers-gpu.tmpl').read())
+    with open('./configs/automated_screens/github-workers-gpu.yml','w') as fhandle:
         fhandle.write(template.render(**os.environ))
     
-    with open('configs/debug_configs/scheduler-cpu-dev.yml') as f:
+    with open('configs/automated_screens/scheduler.yml') as f:
         scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
                     yaml.safe_load(f)
                 ))
@@ -28,8 +28,8 @@ dask:
                           scheduler_service_wait_timeout = 120)
     cluster.scale(2)
 
-    template = Template(open('configs/tests/github-workers-cpu.tmpl').read())
-    with open('./configs/tests/github-workers-cpu.yml','w') as fhandle:
+    template = Template(open('configs/automated_screens/github-workers-cpu.tmpl').read())
+    with open('./configs/automated_screens/github-workers-cpu.yml','w') as fhandle:
         fhandle.write(template.render(**os.environ))
     
     kube_cluster_new_worker(cluster, 'configs/automated_screens/github-workers-cpu.yml')
