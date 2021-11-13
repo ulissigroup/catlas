@@ -22,7 +22,8 @@ dask:
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
-  pickle_path: None #
+  pickle_path: test_kube_cluster_output.pkl
+  config_path: test_kube_cluster_output.yml
   verbose: false
 
 bulk_filters:
