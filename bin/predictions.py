@@ -28,14 +28,17 @@ import dask.dataframe as ddf
 from joblib import Memory
 import pandas as pd
 from dask.distributed import wait
+from jinja2 import Template
+import os
 
 # Load inputs and define global vars
 if __name__ == "__main__":
 
     # Load the config yaml
     config_path = sys.argv[1]
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
+
+    template = Template(open(config_path).read())
+    config = template.render(**os.environ)
 
     # set up the dask cluster using the config block
     exec(config["dask"]["config"])
@@ -192,3 +195,6 @@ if __name__ == "__main__":
                 ],
                 axis=1,
             ).to_pickle(pickle_path)
+
+        with open(config["output_options"]["config_path"], "w") as fhandle:
+            yaml.dump(config, fhandle)
