@@ -1,0 +1,24 @@
+kind: Pod
+spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: network
+            operator: In
+            values:
+            - 10gb
+  restartPolicy: Never
+  containers:
+  - image: ulissigroup/kubeflow:predictions
+    imagePullPolicy: Always
+    args: [dask-scheduler]
+    name: dask
+    resources:
+      limits:
+        cpu: "4"
+        memory: 16G
+      requests:
+        cpu: "4"
+        memory: 16G
