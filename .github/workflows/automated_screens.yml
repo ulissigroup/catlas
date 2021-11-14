@@ -39,5 +39,5 @@ jobs:
     - run: |
         cd catlas
         python setup.py develop
-        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/github_kube_hybrid_cluster.py
 
