@@ -18,7 +18,9 @@ with open("configs/dask_cluster/dev_kube_cluster/scheduler.yml") as f:
 
 
 # Complete the template for GPU workers
-template = Template(open("configs/dask_cluster/dev_kube_cluster/worker-gpu.tmpl").read())
+template = Template(
+    open("configs/dask_cluster/dev_kube_cluster/worker-gpu.tmpl").read()
+)
 with open("configs/dask_cluster/dev_kube_cluster/worker-gpu.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
@@ -34,7 +36,9 @@ cluster = KubeCluster(
 cluster.scale(4)
 
 # Switch to CPU workers and scale it further
-template = Template(open("configs/dask_cluster/dev_kube_cluster/worker-cpu.tmpl").read())
+template = Template(
+    open("configs/dask_cluster/dev_kube_cluster/worker-cpu.tmpl").read()
+)
 with open("./configs/dask_cluster/dev_kube_cluster/worker-cpu.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 

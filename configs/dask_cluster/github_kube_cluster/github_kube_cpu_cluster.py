@@ -7,8 +7,12 @@ from dask_kubernetes.objects import make_pod_from_dict
 dask.config.set({"distributed.comm.timeouts.connect": 240})
 
 # Complet the worker template
-template = Template(open("configs/dask_cluster/github_kube_cluster/worker-cpu-github.tmpl").read())
-with open("./configs/dask_cluster/github_kube_cluster/worker-cpu-github.yml", "w") as fhandle:
+template = Template(
+    open("configs/dask_cluster/github_kube_cluster/worker-cpu-github.tmpl").read()
+)
+with open(
+    "./configs/dask_cluster/github_kube_cluster/worker-cpu-github.yml", "w"
+) as fhandle:
     fhandle.write(template.render(**os.environ))
 
 # Load the scheduler template
