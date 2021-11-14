@@ -36,12 +36,12 @@ if __name__ == "__main__":
 
     # Load the config yaml
     config_path = sys.argv[1]
-
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
 
-    # set up the dask cluster using the config block
-    exec(config["dask"]["config"])
+    # Start the dask cluster
+    dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
+    exec(dask_cluster_script)
 
     # Set up joblib memory to use for caching hard steps
     memory = Memory(config["memory_cache_location"], verbose=0)

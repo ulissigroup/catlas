@@ -79,6 +79,10 @@ class BatchOCPPredictor:
                 config["model_attributes"]["scale_file"],
             )
 
+        checkpoint = "%s/%s" % (
+            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+            checkpoint,
+        )
         config["checkpoint"] = checkpoint
 
         # Turn off parallel data loading since this doesn't place nicely
