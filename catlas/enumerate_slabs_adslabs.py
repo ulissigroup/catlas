@@ -1,4 +1,3 @@
-import pickle
 import numpy as np
 from ocdata import precompute_sample_structures as compute
 from ocdata.surfaces import Surface

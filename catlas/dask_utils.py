@@ -2,7 +2,6 @@ from dask.bag.core import split
 from dask.dataframe.core import new_dd_object, split_evenly
 from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
-from operator import getitem
 import numpy as np
 import dask.dataframe as dd
 from dask.dataframe.io.io import sorted_division_locations

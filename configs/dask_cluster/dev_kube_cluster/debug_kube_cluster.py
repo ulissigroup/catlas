@@ -3,7 +3,6 @@ from dask_kubernetes import KubeCluster
 from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
 from catlas.dask_utils import kube_cluster_new_worker
 import dask
-import os
 from jinja2 import Template
 
 dask.config.set({"distributed.comm.timeouts.connect": 120})
