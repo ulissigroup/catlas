@@ -6,7 +6,7 @@ import dask
 import os
 from jinja2 import Template
 
-dask.config.set({"distributed.comm.timeouts.connect": 120})
+dask.config.set({"distributed.comm.timeouts.connect": 240})
 dask.config.set({"distributed.scheduler.allowed_failures": 20})
 dask.config.set({"distributed.comm.retry.count": 20})
 
