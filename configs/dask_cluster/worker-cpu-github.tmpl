@@ -4,20 +4,24 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'8 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'4 GiB',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
-      value: 2
+      value: 4
     - name: PYTHONPATH
       value: "/home/jovyan/ocp:/home/jovyan/catlas"
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: "none"
+    - name: MALLOC_TRIM_THRESHOLD_
+      value: 0
     resources:
       limits:
         cpu: "4"
-        memory: 16G
+        memory: 9G
       requests:
         cpu: "4"
-        memory: 16G
+        memory: 9G
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: shared-scratch
