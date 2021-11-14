@@ -21,7 +21,7 @@ with open("configs/dask_cluster/github_kube_cluster/scheduler.yml") as f:
 template = Template(
     open("configs/dask_cluster/github_kube_cluster/worker-gpu-github.tmpl").read()
 )
-with open("configs/dask_cluster/worker-gpu-github.yml", "w") as fhandle:
+with open("configs/dask_cluster/github_kube_cluster/worker-gpu-github.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
 
