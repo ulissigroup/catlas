@@ -24,7 +24,7 @@ jobs:
     - run: |
         (cd /home/jovyan/ocp && git pull) 
         python setup.py develop
-        python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster.py
+        python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
 
   test_kubecluster:
     name: Test catlas with kubecluster
@@ -57,5 +57,5 @@ jobs:
     - run: |
         cd catlas
         python setup.py develop
-        python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cpu_cluster.py
+        python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
 
