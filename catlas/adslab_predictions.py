@@ -1,4 +1,3 @@
-
 from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 from ocdata.combined import Combined
