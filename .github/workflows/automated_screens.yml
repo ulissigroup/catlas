@@ -40,8 +40,11 @@ jobs:
         python setup.py develop
         python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
     - run: |
+        cd catlas
         python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
     - run: |
+        cd catlas
         python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
     - run: |
+        cd catlas
         python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
