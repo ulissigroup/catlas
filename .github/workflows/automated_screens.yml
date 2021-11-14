@@ -17,6 +17,8 @@ jobs:
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
+    timeout-minutes: 2880
+
     steps:
     - uses: azure/k8s-set-context@v1
       with:
