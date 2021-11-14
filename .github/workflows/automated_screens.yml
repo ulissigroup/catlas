@@ -7,8 +7,8 @@ on: [workflow_dispatch]
 
 jobs:
 
-  automated screens:
-    name: automated screens
+  automated_screens:
+    name: automated screens for various chemistries
 
     runs-on: [self-hosted, linux, shared-scratch]
 
