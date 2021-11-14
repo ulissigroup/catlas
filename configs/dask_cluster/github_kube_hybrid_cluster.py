@@ -18,14 +18,14 @@ with open("configs/dask_cluster/scheduler.yml") as f:
 
 
 # Complete the template for GPU workers
-template = Template(open("configs/dask_cluster/github-workers-gpu.tmpl").read())
-with open("configs/dask_cluster/github-workers-gpu.yml", "w") as fhandle:
+template = Template(open("configs/dask_cluster/worker-gpu-github.tmpl").read())
+with open("configs/dask_cluster/worker-gpu-github.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
 
 # Start the dask cluster with some gpu workers
 cluster = KubeCluster(
-    pod_template="configs/dask_cluster/github-workers-gpu.yml",
+    pod_template="configs/dask_cluster/worker-gpu-github.yml",
     scheduler_pod_template=scheduler_pod_template,
     namespace="zulissi",
     name="dask-catlas-{{ GITHUB_RUN_ID }}",
@@ -34,11 +34,11 @@ cluster = KubeCluster(
 cluster.scale(4)
 
 # Switch to CPU workers and scale it further
-template = Template(open("configs/dask_cluster/github-workers-cpu.tmpl").read())
-with open("./configs/dask_cluster/github-workers-cpu.yml", "w") as fhandle:
+template = Template(open("configs/dask_cluster/worker-cpu-github.tmpl").read())
+with open("./configs/dask_cluster/worker-cpu-github.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
-kube_cluster_new_worker(cluster, "configs/dask_cluster/github-workers-cpu.yml")
+kube_cluster_new_worker(cluster, "configs/dask_cluster/worker-cpu-github.yml")
 cluster.scale(80)
 
 # Connect to the cluster
