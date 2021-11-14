@@ -20,7 +20,7 @@ with open("configs/dask_cluster/scheduler.yml") as f:
 # Start the cluster and scale
 cluster = KubeCluster(
     pod_template="configs/dask_cluster/worker-cpu-github.yml",
-    scheduler_template=scheduler_pod_template,
+    scheduler_pod_template=scheduler_pod_template,
     namespace="zulissi",
     name="dask-catlas-%s" % os.environ["GITHUB_RUN_ID"],
     scheduler_service_wait_timeout=480,
