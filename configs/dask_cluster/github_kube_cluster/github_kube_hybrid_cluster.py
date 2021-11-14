@@ -49,7 +49,7 @@ with open(
 kube_cluster_new_worker(
     cluster, "configs/dask_cluster/github_kube_cluster/worker-cpu-github.yml"
 )
-cluster.scale(80)
+cluster.scale(60)
 
 # Connect to the cluster
 client = Client(cluster)
