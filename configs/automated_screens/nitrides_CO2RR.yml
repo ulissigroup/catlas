@@ -1,44 +1,7 @@
 dask:
-  config: |
-    from dask.distributed import Client
-    from dask_kubernetes import KubeCluster
-    from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
-    from catlas.dask_utils import kube_cluster_new_worker
-    import dask
-    import os
-    from jinja2 import Template
-    
-    dask.config.set({"distributed.comm.timeouts.connect":120})
-    dask.config.set({"distributed.scheduler.allowed_failures":20})
-    dask.config.set({"distributed.comm.retry.count":20})
-
-    template = Template(open('configs/automated_screens/github-workers-gpu.tmpl').read())
-    with open('./configs/automated_screens/github-workers-gpu.yml','w') as fhandle:
-        fhandle.write(template.render(**os.environ))
-    
-    with open('configs/automated_screens/scheduler.yml') as f:
-        scheduler_pod_template = make_pod_from_dict(dask.config.expand_environment_variables(
-                    yaml.safe_load(f)
-                ))
-
-    cluster = KubeCluster(pod_template = 'configs/automated_screens/github-workers-gpu.yml',
-                          scheduler_pod_template = scheduler_pod_template,
-                          namespace='zulissi',
-                          name='dask-catlas-{{ GITHUB_RUN_ID }}',
-                          scheduler_service_wait_timeout = 120)
-    cluster.scale(4)
-
-    template = Template(open('configs/automated_screens/github-workers-cpu.tmpl').read())
-    with open('./configs/automated_screens/github-workers-cpu.yml','w') as fhandle:
-        fhandle.write(template.render(**os.environ))
-    
-    kube_cluster_new_worker(cluster, 'configs/automated_screens/github-workers-cpu.yml')
-    cluster.scale(80)
-    client = Client(cluster)
-
   partitions: -1 # Use automatic guess for number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_github'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
 
 output_options:
   pickle: True # True pickles the resulting predictions
@@ -64,5 +27,5 @@ adslab_prediction_steps:
   gpu: true
   batch_size: 4
   label: 'dE_gemnet_is2re_finetuned'
-  checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 
