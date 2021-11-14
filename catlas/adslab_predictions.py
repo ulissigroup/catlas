@@ -1,3 +1,4 @@
+
 from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 from ocdata.combined import Combined
@@ -53,6 +54,11 @@ class BatchOCPPredictor:
         setup_imports()
         setup_logging()
 
+        checkpoint = "%s/%s" % (
+            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+            checkpoint,
+        )
+
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
@@ -79,10 +85,6 @@ class BatchOCPPredictor:
                 config["model_attributes"]["scale_file"],
             )
 
-        checkpoint = "%s/%s" % (
-            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-            checkpoint,
-        )
         config["checkpoint"] = checkpoint
 
         # Turn off parallel data loading since this doesn't place nicely
