@@ -107,7 +107,7 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
     model_id = npz_path.split("/")[-1]
     model_id = model_id.split(".")[0]
 
-    file_path = "output-plots/model_id"
+    file_path = "output-plots/" + model_id
     if not exists(file_path):
         os.mkdir(file_path)
 
@@ -116,7 +116,8 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
     plot_file_path = file_path + "/" + time_now + "_" + smile + ".pdf"
 
     df_smile_specific = df[df.adsorbate == smile]
-    if len(df_smile_specific.distribution.tolist() == 0):
+
+    if len(df_smile_specific.distribution.tolist()) == 0:
         warnings.warn(smile + "does not appear in the validation split")
     else:
         types = np.unique(df_smile_specific.distribution.tolist())
