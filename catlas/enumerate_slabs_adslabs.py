@@ -1,4 +1,3 @@
-import pickle
 import numpy as np
 from ocdata import precompute_sample_structures as compute
 from ocdata.surfaces import Surface
@@ -82,6 +81,7 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
         r_energy=False,
         r_forces=False,
         r_distances=False,
+        r_edges=False,
     )
 
     graph_dict["adslab_graphs"] = [

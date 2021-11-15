@@ -1,14 +1,11 @@
 dask:
-  config: |
-    from dask.distributed import Client, LocalCluster
-    cluster = LocalCluster(n_workers=2, threads_per_worker=1)
-    client = Client(cluster)
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
 
 output_options:
-  pickle_path: None # '/home/jovyan/shared-scratch/Inference/test_screen.pkl'
+  pickle_path: test_kube_cluster_output.pkl
+  config_path: test_kube_cluster_output.yml
   verbose: false
 
 bulk_filters:
@@ -19,7 +16,6 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
@@ -28,7 +24,5 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
-    config_path: 'configs/ocp_config_checkpoints/gemnet_actual.yml'
     checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-
 

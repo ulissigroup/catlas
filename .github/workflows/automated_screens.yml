@@ -7,8 +7,8 @@ on: [workflow_dispatch]
 
 jobs:
 
-  nitrides_CO2RR:
-    name: Screen nitrides for CO2RR
+  automated_screens:
+    name: automated screens for various chemistries
 
     runs-on: [self-hosted, linux, shared-scratch]
 
@@ -16,6 +16,8 @@ jobs:
       image: docker://ulissigroup/kubeflow:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
+
+    timeout-minutes: 2880
 
     steps:
     - uses: azure/k8s-set-context@v1
@@ -38,5 +40,13 @@ jobs:
     - run: |
         cd catlas
         python setup.py develop
-        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml
-
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+    - run: |
+        cd catlas
+        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+    - run: |
+        cd catlas
+        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+    - run: |
+        cd catlas
+        python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
