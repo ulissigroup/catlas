@@ -1,0 +1,13 @@
+npz_file_path: '/home/jovyan/catlas/parity/npz-files/gemnet-is2re-ft-val.npz'
+
+dft_data_path: '/home/jovyan/catlas/parity/df_pkls/OC_20_val_data.pkl'
+
+element_filters:
+    filter_by_acceptable_elements: ['Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg']
+
+#    filter_by_required_elements: ['N']
+
+    filter_by_number_elements: [2]
+    
+desired_adsorbate_smiles: ['*OH', '*CH']
+
