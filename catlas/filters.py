@@ -1,6 +1,5 @@
 import warnings
 import numpy as np
-import copy
 
 
 def bulk_filter(config, dask_df):

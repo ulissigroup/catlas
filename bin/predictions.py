@@ -11,6 +11,9 @@ from catlas.enumerate_slabs_adslabs import (
 from catlas.dask_utils import (
     split_balance_df_partitions,
     bag_split_individual_partitions,
+    check_if_memorized,
+    cache_if_not_cached,
+    load_cache,
 )
 
 from catlas.adslab_predictions import (
@@ -25,17 +28,20 @@ import dask.dataframe as ddf
 from joblib import Memory
 import pandas as pd
 from dask.distributed import wait
+from jinja2 import Template
+import os
 
 # Load inputs and define global vars
 if __name__ == "__main__":
 
     # Load the config yaml
     config_path = sys.argv[1]
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
+    template = Template(open(config_path).read())
+    config = yaml.load(template.render(**os.environ))
 
-    # set up the dask cluster using the config block
-    exec(config["dask"]["config"])
+    # Start the dask cluster
+    dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
+    exec(dask_cluster_script)
 
     # Set up joblib memory to use for caching hard steps
     memory = Memory(config["memory_cache_location"], verbose=0)
@@ -90,11 +96,10 @@ if __name__ == "__main__":
             if step["step"] == "predict":
 
                 # GPU inference, only on GPU workers
-                if step["type"] == "direct" and step["gpu"] == True:
-                    with dask.annotate(
-                        executor="gpu", resources={"GPU": 1}, priority=10
-                    ):
-                        results_bag = results_bag.map(
+                if step["type"] == "direct":
+                    if step["gpu"] == True:
+                        memorized_bag = results_bag.map(
+                            check_if_memorized,
                             memory.cache(
                                 direct_energy_prediction,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
@@ -107,19 +112,36 @@ if __name__ == "__main__":
                             cpu=False,
                         )
 
-                # CPU inference on any worker
-                elif step["type"] == "direct" and step["gpu"] == False:
+                        with dask.annotate(resources={"GPU": 1}, priority=10):
+                            memorized_bag = memorized_bag.map(
+                                cache_if_not_cached,
+                                memory.cache(
+                                    direct_energy_prediction,
+                                    ignore=["batch_size", "graphs_dict", "cpu"],
+                                ),
+                                adslab_atoms=adslab_atoms_bag,
+                                graphs_dict=graphs_bag,
+                                checkpoint_path=step["checkpoint_path"],
+                                column_name=step["label"],
+                                batch_size=step["batch_size"],
+                                cpu=False,
+                            )
+                    else:
+                        memorized_bag = None
+
                     results_bag = results_bag.map(
+                        load_cache,
                         memory.cache(
                             direct_energy_prediction,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
+                        memorized_bag,
                         adslab_atoms=adslab_atoms_bag,
                         graphs_dict=graphs_bag,
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=True,
+                        cpu=step["gpu"],
                     )
 
                 # Old relaxation code; needs to be updated
@@ -173,3 +195,6 @@ if __name__ == "__main__":
                 ],
                 axis=1,
             ).to_pickle(pickle_path)
+
+        with open(config["output_options"]["config_path"], "w") as fhandle:
+            yaml.dump(config, fhandle)

@@ -2,7 +2,6 @@ from dask.bag.core import split
 from dask.dataframe.core import new_dd_object, split_evenly
 from dask.base import tokenize
 from dask.highlevelgraph import HighLevelGraph
-from operator import getitem
 import numpy as np
 import dask.dataframe as dd
 from dask.dataframe.io.io import sorted_division_locations
@@ -88,3 +87,21 @@ def kube_cluster_new_worker(cluster, config_path):
             clean_worker_template, pod_type="worker"
         )
         cluster.new_spec["options"]["pod_template"] = cluster.pod_template
+
+
+def check_if_memorized(input, memorized_func, *args, **kwargs):
+    memorized = memorized_func.check_call_in_cache(input, *args, **kwargs)
+    if memorized:
+        return None
+    else:
+        return input
+
+
+def cache_if_not_cached(input, memorized_func, *args, **kwargs):
+    if input != None:
+        memorized_func.call(input, *args, **kwargs)
+    return None
+
+
+def load_cache(input, memorized_func, memorized_cache, *args, **kwargs):
+    return memorized_func(input, *args, **kwargs)

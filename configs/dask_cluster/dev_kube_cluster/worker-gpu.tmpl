@@ -4,29 +4,36 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'8 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'20 GiB',--death-timeout, '600',--resources,"GPU=1"]
     name: dask
     env:
     - name: OMP_NUM_THREADS
-      value: 2
+      value: 1
     - name: PYTHONPATH
       value: "/home/jovyan/ocp:/home/jovyan/catlas"
+    - name: MALLOC_TRIM_THRESHOLD_
+      value: 0
     resources:
       limits:
         cpu: "4"
-        memory: 16G
+        memory: 21G
+        nvidia.com/gpu: "1"
       requests:
         cpu: "4"
-        memory: 16G
+        memory: 21G
+        nvidia.com/gpu: "1"
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: shared-scratch
-      subPath: catlas_runners//ocp
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/ocp
     - mountPath: /home/jovyan/catlas
       name: shared-scratch
-      subPath: catlas_runners//catlas
+      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/catlas
     - mountPath: /home/jovyan/shared-scratch
       name: shared-scratch
+    - mountPath: /home/jovyan/dask-worker-space
+      name: shared-scratch
+      subPath: catlas/dask-worker-space
   volumes:
   - name: shared-scratch
     persistentVolumeClaim:

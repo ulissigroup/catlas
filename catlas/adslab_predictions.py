@@ -53,6 +53,11 @@ class BatchOCPPredictor:
         setup_imports()
         setup_logging()
 
+        checkpoint = "%s/%s" % (
+            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+            checkpoint,
+        )
+
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
