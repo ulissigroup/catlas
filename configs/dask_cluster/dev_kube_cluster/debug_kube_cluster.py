@@ -10,20 +10,20 @@ dask.config.set({"distributed.worker.daemon": False})
 dask.config.set({"distributed.scheduler.allowed_failures": 20})
 dask.config.set({"distributed.comm.retry.count": 20})
 
-with open("configs/debug_configs/scheduler-cpu-dev.yml") as f:
+with open("configs/dask_cluster/dev_kube_cluster/scheduler.yml") as f:
     scheduler_pod_template = make_pod_from_dict(
         dask.config.expand_environment_variables(yaml.safe_load(f))
     )
 
 cluster = KubeCluster(
-    pod_template="configs/dask_config/worker-gpu-dev.yml",
+    pod_template="configs/debug_configs/workers-cpu-dev.yml",
     scheduler_pod_template=scheduler_pod_template,
-    namespace="zulissi",
+    namespace="kbroderick",
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=120,
 )
 cluster.scale(10)
 
-kube_cluster_new_worker(cluster, "configs/dask_config/workers-cpu-dev.yml")
+kube_cluster_new_worker(cluster, "configs/debug_configs/workers-cpu-dev.yml")
 cluster.scale(60)
 client = Client(cluster)

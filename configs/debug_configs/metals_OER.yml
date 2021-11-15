@@ -20,7 +20,7 @@ dask:
   partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
+memory_cache_location: '/home/jovyan/shared-scratch/kbroderick/catlas_cache_dev'
 
 output_options:
 #   pickle_path: '/home/jovyan/shared-scratch/kbroderick/metals_TRI.pkl'
