@@ -11,7 +11,7 @@ dask:
     dask.config.set({"distributed.comm.retry.count":20})
 
     cluster = KubeCluster(pod_template = 'configs/debug_configs/workers-cpu-dev.yml',
-                          namespace='zulissi',
+                          namespace='kbroderick',
                           name='dask-catlas-dev',
                           scheduler_service_wait_timeout = 120)
     cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
@@ -24,7 +24,7 @@ memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
 
 output_options:
   pickle: True # True pickles the resulting predictions
-  pickle_path: '/home/jovyan/shared-scratch/zulissi/co2rr_nitrides_miller2.pkl'
+  pickle_path: '/home/jovyan/shared-scratch/kbroderick/co2rr_nitrides_miller2.pkl'
   optional_additional_path_str: 'CO2RR_test_screen'
   verbose: False
 
