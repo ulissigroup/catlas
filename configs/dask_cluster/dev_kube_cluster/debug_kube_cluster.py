@@ -22,8 +22,8 @@ cluster = KubeCluster(
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=120,
 )
-cluster.scale(10)
+# cluster.scale(10)
 
-kube_cluster_new_worker(cluster, "configs/debug_configs/workers-cpu-dev.yml")
-cluster.scale(60)
+# kube_cluster_new_worker(cluster, "configs/debug_configs/workers-cpu-dev.yml")
+# cluster.scale(60)
 client = Client(cluster)
