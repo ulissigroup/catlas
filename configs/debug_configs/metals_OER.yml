@@ -26,6 +26,7 @@ output_options:
   pickle: True # True pickles the resulting predictions
   pickle_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.pkl'
   verbose: False
+  config_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.yml'
 
 adsorbate_filters:
   filter_by_smiles: ['*OH']
@@ -45,7 +46,6 @@ adslab_prediction_steps:
 bulk_filters:
   filter_by_object_size: 60 # 60
   filter_by_mpids:
-  - 'mp-126'
   - 'mp-1001011'
   - 'mp-10023'
   - 'mp-10024'
