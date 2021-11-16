@@ -160,13 +160,10 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         slope_overall, intercept_overall, r_overall, p, se = linregress(
             x_overall, y_overall
         )
-<<<<<<< HEAD
+
 
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
 
-=======
-        f, (ax1, ax2, ax3) = plt.subplots(1, len(types) + 1, sharey=True)
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
         ax1.set_title(smile + " overall")
         ax1.plot([-4, 2], [-4, 2], "k-", linewidth=3)
         ax1.plot(
@@ -195,7 +192,7 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         ax1.set_yticks([-4, -3, -2, -1, 0, 1, 2])
         ax1.set_xlabel("DFT adsorption E [eV]")
         ax1.set_ylabel("ML adsorption E [eV]")
-<<<<<<< HEAD
+
 
 
         info_dict["overall_N"] = len(x_overall)
@@ -204,8 +201,6 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         info_dict["overall_int"] = intercept_overall
         info_dict["overall_r_sq"] = r_overall ** 2
 
-=======
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
 
         df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
         x_now = df_now["energy dE [eV]"].tolist()
@@ -238,7 +233,7 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         ax2.set_yticks([-4, -3, -2, -1, 0, 1, 2])
         ax2.set_xlabel("DFT adsorption E [eV]")
         ax2.set_ylabel("ML adsorption E [eV]")
-<<<<<<< HEAD
+
 
 
         dist = types[0]
@@ -247,8 +242,6 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         info_dict[dist + "_slope"] = slope_now
         info_dict[dist + "_int"] = intercept_now
         info_dict[dist + "_r_sq"] = r_now ** 2
-=======
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
 
         df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
         x_now = df_now["energy dE [eV]"].tolist()
@@ -281,7 +274,6 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, npz_path: str):
         ax3.set_yticks([-4, -3, -2, -1, 0, 1, 2])
         ax3.set_xlabel("DFT adsorption E [eV]")
         ax3.set_ylabel("ML adsorption E [eV]")
-<<<<<<< HEAD
 
 
         dist = types[1]
@@ -326,18 +318,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
         "ood_ads_int": np.nan,
         "ood_ads_r_sq": np.nan,
     }
-
-
-   
-
-=======
-
-        f.set_figwidth(18)
-        f.savefig(plot_file_path)
-
-
-def get_general_plot(df: pd.DataFrame, npz_path: str):
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
 
     # Create directory if it doesnt exist
     model_id = npz_path.split("/")[-1]
@@ -386,8 +366,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     ax1.set_xlabel("DFT adsorption E [eV]")
     ax1.set_ylabel("ML adsorption E [eV]")
 
-<<<<<<< HEAD
-
     info_dict["overall_N"] = len(x_overall)
     info_dict["overall_MAE"] = MAE_overall
     info_dict["overall_slope"] = slope_overall
@@ -395,8 +373,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     info_dict["overall_r_sq"] = r_overall ** 2
 
 
-=======
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
     df_now = df[df.distribution == types[0]]
     x_now = df_now["energy dE [eV]"].tolist()
     y_now = df_now.ML_energy.tolist()
@@ -429,8 +405,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     ax2.set_xlabel("DFT adsorption E [eV]")
     ax2.set_ylabel("ML adsorption E [eV]")
 
-<<<<<<< HEAD
-
     dist = types[0]
     info_dict[dist + "_N"] = len(x_now)
     info_dict[dist + "_MAE"] = MAE_now
@@ -439,10 +413,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     info_dict[dist + "_r_sq"] = r_now ** 2
 
     df_now = df[df.distribution == types[1]]
-
-=======
-    df_now = df[df.distribution == types[1]]
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
     x_now = df_now["energy dE [eV]"].tolist()
     y_now = df_now.ML_energy.tolist()
     MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
@@ -474,7 +444,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     ax3.set_xlabel("DFT adsorption E [eV]")
     ax3.set_ylabel("ML adsorption E [eV]")
 
-<<<<<<< HEAD
 
     dist = types[1]
     info_dict[dist + "_N"] = len(x_now)
@@ -486,9 +455,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
 
     df_now = df[df.distribution == types[2]]
 
-=======
-    df_now = df[df.distribution == types[2]]
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
     x_now = df_now["energy dE [eV]"].tolist()
     y_now = df_now.ML_energy.tolist()
     MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
@@ -520,8 +486,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     ax4.set_xlabel("DFT adsorption E [eV]")
     ax4.set_ylabel("ML adsorption E [eV]")
 
-<<<<<<< HEAD
-
     dist = types[2]
     info_dict[dist + "_N"] = len(x_now)
     info_dict[dist + "_MAE"] = MAE_now
@@ -529,9 +493,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     info_dict[dist + "_int"] = intercept_now
     info_dict[dist + "_r_sq"] = r_now ** 2
 
-
-=======
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
     df_now = df[df.distribution == types[3]]
     x_now = df_now["energy dE [eV]"].tolist()
     y_now = df_now.ML_energy.tolist()
@@ -564,7 +525,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     ax5.set_xlabel("DFT adsorption E [eV]")
     ax5.set_ylabel("ML adsorption E [eV]")
 
-<<<<<<< HEAD
 
     dist = types[3]
     info_dict[dist + "_N"] = len(x_now)
@@ -573,9 +533,6 @@ def get_general_plot(df: pd.DataFrame, npz_path: str):
     info_dict[dist + "_int"] = intercept_now
     info_dict[dist + "_r_sq"] = r_now ** 2
 
-
-=======
->>>>>>> 4e6d91ee345cf9ed48071e36cd7f314d449adcb3
     f.set_figwidth(30)
     f.savefig(plot_file_path)
     plt.close(f)

@@ -20,7 +20,7 @@ dask:
   partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache_v2'
+memory_cache_location: '/home/jovyan/shared-scratch/kbroderick/catlas_cache_dev'
 
 output_options:
 #   pickle_path: '/home/jovyan/shared-scratch/kbroderick/metals_TRI.pkl'
@@ -1203,4 +1203,4 @@ adslab_prediction_steps:
   gpu: false
   batch_size: 4
   label: 'dE_gemnet_is2re_finetuned'
-  checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
