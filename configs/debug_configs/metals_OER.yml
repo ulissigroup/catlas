@@ -1,22 +1,4 @@
 dask:
-  config: |
-    from dask.distributed import Client
-    from dask_kubernetes import KubeCluster
-    import dask
-    import os
-    from jinja2 import Template
-
-    dask.config.set({"distributed.comm.timeouts.connect":120})
-    dask.config.set({"distributed.scheduler.allowed_failures":20})
-    dask.config.set({"distributed.comm.retry.count":20})
-
-    cluster = KubeCluster(pod_template = 'configs/debug_configs/workers-cpu-dev.yml',
-                          namespace='kbroderick',
-                          name='dask-catlas-dev',
-                          scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=8, maximum=100, interval="30000 ms")
-    client = Client(cluster)
-
   partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
 
@@ -26,9 +8,24 @@ output_options:
 #   pickle_path: '/home/jovyan/shared-scratch/kbroderick/metals_TRI.pkl'
   verbose: False
 
+adsorbate_filters:
+  filter_by_smiles: ['*OH']
+
+slab_filters:
+  filter_by_object_size: 80
+  filter_by_max_miller_index: 2
+
+adslab_prediction_steps:
+- step: predict
+  type: direct
+  gpu: false
+  batch_size: 4
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+
 bulk_filters:
+  filter_by_object_size: 60
   filter_by_mpids:
-  - 'mp-126'
   - 'mp-1001011'
   - 'mp-10023'
   - 'mp-10024'
@@ -1188,19 +1185,3 @@ bulk_filters:
   - 'mvc-844'
   - 'mvc-852'
   - 'mvc-894'
-  filter_by_object_size: 60
-
-adsorbate_filters:
-  filter_by_smiles: ['*OH']
-
-slab_filters:
-  filter_by_object_size: 80
-  filter_by_max_miller_index: 2
-
-adslab_prediction_steps:
-- step: predict
-  type: direct
-  gpu: false
-  batch_size: 4
-  label: 'dE_gemnet_is2re_finetuned'
-  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
