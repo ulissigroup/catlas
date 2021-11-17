@@ -164,7 +164,7 @@ if __name__ == "__main__":
     if verbose or pickle:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
-
+        
         if verbose:
 
             print(
@@ -188,13 +188,11 @@ if __name__ == "__main__":
 
     if pickle:
         pickle_path = config["output_options"]["pickle_path"]
+        
         if pickle_path != "None":
-            df_results.drop(
-                [
-                    "slab_surface_object",
-                ],
-                axis=1,
-            ).to_pickle(pickle_path)
+            # screen classes from custom packages
+            class_mask = df_results.columns.to_series().apply(lambda x: str(type(df_results[x].iloc[0]))).apply(lambda x: 'catkit' in x or 'ocp' in x or 'ocdata' in x)
+            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
         with open(config["output_options"]["config_path"], "w") as fhandle:
             yaml.dump(config, fhandle)
