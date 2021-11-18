@@ -5,8 +5,9 @@ dask:
 memory_cache_location: '/home/jovyan/shared-scratch/kbroderick/catlas_cache_dev'
 
 output_options:
-#   pickle_path: '/home/jovyan/shared-scratch/kbroderick/metals_TRI.pkl'
+  pickle_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.pkl'
   verbose: False
+  config_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.yml'
 
 adsorbate_filters:
   filter_by_smiles: ['*OH']

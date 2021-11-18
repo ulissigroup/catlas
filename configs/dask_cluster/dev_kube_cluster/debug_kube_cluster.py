@@ -23,4 +23,6 @@ cluster = KubeCluster(
     scheduler_service_wait_timeout=120,
 )
 
+kube_cluster_new_worker(cluster, "configs/debug_configs/workers-cpu-dev.yml")
+cluster.scale(60)
 client = Client(cluster)
