@@ -1,5 +1,5 @@
 import yaml
-from catlas.load_bulk_structures import load_ocdata_bulks
+from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
@@ -47,7 +47,9 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load and filter the bulks
-    bulks_delayed = dask.delayed(memory.cache(load_ocdata_bulks))()
+    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
+        config["input_options"]["bulk_file"]
+    )
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_df = bulk_bag.to_dataframe().persist()
     print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
@@ -164,7 +166,7 @@ if __name__ == "__main__":
     if verbose or pickle:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
-        
+
         if verbose:
 
             print(
@@ -188,10 +190,14 @@ if __name__ == "__main__":
 
     if pickle:
         pickle_path = config["output_options"]["pickle_path"]
-        
+
         if pickle_path != "None":
             # screen classes from custom packages
-            class_mask = df_results.columns.to_series().apply(lambda x: str(type(df_results[x].iloc[0]))).apply(lambda x: 'catkit' in x or 'ocp' in x or 'ocdata' in x)
+            class_mask = (
+                df_results.columns.to_series()
+                .apply(lambda x: str(type(df_results[x].iloc[0])))
+                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
         with open(config["output_options"]["config_path"], "w") as fhandle:
