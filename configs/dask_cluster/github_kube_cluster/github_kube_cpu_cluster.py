@@ -26,7 +26,7 @@ cluster = KubeCluster(
     pod_template="configs/dask_cluster/github_kube_cluster/worker-cpu-github.yml",
     scheduler_pod_template=scheduler_pod_template,
     namespace="zulissi",
-    name = "dask-catlas-{{ GITHUB_RUN_ID }}-{{ GITHUB_JOB }}"
+    name="dask-catlas-{{ GITHUB_RUN_ID }}-{{ GITHUB_JOB }}",
     scheduler_service_wait_timeout=480,
 )
 cluster.scale(2)
