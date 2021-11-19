@@ -1,28 +1,12 @@
 dask:
-  config: |
-    from dask.distributed import Client
-    from dask_kubernetes import KubeCluster
-    import dask
-    import os
-    from jinja2 import Template
-
-    dask.config.set({"distributed.comm.timeouts.connect":120})
-
-    cluster = KubeCluster(pod_template = 'configs/debug_configs/workers-cpu-dev.yml',
-                          namespace='kbroderick',
-                          name='dask-catlas-dev',
-                          scheduler_service_wait_timeout = 120)
-    cluster.adapt(minimum=1, maximum=40, interval="30000 ms")
-    client = Client(cluster)
-
-  partitions: 1000 # if 0, 1 row per surface otherwise number of partitions
+  partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
 memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
 output_options:
-  pickle: True # True pickles the resulting predictions
-  pickle_path: '/home/jovyan/shared-scratch/Inference/HER_test_screen.pkl'
-  verbose: true
+  verbose: True
+  pickle_path: '/home/jovyan/shared-scratch/Inference/HER_screen.pkl'
+  config_path: '/home/jovyan/shared-scratch/kbroderick/HER_screen.yml'
 
 adsorbate_filters:
     filter_by_smiles: ['*H', '*CO']
@@ -32,11 +16,13 @@ slab_filters:
     filter_by_max_miller_index: 2
     
 adslab_prediction_steps:
-  - step: predict
-    type: direct
-    label: 'dE_gemnet_is2re_finetuned'
-    config_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/s2ef_all_gemnet-dT-hardcoded.yml'
-    checkpoint_path: '/home/jovyan/catlas/configs/ocp_config_checkpoints/gemnet_is2re_finetuned.pt'
+- step: predict
+  type: direct
+  gpu: false
+  batch_size: 4
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+
 
 bulk_filters:
   filter_by_object_size: 60

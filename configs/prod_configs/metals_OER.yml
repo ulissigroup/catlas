@@ -1,19 +1,21 @@
 dask:
   partitions: -1 # if 0, 1 row per surface otherwise number of partitions
 
+memory_cache_location: '/home/jovyan/shared-scratch/catlas_cache'
 
-memory_cache_location: '/home/jovyan/shared-scratch/kbroderick/catlas_cache_dev'
+input_options:
+  bulk_file: 'bulk_structures/ocdata_bulks.db'
 
 output_options:
-  pickle_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.pkl'
-  verbose: False
-  config_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen2.yml'
+  verbose: True
+  pickle_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen.pkl'
+  config_path: '/home/jovyan/shared-scratch/kbroderick/TRI_screen.yml'
 
 adsorbate_filters:
   filter_by_smiles: ['*OH']
 
 slab_filters:
-  filter_by_object_size: 80
+  filter_by_object_size: 100
   filter_by_max_miller_index: 2
 
 adslab_prediction_steps:

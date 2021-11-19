@@ -16,13 +16,13 @@ with open("configs/dask_cluster/dev_kube_cluster/scheduler.yml") as f:
     )
 
 cluster = KubeCluster(
-    pod_template="configs/debug_configs/workers-cpu-dev.yml",
+    pod_template="configs/prod_configs/workers-cpu-dev.yml",
     scheduler_pod_template=scheduler_pod_template,
     namespace="kbroderick",
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=120,
 )
 
-kube_cluster_new_worker(cluster, "configs/debug_configs/workers-cpu-dev.yml")
+kube_cluster_new_worker(cluster, "configs/prod_configs/workers-cpu-dev.yml")
 cluster.scale(60)
 client = Client(cluster)
