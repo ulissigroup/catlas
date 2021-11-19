@@ -6,7 +6,7 @@ Before running inference, run the following commands:
  - `cd ~/CATlas && python setup.py develop`
 
 To run:
-`python -i bin/predictions.py config/something.yml`
+`python bin/predictions.py configs/path/to/config.yml configs/path/to/cluster.py`
 
 How to use kubeflow workers for predictions:
 - make a volume workspace-inference
