@@ -38,8 +38,6 @@ def bulk_filter(config, dask_df):
             elif name == "filter_by_object_size":
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             elif name == "filter_by_elements_active_host":
-                active = val['active']
-                host = val['host']
                 dask_df = dask_df[
                     dask_df.bulk_elements.apply(
                         lambda x, active, host: all( 
