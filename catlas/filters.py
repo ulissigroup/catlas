@@ -37,6 +37,22 @@ def bulk_filter(config, dask_df):
                 ]
             elif name == "filter_by_object_size":
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
+            elif name == "filter_by_elements_active_host":
+                dask_df = dask_df[
+                    dask_df.bulk_elements.apply(
+                        lambda x, active, host: all(
+                            [
+                                all([el in [*active, *host] for el in x]),
+                                any([el in host for el in x]),
+                                any([el in active for el in x]),
+                            ]
+                        ),
+                        active=val["active"],
+                        host=val["host"],
+                        meta=("bulk_elements", "bool"),
+                    )
+                ]
+
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
 
