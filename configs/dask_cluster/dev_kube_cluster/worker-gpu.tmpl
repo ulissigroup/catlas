@@ -24,11 +24,11 @@ spec:
         nvidia.com/gpu: "1"
     volumeMounts:
     - mountPath: /home/jovyan/ocp
-      name: shared-scratch
-      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/ocp
+      name: workspace-inference
+      subPath: ocp
     - mountPath: /home/jovyan/catlas
-      name: shared-scratch
-      subPath: catlas_runners/{{ GITHUB_RUN_ID }}/catlas
+      name: workspace-inference
+      subPath: catlas
     - mountPath: /home/jovyan/shared-scratch
       name: shared-scratch
     - mountPath: /home/jovyan/dask-worker-space
