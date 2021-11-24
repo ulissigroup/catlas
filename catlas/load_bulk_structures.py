@@ -3,8 +3,7 @@ import os.path
 import numpy as np
 import pandas as pd
 from .dask_utils import SizeDict
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
+import catlas
 
 required_fields = (
     "atoms",
@@ -18,7 +17,10 @@ required_fields = (
 
 def load_bulks(bulk_path):
 
-    path = dir_path + "/" + bulk_path
+    path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        bulk_path,
+    )
 
     path_name, ext = os.path.splitext(path)
     source_name = path_name.split("/")[-1]

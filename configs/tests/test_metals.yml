@@ -9,7 +9,7 @@ output_options:
   verbose: false
 
 input_options:
-  bulk_file: 'bulk_structures/ocdata_bulks.db'
+  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
 
 bulk_filters:
     filter_by_mpids: ['mp-126','mp-30', 'mp-101']

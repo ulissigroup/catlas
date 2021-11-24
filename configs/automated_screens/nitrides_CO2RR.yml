@@ -3,6 +3,9 @@ dask:
 
 memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
 
+input_options:
+  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+
 output_options:
   pickle: True # True pickles the resulting predictions
   pickle_path: '/home/jovyan/shared-scratch/catlas/outputs/nitrides_CO2RR_{{ GITHUB_RUN_ID }}.pkl'
