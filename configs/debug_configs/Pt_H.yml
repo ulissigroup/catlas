@@ -1,8 +1,8 @@
 dask:
-  partitions: -1 # if 0, 1 row per surface otherwise number of partitions
+  partitions: -1 # number of partitions (if -1, set 1 partition per surface)
 
 input_options:
-    bulk_file: 'bulk_structures/test_dict.pkl' # 'bulk_structures/ocdata_bulks.db'
+    bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
 
 
 memory_cache_location: '/home/jovyan/shared-scratch/Inference/debug_cache'
@@ -28,6 +28,6 @@ adslab_prediction_steps:
   checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
   
 bulk_filters:
-  filter_by_object_size: 60 # 60
+  filter_by_object_size: 60
   filter_by_mpids:
-  - 'mp-117'
+  - 'mp-126'
