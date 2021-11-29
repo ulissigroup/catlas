@@ -199,8 +199,6 @@ def relaxation_energy_prediction(
     adslabs_dict, config_path, checkpoint_path, column_name
 ):
 
-# comment
-    adslab_dict = adslab_dict + 1
     adslab_results = copy.deepcopy(adslab_dict)
 
     global relax_calc
