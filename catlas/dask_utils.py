@@ -18,6 +18,7 @@ from joblib.memory import (
     JobLibCollisionWarning,
 )
 from joblib.func_inspect import get_func_name
+from tokenize import open as open_py_source
 
 import os
 
