@@ -12,22 +12,38 @@ from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
 import yaml
 import dask
 import joblib.memory
-from joblib.memory import _build_func_identifier, extract_first_line, JobLibCollisionWarning
+from joblib.memory import (
+    _build_func_identifier,
+    extract_first_line,
+    JobLibCollisionWarning,
+)
 from joblib.func_inspect import get_func_name
 
 import os
 
 
 class CacheOverrideError(Exception):
-    '''Exception raised for function calls that would wipe an existing cache
+    """Exception raised for function calls that would wipe an existing cache
 
     Attributes:
         memorized_func -- cached function that raised the error
-    '''
-    def __init__(self, cached_func, message='Existing cache would be overridden: %s\nPlease revert your copy of this function to look like the code in the existing cache OR start a new cache OR backup/delete the existing cache manually'):
-        self.cached_func=cached_func
+    """
+
+    def __init__(
+        self,
+        cached_func,
+        message="Existing cache would be overridden: %s\nPlease revert your copy of this function to look like the code in the existing cache OR start a new cache OR backup/delete the existing cache manually",
+    ):
+        self.cached_func = cached_func
         self.message = message
-        super().__init__(self.message % os.path.join(cached_func.store_backend.location, _build_func_identifier(cached_func.func)))
+        super().__init__(
+            self.message
+            % os.path.join(
+                cached_func.store_backend.location,
+                _build_func_identifier(cached_func.func),
+            )
+        )
+
 
 def safe_cache(memory, func, *args, **kwargs):
     cached_func = memory.cache(func, *args, **kwargs)
@@ -35,17 +51,18 @@ def safe_cache(memory, func, *args, **kwargs):
         raise CacheOverrideError(cached_func)
     return cached_func
 
+
 def check_cache(cached_func):
-    ''' checks if cached function is safe to run without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
+    """checks if cached function is safe to run without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
     Inputs:
         cached_func -- cached function to check
 
     Returns:
         True if cached function is safe to run, else False
-    
-    '''
-    
+
+    """
+
     # Here, we go through some effort to be robust to dynamically
     # changing code and collision. We cannot inspect.getsource
     # because it is not reliable when using IPython's magic "%run".
@@ -53,9 +70,9 @@ def check_cache(cached_func):
     func_id = _build_func_identifier(cached_func.func)
 
     try:
-        old_func_code, old_first_line =\
-            extract_first_line(
-                cached_func.store_backend.get_cached_func_code([func_id]))
+        old_func_code, old_first_line = extract_first_line(
+            cached_func.store_backend.get_cached_func_code([func_id])
+        )
     except (IOError, OSError):  # some backend can also raise OSError
         cached_func._write_func_code(func_code, first_line)
         return False
@@ -66,18 +83,24 @@ def check_cache(cached_func):
     # different functions, or because the function we are referring to has
     # changed?
 
-    _, func_name = get_func_name(cached_func.func, resolv_alias=False,
-                                    win_characters=False)
-    if old_first_line == first_line == -1 or func_name == '<lambda>':
+    _, func_name = get_func_name(
+        cached_func.func, resolv_alias=False, win_characters=False
+    )
+    if old_first_line == first_line == -1 or func_name == "<lambda>":
         if not first_line == -1:
-            func_description = ("{0} ({1}:{2})"
-                                .format(func_name, source_file,
-                                        first_line))
+            func_description = "{0} ({1}:{2})".format(
+                func_name, source_file, first_line
+            )
         else:
             func_description = func_name
-        warnings.warn(JobLibCollisionWarning(
-            "Cannot detect name collisions for function '{0}'"
-            .format(func_description)), stacklevel=stacklevel)
+        warnings.warn(
+            JobLibCollisionWarning(
+                "Cannot detect name collisions for function '{0}'".format(
+                    func_description
+                )
+            ),
+            stacklevel=stacklevel,
+        )
 
     # Fetch the code at the old location and compare it. If it is the
     # same than the code store, we have a collision: the code in the
@@ -87,29 +110,40 @@ def check_cache(cached_func):
         possible_collision = False
         if os.path.exists(source_file):
             _, func_name = get_func_name(cached_func.func, resolv_alias=False)
-            num_lines = len(func_code.split('\n'))
+            num_lines = len(func_code.split("\n"))
             with open_py_source(source_file) as f:
                 on_disk_func_code = f.readlines()[
-                    old_first_line - 1:old_first_line - 1 + num_lines - 1]
-            on_disk_func_code = ''.join(on_disk_func_code)
-            possible_collision = (on_disk_func_code.rstrip() ==
-                                    old_func_code.rstrip())
+                    old_first_line - 1 : old_first_line - 1 + num_lines - 1
+                ]
+            on_disk_func_code = "".join(on_disk_func_code)
+            possible_collision = on_disk_func_code.rstrip() == old_func_code.rstrip()
         else:
-            possible_collision = source_file.startswith('<doctest ')
+            possible_collision = source_file.startswith("<doctest ")
         if possible_collision:
-            warnings.warn(JobLibCollisionWarning(
-                'Possible name collisions between functions '
-                "'%s' (%s:%i) and '%s' (%s:%i)" %
-                (func_name, source_file, old_first_line,
-                    func_name, source_file, first_line)),
-                stacklevel=stacklevel)
+            warnings.warn(
+                JobLibCollisionWarning(
+                    "Possible name collisions between functions "
+                    "'%s' (%s:%i) and '%s' (%s:%i)"
+                    % (
+                        func_name,
+                        source_file,
+                        old_first_line,
+                        func_name,
+                        source_file,
+                        first_line,
+                    )
+                ),
+                stacklevel=stacklevel,
+            )
 
     # The function has changed, wipe the cache directory.
     # XXX: Should be using warnings, and giving stacklevel
     if cached_func._verbose > 10:
         _, func_name = get_func_name(cached_func.func, resolv_alias=False)
-        cached_func.warn("Function {0} (identified by {1}) has changed"
-                    ".".format(func_name, func_id))
+        cached_func.warn(
+            "Function {0} (identified by {1}) has changed"
+            ".".format(func_name, func_id)
+        )
     return False
 
 
