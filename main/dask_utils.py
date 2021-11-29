@@ -13,10 +13,17 @@ import yaml
 import dask
 import subprocess
 
+
 def get_namespace():
-    ns_str = subprocess.run('kubectl describe sa default | grep Namespace', shell=True, stdout=subprocess.PIPE, check=True).stdout.decode('utf-8')
-    ns = ns_str.split(' ')[-1].replace('\n','')
+    ns_str = subprocess.run(
+        "kubectl describe sa default | grep Namespace",
+        shell=True,
+        stdout=subprocess.PIPE,
+        check=True,
+    ).stdout.decode("utf-8")
+    ns = ns_str.split(" ")[-1].replace("\n", "")
     return ns
+
 
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
