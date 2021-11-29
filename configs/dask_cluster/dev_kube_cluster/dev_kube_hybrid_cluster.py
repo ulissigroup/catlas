@@ -24,12 +24,13 @@ template = Template(
 with open("configs/dask_cluster/dev_kube_cluster/worker-gpu.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
+ns = get_namespace()
 
 # Start the dask cluster with some gpu workers
 cluster = KubeCluster(
     pod_template="configs/dask_cluster/dev_kube_cluster/worker-gpu.yml",
     scheduler_pod_template=scheduler_pod_template,
-    namespace="zulissi",
+    namespace=ns,
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=240,
 )
