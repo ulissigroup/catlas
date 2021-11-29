@@ -29,8 +29,8 @@ class CacheOverrideError(Exception):
         self.message = message
         super().__init__(self.message % os.path.join(cached_func.store_backend.location, _build_func_identifier(cached_func.func)))
 
-def safe_cache(memory, func):
-    cached_func = memory.cache(func)
+def safe_cache(memory, func, *args, **kwargs):
+    cached_func = memory.cache(func, *args, **kwargs)
     if not check_cache(cached_func):
         raise CacheOverrideError(cached_func)
     return cached_func

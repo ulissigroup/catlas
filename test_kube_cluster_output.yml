@@ -1,0 +1,27 @@
+adslab_prediction_steps:
+- batch_size: 4
+  checkpoint_path: configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt
+  gpu: false
+  label: dE_gemnet_is2re_finetuned
+  step: predict
+  type: direct
+adsorbate_filters:
+  filter_by_smiles:
+  - '*H'
+bulk_filters:
+  filter_by_mpids:
+  - mp-126
+  - mp-30
+  - mp-101
+dask:
+  partitions: -1
+input_options:
+  bulk_file: catlas/bulk_structures/ocdata_bulks.db
+memory_cache_location: /home/jovyan/shared-scratch/catlas/cache_github
+output_options:
+  config_path: test_kube_cluster_output.yml
+  pickle_path: test_kube_cluster_output.pkl
+  verbose: false
+slab_filters:
+  filter_by_max_miller_index: 1
+  filter_by_object_size: 100
