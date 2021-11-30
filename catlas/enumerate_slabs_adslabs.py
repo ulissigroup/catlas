@@ -23,6 +23,8 @@ class CustomBulk(Bulk):
 
 def enumerate_slabs(bulk_dict, max_miller=2):
 
+    print("Starting slab enumeration for bulk_dict: %s" % str(bulk_dict))
+
     bulk_dict = SizeDict(bulk_dict)
 
     bulk_obj = CustomBulk(bulk_dict["bulk_atoms"])
