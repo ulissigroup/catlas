@@ -13,14 +13,37 @@ import yaml
 import dask
 import joblib.memory
 from joblib.memory import (
-    _build_func_identifier,
     extract_first_line,
     JobLibCollisionWarning,
 )
 from joblib.func_inspect import get_func_name
 from tokenize import open as open_py_source
-
 import os
+
+
+def naive_func_identifier(func):
+    modules, funcname = get_func_name(func)
+    modules.append(funcname)
+    return modules
+
+
+def better_faster_stronger_build_func_identifier(func):
+    """Build a roughly unique identifier for the cached function."""
+    parts = []
+    parts.extend(naive_func_identifier(func))
+    func_id, h_func_id, h_code = hash_func(func)
+    parts.append(str(h_code))
+
+    # We reuse historical fs-like way of building a function identifier
+    return os.path.join(*parts)
+
+
+joblib.memory._build_func_identifier = better_faster_stronger_build_func_identifier
+
+
+def hash_func(func):
+    func_code_h = hash(getattr(func, "__code__", None))
+    return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
 class CacheOverrideError(Exception):
@@ -41,7 +64,7 @@ class CacheOverrideError(Exception):
             self.message
             % os.path.join(
                 cached_func.store_backend.location,
-                _build_func_identifier(cached_func.func),
+                joblib.memory._build_func_identifier(cached_func.func),
             )
         )
 
@@ -54,13 +77,13 @@ def safe_cache(memory, func, *args, **kwargs):
 
 
 def check_cache(cached_func):
-    """checks if cached function is safe to run without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
+    """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
     Inputs:
         cached_func -- cached function to check
 
     Returns:
-        True if cached function is safe to run, else False
+        True if cached function is safe to call, else False
 
     """
 
@@ -68,15 +91,15 @@ def check_cache(cached_func):
     # changing code and collision. We cannot inspect.getsource
     # because it is not reliable when using IPython's magic "%run".
     func_code, source_file, first_line = cached_func.func_code_info
-    func_id = _build_func_identifier(cached_func.func)
+    func_id = joblib.memory._build_func_identifier(cached_func.func)
 
     try:
         old_func_code, old_first_line = extract_first_line(
             cached_func.store_backend.get_cached_func_code([func_id])
         )
-    except (IOError, OSError):  # some backend can also raise OSError
-        cached_func._write_func_code(func_code, first_line)
-        return False
+    except (IOError, OSError):  # code has not been written
+        # cached_func._write_func_code(func_code, first_line)
+        return True
     if old_func_code == func_code:
         return True
 

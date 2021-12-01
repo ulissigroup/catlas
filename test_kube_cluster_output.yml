@@ -17,7 +17,7 @@ dask:
   partitions: -1
 input_options:
   bulk_file: catlas/bulk_structures/ocdata_bulks.db
-memory_cache_location: /home/jovyan/shared-scratch/catlas/cache_github
+memory_cache_location: /home/jovyan/shared-scratch/catlas/test_cache
 output_options:
   config_path: test_kube_cluster_output.yml
   pickle_path: test_kube_cluster_output.pkl
