@@ -5,7 +5,6 @@ from ase.optimize import LBFGS
 import numpy as np
 from ocpmodels.preprocessing import AtomsToGraphs
 import yaml
-import copy
 from ocpmodels.datasets.trajectory_lmdb import data_list_collater
 from ase.calculators.singlepoint import SinglePointCalculator
 
