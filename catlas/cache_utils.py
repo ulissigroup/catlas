@@ -64,6 +64,7 @@ class CacheOverrideError(Exception):
 
 
 def safe_cache(memory, func, *args, **kwargs):
+    """Wrapper for memory.cache(func) that raises an error if the cache would be overwritten"""
     cached_func = memory.cache(func, *args, **kwargs)
     if not check_cache(cached_func):
         raise CacheOverrideError(cached_func)
