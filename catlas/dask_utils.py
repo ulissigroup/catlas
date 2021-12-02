@@ -15,6 +15,7 @@ import subprocess
 
 
 def get_namespace():
+    """Pulls the kubectl namespace from CLI"""
     ns_str = subprocess.run(
         "kubectl describe sa default | grep Namespace",
         shell=True,
