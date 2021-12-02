@@ -15,7 +15,7 @@ from catlas.dask_utils import (
     cache_if_not_cached,
     load_cache,
     safe_cache,
-    better_faster_stronger_build_func_identifier,
+    better_build_func_identifier,
 )
 
 from catlas.adslab_predictions import (
@@ -34,7 +34,7 @@ from jinja2 import Template
 import os
 import joblib
 
-joblib.memory._build_func_identifier = better_faster_stronger_build_func_identifier
+joblib.memory._build_func_identifier = better_build_func_identifier
 
 # Load inputs and define global vars
 if __name__ == "__main__":
