@@ -34,7 +34,7 @@ def naive_func_identifier(func):
     return modules
 
 
-def better_faster_stronger_build_func_identifier(func):
+def better_build_func_identifier(func):
     """Build a roughly unique identifier for the cached function."""
     parts = []
     parts.extend(naive_func_identifier(func))
@@ -45,7 +45,7 @@ def better_faster_stronger_build_func_identifier(func):
     return os.path.join(*parts)
 
 
-joblib.memory._build_func_identifier = better_faster_stronger_build_func_identifier
+joblib.memory._build_func_identifier = better_build_func_identifier
 
 
 def hash_func(func):
