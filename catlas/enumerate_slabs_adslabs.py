@@ -7,6 +7,7 @@ from ocdata.bulk_obj import Bulk
 import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 from .dask_utils import SizeDict
+import logging
 
 
 class CustomAdsorbate(Adsorbate):
@@ -22,6 +23,9 @@ class CustomBulk(Bulk):
 
 
 def enumerate_slabs(bulk_dict, max_miller=2):
+
+    logger = logging.getLogger("distributed.worker")
+    logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
     bulk_dict = SizeDict(bulk_dict)
 
@@ -48,6 +52,9 @@ def enumerate_slabs(bulk_dict, max_miller=2):
             }
         )
         surface_list.append(surface_result)
+
+    logger.info("enumerate_slabs_finished: %s" % str(bulk_dict))
+
     return surface_list
 
 

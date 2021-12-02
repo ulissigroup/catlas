@@ -11,6 +11,7 @@ import pickle
 from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
 import yaml
 import dask
+import copy
 import subprocess
 
 
@@ -24,6 +25,7 @@ def get_namespace():
     ).stdout.decode("utf-8")
     ns = ns_str.split(" ")[-1].replace("\n", "")
     return ns
+
 
 
 def _rebalance_ddf(ddf):
@@ -107,7 +109,7 @@ def check_if_memorized(input, memorized_func, *args, **kwargs):
     if memorized:
         return None
     else:
-        return input
+        return copy.deepcopy(input)
 
 
 def cache_if_not_cached(input, memorized_func, *args, **kwargs):
