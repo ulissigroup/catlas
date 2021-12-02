@@ -22,10 +22,13 @@ import os
 
 
 def get_cached_func_location(func):
+    """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
+    Necessary because each function will have multiple subcaches for its codebase."""
     return joblib.memory._build_func_identifier(func.func)
 
 
 def naive_func_identifier(func):
+    """Build simple identifier based on function name"""
     modules, funcname = get_func_name(func)
     modules.append(funcname)
     return modules
@@ -46,6 +49,7 @@ joblib.memory._build_func_identifier = better_faster_stronger_build_func_identif
 
 
 def hash_func(func):
+    """Hash the function id, its file location, and the function code"""
     func_code_h = hash(getattr(func, "__code__", None))
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
