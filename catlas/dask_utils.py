@@ -21,6 +21,10 @@ from tokenize import open as open_py_source
 import os
 
 
+def get_cached_func_location(func):
+    return joblib.memory._build_func_identifier(func.func)
+
+
 def naive_func_identifier(func):
     modules, funcname = get_func_name(func)
     modules.append(funcname)
