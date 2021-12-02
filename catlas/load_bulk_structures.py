@@ -12,11 +12,11 @@ required_fields = (
     "xc",
     "nelements",
     "elements",
-)  # These fields are expected to exist in every input file that doesn't allow them to be directly calculated
+)  # These fields are expected to exist in every bulk input file that doesn't allow them to be directly calculated.
 
 
 def load_bulks(bulk_path):
-
+    """Load bulk structures at the start of a pipeline. Selects a loader based on the input file extension."""
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         bulk_path,
@@ -32,6 +32,7 @@ def load_bulks(bulk_path):
 
 
 def load_bulks_from_db(db_path, db_name):
+    """Bulk file loader for ase db files"""
     with connect(db_path) as db:
 
         # Turn each entry into a dictionary that will become the dataframe columns
@@ -59,7 +60,7 @@ def load_bulks_from_db(db_path, db_name):
 
 
 def load_bulks_from_df(df_path, df_name):
-
+"""Bulk file loader for pkl and json files. File must have all of `required_fields`"""
     _, ext = os.path.splitext(df_path)
     if ext == ".pkl":
         bulk_df = pd.DataFrame(pd.read_pickle(df_path))
