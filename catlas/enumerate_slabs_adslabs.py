@@ -9,6 +9,7 @@ from ocpmodels.preprocessing import AtomsToGraphs
 from .dask_utils import SizeDict
 import logging
 
+
 class CustomAdsorbate(Adsorbate):
     def __init__(self, ads_atoms, bond_indicies, smiles):
         self.atoms = ads_atoms
