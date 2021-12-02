@@ -14,6 +14,9 @@ from catlas.dask_utils import (
     check_if_memorized,
     cache_if_not_cached,
     load_cache,
+)
+
+from catlas.cache_utils import (
     safe_cache,
     better_build_func_identifier,
 )
