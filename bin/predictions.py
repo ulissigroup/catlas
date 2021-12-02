@@ -158,7 +158,7 @@ if __name__ == "__main__":
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=step["gpu"],
+                        cpu=not step["gpu"],
                     )
 
                 # Old relaxation code; needs to be updated
