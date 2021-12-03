@@ -39,8 +39,8 @@ import os
 import pickle
 
 import joblib
-joblib.memory._build_func_identifier = better_build_func_identifier
 
+joblib.memory._build_func_identifier = better_build_func_identifier
 
 
 # Load inputs and define global vars
