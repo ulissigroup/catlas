@@ -14,7 +14,6 @@ from catlas.dask_utils import (
     check_if_memorized,
     cache_if_not_cached,
     load_cache,
-    to_pickles,
 )
 
 from catlas.adslab_predictions import (
@@ -169,8 +168,10 @@ if __name__ == "__main__":
 
     results_bag = results_bag.persist(optimize_graph=False)
 
-    if "pickle_folder" in config["output_options"]:
-        to_pickles(results_bag, config["output_options"]["pickle_folder"] + "/*.pkl")
+    if "jsonpickle_folder" in config["output_options"]:
+        results_bag.to_dataframe().map(pickle.dumps).to_textfiles(
+            config["output_options"]["jsonpickle_folder"], encoding=None
+        )
 
     if verbose or pickle_in_config:
         results = results_bag.compute(optimize_graph=False)
