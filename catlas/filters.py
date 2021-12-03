@@ -12,6 +12,8 @@ def bulk_filter(config, dask_df):
         ):  # depending on how yaml is specified, val may either be "None" or NoneType
             if name == "filter_by_mpids":
                 dask_df = dask_df[dask_df.bulk_mpid.isin(val)]
+            elif name == "filter_ignore_mpids":
+                dask_df = dask_df[~dask_df.bulk_mpid.isin(val)]
             elif name == "filter_by_acceptable_elements":
                 dask_df = dask_df[
                     dask_df.bulk_elements.apply(
