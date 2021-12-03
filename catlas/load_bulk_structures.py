@@ -22,6 +22,8 @@ def load_bulks(bulk_path):
         bulk_path,
     )
 
+    # Remove this entire line to revert to the previous cache
+
     path_name, ext = os.path.splitext(path)
     source_name = path_name.split("/")[-1]
 
