@@ -170,7 +170,7 @@ if __name__ == "__main__":
     results_bag = results_bag.persist(optimize_graph=False)
 
     if "pickle_folder" in config["output_options"]:
-        to_pickles(results_bag, config["output_options"]["pickle_folder"] + "/*.pkl")
+        to_pickles(results_bag, config["output_options"]["pickle_folder"] + "/*.pkl", optimize_graph=False)
 
     if verbose or pickle_in_config:
         results = results_bag.compute(optimize_graph=False)
