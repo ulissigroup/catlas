@@ -16,6 +16,7 @@ import subprocess
 from fsspec.core import open_files
 import uuid
 
+
 def get_namespace():
     """Pulls the kubectl namespace from CLI"""
     ns_str = subprocess.run(
@@ -26,7 +27,8 @@ def get_namespace():
     ).stdout.decode("utf-8")
     ns = ns_str.split(" ")[-1].replace("\n", "")
     return ns
-  
+
+
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
 
