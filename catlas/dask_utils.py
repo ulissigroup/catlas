@@ -13,7 +13,8 @@ import yaml
 import dask
 import copy
 import subprocess
-
+from fsspec.core import open_files
+import uuid
 
 def get_namespace():
     """Pulls the kubectl namespace from CLI"""
@@ -25,9 +26,7 @@ def get_namespace():
     ).stdout.decode("utf-8")
     ns = ns_str.split(" ")[-1].replace("\n", "")
     return ns
-
-
-
+  
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
 
@@ -120,3 +119,29 @@ def cache_if_not_cached(input, memorized_func, *args, **kwargs):
 
 def load_cache(input, memorized_func, memorized_cache, *args, **kwargs):
     return memorized_func(input, *args, **kwargs)
+
+
+def to_pickles(b, path, name_function=None, compute=True, **kwargs):
+    files = open_files(
+        path,
+        mode="wb",
+        encoding=None,
+        name_function=name_function,
+        num=b.npartitions,
+    )
+
+    name = "to-pickle-" + uuid.uuid4().hex
+    dsk = {(name, i): (_to_pickle, (b.name, i), f) for i, f in enumerate(files)}
+    graph = HighLevelGraph.from_collections(name, dsk, dependencies=[b])
+    out = type(b)(graph, name, b.npartitions)
+
+    if compute:
+        out.compute(**kwargs)
+        return [f.path for f in files]
+    else:
+        return out.to_delayed()
+
+
+def _to_pickle(data, lazy_file):
+    with lazy_file as f:
+        pickle.dump(data, f)
