@@ -14,6 +14,12 @@ from catlas.dask_utils import (
     check_if_memorized,
     cache_if_not_cached,
     load_cache,
+    to_pickles,
+)
+
+from catlas.cache_utils import (
+    safe_cache,
+    better_build_func_identifier,
 )
 
 from catlas.adslab_predictions import (
@@ -30,6 +36,12 @@ import pandas as pd
 from dask.distributed import wait
 from jinja2 import Template
 import os
+import pickle
+
+import joblib
+
+joblib.memory._build_func_identifier = better_build_func_identifier
+
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -47,7 +59,7 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load and filter the bulks
-    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
+    bulks_delayed = dask.delayed(safe_cache(memory, load_bulks))(
         config["input_options"]["bulk_file"]
     )
     bulk_bag = db.from_delayed([bulks_delayed])
@@ -72,7 +84,9 @@ if __name__ == "__main__":
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
-    surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
+    surface_bag = filtered_catalyst_bag.map(
+        safe_cache(memory, enumerate_slabs)
+    ).flatten()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
@@ -88,7 +102,9 @@ if __name__ == "__main__":
     )
 
     # Enumerate the adslab configs and the graphs on any worker
-    adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    adslab_atoms_bag = surface_adsorbate_combo_bag.map(
+        safe_cache(memory, enumerate_adslabs)
+    )
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
@@ -102,7 +118,8 @@ if __name__ == "__main__":
                     if step["gpu"] == True:
                         memorized_bag = results_bag.map(
                             check_if_memorized,
-                            memory.cache(
+                            safe_cache(
+                                memory,
                                 direct_energy_prediction,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
@@ -117,7 +134,8 @@ if __name__ == "__main__":
                         with dask.annotate(resources={"GPU": 1}, priority=10):
                             memorized_bag = memorized_bag.map(
                                 cache_if_not_cached,
-                                memory.cache(
+                                safe_cache(
+                                    memory,
                                     direct_energy_prediction,
                                     ignore=["batch_size", "graphs_dict", "cpu"],
                                 ),
@@ -133,7 +151,8 @@ if __name__ == "__main__":
 
                     results_bag = results_bag.map(
                         load_cache,
-                        memory.cache(
+                        safe_cache(
+                            memory,
                             direct_energy_prediction,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
@@ -143,13 +162,13 @@ if __name__ == "__main__":
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=step["gpu"],
+                        cpu=not step["gpu"],
                     )
 
                 # Old relaxation code; needs to be updated
                 elif step["type"] == "relaxation":
                     surface_adsorbate_combo_bag = adslab_bag.map(
-                        memory.cache(relaxation_energy_prediction),
+                        safe_cache(memory, relaxation_energy_prediction),
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                     )
@@ -161,9 +180,18 @@ if __name__ == "__main__":
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
-    pickle = "pickle_path" in config["output_options"]
+    pickle_in_config = "pickle_path" in config["output_options"]
 
-    if verbose or pickle:
+    results_bag = results_bag.persist(optimize_graph=False)
+
+    if "pickle_folder" in config["output_options"]:
+        to_pickles(
+            results_bag,
+            config["output_options"]["pickle_folder"] + "/*.pkl",
+            optimize_graph=False,
+        )
+
+    if verbose or pickle_in_config:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
 
@@ -188,7 +216,7 @@ if __name__ == "__main__":
         results = results_bag.persist(optimize_graph=False)
         wait(results)
 
-    if pickle:
+    if pickle_in_config:
         pickle_path = config["output_options"]["pickle_path"]
 
         if pickle_path != "None":

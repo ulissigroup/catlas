@@ -3,14 +3,17 @@ import numpy as np
 
 
 def bulk_filter(config, dask_df):
+    """Filters a dask dataframe `dask_df` of bulk structures according to rules specified in a config yml `config`"""
     bulk_filters = config["bulk_filters"]
 
     for name, val in bulk_filters.items():
         if (
             str(val) != "None"
-        ):  # depending on how yaml is created, val may either be "None" or NoneType
+        ):  # depending on how yaml is specified, val may either be "None" or NoneType
             if name == "filter_by_mpids":
                 dask_df = dask_df[dask_df.bulk_mpid.isin(val)]
+            elif name == "filter_ignore_mpids":
+                dask_df = dask_df[~dask_df.bulk_mpid.isin(val)]
             elif name == "filter_by_acceptable_elements":
                 dask_df = dask_df[
                     dask_df.bulk_elements.apply(
@@ -67,6 +70,7 @@ def bulk_filter(config, dask_df):
 
 
 def slab_filter(config, dask_dict):
+    """Filters a dask bag `dask_dict` according to rules specified in config yml `config`"""
     slab_filters = config["slab_filters"]
 
     keep = True
@@ -83,6 +87,7 @@ def slab_filter(config, dask_dict):
 
 
 def adsorbate_filter(config, dask_df):
+    """Filters a dask dataframe `dask_df` of adsorbate structures according to rules specified in config yml `config`"""
     adsorbate_filters = config["adsorbate_filters"]
 
     for name, val in adsorbate_filters.items():
