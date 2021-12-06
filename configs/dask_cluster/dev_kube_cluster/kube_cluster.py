@@ -17,12 +17,10 @@ with open("configs/dask_cluster/dev_kube_cluster/scheduler.yml") as f:
         dask.config.expand_environment_variables(yaml.safe_load(f))
     )
 
-ns = get_namespace()
-
 cluster = KubeCluster(
     pod_template="configs/prod_configs/workers-cpu-dev.yml",
     scheduler_pod_template=scheduler_pod_template,
-    namespace=ns,
+    namespace=get_namespace(),
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=120,
 )

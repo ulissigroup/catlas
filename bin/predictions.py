@@ -9,7 +9,6 @@ from catlas.enumerate_slabs_adslabs import (
     merge_surface_adsorbate_combo,
 )
 from catlas.dask_utils import (
-    split_balance_df_partitions,
     bag_split_individual_partitions,
     check_if_memorized,
     cache_if_not_cached,
