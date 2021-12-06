@@ -15,6 +15,8 @@
 
 `$ python bin/predictions.py configs/path/to/config.yml configs/path/to/cluster.py`
 
+**Modify your config.yml file's `memory_cache_location` parameter to something specific to you if you're modifying any code**
+
 Monitor a run at one of these URLs
 - https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/$namespace/pods/$podname-0:8787/proxy/status (local cluster)
 - https://laikapack-controller.cheme.cmu.edu/k8s/clusters/c-qc7lr/api/v1/namespaces/$namespace/services/dask-catlas-dev:8787/proxy/status (scheduler)
