@@ -199,6 +199,44 @@ def relaxation_energy_prediction(
     adslabs_dict, config_path, checkpoint_path, column_name
 ):
 
+    adslab_results = copy.copy(adslab_dict)
+
+    global BOCPP
+
+    # This is problematic in that it assumes there is only
+    # ever one BOCPP. If two different models were used for inference
+    # this would lead to issues
+    if BOCPP is None:
+        BOCPP = BatchOCPPredictor(
+            checkpoint=checkpoint_path,
+            batch_size=batch_size,
+            cpu=cpu,
+        )
+
+    # Get the energy predictions and save them
+    predictions_list = BOCPP.full_predict(graphs_dict["adslab_graphs"])
+    adslab_results[column_name] = predictions_list
+
+    # Identify the best configuration and energy and save that too
+    if len(predictions_list) > 0:
+        best_energy = np.min(predictions_list)
+        best_atoms = adslab_atoms["adslab_atoms"][np.argmin(predictions_list)].copy()
+        adslab_results["min_" + column_name] = best_energy
+        best_atoms.set_calculator(
+            SinglePointCalculator(
+                atoms=best_atoms,
+                energy=best_energy,
+                forces=None,
+                stresses=None,
+                magmoms=None,
+            )
+        )
+        adslab_results["atoms_min_" + column_name] = best_atoms
+    else:
+        adslab_results["min_" + column_name] = np.nan
+        adslab_results["atoms_min_" + column_name] = None
+
+    return adslab_results
     adslab_results = copy.deepcopy(adslab_dict)
 
     global relax_calc

@@ -96,14 +96,34 @@ if __name__ == "__main__":
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
+                if step["type"] == "direct":
+                    pred_func = direct_energy_prediction
+                elif step["type"] == "relaxation":
+                    pred_func = relaxation_energy_prediction
+                else:
+                    raise ValueError("Inference type %s not supported" % step["type"])
 
                 # GPU inference, only on GPU workers
-                if step["type"] == "direct":
-                    if step["gpu"] == True:
-                        memorized_bag = results_bag.map(
-                            check_if_memorized,
+                if step["gpu"] == True:
+                    memorized_bag = results_bag.map(
+                        check_if_memorized,
+                        memory.cache(
+                            pred_func,
+                            ignore=["batch_size", "graphs_dict", "cpu"],
+                        ),
+                        adslab_atoms=adslab_atoms_bag,
+                        graphs_dict=graphs_bag,
+                        checkpoint_path=step["checkpoint_path"],
+                        column_name=step["label"],
+                        batch_size=step["batch_size"],
+                        cpu=False,
+                    )
+
+                    with dask.annotate(resources={"GPU": 1}, priority=10):
+                        memorized_bag = memorized_bag.map(
+                            cache_if_not_cached,
                             memory.cache(
-                                direct_energy_prediction,
+                                pred_func,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
                             adslab_atoms=adslab_atoms_bag,
@@ -113,49 +133,23 @@ if __name__ == "__main__":
                             batch_size=step["batch_size"],
                             cpu=False,
                         )
-
-                        with dask.annotate(resources={"GPU": 1}, priority=10):
-                            memorized_bag = memorized_bag.map(
-                                cache_if_not_cached,
-                                memory.cache(
-                                    direct_energy_prediction,
-                                    ignore=["batch_size", "graphs_dict", "cpu"],
-                                ),
-                                adslab_atoms=adslab_atoms_bag,
-                                graphs_dict=graphs_bag,
-                                checkpoint_path=step["checkpoint_path"],
-                                column_name=step["label"],
-                                batch_size=step["batch_size"],
-                                cpu=False,
-                            )
-                    else:
-                        memorized_bag = None
-
-                    results_bag = results_bag.map(
-                        load_cache,
-                        memory.cache(
-                            direct_energy_prediction,
-                            ignore=["batch_size", "graphs_dict", "cpu"],
-                        ),
-                        memorized_bag,
-                        adslab_atoms=adslab_atoms_bag,
-                        graphs_dict=graphs_bag,
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
-                        batch_size=step["batch_size"],
-                        cpu=not step["gpu"],
-                    )
-
-                # Old relaxation code; needs to be updated
-                elif step["type"] == "relaxation":
-                    surface_adsorbate_combo_bag = adslab_bag.map(
-                        memory.cache(relaxation_energy_prediction),
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
-                    )
                 else:
-                    print("Unsupported prediction type: %s" % step["type"])
+                    memorized_bag = None
 
+                results_bag = results_bag.map(
+                    load_cache,
+                    memory.cache(
+                        pred_func,
+                        ignore=["batch_size", "graphs_dict", "cpu"],
+                    ),
+                    memorized_bag,
+                    adslab_atoms=adslab_atoms_bag,
+                    graphs_dict=graphs_bag,
+                    checkpoint_path=step["checkpoint_path"],
+                    column_name=step["label"],
+                    batch_size=step["batch_size"],
+                    cpu=not step["gpu"],
+                )
                 most_recent_step = "min_" + step["label"]
 
     verbose = (
