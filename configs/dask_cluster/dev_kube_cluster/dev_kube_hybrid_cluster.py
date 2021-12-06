@@ -1,7 +1,7 @@
 from dask.distributed import Client
 from dask_kubernetes import KubeCluster
 from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
-from catlas.dask_utils import kube_cluster_new_worker
+from catlas.dask_kube_utils import kube_cluster_new_worker, get_namespace
 import dask
 import os
 from jinja2 import Template
