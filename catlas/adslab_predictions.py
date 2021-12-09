@@ -61,9 +61,9 @@ class BatchOCPPredictor:
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
-        if config["task"]["dataset"] == "trajectory_lmdb":
+        if config["task"]["dataset"] == "trajectory_lmdb": # S2EF
             config["trainer"] = "forces"
-        else:
+        elif config["task"]["dataset"] == 'single_point_lmdb': # IS2RE
             config["trainer"] = "energy"
 
         config["model_attributes"]["name"] = config.pop("model")
@@ -196,7 +196,13 @@ def direct_energy_prediction(
 # This is currently not working; it should be revised
 # based on direct_energy_prediction
 def relaxation_energy_prediction(
-    adslabs_dict, config_path, checkpoint_path, column_name
+    adslab_dict,
+    adslab_atoms,
+    graphs_dict,
+    checkpoint_path,
+    column_name,
+    batch_size=8,
+    cpu=False,
 ):
 
     adslab_results = copy.copy(adslab_dict)
@@ -237,6 +243,7 @@ def relaxation_energy_prediction(
         adslab_results["atoms_min_" + column_name] = None
 
     return adslab_results
+
     adslab_results = copy.deepcopy(adslab_dict)
 
     global relax_calc
