@@ -15,6 +15,9 @@ spec:
     imagePullPolicy: Always
     args: [dask-scheduler]
     name: dask
+    env:
+    - name: NVIDIA_VISIBLE_DEVICES
+      value: "none"
     resources:
       limits:
         cpu: "4"
