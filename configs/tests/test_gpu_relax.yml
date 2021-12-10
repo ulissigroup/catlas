@@ -1,7 +1,7 @@
 dask:
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas/test_cache'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/test_cache_relax'
 
 output_options:
   pickle_path: test_kube_cluster_output.pkl
@@ -24,7 +24,7 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: relaxation
-    gpu: true
+    gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'

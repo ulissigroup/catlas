@@ -102,9 +102,9 @@ if __name__ == "__main__":
                     pred_func = relaxation_energy_prediction
                 else:
                     raise ValueError("Inference type %s not supported" % step["type"])
-
+                print('starting inference...')
                 # GPU inference, only on GPU workers
-                if step["gpu"] == True:
+                if step["gpu"]:
                     memorized_bag = results_bag.map(
                         check_if_memorized,
                         memory.cache(
