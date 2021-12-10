@@ -1,0 +1,9 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		}
+	],
+	"remoteAuthority": "k8s-container+context=ulissigroup-desktops-fqdn+podname=inference-0+namespace=kbroderick+name=inference+image=ulissigroup%2Fkubeflow%3Apredictions",
+	"settings": {}
+}
