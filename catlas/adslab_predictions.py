@@ -59,7 +59,7 @@ class BatchOCPPredictor:
         )
 
         
-        config = torch.load(checkpoint, map_location=torch.device(["cpu" if cpu else "gpu"][0]))["config"]
+        config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
         if config["task"]["dataset"] == "trajectory_lmdb": # S2EF
