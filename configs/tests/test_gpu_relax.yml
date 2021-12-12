@@ -19,7 +19,7 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-    filter_by_max_miller_index: 1
+    filter_by_max_miller_index: 2
 
 adslab_prediction_steps:
   - step: predict
