@@ -24,7 +24,7 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: relaxation
-    gpu: true
+    gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
     checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
