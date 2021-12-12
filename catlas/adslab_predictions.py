@@ -58,13 +58,12 @@ class BatchOCPPredictor:
             checkpoint,
         )
 
-        
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
-        if config["task"]["dataset"] == "trajectory_lmdb": # S2EF
+        if config["task"]["dataset"] == "trajectory_lmdb":  # S2EF
             config["trainer"] = "forces"
-        elif config["task"]["dataset"] == 'single_point_lmdb': # IS2RE
+        elif config["task"]["dataset"] == "single_point_lmdb":  # IS2RE
             config["trainer"] = "energy"
 
         config["model_attributes"]["name"] = config.pop("model")
