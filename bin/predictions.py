@@ -122,7 +122,8 @@ if __name__ == "__main__":
                 if step["gpu"]:
                     memorized_bag = results_bag.map(
                         check_if_memorized,
-                        memory.cache(
+                        safe_cache(
+                            memory,
                             pred_func,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
@@ -154,7 +155,8 @@ if __name__ == "__main__":
 
                 results_bag = results_bag.map(
                     load_cache,
-                    memory.cache(
+                    safe_cache(
+                        memory,
                         pred_func,
                         ignore=["batch_size", "graphs_dict", "cpu"],
                     ),
