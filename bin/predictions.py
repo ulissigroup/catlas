@@ -137,7 +137,8 @@ if __name__ == "__main__":
                     with dask.annotate(resources={"GPU": 1}, priority=10):
                         memorized_bag = memorized_bag.map(
                             cache_if_not_cached,
-                            memory.cache(
+                            safe_cache(
+                                memory,
                                 pred_func,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
