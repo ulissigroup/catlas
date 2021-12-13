@@ -10,14 +10,10 @@ from catlas.enumerate_slabs_adslabs import (
 )
 from catlas.dask_utils import (
     bag_split_individual_partitions,
-    check_if_memorized,
-    cache_if_not_cached,
-    load_cache,
     to_pickles,
 )
 
 from catlas.cache_utils import (
-    safe_cache,
     better_build_func_identifier,
 )
 
@@ -115,23 +111,8 @@ if __name__ == "__main__":
                     raise ValueError("Inference type %s not supported" % step["type"])
                 # GPU inference, only on GPU workers
                 if step["gpu"]:
-                    memorized_bag = results_bag.map(
-                        check_if_memorized,
-                        memory.cache(
-                            pred_func,
-                            ignore=["batch_size", "graphs_dict", "cpu"],
-                        ),
-                        adslab_atoms=adslab_atoms_bag,
-                        graphs_dict=graphs_bag,
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
-                        batch_size=step["batch_size"],
-                        cpu=False,
-                    )
-
                     with dask.annotate(resources={"GPU": 1}, priority=10):
-                        memorized_bag = memorized_bag.map(
-                            cache_if_not_cached,
+                        results_bag = results_bag.map(
                             memory.cache(
                                 pred_func,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
@@ -144,22 +125,19 @@ if __name__ == "__main__":
                             cpu=False,
                         )
                 else:
-                    memorized_bag = None
+                    results_bag = results_bag.map(
+                        memory.cache(
+                            pred_func,
+                            ignore=["batch_size", "graphs_dict", "cpu"],
+                        ),
+                        adslab_atoms=adslab_atoms_bag,
+                        graphs_dict=graphs_bag,
+                        checkpoint_path=step["checkpoint_path"],
+                        column_name=step["label"],
+                        batch_size=step["batch_size"],
+                        cpu=False,
+                    )
 
-                results_bag = results_bag.map(
-                    load_cache,
-                    memory.cache(
-                        pred_func,
-                        ignore=["batch_size", "graphs_dict", "cpu"],
-                    ),
-                    memorized_bag,
-                    adslab_atoms=adslab_atoms_bag,
-                    graphs_dict=graphs_bag,
-                    checkpoint_path=step["checkpoint_path"],
-                    column_name=step["label"],
-                    batch_size=step["batch_size"],
-                    cpu=not step["gpu"],
-                )
                 most_recent_step = "min_" + step["label"]
 
     verbose = (
