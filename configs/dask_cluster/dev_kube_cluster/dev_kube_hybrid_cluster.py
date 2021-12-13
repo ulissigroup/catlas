@@ -1,7 +1,7 @@
 from dask.distributed import Client
 from dask_kubernetes import KubeCluster
 from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
-from catlas.dask_utils import kube_cluster_new_worker
+from catlas.dask_kube_utils import kube_cluster_new_worker, get_namespace
 import dask
 import os
 from jinja2 import Template
@@ -24,12 +24,11 @@ template = Template(
 with open("configs/dask_cluster/dev_kube_cluster/worker-gpu.yml", "w") as fhandle:
     fhandle.write(template.render(**os.environ))
 
-
 # Start the dask cluster with some gpu workers
 cluster = KubeCluster(
     pod_template="configs/dask_cluster/dev_kube_cluster/worker-gpu.yml",
     scheduler_pod_template=scheduler_pod_template,
-    namespace="kbroderick",
+    namespace=get_namespace(),
     name="dask-catlas-dev",
     scheduler_service_wait_timeout=240,
 )
