@@ -84,9 +84,7 @@ if __name__ == "__main__":
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
-    surface_bag = filtered_catalyst_bag.map(
-        memory.cache(enumerate_slabs)
-    ).flatten()
+    surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
@@ -102,9 +100,7 @@ if __name__ == "__main__":
     )
 
     # Enumerate the adslab configs and the graphs on any worker
-    adslab_atoms_bag = surface_adsorbate_combo_bag.map(
-        memory.cache(enumerate_adslabs)
-    )
+    adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
