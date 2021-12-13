@@ -59,7 +59,7 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load and filter the bulks
-    bulks_delayed = dask.delayed(safe_cache(memory, load_bulks))(
+    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
         config["input_options"]["bulk_file"]
     )
     bulk_bag = db.from_delayed([bulks_delayed])
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     # Enumerate and filter surfaces
     surface_bag = filtered_catalyst_bag.map(
-        safe_cache(memory, enumerate_slabs)
+        memory.cache(enumerate_slabs)
     ).flatten()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
 
@@ -103,7 +103,7 @@ if __name__ == "__main__":
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
-        safe_cache(memory, enumerate_adslabs)
+        memory.cache(enumerate_adslabs)
     )
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
@@ -122,8 +122,7 @@ if __name__ == "__main__":
                 if step["gpu"]:
                     memorized_bag = results_bag.map(
                         check_if_memorized,
-                        safe_cache(
-                            memory,
+                        memory.cache(
                             pred_func,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
@@ -138,8 +137,7 @@ if __name__ == "__main__":
                     with dask.annotate(resources={"GPU": 1}, priority=10):
                         memorized_bag = memorized_bag.map(
                             cache_if_not_cached,
-                            safe_cache(
-                                memory,
+                            memory.cache(
                                 pred_func,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
@@ -155,8 +153,7 @@ if __name__ == "__main__":
 
                 results_bag = results_bag.map(
                     load_cache,
-                    safe_cache(
-                        memory,
+                    memory.cache(
                         pred_func,
                         ignore=["batch_size", "graphs_dict", "cpu"],
                     ),

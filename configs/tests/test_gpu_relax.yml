@@ -12,7 +12,7 @@ input_options:
   bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
 
 bulk_filters:
-    filter_by_mpids: ['mp-126','mp-30', 'mp-101']
+    filter_by_mpids: ['mp-126', 'mp-81', 'mp-30', 'mp-129']
 
 adsorbate_filters:
     filter_by_smiles: ['*H']
@@ -24,7 +24,7 @@ slab_filters:
 adslab_prediction_steps:
   - step: predict
     type: relaxation
-    gpu: false
+    gpu: true
     batch_size: 4
     label: 'dE_gemnet_relax'
     checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
