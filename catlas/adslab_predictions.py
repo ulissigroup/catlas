@@ -200,7 +200,7 @@ def energy_prediction(
         predictions_list = BOCPP.relaxation_prediction(graphs_dict["adslab_graphs"])
         predictions_list = np.array([p.cpu().numpy() for p in predictions_list])
     else:
-        predictions_list = BOCPP.direct_predictions(graphs_dict["adslab_graphs"])
+        predictions_list = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
 
     adslab_results[column_name] = predictions_list
 
