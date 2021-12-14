@@ -18,10 +18,7 @@ from catlas.cache_utils import (
 )
 
 from catlas.adslab_predictions import (
-    # direct_energy_prediction,
-    # relaxation_energy_prediction,
     energy_prediction,
-    # pop_keys,
 )
 import dask.bag as db
 import dask
@@ -100,30 +97,18 @@ if __name__ == "__main__":
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
-    # adslab_atoms = adslab_atoms_bag.compute()
-    # adslab_dict = results_bag.compute()
-    # graphs_dict = graphs_bag.compute()
-    # step = config["adslab_prediction_steps"][0]
-
     # from dask.distributed import wait
     # wait()
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
-                pred_func = energy_prediction
-                # if step["type"] == "direct":
-                #     pred_func = direct_energy_prediction
-                # elif step["type"] == "relaxation":
-                #     pred_func = relaxation_energy_prediction
-                # else:
-                #     raise ValueError("Inference type %s not supported" % step["type"])
-                # GPU inference, only on GPU workers
+
                 if step["gpu"]:
                     with dask.annotate(resources={"GPU": 1}, priority=10):
                         results_bag = results_bag.map(
                             memory.cache(
-                                pred_func,
+                                energy_prediction,
                                 ignore=["batch_size", "graphs_dict", "cpu"],
                             ),
                             adslab_atoms=adslab_atoms_bag,
@@ -136,7 +121,7 @@ if __name__ == "__main__":
                 else:
                     results_bag = results_bag.map(
                         memory.cache(
-                            pred_func,
+                            energy_prediction,
                             ignore=["batch_size", "graphs_dict", "cpu"],
                         ),
                         adslab_atoms=adslab_atoms_bag,
