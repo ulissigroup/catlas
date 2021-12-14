@@ -43,7 +43,7 @@ def load_bulks_from_db(db_path, db_name):
                 SizeDict(
                     {
                         "bulk_atoms": row.toatoms(),
-                        "bulk_mpid": row.mpid,
+                        "bulk_mpid": row.dbid,
                         "bulk_data_source": db_name,
                         "bulk_natoms": row.natoms,
                         "bulk_xc": "RPBE",
