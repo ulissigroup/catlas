@@ -108,7 +108,7 @@ class BatchOCPPredictor:
             cpu=cpu,
         )
 
-        self.predict = self.trainer.predict  #TorchCalc expects a predict method
+        self.predict = self.trainer.predict  # TorchCalc expects a predict method
 
         if checkpoint is not None:
             self.load_checkpoint(checkpoint)
@@ -125,7 +125,7 @@ class BatchOCPPredictor:
                 graphs_list_dataset, self.batch_size, shuffle=False
             ),
         )
-        
+
         return data_loader
 
     def load_checkpoint(self, checkpoint_path):
@@ -156,9 +156,7 @@ class BatchOCPPredictor:
         data_loader = self.make_dataloader(graphs_list)
         predictions = []
 
-        for i, batch in tqdm(
-            enumerate(data_loader), total=len(data_loader)
-        ):
+        for i, batch in tqdm(enumerate(data_loader), total=len(data_loader)):
             if i >= self.config["task"].get("num_relaxation_batches", 1e9):
                 break
 
@@ -167,7 +165,7 @@ class BatchOCPPredictor:
                 model=self,
                 steps=self.config["task"].get("relaxation_steps", 200),
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
-                relax_opt={'memory':100},
+                relax_opt={"memory": 100},
                 # device=self.device,
                 transform=None,
             )

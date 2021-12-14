@@ -1,0 +1,43 @@
+kind: Pod
+spec:
+  restartPolicy: Never
+  containers:
+  - image: ulissigroup/kubeflow:predictions
+    imagePullPolicy: Always
+    args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'20 GiB',--death-timeout, '600',--resources,"GPU=1"]
+    name: dask
+    env:
+    - name: OMP_NUM_THREADS
+      value: 1
+    - name: PYTHONPATH
+      value: "/home/jovyan/ocp:/home/jovyan/catlas"
+    - name: MALLOC_TRIM_THRESHOLD_
+      value: 0
+    resources:
+      limits:
+        cpu: "4"
+        memory: 21G
+        nvidia.com/gpu: "1"
+      requests:
+        cpu: "4"
+        memory: 21G
+        nvidia.com/gpu: "1"
+    volumeMounts:
+    - mountPath: /home/jovyan/ocp
+      name: workspace-inference
+      subPath: ocp
+    - mountPath: /home/jovyan/catlas
+      name: workspace-inference
+      subPath: catlas
+    - mountPath: /home/jovyan/shared-scratch
+      name: shared-scratch
+    - mountPath: /home/jovyan/dask-worker-space
+      name: shared-scratch
+      subPath: catlas/dask-worker-space
+  volumes:
+  - name: shared-scratch
+    persistentVolumeClaim:
+      claimName: shared-scratch
+  - name: workspace-inference
+    persistentVolumeClaim:
+      claimName: workspace-inference

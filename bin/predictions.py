@@ -104,7 +104,7 @@ if __name__ == "__main__":
     # adslab_dict = results_bag.compute()
     # graphs_dict = graphs_bag.compute()
     # step = config["adslab_prediction_steps"][0]
-    
+
     # from dask.distributed import wait
     # wait()
     # Run adslab predictions
