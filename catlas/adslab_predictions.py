@@ -168,7 +168,7 @@ class BatchOCPPredictor:
                 steps=self.config["task"].get("relaxation_steps", 200),
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
-                device = self.device,
+                device=self.device,
                 transform=None,
             )
 
