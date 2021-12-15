@@ -108,6 +108,8 @@ class BatchOCPPredictor:
             cpu=cpu,
         )
 
+        self.device = ["cpu" if cpu else "cuda:0"][0]
+
         self.predict = self.trainer.predict  # TorchCalc expects a predict method
 
         if checkpoint is not None:
@@ -166,7 +168,7 @@ class BatchOCPPredictor:
                 steps=self.config["task"].get("relaxation_steps", 200),
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
-                # device=self.device,
+                device = self.device,
                 transform=None,
             )
 

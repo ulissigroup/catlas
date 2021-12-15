@@ -23,7 +23,6 @@ slab_filters:
 
 adslab_prediction_steps:
   - step: predict
-    type: relaxation
     gpu: true
     batch_size: 4
     label: 'dE_gemnet_relax'
