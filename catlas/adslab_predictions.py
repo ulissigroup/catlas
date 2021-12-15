@@ -155,6 +155,9 @@ class BatchOCPPredictor:
 
     def relaxation_prediction(self, graphs_list):
 
+        if self.device == "cpu":
+            torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
+
         data_loader = self.make_dataloader(graphs_list)
         predictions = []
 

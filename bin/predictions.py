@@ -97,8 +97,6 @@ if __name__ == "__main__":
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
-    # from dask.distributed import wait
-    # wait()
     # Run adslab predictions
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
