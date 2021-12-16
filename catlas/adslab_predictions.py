@@ -21,7 +21,7 @@ import catlas
 import os
 from tqdm import tqdm
 
-BOCPP = None
+BOCPP_dict = {}
 relax_calc = None
 
 
@@ -190,14 +190,16 @@ def energy_prediction(
     cpu=False,
 ):
 
-    global BOCPP
+    global BOCPP_dict
 
-    if BOCPP is None:
-        BOCPP = BatchOCPPredictor(
+    if checkpoint_path not in BOCPP_dict:
+        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
             cpu=cpu,
         )
+
+    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
 
     adslab_results = copy.copy(adslab_dict)
 
