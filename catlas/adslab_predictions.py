@@ -192,7 +192,7 @@ def energy_prediction(
 
     global BOCPP_dict
 
-    if checkpoint_path not in BOCPP:
+    if checkpoint_path not in BOCPP_dict:
         BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
