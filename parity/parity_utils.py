@@ -69,10 +69,23 @@ def apply_filters(config: dict, df: pd.DataFrame) -> pd.DataFrame:
     def get_number_elements_boolean(stoichiometry: dict, number_els: list) -> bool:
         element_num = len(list(stoichiometry.keys()))
         return element_num in number_els
+    
+    def get_active_host_boolean(stoichiometry: dict, active_host_els: dict) -> bool:
+        active = active_host_els['active']
+        host = active_host_els['host']
+        elements = set(stoichiometry.keys())
+        return all(
+                        [
+                            all([el in [*active, *host] for el in elements]),
+                            any([el in host for el in elements]),
+                            any([el in active for el in elements]),
+                        ]
+                    )
+        
 
     element_filters = config["element_filters"]
 
-    for name, val in element_filters.items():
+    for name, val in bulk_filters.items():
         if (
             str(val) != "None"
         ):  # depending on how yaml is created, val may either be "None" or NoneType
@@ -89,13 +102,28 @@ def apply_filters(config: dict, df: pd.DataFrame) -> pd.DataFrame:
                 df = df[df.filter_required_els]
                 df = df.drop(columns=["filter_required_els"])
 
-            elif name == "filter_by_number_elements":
+            elif name == "filter_by_num_elements":
                 df["filter_number_els"] = df.stoichiometry.apply(
                     get_number_elements_boolean, args=(val,)
                 )
                 df = df[df.filter_number_els]
                 df = df.drop(columns=["filter_number_els"])
+                
+            elif name == "filter_by_element_types":
+                blah = 'blah'
+            elif name == "filter_by_elements_active_host"
+                df["filter_required_els"] = df.stoichiometry.apply(
+                    get_active_host_boolean, args=(val,)
+                )
+                df = df[df.filter_required_els]
+                df = df.drop(columns=["filter_required_els"])
 
+            elif name == "filter_ignore_mpids":
+                continue
+            elif name == "filter_by_mpids":
+                warnings.warn(name + " has not been implemented")
+            elif name == "filter_by_object_size":
+                continue  
             else:
                 warnings.warn(name + " has not been implemented")
     return df
