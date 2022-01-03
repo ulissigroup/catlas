@@ -1,5 +1,7 @@
 import warnings
 import numpy as np
+from pymatgen.core.periodic_table import Element
+
 
 
 def bulk_filter(config, dask_df):
@@ -55,13 +57,8 @@ def bulk_filter(config, dask_df):
                         meta=("bulk_elements", "bool"),
                     )
                 ]
-            elif name == "filter_by_element_types":
-                valid_els = []
-                
-                for el_category in val:
-                  **  new_valid_els = lookup_dict_of_el_types[el_category]
-                    valid_els = [*valid_els, new_valid_els]
-                    
+            elif name == "filter_by_element_groups":
+                valid_els = get_elements_in_groups(val)
                 dask_df = dask_df[
                     dask_df.bulk_elements.apply(
                         lambda x, valid_elements: all(
@@ -114,3 +111,39 @@ def adsorbate_filter(config, dask_df):
                 warnings.warn("Adsorbate filter is not implemented: " + name)
 
     return dask_df
+
+def get_elements_in_groups(groups: list) -> list:
+    valid_els = [] 
+    
+    if "transition metal" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_transition_metal]
+        valid_els = [*valid_els, new_valid_els]
+    if "post-transition metal" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_post_transition_metal]
+        valid_els = [*valid_els, new_valid_els]
+    if "metalloid" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_metalloid]
+        valid_els = [*valid_els, new_valid_els]
+    if "rare earth metal" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_rare_earth_metal]
+        valid_els = [*valid_els, new_valid_els]
+    if "alkali" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_alkali]
+        valid_els = [*valid_els, new_valid_els]
+    if "alkaline" in groups or "alkali earth" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_alkaline]
+        valid_els = [*valid_els, new_valid_els]
+    if "chalcogen" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_calcogen]
+        valid_els = [*valid_els, new_valid_els]
+    if "halogen" in groups:
+        new_valid_els = [str(el) for el in Element if el.is_halogen]
+        valid_els = [*valid_els, new_valid_els]
+    
+    implemented_groups = ["transition metal", "post-transition metal", "metalloid", "rare earth metal", "alkali", "alkaline", "alkali earth", "chalcogen", "halogen"]
+    
+    for group in groups:
+        if group not in implemented_groups:
+            warnings.warn("Group not implemented: " + group + "\n Implemented groups are: " + str(implemented_groups))
+    return list(np.unique(valid_els))
+            
