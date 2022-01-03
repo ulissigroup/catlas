@@ -55,6 +55,22 @@ def bulk_filter(config, dask_df):
                         meta=("bulk_elements", "bool"),
                     )
                 ]
+            elif name == "filter_by_element_types":
+                valid_els = []
+                
+                for el_category in val:
+                  **  new_valid_els = lookup_dict_of_el_types[el_category]
+                    valid_els = [*valid_els, new_valid_els]
+                    
+                dask_df = dask_df[
+                    dask_df.bulk_elements.apply(
+                        lambda x, valid_elements: all(
+                            [el in valid_elements for el in x]
+                        ),
+                        valid_elements=valid_els,
+                        meta=("bulk_elements", "bool"),
+                    )
+                ]
 
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
