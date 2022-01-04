@@ -1,4 +1,12 @@
 import yaml
+from parity.parity_utils import (
+    get_predicted_E,
+    data_preprocessing,
+    apply_filters,
+    get_specific_smile_plot,
+    get_general_plot,
+    get_npz_path,
+)
 from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -20,7 +28,7 @@ from catlas.cache_utils import (
     safe_cache,
     better_build_func_identifier,
 )
-
+import warnings
 from catlas.adslab_predictions import (
     direct_energy_prediction,
     relaxation_energy_prediction,
@@ -36,7 +44,7 @@ from dask.distributed import wait
 from jinja2 import Template
 import os
 import pickle
-
+import datetime
 import joblib
 
 joblib.memory._build_func_identifier = better_build_func_identifier
@@ -49,6 +57,49 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
+    
+    # Generate parity plots
+    if "adslab_prediction_steps" in config:
+        
+        ## Create an output folder
+        if not os.path.exists(config["output_options"]["parity_output_folder"]):
+            os.makedirs(config["output_options"]["parity_output_folder"])
+            
+        ## Iterate over steps    
+        for step in config["adslab_prediction_steps"]:
+        ### Load the data
+            npz_path = get_npz_path(step["checkpoint_path"])
+            if os.path.exists(npz_path):
+                df = data_preprocessing(npz_path, 'parity/df_pkls/OC_20_val_data.pkl')
+
+                ### Apply filters
+                df_filtered = apply_filters(config["bulk_filters"], df)
+
+                list_of_parity_info = []
+
+                ### Generate a folder for each model to be considered
+                folder_now = config["output_options"]["parity_output_folder"]+ '/' + step["label"]
+                if not os.path.exists(folder_now):
+                    os.makedirs(folder_now)
+
+                ### Generate adsorbate specific plots
+                for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+                    info_now = get_specific_smile_plot(smile, df_filtered, folder_now)
+                    list_of_parity_info.append(info_now)
+
+                ### Generate overall model plot
+                info_now = get_general_plot(df_filtered, folder_now)
+                list_of_parity_info.append(info_now)
+
+                ### Create a pickle of the summary info and print results
+                df = pd.DataFrame(list_of_parity_info)
+                time_now = str(datetime.datetime.now())
+                df_file_path = folder_now + time_now + ".pkl"
+                df.to_pickle(df_file_path)
+            else:
+                warnings.warn(npz_path + " has not been found and therefore parity plots cannot be generated")
+
+    print("Parity plots are ready if data was available, please review them to ensure the model selected meets your needs.")
 
     # Start the dask cluster
     dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
