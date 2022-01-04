@@ -113,6 +113,7 @@ def adsorbate_filter(config, dask_df):
 
 
 def get_elements_in_groups(groups: list) -> list:
+    """Grabs the element symbols of all elements in the specified groups"""
     valid_els = []
 
     if "transition metal" in groups:
