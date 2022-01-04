@@ -57,20 +57,20 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
-    
+
     # Generate parity plots
     if "adslab_prediction_steps" in config:
-        
+
         ## Create an output folder
         if not os.path.exists(config["output_options"]["parity_output_folder"]):
             os.makedirs(config["output_options"]["parity_output_folder"])
-            
-        ## Iterate over steps    
+
+        ## Iterate over steps
         for step in config["adslab_prediction_steps"]:
-        ### Load the data
+            ### Load the data
             npz_path = get_npz_path(step["checkpoint_path"])
             if os.path.exists(npz_path):
-                df = data_preprocessing(npz_path, 'parity/df_pkls/OC_20_val_data.pkl')
+                df = data_preprocessing(npz_path, "parity/df_pkls/OC_20_val_data.pkl")
 
                 ### Apply filters
                 df_filtered = apply_filters(config["bulk_filters"], df)
@@ -78,7 +78,11 @@ if __name__ == "__main__":
                 list_of_parity_info = []
 
                 ### Generate a folder for each model to be considered
-                folder_now = config["output_options"]["parity_output_folder"]+ '/' + step["label"]
+                folder_now = (
+                    config["output_options"]["parity_output_folder"]
+                    + "/"
+                    + step["label"]
+                )
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
 
@@ -97,9 +101,14 @@ if __name__ == "__main__":
                 df_file_path = folder_now + time_now + ".pkl"
                 df.to_pickle(df_file_path)
             else:
-                warnings.warn(npz_path + " has not been found and therefore parity plots cannot be generated")
+                warnings.warn(
+                    npz_path
+                    + " has not been found and therefore parity plots cannot be generated"
+                )
 
-    print("Parity plots are ready if data was available, please review them to ensure the model selected meets your needs.")
+    print(
+        "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+    )
 
     # Start the dask cluster
     dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
