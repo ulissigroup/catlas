@@ -13,9 +13,10 @@ from catlas.filters import get_elements_in_groups
 
 
 def get_npz_path(checkpoint_path: str) -> str:
-    pt_filename = checkpoint_path.split('/')[-1]
-    model_id = pt_filename.split('.')[0]
+    pt_filename = checkpoint_path.split("/")[-1]
+    model_id = pt_filename.split(".")[0]
     return "parity/npz-files/" + model_id + ".npz"
+
 
 def get_predicted_E(row, ML_data):
 
@@ -75,18 +76,18 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
     def get_number_elements_boolean(stoichiometry: dict, number_els: list) -> bool:
         element_num = len(list(stoichiometry.keys()))
         return element_num in number_els
-    
+
     def get_active_host_boolean(stoichiometry: dict, active_host_els: dict) -> bool:
-        active = active_host_els['active']
-        host = active_host_els['host']
+        active = active_host_els["active"]
+        host = active_host_els["host"]
         elements = set(stoichiometry.keys())
         return all(
-                        [
-                            all([el in [*active, *host] for el in elements]),
-                            any([el in host for el in elements]),
-                            any([el in active for el in elements]),
-                        ]
-                    )
+            [
+                all([el in [*active, *host] for el in elements]),
+                any([el in host for el in elements]),
+                any([el in active for el in elements]),
+            ]
+        )
 
     for name, val in bulk_filters.items():
         if (
@@ -111,7 +112,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
                 )
                 df = df[df.filter_number_els]
                 df = df.drop(columns=["filter_number_els"])
-                
+
             elif name == "filter_by_element_groups":
                 valid_els = get_elements_in_groups(val)
                 df["filter_acceptable_els"] = df.stoichiometry.apply(
@@ -119,7 +120,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
                 )
                 df = df[df.filter_acceptable_els]
                 df = df.drop(columns=["filter_acceptable_els"])
-                
+
             elif name == "filter_by_elements_active_host":
                 df["filter_active_host_els"] = df.stoichiometry.apply(
                     get_active_host_boolean, args=(val,)
@@ -132,7 +133,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
             elif name == "filter_by_mpids":
                 warnings.warn(name + " has not been implemented for parity generation")
             elif name == "filter_by_object_size":
-                continue  
+                continue
             else:
                 warnings.warn(name + " has not been implemented")
     return df
@@ -140,7 +141,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
 
 def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str):
 
-    # Create the plot 
+    # Create the plot
     time_now = str(datetime.datetime.now())
     plot_file_path = output_path + "/" + time_now + "_" + smile + ".pdf"
 
@@ -263,8 +264,8 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str):
         info_dict[dist + "_slope"] = slope_now
         info_dict[dist + "_int"] = intercept_now
         info_dict[dist + "_r_sq"] = r_now ** 2
-        
-        if len(types) == 2: 
+
+        if len(types) == 2:
             df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
             x_now = df_now["energy dE [eV]"].tolist()
             y_now = df_now.ML_energy.tolist()
@@ -344,7 +345,7 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
             "ood_ads_r_sq": np.nan,
         }
 
-        # Create the plot 
+        # Create the plot
         time_now = str(datetime.datetime.now())
         plot_file_path = output_path + "/" + time_now + "_" + "general" + ".pdf"
 
@@ -352,7 +353,9 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
 
         x_overall = df["energy dE [eV]"].tolist()
         y_overall = df.ML_energy.tolist()
-        MAE_overall = sum(abs(np.array(x_overall) - np.array(y_overall))) / len(x_overall)
+        MAE_overall = sum(abs(np.array(x_overall) - np.array(y_overall))) / len(
+            x_overall
+        )
         slope_overall, intercept_overall, r_overall, p, se = linregress(
             x_overall, y_overall
         )
@@ -361,7 +364,10 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
         ax1.plot([-4, 2], [-4, 2], "k-", linewidth=3)
         ax1.plot(
             [-4, 2],
-            [-4 * slope_overall + intercept_overall, 2 * slope_overall + intercept_overall],
+            [
+                -4 * slope_overall + intercept_overall,
+                2 * slope_overall + intercept_overall,
+            ],
             "k--",
             linewidth=2,
         )
@@ -427,7 +433,7 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
         info_dict[dist + "_slope"] = slope_now
         info_dict[dist + "_int"] = intercept_now
         info_dict[dist + "_r_sq"] = r_now ** 2
-        
+
         if len(types) >= 2:
             df_now = df[df.distribution == types[1]]
             x_now = df_now["energy dE [eV]"].tolist()
