@@ -7,6 +7,7 @@ output_options:
   verbose: True
   pickle_path: '/home/jovyan/shared-scratch/Inference/HER_screen.pkl'
   config_path: '/home/jovyan/shared-scratch/kbroderick/HER_screen.yml'
+  parity_output_folder: 'outputs/parity-outputs/'
 
 adsorbate_filters:
     filter_by_smiles: ['*H', '*CO']
