@@ -14,7 +14,7 @@ output_options:
 
 bulk_filters:
     filter_by_element_groups: ['transition metal']
-    filter_by_num_elements : [1]
+    filter_by_num_elements : [2]
 
 adsorbate_filters:
     filter_by_smiles: ['*H']

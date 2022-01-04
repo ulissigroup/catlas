@@ -4,12 +4,17 @@ from parity_utils import (
     apply_filters,
     get_specific_smile_plot,
     get_general_plot,
+    get_npz_path,
 )
 import yaml
 import sys
 import pandas as pd
 import datetime
 from itertools import combinations
+from jinja2 import Template
+import os
+import warnings
+import numpy as np
 
     
 # Load inputs and define global vars
@@ -31,7 +36,7 @@ if __name__ == "__main__":
             print("A folder for parity results must be specified in the config yaml.")
 
         ## Iterate over steps
-        for model in config["models_to_assess"]:
+        for model in config["models_to_assess"]["checkpoint_paths"]:
             ### Grab model id
             model_id = model.split('/')[-1].split('.')[0]
             
@@ -76,12 +81,45 @@ if __name__ == "__main__":
         
         # Generate ML v. ML parity plots
         ## Enumerate combos
-        if config["make_ML_v_ML_parity"]:
-            ML_model_combos = list(combinations(config["models_to_assess"]["checkpoint_paths"], 2))
-            for combo in ML_model_combos:
-                npz_path0 = get_npz_path(combo[0])
-                npz_path1 = get_npz_path(combo[1])
-                df0 = data_preprocessing(npz_path0, "parity/df_pkls/OC_20_val_data.pkl")
-                df1 = data_preprocessing(npz_path1, "parity/df_pkls/OC_20_val_data.pkl")
-                print(df1)
+        if config["models_to_assess"]["make_ML_v_ML_parity"]:
+            if len(config["models_to_assess"]["checkpoint_paths"]) > 1:
+                ML_model_combos = list(combinations(config["models_to_assess"]["checkpoint_paths"], 2))
+                for combo in ML_model_combos:
+                    npz_path0 = get_npz_path(combo[0])
+                    npz_path1 = get_npz_path(combo[1])
+                    df0 = data_preprocessing(npz_path0, "parity/df_pkls/OC_20_val_data.pkl")
+                    energy_key1 = "ML_energy_" + npz_path0.split('/')[-1].split('.')[0]
+                    df0.rename(columns = {'ML_energy': energy_key1}, inplace = True)
+                    df1 = data_preprocessing(npz_path1, "parity/df_pkls/OC_20_val_data.pkl")
+                    df1.drop(df1.columns.difference(['ML_energy']), 1, inplace=True)
+                    energy_key2 = "ML_energy_" + npz_path1.split('/')[-1].split('.')[0]
+                    df1.rename(columns = {'ML_energy': energy_key2}, inplace = True)
+
+                    df = pd.concat([df0, df1], axis=1, join="inner")
+
+                    ### Generate a folder for each model to be considered
+                    folder_now = (
+                        config["output_options"]["parity_output_folder"]
+                        + "/"
+                        + energy_key1
+                        + "_"
+                        + energy_key2
+                    )
+                    if not os.path.exists(folder_now):
+                        os.makedirs(folder_now)
+
+                    df_filtered = apply_filters(config["bulk_filters"], df)
+
+                    ### Make smile specific plots
+                    for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+                        info_now = get_specific_smile_plot(smile, df_filtered, folder_now, energy_key1 = energy_key1, energy_key2 = energy_key2)
+                    ### Generate overall model plot
+                    info_now = get_general_plot(df_filtered, folder_now, energy_key1 = energy_key1, energy_key2 = energy_key2)
+            else:
+                print("ML to ML comparison couldn't be made because not enough models were given.")
+                
+    print("Done making parity plots where data was available.")
+                    
+                    
+
                 
