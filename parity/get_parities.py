@@ -9,35 +9,79 @@ import yaml
 import sys
 import pandas as pd
 import datetime
+from itertools import combinations
 
+    
+# Load inputs and define global vars
 if __name__ == "__main__":
 
     # Load the config yaml
     config_path = sys.argv[1]
-    with open(config_path) as f:
-        config = yaml.safe_load(f)
+    template = Template(open(config_path).read())
+    config = yaml.load(template.render(**os.environ))
 
-    # Load the data
-    df = data_preprocessing(config["npz_file_path"], config["dft_data_path"])
+    
+    if "models_to_assess" in config:
+        # Generate DFT v. ML parity plots
+        ## Create an output folder
+        try:
+            if not os.path.exists(config["output_options"]["parity_output_folder"]):
+                os.makedirs(config["output_options"]["parity_output_folder"])
+        except RuntimeError:
+            print("A folder for parity results must be specified in the config yaml.")
 
-    # Apply filters
-    df_filtered = apply_filters(config, df)
+        ## Iterate over steps
+        for model in config["models_to_assess"]:
+            ### Grab model id
+            model_id = model.split('/')[-1].split('.')[0]
+            
+            ### Load the data
+            npz_path = get_npz_path(model)
+            if os.path.exists(npz_path):
+                df = data_preprocessing(npz_path, "parity/df_pkls/OC_20_val_data.pkl")
 
-    list_of_parity_info = []
-    # Generate adsorbate specific plots
-    for smile in config["desired_adsorbate_smiles"]:
-        info_now = get_specific_smile_plot(smile, df_filtered, config["npz_file_path"])
-        list_of_parity_info.append(info_now)
+                ### Apply filters
+                df_filtered = apply_filters(config["bulk_filters"], df)
 
-    # Generate overall model plot
-    info_now = get_general_plot(df_filtered, config["npz_file_path"])
-    list_of_parity_info.append(info_now)
+                list_of_parity_info = []
 
-    # Create a pickle of the summary info and print results
-    df = pd.DataFrame(list_of_parity_info)
-    print(df)
-    model_id = config["npz_file_path"].split("/")[-1]
-    model_id = model_id.split(".")[0]
-    time_now = str(datetime.datetime.now())
-    df_file_path = "output_pkls/df_summary_" + model_id + time_now + ".pkl"
-    df.to_pickle(df_file_path)
+                ### Generate a folder for each model to be considered
+                folder_now = (
+                    config["output_options"]["parity_output_folder"]
+                    + "/"
+                    + model_id
+                )
+                if not os.path.exists(folder_now):
+                    os.makedirs(folder_now)
+
+                ### Generate adsorbate specific plots
+                for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+                    info_now = get_specific_smile_plot(smile, df_filtered, folder_now)
+                    list_of_parity_info.append(info_now)
+
+                ### Generate overall model plot
+                info_now = get_general_plot(df_filtered, folder_now)
+                list_of_parity_info.append(info_now)
+
+                ### Create a pickle of the summary info and print results
+                df = pd.DataFrame(list_of_parity_info)
+                time_now = str(datetime.datetime.now())
+                df_file_path = folder_now + time_now + ".pkl"
+                df.to_pickle(df_file_path)
+            else:
+                warnings.warn(
+                    npz_path
+                    + " has not been found and therefore parity plots cannot be generated"
+                )
+        
+        # Generate ML v. ML parity plots
+        ## Enumerate combos
+        if config["make_ML_v_ML_parity"]:
+            ML_model_combos = list(combinations(config["models_to_assess"]["checkpoint_paths"], 2))
+            for combo in ML_model_combos:
+                npz_path0 = get_npz_path(combo[0])
+                npz_path1 = get_npz_path(combo[1])
+                df0 = data_preprocessing(npz_path0, "parity/df_pkls/OC_20_val_data.pkl")
+                df1 = data_preprocessing(npz_path1, "parity/df_pkls/OC_20_val_data.pkl")
+                print(df1)
+                

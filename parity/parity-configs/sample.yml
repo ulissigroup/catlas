@@ -1,13 +1,38 @@
-npz_file_path: '/home/jovyan/catlas/parity/npz-files/gemnet-is2re-ft-val.npz'
+dask:
+  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-dft_data_path: '/home/jovyan/catlas/parity/df_pkls/OC_20_val_data.pkl'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/MP_unrelaxed_dense'
 
-element_filters:
-    filter_by_acceptable_elements: ['Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Hf', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg']
+input_options:
+    bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
 
-#    filter_by_required_elements: ['N']
+output_options:
+  pickle_path: 'dense_bulk_relaxation_unrelaxed.pkl'
+  config_path: 'dense_bulk_relaxation_unrelaxed.yml'
+  parity_output_folder: "outputs/upfront_parity_trial_now"
+  verbose: False
 
-    filter_by_number_elements: [2]
+bulk_filters:
+    filter_by_element_groups: ['transition metal']
+    filter_by_num_elements : [1]
+
+adsorbate_filters:
+    filter_by_smiles: ['*H']
+
+slab_filters:
+    filter_by_object_size: 200
+    filter_by_max_miller_index: 2
+
+adslab_prediction_steps:
+  - step: predict
+    type: direct
+    gpu: false
+    batch_size: 4
+    label: 'dE_gemnet_is2re_finetuned'
+    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
     
-desired_adsorbate_smiles: ['*OH', '*CH']
-
+    
+# You can use the same yaml you would to run things, just include this additional info below!
+models_to_assess:
+  checkpoint_paths: ['configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt', 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt']
+  make_ML_v_ML_parity: True
