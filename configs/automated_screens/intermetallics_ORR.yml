@@ -10,6 +10,7 @@ output_options:
   pickle: True # True pickles the resulting predictions
   pickle_path: '/home/jovyan/shared-scratch/catlas/outputs/intermetallics_ORR_{{ GITHUB_RUN_ID }}.pkl'
   config_path: '/home/jovyan/shared-scratch/catlas/outputs/intermetallics_ORR_{{ GITHUB_RUN_ID }}.yml'
+  parity_output_folder: 'outputs/parity-outputs/'
   verbose: False
 
 bulk_filters:
