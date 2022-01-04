@@ -140,7 +140,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
 
 def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str):
 
-    # Create the plot if one doesnt already exist
+    # Create the plot 
     time_now = str(datetime.datetime.now())
     plot_file_path = output_path + "/" + time_now + "_" + smile + ".pdf"
 
@@ -149,127 +149,122 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str):
         warnings.warn("No matching validation data was found for " + smile)
         return {}
     else:
+        types = list(np.unique(df_smile_specific.distribution.tolist()))
+        info_dict = {
+            "adsorbate": smile,
+            "overall_N": np.nan,
+            "overall_MAE": np.nan,
+            "overall_slope": np.nan,
+            "overall_int": np.nan,
+            "overall_r_sq": np.nan,
+            "id_N": np.nan,
+            "id_MAE": np.nan,
+            "id_slope": np.nan,
+            "id_int": np.nan,
+            "id_r_sq": np.nan,
+            "ood_N": np.nan,
+            "ood_MAE": np.nan,
+            "ood_slope": np.nan,
+            "ood_int": np.nan,
+            "ood_r_sq": np.nan,
+            "ood_cat_N": np.nan,
+            "ood_cat_MAE": np.nan,
+            "ood_cat_slope": np.nan,
+            "ood_cat_int": np.nan,
+            "ood_cat_r_sq": np.nan,
+            "ood_ads_N": np.nan,
+            "ood_ads_MAE": np.nan,
+            "ood_ads_slope": np.nan,
+            "ood_ads_int": np.nan,
+            "ood_ads_r_sq": np.nan,
+        }
 
-        if len(df_smile_specific.distribution.tolist()) == 0:
-            warnings.warn(smile + "does not appear in the validation split")
-        else:
-            types = list(np.unique(df_smile_specific.distribution.tolist()))
-            if len(types) != 2:
-                types.append("only 1 type found")
-            info_dict = {
-                "adsorbate": smile,
-                "overall_N": np.nan,
-                "overall_MAE": np.nan,
-                "overall_slope": np.nan,
-                "overall_int": np.nan,
-                "overall_r_sq": np.nan,
-                "id_N": np.nan,
-                "id_MAE": np.nan,
-                "id_slope": np.nan,
-                "id_int": np.nan,
-                "id_r_sq": np.nan,
-                "ood_N": np.nan,
-                "ood_MAE": np.nan,
-                "ood_slope": np.nan,
-                "ood_int": np.nan,
-                "ood_r_sq": np.nan,
-                "ood_cat_N": np.nan,
-                "ood_cat_MAE": np.nan,
-                "ood_cat_slope": np.nan,
-                "ood_cat_int": np.nan,
-                "ood_cat_r_sq": np.nan,
-                "ood_ads_N": np.nan,
-                "ood_ads_MAE": np.nan,
-                "ood_ads_slope": np.nan,
-                "ood_ads_int": np.nan,
-                "ood_ads_r_sq": np.nan,
-            }
+        x_overall = df_smile_specific["energy dE [eV]"].tolist()
+        y_overall = df_smile_specific.ML_energy.tolist()
+        MAE_overall = sum(abs(np.array(x_overall) - np.array(y_overall))) / len(
+            x_overall
+        )
+        slope_overall, intercept_overall, r_overall, p, se = linregress(
+            x_overall, y_overall
+        )
 
-            x_overall = df_smile_specific["energy dE [eV]"].tolist()
-            y_overall = df_smile_specific.ML_energy.tolist()
-            MAE_overall = sum(abs(np.array(x_overall) - np.array(y_overall))) / len(
-                x_overall
-            )
-            slope_overall, intercept_overall, r_overall, p, se = linregress(
-                x_overall, y_overall
-            )
+        f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
 
-            f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
+        ax1.set_title(smile + " overall")
+        ax1.plot([-4, 2], [-4, 2], "k-", linewidth=3)
+        ax1.plot(
+            [-4, 2],
+            [
+                -4 * slope_overall + intercept_overall,
+                2 * slope_overall + intercept_overall,
+            ],
+            "k--",
+            linewidth=2,
+        )
+        ax1.scatter(x_overall, y_overall, s=6, facecolors="none", edgecolors="b")
+        ax1.text(-3.95, 1.75, f"MAE = {MAE_overall:1.2f} eV")
+        ax1.text(-3.95, 1.4, f"N points = {len(x_overall)}")
+        ax1.legend(
+            [
+                "y = x",
+                f"y = {slope_overall:1.2f} x + {intercept_overall:1.2f}, R-sq = {r_overall**2:1.2f}",
+            ],
+            loc="lower right",
+        )
+        ax1.axis("square")
+        ax1.set_xlim([-4, 2])
+        ax1.set_ylim([-4, 2])
+        ax1.set_xticks([-4, -3, -2, -1, 0, 1, 2])
+        ax1.set_yticks([-4, -3, -2, -1, 0, 1, 2])
+        ax1.set_xlabel("DFT adsorption E [eV]")
+        ax1.set_ylabel("ML adsorption E [eV]")
 
-            ax1.set_title(smile + " overall")
-            ax1.plot([-4, 2], [-4, 2], "k-", linewidth=3)
-            ax1.plot(
-                [-4, 2],
-                [
-                    -4 * slope_overall + intercept_overall,
-                    2 * slope_overall + intercept_overall,
-                ],
-                "k--",
-                linewidth=2,
-            )
-            ax1.scatter(x_overall, y_overall, s=6, facecolors="none", edgecolors="b")
-            ax1.text(-3.95, 1.75, f"MAE = {MAE_overall:1.2f} eV")
-            ax1.text(-3.95, 1.4, f"N points = {len(x_overall)}")
-            ax1.legend(
-                [
-                    "y = x",
-                    f"y = {slope_overall:1.2f} x + {intercept_overall:1.2f}, R-sq = {r_overall**2:1.2f}",
-                ],
-                loc="lower right",
-            )
-            ax1.axis("square")
-            ax1.set_xlim([-4, 2])
-            ax1.set_ylim([-4, 2])
-            ax1.set_xticks([-4, -3, -2, -1, 0, 1, 2])
-            ax1.set_yticks([-4, -3, -2, -1, 0, 1, 2])
-            ax1.set_xlabel("DFT adsorption E [eV]")
-            ax1.set_ylabel("ML adsorption E [eV]")
+        info_dict["overall_N"] = len(x_overall)
+        info_dict["overall_MAE"] = MAE_overall
+        info_dict["overall_slope"] = slope_overall
+        info_dict["overall_int"] = intercept_overall
+        info_dict["overall_r_sq"] = r_overall ** 2
 
-            info_dict["overall_N"] = len(x_overall)
-            info_dict["overall_MAE"] = MAE_overall
-            info_dict["overall_slope"] = slope_overall
-            info_dict["overall_int"] = intercept_overall
-            info_dict["overall_r_sq"] = r_overall ** 2
+        df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
+        x_now = df_now["energy dE [eV]"].tolist()
+        y_now = df_now.ML_energy.tolist()
+        MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
+        slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
 
-            df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
-            x_now = df_now["energy dE [eV]"].tolist()
-            y_now = df_now.ML_energy.tolist()
-            MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
-            slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
+        ax2.set_title(smile + " " + str(types[0]))
+        ax2.plot([-4, 2], [-4, 2], "k-", linewidth=3)
+        ax2.plot(
+            [-4, 2],
+            [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
+            "k--",
+            linewidth=2,
+        )
+        ax2.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
+        ax2.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
+        ax2.text(-3.95, 1.4, f"N points = {len(x_now)}")
+        ax2.legend(
+            [
+                "y = x",
+                f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
+            ],
+            loc="lower right",
+        )
+        ax2.axis("square")
+        ax2.set_xlim([-4, 2])
+        ax2.set_ylim([-4, 2])
+        ax2.set_xticks([-4, -3, -2, -1, 0, 1, 2])
+        ax2.set_yticks([-4, -3, -2, -1, 0, 1, 2])
+        ax2.set_xlabel("DFT adsorption E [eV]")
+        ax2.set_ylabel("ML adsorption E [eV]")
 
-            ax2.set_title(smile + " " + str(types[0]))
-            ax2.plot([-4, 2], [-4, 2], "k-", linewidth=3)
-            ax2.plot(
-                [-4, 2],
-                [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
-                "k--",
-                linewidth=2,
-            )
-            ax2.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
-            ax2.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
-            ax2.text(-3.95, 1.4, f"N points = {len(x_now)}")
-            ax2.legend(
-                [
-                    "y = x",
-                    f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
-                ],
-                loc="lower right",
-            )
-            ax2.axis("square")
-            ax2.set_xlim([-4, 2])
-            ax2.set_ylim([-4, 2])
-            ax2.set_xticks([-4, -3, -2, -1, 0, 1, 2])
-            ax2.set_yticks([-4, -3, -2, -1, 0, 1, 2])
-            ax2.set_xlabel("DFT adsorption E [eV]")
-            ax2.set_ylabel("ML adsorption E [eV]")
-
-            dist = types[0]
-            info_dict[dist + "_N"] = len(x_now)
-            info_dict[dist + "_MAE"] = MAE_now
-            info_dict[dist + "_slope"] = slope_now
-            info_dict[dist + "_int"] = intercept_now
-            info_dict[dist + "_r_sq"] = r_now ** 2
-
+        dist = types[0]
+        info_dict[dist + "_N"] = len(x_now)
+        info_dict[dist + "_MAE"] = MAE_now
+        info_dict[dist + "_slope"] = slope_now
+        info_dict[dist + "_int"] = intercept_now
+        info_dict[dist + "_r_sq"] = r_now ** 2
+        
+        if len(types) == 2: 
             df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
             x_now = df_now["energy dE [eV]"].tolist()
             y_now = df_now.ML_energy.tolist()
@@ -309,10 +304,10 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str):
             info_dict[dist + "_int"] = intercept_now
             info_dict[dist + "_r_sq"] = r_now ** 2
 
-            f.set_figwidth(18)
-            f.savefig(plot_file_path)
-            plt.close(f)
-            return info_dict
+        f.set_figwidth(18)
+        f.savefig(plot_file_path)
+        plt.close(f)
+        return info_dict
 
 
 def get_general_plot(df: pd.DataFrame, output_path: str):
@@ -349,7 +344,7 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
             "ood_ads_r_sq": np.nan,
         }
 
-        # Create the plot if one doesnt already exist
+        # Create the plot 
         time_now = str(datetime.datetime.now())
         plot_file_path = output_path + "/" + time_now + "_" + "general" + ".pdf"
 
@@ -432,124 +427,125 @@ def get_general_plot(df: pd.DataFrame, output_path: str):
         info_dict[dist + "_slope"] = slope_now
         info_dict[dist + "_int"] = intercept_now
         info_dict[dist + "_r_sq"] = r_now ** 2
+        
+        if len(types) >= 2:
+            df_now = df[df.distribution == types[1]]
+            x_now = df_now["energy dE [eV]"].tolist()
+            y_now = df_now.ML_energy.tolist()
+            MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
+            slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
 
-        df_now = df[df.distribution == types[1]]
-        x_now = df_now["energy dE [eV]"].tolist()
-        y_now = df_now.ML_energy.tolist()
-        MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
-        slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
+            ax3.set_title(str(types[1]))
+            ax3.plot([-4, 2], [-4, 2], "k-", linewidth=3)
+            ax3.plot(
+                [-4, 2],
+                [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
+                "k--",
+                linewidth=2,
+            )
+            ax3.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
+            ax3.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
+            ax3.text(-3.95, 1.4, f"N points = {len(x_now)}")
+            ax3.legend(
+                [
+                    "y = x",
+                    f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
+                ],
+                loc="lower right",
+            )
+            ax3.axis("square")
+            ax3.set_xlim([-4, 2])
+            ax3.set_ylim([-4, 2])
+            ax3.set_xticks([-4, -3, -2, -1, 0, 1, 2])
+            ax3.set_yticks([-4, -3, -2, -1, 0, 1, 2])
+            ax3.set_xlabel("DFT adsorption E [eV]")
+            ax3.set_ylabel("ML adsorption E [eV]")
 
-        ax3.set_title(str(types[1]))
-        ax3.plot([-4, 2], [-4, 2], "k-", linewidth=3)
-        ax3.plot(
-            [-4, 2],
-            [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
-            "k--",
-            linewidth=2,
-        )
-        ax3.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
-        ax3.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
-        ax3.text(-3.95, 1.4, f"N points = {len(x_now)}")
-        ax3.legend(
-            [
-                "y = x",
-                f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
-            ],
-            loc="lower right",
-        )
-        ax3.axis("square")
-        ax3.set_xlim([-4, 2])
-        ax3.set_ylim([-4, 2])
-        ax3.set_xticks([-4, -3, -2, -1, 0, 1, 2])
-        ax3.set_yticks([-4, -3, -2, -1, 0, 1, 2])
-        ax3.set_xlabel("DFT adsorption E [eV]")
-        ax3.set_ylabel("ML adsorption E [eV]")
+            dist = types[1]
+            info_dict[dist + "_N"] = len(x_now)
+            info_dict[dist + "_MAE"] = MAE_now
+            info_dict[dist + "_slope"] = slope_now
+            info_dict[dist + "_int"] = intercept_now
+            info_dict[dist + "_r_sq"] = r_now ** 2
+        if len(types) >= 3:
+            df_now = df[df.distribution == types[2]]
 
-        dist = types[1]
-        info_dict[dist + "_N"] = len(x_now)
-        info_dict[dist + "_MAE"] = MAE_now
-        info_dict[dist + "_slope"] = slope_now
-        info_dict[dist + "_int"] = intercept_now
-        info_dict[dist + "_r_sq"] = r_now ** 2
+            x_now = df_now["energy dE [eV]"].tolist()
+            y_now = df_now.ML_energy.tolist()
+            MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
+            slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
 
-        df_now = df[df.distribution == types[2]]
+            ax4.set_title(str(types[2]))
+            ax4.plot([-4, 2], [-4, 2], "k-", linewidth=3)
+            ax4.plot(
+                [-4, 2],
+                [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
+                "k--",
+                linewidth=2,
+            )
+            ax4.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
+            ax4.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
+            ax4.text(-3.95, 1.4, f"N points = {len(x_now)}")
+            ax4.legend(
+                [
+                    "y = x",
+                    f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
+                ],
+                loc="lower right",
+            )
+            ax4.axis("square")
+            ax4.set_xlim([-4, 2])
+            ax4.set_ylim([-4, 2])
+            ax4.set_xticks([-4, -3, -2, -1, 0, 1, 2])
+            ax4.set_yticks([-4, -3, -2, -1, 0, 1, 2])
+            ax4.set_xlabel("DFT adsorption E [eV]")
+            ax4.set_ylabel("ML adsorption E [eV]")
 
-        x_now = df_now["energy dE [eV]"].tolist()
-        y_now = df_now.ML_energy.tolist()
-        MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
-        slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
+            dist = types[2]
+            info_dict[dist + "_N"] = len(x_now)
+            info_dict[dist + "_MAE"] = MAE_now
+            info_dict[dist + "_slope"] = slope_now
+            info_dict[dist + "_int"] = intercept_now
+            info_dict[dist + "_r_sq"] = r_now ** 2
+        if len(types) == 4:
+            df_now = df[df.distribution == types[3]]
+            x_now = df_now["energy dE [eV]"].tolist()
+            y_now = df_now.ML_energy.tolist()
+            MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
+            slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
 
-        ax4.set_title(str(types[2]))
-        ax4.plot([-4, 2], [-4, 2], "k-", linewidth=3)
-        ax4.plot(
-            [-4, 2],
-            [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
-            "k--",
-            linewidth=2,
-        )
-        ax4.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
-        ax4.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
-        ax4.text(-3.95, 1.4, f"N points = {len(x_now)}")
-        ax4.legend(
-            [
-                "y = x",
-                f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
-            ],
-            loc="lower right",
-        )
-        ax4.axis("square")
-        ax4.set_xlim([-4, 2])
-        ax4.set_ylim([-4, 2])
-        ax4.set_xticks([-4, -3, -2, -1, 0, 1, 2])
-        ax4.set_yticks([-4, -3, -2, -1, 0, 1, 2])
-        ax4.set_xlabel("DFT adsorption E [eV]")
-        ax4.set_ylabel("ML adsorption E [eV]")
+            ax5.set_title(str(types[3]))
+            ax5.plot([-4, 2], [-4, 2], "k-", linewidth=3)
+            ax5.plot(
+                [-4, 2],
+                [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
+                "k--",
+                linewidth=2,
+            )
+            ax5.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
+            ax5.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
+            ax5.text(-3.95, 1.4, f"N points = {len(x_now)}")
+            ax5.legend(
+                [
+                    "y = x",
+                    f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
+                ],
+                loc="lower right",
+            )
+            ax5.axis("square")
+            ax5.set_xlim([-4, 2])
+            ax5.set_ylim([-4, 2])
+            ax5.set_xticks([-4, -3, -2, -1, 0, 1, 2])
+            ax5.set_yticks([-4, -3, -2, -1, 0, 1, 2])
+            ax5.set_xlabel("DFT adsorption E [eV]")
+            ax5.set_ylabel("ML adsorption E [eV]")
 
-        dist = types[2]
-        info_dict[dist + "_N"] = len(x_now)
-        info_dict[dist + "_MAE"] = MAE_now
-        info_dict[dist + "_slope"] = slope_now
-        info_dict[dist + "_int"] = intercept_now
-        info_dict[dist + "_r_sq"] = r_now ** 2
-
-        df_now = df[df.distribution == types[3]]
-        x_now = df_now["energy dE [eV]"].tolist()
-        y_now = df_now.ML_energy.tolist()
-        MAE_now = sum(abs(np.array(x_now) - np.array(y_now))) / len(x_now)
-        slope_now, intercept_now, r_now, p, se = linregress(x_now, y_now)
-
-        ax5.set_title(str(types[3]))
-        ax5.plot([-4, 2], [-4, 2], "k-", linewidth=3)
-        ax5.plot(
-            [-4, 2],
-            [-4 * slope_now + intercept_now, 2 * slope_now + intercept_now],
-            "k--",
-            linewidth=2,
-        )
-        ax5.scatter(x_now, y_now, s=6, facecolors="none", edgecolors="b")
-        ax5.text(-3.95, 1.75, f"MAE = {MAE_now:1.2f} eV")
-        ax5.text(-3.95, 1.4, f"N points = {len(x_now)}")
-        ax5.legend(
-            [
-                "y = x",
-                f"y = {slope_now:1.2f} x + {intercept_now:1.2f}, R-sq = {r_now**2:1.2f}",
-            ],
-            loc="lower right",
-        )
-        ax5.axis("square")
-        ax5.set_xlim([-4, 2])
-        ax5.set_ylim([-4, 2])
-        ax5.set_xticks([-4, -3, -2, -1, 0, 1, 2])
-        ax5.set_yticks([-4, -3, -2, -1, 0, 1, 2])
-        ax5.set_xlabel("DFT adsorption E [eV]")
-        ax5.set_ylabel("ML adsorption E [eV]")
-
-        dist = types[3]
-        info_dict[dist + "_N"] = len(x_now)
-        info_dict[dist + "_MAE"] = MAE_now
-        info_dict[dist + "_slope"] = slope_now
-        info_dict[dist + "_int"] = intercept_now
-        info_dict[dist + "_r_sq"] = r_now ** 2
+            dist = types[3]
+            info_dict[dist + "_N"] = len(x_now)
+            info_dict[dist + "_MAE"] = MAE_now
+            info_dict[dist + "_slope"] = slope_now
+            info_dict[dist + "_int"] = intercept_now
+            info_dict[dist + "_r_sq"] = r_now ** 2
 
         f.set_figwidth(30)
         f.savefig(plot_file_path)
