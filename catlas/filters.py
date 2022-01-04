@@ -25,7 +25,7 @@ def bulk_filter(config, dask_df):
                         meta=("bulk_elements", "bool"),
                     )
                 ]
-                
+
             elif name == "filter_by_num_elements":
                 dask_df = dask_df[dask_df.bulk_nelements.isin(val)]
             elif name == "filter_by_required_elements":
