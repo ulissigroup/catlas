@@ -1,5 +1,6 @@
 import warnings
 import numpy as np
+from pymatgen.core.periodic_table import Element
 
 
 def bulk_filter(config, dask_df):
@@ -56,6 +57,17 @@ def bulk_filter(config, dask_df):
                         meta=("bulk_elements", "bool"),
                     )
                 ]
+            elif name == "filter_by_element_groups":
+                valid_els = get_elements_in_groups(val)
+                dask_df = dask_df[
+                    dask_df.bulk_elements.apply(
+                        lambda x, valid_elements: all(
+                            [el in valid_elements for el in x]
+                        ),
+                        valid_elements=valid_els,
+                        meta=("bulk_elements", "bool"),
+                    )
+                ]
 
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
@@ -100,7 +112,9 @@ def adsorbate_filter(config, dask_df):
 
     return dask_df
 
+
 def get_elements_in_groups(groups: list) -> list:
+    """Grabs the element symbols of all elements in the specified groups"""
     valid_els = []
 
     if "transition metal" in groups:
