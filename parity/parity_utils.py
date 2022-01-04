@@ -54,7 +54,7 @@ def data_preprocessing(npz_path: str, dft_df_path: str) -> pd.DataFrame:
 
         # Get ML energies
         dft_df["ML_energy"] = dft_df.apply(get_predicted_E, args=(ML_data,), axis=1)
-        dft_df.rename(columns = {"energy dE [eV]": "DFT_energy"}, inplace = True)
+        dft_df.rename(columns={"energy dE [eV]": "DFT_energy"}, inplace=True)
 
         # Pickle results for future use
         dft_df.to_pickle(df_path)
@@ -67,6 +67,7 @@ def data_preprocessing(npz_path: str, dft_df_path: str) -> pd.DataFrame:
 
 def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
     """filters the dataframe to only include material types specified in the yaml"""
+
     def get_acceptable_elements_boolean(
         stoichiometry: dict, acceptable_els: list
     ) -> bool:
@@ -143,7 +144,13 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str, energy_key1 = "DFT_energy", energy_key2 = "ML_energy") -> dict:
+def get_specific_smile_plot(
+    smile: str,
+    df: pd.DataFrame,
+    output_path: str,
+    energy_key1="DFT_energy",
+    energy_key2="ML_energy",
+) -> dict:
     """Creates the pdf parity plot for a given smile and returns a dictionary summarizing plot results"""
     # Create the plot
     time_now = str(datetime.datetime.now())
@@ -151,7 +158,7 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str, ener
 
     # Filter the data to only include the desired smile
     df_smile_specific = df[df.adsorbate == smile]
-    
+
     # Check to make sure some data exists
     if df_smile_specific.empty:
         warnings.warn("No matching validation data was found for " + smile)
@@ -189,23 +196,26 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str, ener
         }
 
         f, (ax1, ax2, ax3) = plt.subplots(1, 3, sharey=True)
-        
+
         # Process data for all splits
-        info_dict_now = make_subplot(ax1, df_smile_specific, "overall", energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax1, df_smile_specific, "overall", energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, "overall", info_dict_now)
 
         # Process data for split 1
         df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
-        name_now = smile + ' ' + types[0]
+        name_now = smile + " " + types[0]
         info_dict_now = make_subplot(ax2, df_now, name_now, energy_key1, energy_key2)
         info_dict = update_info(info_dict, name_now, info_dict_now)
-
 
         if len(types) == 2:
             # Process data for split 2 if it exists
             df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
-            name_now = smile + ' ' + types[1]
-            info_dict_now = make_subplot(ax3, df_now, name_now, energy_key1, energy_key2)
+            name_now = smile + " " + types[1]
+            info_dict_now = make_subplot(
+                ax3, df_now, name_now, energy_key1, energy_key2
+            )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
         f.set_figwidth(18)
@@ -214,7 +224,12 @@ def get_specific_smile_plot(smile: str, df: pd.DataFrame, output_path: str, ener
         return info_dict
 
 
-def get_general_plot(df: pd.DataFrame, output_path: str, energy_key1 = "DFT_energy", energy_key2 = "ML_energy") -> dict:
+def get_general_plot(
+    df: pd.DataFrame,
+    output_path: str,
+    energy_key1="DFT_energy",
+    energy_key2="ML_energy",
+) -> dict:
     """Creates the pdf parity plot for all smiles and returns a dictionary summarizing plot results"""
     # Check to make sure some data exists
     if df.empty:
@@ -257,7 +272,7 @@ def get_general_plot(df: pd.DataFrame, output_path: str, energy_key1 = "DFT_ener
         types = np.unique(df.distribution.tolist())
 
         f, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(1, 5, sharey=True)
-        
+
         # Process data for all splits
         info_dict_now = make_subplot(ax1, df, "overall", energy_key1, energy_key2)
         info_dict = update_info(info_dict, "overall", info_dict_now)
@@ -272,21 +287,27 @@ def get_general_plot(df: pd.DataFrame, output_path: str, energy_key1 = "DFT_ener
         if len(types) >= 2:
             df_now = df[df.distribution == types[1]]
             name_now = types[1]
-            info_dict_now = make_subplot(ax3, df_now, name_now, energy_key1, energy_key2)
+            info_dict_now = make_subplot(
+                ax3, df_now, name_now, energy_key1, energy_key2
+            )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
         # Process data for split 3 if it exists
         if len(types) >= 3:
             df_now = df[df.distribution == types[2]]
             name_now = types[2]
-            info_dict_now = make_subplot(ax4, df_now, name_now, energy_key1, energy_key2)
+            info_dict_now = make_subplot(
+                ax4, df_now, name_now, energy_key1, energy_key2
+            )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
         # Process data for split 4 if it exists
         if len(types) == 4:
             df_now = df[df.distribution == types[3]]
             name_now = types[3]
-            info_dict_now = make_subplot(ax5, df_now, name_now, energy_key1, energy_key2)
+            info_dict_now = make_subplot(
+                ax5, df_now, name_now, energy_key1, energy_key2
+            )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
         f.set_figwidth(30)
@@ -295,17 +316,14 @@ def get_general_plot(df: pd.DataFrame, output_path: str, energy_key1 = "DFT_ener
 
         return info_dict
 
+
 def make_subplot(subplot, df, name, energy_key1, energy_key2) -> dict:
     """Helper function for larger plot generation. Processes each subplot."""
     x = df[energy_key1].tolist()
     y = df[energy_key2].tolist()
-    MAE = sum(abs(np.array(x) - np.array(y))) / len(
-        x
-    )
-    slope, intercept, r, p, se = linregress(
-        x, y
-    )
-    
+    MAE = sum(abs(np.array(x) - np.array(y))) / len(x)
+    slope, intercept, r, p, se = linregress(x, y)
+
     subplot.set_title(name)
     subplot.plot([-4, 2], [-4, 2], "k-", linewidth=3)
     subplot.plot(
@@ -334,14 +352,14 @@ def make_subplot(subplot, df, name, energy_key1, energy_key2) -> dict:
     subplot.set_yticks([-4, -3, -2, -1, 0, 1, 2])
     subplot.set_xlabel(energy_key1 + " [eV]")
     subplot.set_ylabel(energy_key2 + " [eV]")
-    return {'N': len(x), 'MAE': MAE, 'slope':slope, 'intercept': intercept, 'r':r}
-    
-    
+    return {"N": len(x), "MAE": MAE, "slope": slope, "intercept": intercept, "r": r}
+
+
 def update_info(info_dict: dict, name: str, info_to_add: dict) -> dict:
     """Helper function for summary dictionary generation. Updates the dictionary for each split."""
-    info_dict[name + "_N"] = info_to_add['N']
-    info_dict[name + "_MAE"] = info_to_add['MAE']
-    info_dict[name + "_slope"] = info_to_add['slope']
-    info_dict[name + "_int"] = info_to_add['intercept']
-    info_dict[name + "_r_sq"] = info_to_add['r'] ** 2
+    info_dict[name + "_N"] = info_to_add["N"]
+    info_dict[name + "_MAE"] = info_to_add["MAE"]
+    info_dict[name + "_slope"] = info_to_add["slope"]
+    info_dict[name + "_int"] = info_to_add["intercept"]
+    info_dict[name + "_r_sq"] = info_to_add["r"] ** 2
     return info_dict
