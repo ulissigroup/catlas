@@ -1,0 +1,31 @@
+dask:
+  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
+
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/MP_unrelaxed_dense'
+
+input_options:
+    bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+
+output_options:
+  pickle_path: 'dense_bulk_relaxation_unrelaxed.pkl'
+  config_path: 'dense_bulk_relaxation_unrelaxed.yml'
+  parity_output_folder: "outputs/upfront_parity_trial_now"
+  verbose: False
+
+bulk_filters:
+    filter_by_element_groups: ['transition metal']
+    filter_by_num_elements : [1]
+    filter_by_pourbaix_stability:
+      conditions: 
+        - pH: 12
+          V: 2 
+      MP_API_key: "YourAPIkey"
+      max_decomposition_energy: 0.05
+
+
+adsorbate_filters:
+    filter_by_smiles: ['*H']
+
+slab_filters:
+    filter_by_object_size: 200
+    filter_by_max_miller_index: 2
