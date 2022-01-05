@@ -72,8 +72,10 @@ def bulk_filter(config, dask_df):
                 ]
             elif name == "filter_by_pourbaix_stability":
                 dask_df = dask_df[
-                     dask_df.bulk_mpid.apply(
-                        lambda x, conditions: any(get_pourbaix_stability(x,conditions)),
+                    dask_df.bulk_mpid.apply(
+                        lambda x, conditions: any(
+                            get_pourbaix_stability(x, conditions)
+                        ),
                         conditions=val,
                         meta=("bulk_mpid", "bool"),
                     )
@@ -120,5 +122,3 @@ def adsorbate_filter(config, dask_df):
                 warnings.warn("Adsorbate filter is not implemented: " + name)
 
     return dask_df
-
-
