@@ -363,3 +363,55 @@ def update_info(info_dict: dict, name: str, info_to_add: dict) -> dict:
     info_dict[name + "_int"] = info_to_add["intercept"]
     info_dict[name + "_r_sq"] = info_to_add["r"] ** 2
     return info_dict
+
+
+def get_parity_upfront(config):
+    if "adslab_prediction_steps" in config:
+
+        ## Create an output folder
+        try:
+            if not os.path.exists(config["output_options"]["parity_output_folder"]):
+                os.makedirs(config["output_options"]["parity_output_folder"])
+        except RuntimeError:
+            print("A folder for parity results must be specified in the config yaml.")
+
+        ## Iterate over steps
+        for step in config["adslab_prediction_steps"]:
+            ### Load the data
+            npz_path = get_npz_path(step["checkpoint_path"])
+            if os.path.exists(npz_path):
+                df = data_preprocessing(npz_path, "parity/df_pkls/OC_20_val_data.pkl")
+
+                ### Apply filters
+                df_filtered = apply_filters(config["bulk_filters"], df)
+
+                list_of_parity_info = []
+
+                ### Generate a folder for each model to be considered
+                folder_now = (
+                    config["output_options"]["parity_output_folder"]
+                    + "/"
+                    + step["label"]
+                )
+                if not os.path.exists(folder_now):
+                    os.makedirs(folder_now)
+
+                ### Generate adsorbate specific plots
+                for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+                    info_now = get_specific_smile_plot(smile, df_filtered, folder_now)
+                    list_of_parity_info.append(info_now)
+
+                ### Generate overall model plot
+                info_now = get_general_plot(df_filtered, folder_now)
+                list_of_parity_info.append(info_now)
+
+                ### Create a pickle of the summary info and print results
+                df = pd.DataFrame(list_of_parity_info)
+                time_now = str(datetime.datetime.now())
+                df_file_path = folder_now + time_now + ".pkl"
+                df.to_pickle(df_file_path)
+            else:
+                warnings.warn(
+                    npz_path
+                    + " has not been found and therefore parity plots cannot be generated"
+                )
