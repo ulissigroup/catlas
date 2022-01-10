@@ -67,49 +67,37 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     """Constructs a pourbaix diagram for the system of interest and evaluates the stability at desired points, returns a list of booleans capturing whether or not the material is stable under given conditions"""
 
     # Grab entry from MP and associated Pourbaix entries  
-    try:
-        with MPRester(conditions["MP_API_key"]) as mpr:
-            pmg_entry = mpr.get_entry_by_material_id(mpid)
-            comp = list(pmg_entry.composition.as_dict().keys())
-            pbx_comp = [el for el in comp if el not in ['O', 'H']]
-    except:
+    with MPRester(conditions["MP_API_key"]) as mpr:
         try:
-            with MPRester(conditions["MP_API_key"]) as mpr:
-                new_mpid = mpr.get_materials_id_from_task_id(mpid)
-                energy, comp = mpr.query({'task_id': new_mpid}, ["energy", "unit_cell_formula"])[0].values()
-                pbx_comp = [el for el in comp if el not in ['O', 'H']]
-                pmg_entry = ComputedEntry(comp, energy)
+            pmg_entry = mpr.get_entry_by_material_id(mpid)
         except:
-            fname = '/home/jovyan/shared-scratch/Brook/invalid-task-ids/' + mpid + '.pkl'
-            with open(fname, 'wb') as f:
-                pickle.dump(mpid, f)
-            return [False]
-
-    # Build the Pourbaix diagram and assess stability
-    try:
-        with MPRester(conditions["MP_API_key"]) as mpr:
-            pbx_entries = mpr.get_pourbaix_entries(pbx_comp)
-        pbx_entry = PourbaixEntry(pmg_entry)
-        comp_dict =  dict(pmg_entry.composition.as_dict())
-        comp_dict.pop("H", None)
-        comp_dict.pop("O",None)
-        pbx = PourbaixDiagram(
-            pbx_entries, comp_dict=comp_dict, filter_solids=True
+            mpid = mpr.get_materials_id_from_task_id(mpid)
+            pmg_entry = mpr.get_entry_by_material_id(mpid)
+        
+        comp = list(pmg_entry.composition.as_dict().keys())
+        pbx_comp = [el for el in comp if el not in ['O', 'H']]
+        pbx_entries = mpr.get_pourbaix_entries(pbx_comp)
+                
+    # Build the Pourbaix diagram 
+    pbx_entry = PourbaixEntry(pmg_entry)
+    comp_dict =  dict(pmg_entry.composition.as_dict())
+    comp_dict.pop("H", None)
+    comp_dict.pop("O",None)
+    pbx = PourbaixDiagram(
+        pbx_entries, comp_dict=comp_dict, filter_solids=True
+    )
+    
+    # see what electrochemical conditions to consider and find the decomposition energies
+    if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
+        set(conditions.keys())
+    ):
+        decomp_bools = get_decomposition_bools_from_range(
+            pbx, pbx_entry, conditions
         )
-        if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
-            set(conditions.keys())
-        ):
-            decomp_bools = get_decomposition_bools_from_range(
-                pbx, pbx_entry, conditions
-            )
-        elif "conditions" in conditions:
-            decomp_bools = get_decomposition_bools_from_list(pbx, pbx_entry, conditions)
+    elif "conditions" in conditions:
+        decomp_bools = get_decomposition_bools_from_list(pbx, pbx_entry, conditions)
         return decomp_bools
-    except:
-        fname = '/home/jovyan/shared-scratch/Brook/failed-mpids/' + mpid + '.pkl'
-        with open(fname, 'wb') as f:
-            pickle.dump(mpid, f)
-        return [False]
+
 
 
 def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
