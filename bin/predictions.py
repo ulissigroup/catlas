@@ -1,4 +1,5 @@
 import yaml
+from parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -16,7 +17,7 @@ from catlas.dask_utils import (
 from catlas.cache_utils import (
     better_build_func_identifier,
 )
-
+import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
 )
@@ -31,6 +32,7 @@ from jinja2 import Template
 import os
 import pickle
 import tqdm
+import datetime
 import joblib
 
 joblib.memory._build_func_identifier = better_build_func_identifier
@@ -43,6 +45,12 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
+
+    # Generate parity plots
+    get_parity_upfront(config)
+    print(
+        "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+    )
 
     # Start the dask cluster
     dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)

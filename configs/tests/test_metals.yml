@@ -7,6 +7,7 @@ output_options:
   pickle_path: test_kube_cluster_output.pkl
   pickle_folder: '/home/jovyan/shared-scratch/catlas/outputs/test_metals/'
   config_path: test_kube_cluster_output.yml
+  parity_output_folder: 'outputs/parity-outputs/'
   verbose: false
 
 input_options:
