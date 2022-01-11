@@ -7,6 +7,7 @@ from ocpmodels.preprocessing import AtomsToGraphs
 import yaml
 from ocpmodels.datasets.trajectory_lmdb import data_list_collater
 from ase.calculators.singlepoint import SinglePointCalculator
+from ocpmodels.common.relaxation import ml_relaxation
 
 from ocpmodels.common.utils import (
     radius_graph_pbc,
@@ -18,8 +19,9 @@ from torch.utils.data import DataLoader
 import torch
 import catlas
 import os
+from tqdm import tqdm
 
-BOCPP = None
+BOCPP_dict = {}
 relax_calc = None
 
 
@@ -60,9 +62,9 @@ class BatchOCPPredictor:
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
 
         # Load the trainer based on the dataset used
-        if config["task"]["dataset"] == "trajectory_lmdb":
+        if config["task"]["dataset"] == "trajectory_lmdb":  # S2EF
             config["trainer"] = "forces"
-        else:
+        elif config["task"]["dataset"] == "single_point_lmdb":  # IS2RE
             config["trainer"] = "energy"
 
         config["model_attributes"]["name"] = config.pop("model")
@@ -106,8 +108,27 @@ class BatchOCPPredictor:
             cpu=cpu,
         )
 
+        self.device = ["cpu" if cpu else "cuda:0"][0]
+
+        self.predict = self.trainer.predict  # TorchCalc expects a predict method
+
         if checkpoint is not None:
             self.load_checkpoint(checkpoint)
+
+    def make_dataloader(self, graphs_list):
+
+        # Make a dataset
+        graphs_list_dataset = GraphsListDataset(graphs_list)
+
+        # Make a loader
+        data_loader = self.trainer.get_dataloader(
+            graphs_list_dataset,
+            self.trainer.get_sampler(
+                graphs_list_dataset, self.batch_size, shuffle=False
+            ),
+        )
+
+        return data_loader
 
     def load_checkpoint(self, checkpoint_path):
         """
@@ -121,18 +142,9 @@ class BatchOCPPredictor:
         except NotImplementedError:
             logging.warning("Unable to load checkpoint!")
 
-    def full_predict(self, graphs_list):
+    def direct_prediction(self, graphs_list):
 
-        # Make a dataset
-        graphs_list_dataset = GraphsListDataset(graphs_list)
-
-        # Make a loader
-        data_loader = self.trainer.get_dataloader(
-            graphs_list_dataset,
-            self.trainer.get_sampler(
-                graphs_list_dataset, self.batch_size, shuffle=False
-            ),
-        )
+        data_loader = self.make_dataloader(graphs_list)
 
         # Batch inference
         predictions = self.trainer.predict(
@@ -141,8 +153,34 @@ class BatchOCPPredictor:
 
         return predictions["energy"]
 
+    def relaxation_prediction(self, graphs_list):
 
-def direct_energy_prediction(
+        if self.device == "cpu":
+            torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
+
+        data_loader = self.make_dataloader(graphs_list)
+        predictions = []
+
+        for i, batch in tqdm(enumerate(data_loader), total=len(data_loader)):
+            if i >= self.config["task"].get("num_relaxation_batches", 1e9):
+                break
+
+            relaxed_batch = ml_relaxation.ml_relax(
+                batch=batch,
+                model=self,
+                steps=self.config["task"].get("relaxation_steps", 200),
+                fmax=self.config["task"].get("relaxation_fmax", 0.0),
+                relax_opt={"memory": 100},
+                device=self.device,
+                transform=None,
+            )
+
+            predictions.extend(relaxed_batch.y)
+
+        return predictions
+
+
+def energy_prediction(
     adslab_dict,
     adslab_atoms,
     graphs_dict,
@@ -152,22 +190,25 @@ def direct_energy_prediction(
     cpu=False,
 ):
 
-    adslab_results = copy.copy(adslab_dict)
+    global BOCPP_dict
 
-    global BOCPP
-
-    # This is problematic in that it assumes there is only
-    # ever one BOCPP. If two different models were used for inference
-    # this would lead to issues
-    if BOCPP is None:
-        BOCPP = BatchOCPPredictor(
+    if checkpoint_path not in BOCPP_dict:
+        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
             cpu=cpu,
         )
 
-    # Get the energy predictions and save them
-    predictions_list = BOCPP.full_predict(graphs_dict["adslab_graphs"])
+    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+
+    adslab_results = copy.copy(adslab_dict)
+
+    if BOCPP.config["trainer"] == "forces":
+        predictions_list = BOCPP.relaxation_prediction(graphs_dict["adslab_graphs"])
+        predictions_list = np.array([p.cpu().numpy() for p in predictions_list])
+    else:
+        predictions_list = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+
     adslab_results[column_name] = predictions_list
 
     # Identify the best configuration and energy and save that too
@@ -188,40 +229,5 @@ def direct_energy_prediction(
     else:
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name] = None
-
-    return adslab_results
-
-
-# This is currently not working; it should be revised
-# based on direct_energy_prediction
-def relaxation_energy_prediction(
-    adslabs_dict, config_path, checkpoint_path, column_name
-):
-
-    adslab_results = copy.deepcopy(adslab_dict)
-
-    global relax_calc
-
-    if relax_calc is None:
-        relax_calc = OCPCalculator(config_path, checkpoint=checkpoint_path)
-
-    predictions_list = []
-
-    for adslab in adslab_results["adslab_atoms"]:
-        adslab = adslab.copy()
-        adslab.set_calculator(relax_calc)
-        opt = LBFGS(
-            adslab,
-            maxstep=0.04,
-            memory=1,
-            damping=1.0,
-            alpha=70.0,
-            trajectory=None,
-        )
-        opt.run(fmax=0.05, steps=200)
-        predictions_list.append(adslab.get_potential_energy())
-
-    adslab_results[column_name] = predictions_list
-    adslab_results["min_" + column_name] = min(predictions_list)
 
     return adslab_results

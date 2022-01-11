@@ -1,0 +1,30 @@
+dask:
+  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
+
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax'
+
+output_options:
+  pickle_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.pkl'
+  config_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.yml'
+  verbose: false
+
+input_options:
+  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+
+bulk_filters:
+    filter_by_mpids: ['mp-126', 'mp-81', 'mp-30', 'mp-129']
+
+adsorbate_filters:
+    filter_by_smiles: ['*H']
+
+slab_filters:
+    filter_by_object_size: 100
+    filter_by_max_miller_index: 2
+
+adslab_prediction_steps:
+  - step: predict
+    gpu: true
+    batch_size: 4
+    label: 'dE_gemnet_relax'
+    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
+

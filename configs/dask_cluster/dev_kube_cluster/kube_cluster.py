@@ -17,14 +17,24 @@ with open("configs/dask_cluster/dev_kube_cluster/scheduler.yml") as f:
         dask.config.expand_environment_variables(yaml.safe_load(f))
     )
 
+
+# Write cpu workers
+template = Template(
+    open("configs/dask_cluster/dev_kube_cluster/worker-cpu.tmpl").read()
+)
+with open("./configs/dask_cluster/dev_kube_cluster/worker-cpu.yml", "w") as fhandle:
+    fhandle.write(template.render(**os.environ))
+
+# Start the dask cluster with some gpu workers
 cluster = KubeCluster(
-    pod_template="configs/prod_configs/workers-cpu-dev.yml",
+    pod_template="configs/dask_cluster/dev_kube_cluster/worker-cpu.yml",
     scheduler_pod_template=scheduler_pod_template,
     namespace=get_namespace(),
     name="dask-catlas-dev",
-    scheduler_service_wait_timeout=120,
+    scheduler_service_wait_timeout=240,
 )
 
-kube_cluster_new_worker(cluster, "configs/prod_configs/workers-cpu-dev.yml")
-cluster.scale(60)
+cluster.adapt(minimum=5, maximum=60)
+
+# Connect to the cluster
 client = Client(cluster)
