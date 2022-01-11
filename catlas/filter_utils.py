@@ -1,7 +1,7 @@
 import warnings
 import numpy as np
 from pymatgen.core.periodic_table import Element
-from pymatgen import MPRester
+from mp_api import MPRester
 
 from pymatgen.analysis.pourbaix_diagram import (
     PourbaixDiagram,
@@ -71,8 +71,14 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
         try:
             pmg_entry = mpr.get_entry_by_material_id(mpid)
         except:
-            mpid = mpr.get_materials_id_from_task_id(mpid)
-            pmg_entry = mpr.get_entry_by_material_id(mpid)
+            try:
+                mpid_new = mpr.get_materials_id_from_task_id(mpid)
+                pmg_entry = mpr.get_entry_by_material_id(mpid_new)
+            except:
+                fname = '/home/jovyan/shared-scratch/Brook/new_api/' + mpid + '_'+ mpid_new + '.pkl'
+                with open(fname,'wb') as f:
+                    pickle.dump(mpid, f)
+                    return [False]
         
         comp = list(pmg_entry.composition.as_dict().keys())
         pbx_comp = [el for el in comp if el not in ['O', 'H']]
