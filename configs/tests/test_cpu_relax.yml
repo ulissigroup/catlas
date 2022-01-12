@@ -26,5 +26,5 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
-    checkpoint_path: 'configs/ocp_config_checkpoints/gemnet_t_direct_h512_all.pt'
+    checkpoint_path: '/home/jovyan/shared-scratch/catlas/checkpoints/gemnet_t_direct_h512_all.pt'
 

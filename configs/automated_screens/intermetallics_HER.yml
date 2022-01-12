@@ -30,5 +30,5 @@ adslab_prediction_steps:
   gpu: true
   batch_size: 4
   label: 'dE_gemnet_is2re_finetuned'
-  checkpoint_path: 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  checkpoint_path: '/home/jovyan/shared-scratch/catlas/checkpoints/gemnet-is2re-finetuned-11-01.pt'
 
