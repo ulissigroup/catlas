@@ -21,8 +21,6 @@ jobs:
         sudo apt update && sudo apt install git-lfs
     - name: Run example predictions
       uses: actions/checkout@v2
-      with: 
-        lfs: true
     - run: |
         (cd /home/jovyan/ocp && git pull) 
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
@@ -55,7 +53,6 @@ jobs:
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v2
       with:
-        lfs: true
         path: catlas
     - run: |
         cd catlas
