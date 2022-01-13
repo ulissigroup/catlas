@@ -13,6 +13,8 @@ jobs:
 
     container:
       image: docker://ulissigroup/kubeflow:predictions
+      volumes:
+        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
     steps:
     - run: |
@@ -23,6 +25,7 @@ jobs:
         lfs: true
     - run: |
         (cd /home/jovyan/ocp && git pull) 
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
 
@@ -56,6 +59,7 @@ jobs:
         path: catlas
     - run: |
         cd catlas
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
 
