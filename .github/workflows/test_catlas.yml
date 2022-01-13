@@ -13,16 +13,17 @@ jobs:
 
     container:
       image: docker://ulissigroup/kubeflow:predictions
+      volumes:
+        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
     steps:
     - run: |
         sudo apt update && sudo apt install git-lfs
     - name: Run example predictions
       uses: actions/checkout@v2
-      with: 
-        lfs: true
     - run: |
         (cd /home/jovyan/ocp && git pull) 
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
 
@@ -52,10 +53,10 @@ jobs:
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v2
       with:
-        lfs: true
         path: catlas
     - run: |
         cd catlas
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
 
