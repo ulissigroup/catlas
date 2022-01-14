@@ -87,6 +87,7 @@ if __name__ == "__main__":
     # Enumerate and filter surfaces
     surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
+    surfaces = surface_bag.compute()
 
     # choose the number of partitions after to use after making adslab combos
     if config["dask"]["partitions"] == -1:
