@@ -47,10 +47,11 @@ if __name__ == "__main__":
     config = yaml.load(template.render(**os.environ))
 
     # Generate parity plots
-    get_parity_upfront(config)
-    print(
-        "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
-    )
+    if "parity_output_folder" in config["output_options"]:
+        get_parity_upfront(config)
+        print(
+            "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+        )
 
     # Start the dask cluster
     dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
