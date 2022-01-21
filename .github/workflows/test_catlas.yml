@@ -109,6 +109,8 @@ jobs:
   test_kubecluster_gpu_relax:
     name: Test catlas with kubecluster and gpu relaxations
 
+    needs: test_kubecluster
+
     runs-on: [self-hosted, linux, shared-scratch]
 
     container:
