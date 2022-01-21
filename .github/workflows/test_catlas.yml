@@ -79,6 +79,8 @@ jobs:
   test_kubecluster_cpu_relax:
     name: Test catlas with kubecluster and cpu relaxations
 
+    needs: test_kubecluster
+
     runs-on: [self-hosted, linux, shared-scratch]
 
     container:
@@ -95,13 +97,9 @@ jobs:
       id: setcontext
     - run: |
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         (cd /home/jovyan/ocp && git pull)
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
-    - uses: actions/checkout@v2
-      with:
-        path: catlas
     - run: |
         cd catlas
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
@@ -127,13 +125,9 @@ jobs:
       id: setcontext
     - run: |
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         (cd /home/jovyan/ocp && git pull)
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
-    - uses: actions/checkout@v2
-      with:
-        path: catlas
     - run: |
         cd catlas
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
