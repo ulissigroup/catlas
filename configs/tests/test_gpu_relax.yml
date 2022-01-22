@@ -4,8 +4,10 @@ dask:
 memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
-  pickle_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.pkl'
-  config_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.yml'
+  pickle_path: test_gpu_relaxation.pkl
+  pickle_folder: '/home/jovyan/shared-scratch/catlas/outputs/test_gpu_relaxation/'
+  config_path: test_gpu_relaxations.yml
+  parity_output_folder: 'outputs/parity-outputs/'
   verbose: false
 
 input_options:
