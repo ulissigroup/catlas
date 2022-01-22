@@ -29,7 +29,7 @@ cluster = KubeCluster(
     name="dask-catlas-%s" % os.environ["GITHUB_RUN_ID"],
     scheduler_service_wait_timeout=480,
 )
-cluster.scale(4)
+cluster.scale(2)
 
 # Connect to the cluster
 client = Client(cluster)
