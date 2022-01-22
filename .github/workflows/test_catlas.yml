@@ -75,62 +75,10 @@ jobs:
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
-
-  test_kubecluster_cpu_relax:
-    name: Test catlas with kubecluster and cpu relaxations
-
-    needs: test_kubecluster
-
-    runs-on: [self-hosted, linux, shared-scratch]
-
-    container:
-      image: docker://ulissigroup/kubeflow:predictions
-      volumes:
-        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
-
-    steps:
-    - uses: azure/k8s-set-context@v1
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.ZULISSI_KUBECONFIG }}
-        context: ulissigroup-desktops-fqdn
-      id: setcontext
-    - run: |
-        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        (cd /home/jovyan/ocp && git pull)
-        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         cd catlas
-        python setup.py develop
         python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
-
-  test_kubecluster_gpu_relax:
-    name: Test catlas with kubecluster and gpu relaxations
-
-    needs: test_kubecluster
-
-    runs-on: [self-hosted, linux, shared-scratch]
-
-    container:
-      image: docker://ulissigroup/kubeflow:predictions
-      volumes:
-        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
-
-    steps:
-    - uses: azure/k8s-set-context@v1
-      with:
-        method: kubeconfig
-        kubeconfig: ${{ secrets.ZULISSI_KUBECONFIG }}
-        context: ulissigroup-desktops-fqdn
-      id: setcontext
-    - run: |
-        mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
-        ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
-        (cd /home/jovyan/ocp && git pull)
-        rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - run: |
         cd catlas
-        python setup.py develop
         python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_gpu_cluster.py
 
