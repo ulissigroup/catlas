@@ -4,7 +4,7 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'4 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'10 GiB',--death-timeout, '600']
     name: dask
     env:
     - name: OMP_NUM_THREADS
@@ -18,10 +18,10 @@ spec:
     resources:
       limits:
         cpu: "4"
-        memory: 9G
+        memory: 21G
       requests:
         cpu: "4"
-        memory: 9G
+        memory: 21G
     volumeMounts:
     - mountPath: /home/jovyan/ocp
       name: shared-scratch
