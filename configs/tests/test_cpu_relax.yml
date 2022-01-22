@@ -27,6 +27,11 @@ adslab_prediction_steps:
   - step: predict
     gpu: false
     batch_size: 4
+    label: 'dE_gemnet_is2re_finetuned'
+    checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  - step: predict
+    gpu: false
+    batch_size: 4
     label: 'dE_gemnet_relax'
     checkpoint_path: 'ocp_checkpoints/gemnet_t_direct_h512_all.pt'
 

@@ -25,7 +25,6 @@ slab_filters:
 
 adslab_prediction_steps:
   - step: predict
-    type: direct
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
