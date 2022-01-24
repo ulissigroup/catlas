@@ -17,8 +17,6 @@ jobs:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
     steps:
-    - run: |
-        sudo apt update && sudo apt install git-lfs
     - name: Run example predictions
       uses: actions/checkout@v2
     - run: |
@@ -26,6 +24,28 @@ jobs:
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
+
+  test_local_scheduler_relaxation:
+    name: Test catlas with local scheduler and cpu relaxations
+
+    runs-on: [self-hosted, linux]
+
+    container:
+      image: docker://ulissigroup/kubeflow:predictions
+      volumes:
+        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
+
+    steps:
+    - name: Checkout branch
+      uses: actions/checkout@v2
+    - name: Run cpu relaxations test
+      run: |
+        (cd /home/jovyan/ocp && git pull) 
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
+        python setup.py develop
+        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/local_cluster/local_cluster.py
+      env:
+        OMP_NUM_THREADS: 4
 
   test_kubecluster:
     name: Test catlas with kubecluster
@@ -45,7 +65,6 @@ jobs:
         context: ulissigroup-desktops-fqdn
       id: setcontext
     - run: |
-        sudo apt update && sudo apt install git-lfs
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
@@ -54,9 +73,18 @@ jobs:
     - uses: actions/checkout@v2
       with:
         path: catlas
-    - run: |
+    - name: Test direct inference with kubecluster
+      run: |
         cd catlas
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
+    - name: Test cpu relaxation inference with kubecluster
+      run: |
+        cd catlas
+        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
+    - name: Test gpu relaxation with kubecluster
+      run: |
+        cd catlas
+        python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_gpu_cluster.py
 

@@ -1,11 +1,13 @@
 dask:
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax'
+memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
-  pickle_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.pkl'
-  config_path: '/home/jovyan/shared-scratch/catlas/test_cache_gpu_relax/test_kube_cluster_output.yml'
+  pickle_path: test_gpu_relaxation.pkl
+  pickle_folder: '/home/jovyan/shared-scratch/catlas/outputs/test_gpu_relaxation/'
+  config_path: test_gpu_relaxations.yml
+  parity_output_folder: 'outputs/parity-outputs/'
   verbose: false
 
 input_options:
@@ -19,9 +21,14 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-    filter_by_max_miller_index: 2
+    filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
+  - step: predict
+    gpu: true
+    batch_size: 4
+    label: 'dE_gemnet_is2re_finetuned'
+    checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
   - step: predict
     gpu: true
     batch_size: 4

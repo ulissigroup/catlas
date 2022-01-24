@@ -1,12 +1,12 @@
 dask:
   partitions: -1 # if -1, 1 row per surface otherwise number of partitions
 
-memory_cache_location: '/home/jovyan/shared-scratch/catlas/test_cache'
+memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
-  pickle_path: test_kube_cluster_output.pkl
+  pickle_path: test_metals.pkl
   pickle_folder: '/home/jovyan/shared-scratch/catlas/outputs/test_metals/'
-  config_path: test_kube_cluster_output.yml
+  config_path: test_metals.yml
   parity_output_folder: 'outputs/parity-outputs/'
   verbose: false
 
@@ -25,7 +25,6 @@ slab_filters:
 
 adslab_prediction_steps:
   - step: predict
-    type: direct
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
