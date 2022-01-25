@@ -64,14 +64,14 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     path = dir_path + "/pourbaix_diagrams/pbx1.lmdb"
     # Grab the entry of interest
     env = lmdb.open(
-            str(path),
-            subdir=False,
-            readonly=True,
-            lock=False,
-            readahead=False,
-            meminit=False,
-            max_readers=100,
-        )
+        str(path),
+        subdir=False,
+        readonly=True,
+        lock=False,
+        readahead=False,
+        meminit=False,
+        max_readers=100,
+    )
     str_en = mpid.encode("ascii")
     txn = env.begin()
     getit = txn.get(str_en)
@@ -80,14 +80,18 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     else:
         entry = pickle.loads(getit)
         env.close()
-        
+
         # see what electrochemical conditions to consider and find the decomposition energies
         if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
             set(conditions.keys())
         ):
-            decomp_bools = get_decomposition_bools_from_range(entry["pbx"], entry["pbx_entry"], conditions)
+            decomp_bools = get_decomposition_bools_from_range(
+                entry["pbx"], entry["pbx_entry"], conditions
+            )
         elif "conditions" in conditions:
-            decomp_bools = get_decomposition_bools_from_list(entry["pbx"], entry["pbx_entry"], conditions)
+            decomp_bools = get_decomposition_bools_from_list(
+                entry["pbx"], entry["pbx_entry"], conditions
+            )
             return decomp_bools
 
 
