@@ -22,7 +22,7 @@ jobs:
     - run: |
         (cd /home/jovyan/ocp && git pull) 
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
-        ln -s /home/jovyan/shared-scratch/catlas/npz-files ./catlas/parity/
+        ln -s /home/jovyan/shared-scratch/catlas/npz-files ./parity/
         ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
@@ -44,7 +44,7 @@ jobs:
       run: |
         (cd /home/jovyan/ocp && git pull) 
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
-        ln -s /home/jovyan/shared-scratch/catlas/npz-files ./catlas/parity/
+        ln -s /home/jovyan/shared-scratch/catlas/npz-files ./parity/
         ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/
         python setup.py develop
         python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/local_cluster/local_cluster.py
