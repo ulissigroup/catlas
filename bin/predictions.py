@@ -65,7 +65,7 @@ if __name__ == "__main__":
         config["input_options"]["bulk_file"]
     )
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().persist()
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
     print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)
