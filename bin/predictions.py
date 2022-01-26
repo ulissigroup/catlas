@@ -188,6 +188,8 @@ if __name__ == "__main__":
                 "output_all_structures" in config["output_options"]
                 and config["output_options"]["output_all_structures"]
             ):
+                adslab_atoms = adslab_atoms.compute(optimize_graph=False)
+                df_results["adslab_atoms"] = adslab_atoms
                 df_results.to_pickle(pickle_path)
             else:
                 # screen classes from custom packages
