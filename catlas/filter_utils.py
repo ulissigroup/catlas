@@ -76,6 +76,7 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     txn = env.begin()
     getit = txn.get(str_en)
     if getit == None:
+        env.close()
         return [False]
     else:
         entry = pickle.loads(getit)
@@ -92,7 +93,7 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
             decomp_bools = get_decomposition_bools_from_list(
                 entry["pbx"], entry["pbx_entry"], conditions
             )
-            return decomp_bools
+        return decomp_bools
 
 
 def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
