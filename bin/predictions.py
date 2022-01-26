@@ -184,13 +184,19 @@ if __name__ == "__main__":
         pickle_path = config["output_options"]["pickle_path"]
 
         if pickle_path != "None":
-            # screen classes from custom packages
-            class_mask = (
-                df_results.columns.to_series()
-                .apply(lambda x: str(type(df_results[x].iloc[0])))
-                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
-            )
-            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
+            if (
+                "output_all_structures" in config["output_options"]
+                and config["output_options"]["output_all_structures"]
+            ):
+                df_results.to_pickle(pickle_path)
+            else:
+                # screen classes from custom packages
+                class_mask = (
+                    df_results.columns.to_series()
+                    .apply(lambda x: str(type(df_results[x].iloc[0])))
+                    .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+                )
+                df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
         with open(config["output_options"]["config_path"], "w") as fhandle:
             yaml.dump(config, fhandle)
