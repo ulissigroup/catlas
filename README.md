@@ -10,6 +10,10 @@
  - Install catlas:
   - `$ git clone git@github.com: ulissigroup/catlas`
   - `$ cd ~/catlas && python setup.py develop`
+ - Create symbolic links for important large files
+  - `ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints`
+  - `ln -s /home/jovyan/shared-scratch/catlas/npz-files ./parity/`
+  - `ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/`
 
 ## Usage
 
