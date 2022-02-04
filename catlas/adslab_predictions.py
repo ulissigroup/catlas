@@ -209,12 +209,14 @@ def energy_prediction(
     adslab_results = copy.copy(adslab_dict)
 
     if BOCPP.config["trainer"] == "forces":
-        energy_predictions, position_predictions = BOCPP.relaxation_prediction(graphs_dict["adslab_graphs"])
+        energy_predictions, position_predictions = BOCPP.relaxation_prediction(
+            graphs_dict["adslab_graphs"]
+        )
         energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
         adslab_atoms = copy.deepcopy(adslab_atoms)
         for atoms, positions in zip(adslab_atoms["adslab_atoms"], position_predictions):
             atoms.set_positions(positions)
-        adslab_results ["relaxed_atoms_" + column_name] = adslab_atoms["adslab_atoms"]
+        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms["adslab_atoms"]
     else:
         energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
 
