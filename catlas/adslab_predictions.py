@@ -213,6 +213,8 @@ def energy_prediction(
             graphs_dict["adslab_graphs"]
         )
         energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
+
+        # Use the relaxed positions to generate relaxed atoms objects
         adslab_atoms = copy.deepcopy(adslab_atoms)
         for atoms, positions in zip(adslab_atoms["adslab_atoms"], position_predictions):
             atoms.set_positions(positions)
