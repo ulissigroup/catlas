@@ -157,7 +157,8 @@ class BatchOCPPredictor:
             torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
 
         data_loader = self.make_dataloader(graphs_list)
-        predictions = []
+        energy_predictions = []
+        position_predictions = []
 
         for i, batch in tqdm(enumerate(data_loader), total=len(data_loader)):
             if i >= self.config["task"].get("num_relaxation_batches", 1e9):
@@ -173,9 +174,15 @@ class BatchOCPPredictor:
                 transform=None,
             )
 
-            predictions.extend(relaxed_batch.y)
+            # Grab the predicted energies
+            energy_predictions.extend(relaxed_batch.y)
 
-        return predictions
+            # Grab the relaxed positions as well
+            natoms = relaxed_batch.natoms.tolist()
+            positions = torch.split(relaxed_batch.pos, natoms)
+            position_predictions += [pos.tolist() for pos in positions]
+
+        return energy_predictions, position_predictions
 
 
 def energy_prediction(
@@ -190,7 +197,7 @@ def energy_prediction(
 
     global BOCPP_dict
 
-    if checkpoint_path not in BOCPP_dict:
+    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
         BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
@@ -202,17 +209,21 @@ def energy_prediction(
     adslab_results = copy.copy(adslab_dict)
 
     if BOCPP.config["trainer"] == "forces":
-        predictions_list = BOCPP.relaxation_prediction(graphs_dict["adslab_graphs"])
-        predictions_list = np.array([p.cpu().numpy() for p in predictions_list])
+        energy_predictions, position_predictions = BOCPP.relaxation_prediction(graphs_dict["adslab_graphs"])
+        energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
+        adslab_atoms = copy.deepcopy(adslab_atoms)
+        for atoms, positions in zip(adslab_atoms["adslab_atoms"], position_predictions):
+            atoms.set_positions(positions)
+        adslab_results ["relaxed_atoms_" + column_name] = adslab_atoms["adslab_atoms"]
     else:
-        predictions_list = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+        energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
 
-    adslab_results[column_name] = predictions_list
+    adslab_results[column_name] = energy_predictions
 
     # Identify the best configuration and energy and save that too
-    if len(predictions_list) > 0:
-        best_energy = np.min(predictions_list)
-        best_atoms = adslab_atoms["adslab_atoms"][np.argmin(predictions_list)].copy()
+    if len(energy_predictions) > 0:
+        best_energy = np.min(energy_predictions)
+        best_atoms = adslab_atoms["adslab_atoms"][np.argmin(energy_predictions)].copy()
         adslab_results["min_" + column_name] = best_energy
         best_atoms.set_calculator(
             SinglePointCalculator(
