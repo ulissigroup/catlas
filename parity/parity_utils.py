@@ -9,7 +9,7 @@ import os
 import matplotlib.pyplot as plt
 import datetime
 from scipy.stats import linregress
-from catlas.filters import get_elements_in_groups
+from catlas.filter_utils import get_elements_in_groups
 
 
 def get_npz_path(checkpoint_path: str) -> str:
