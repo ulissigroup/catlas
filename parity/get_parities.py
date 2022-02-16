@@ -9,7 +9,7 @@ from parity_utils import (
 import yaml
 import sys
 import pandas as pd
-import datetime
+import time
 from itertools import combinations
 from jinja2 import Template
 import os
@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
                 ### Create a pickle of the summary info and print results
                 df = pd.DataFrame(list_of_parity_info)
-                time_now = str(datetime.datetime.now())
+                time_now = time.strftime("%Y%m%d-%H%M%S")
                 df_file_path = folder_now + time_now + ".pkl"
                 df.to_pickle(df_file_path)
             else:

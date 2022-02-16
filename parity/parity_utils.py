@@ -7,7 +7,7 @@ from os.path import exists
 import warnings
 import os
 import matplotlib.pyplot as plt
-import datetime
+import time
 from scipy.stats import linregress
 from catlas.filter_utils import get_elements_in_groups
 
@@ -153,8 +153,8 @@ def get_specific_smile_plot(
 ) -> dict:
     """Creates the pdf parity plot for a given smile and returns a dictionary summarizing plot results"""
     # Create the plot
-    time_now = str(datetime.datetime.now())
-    plot_file_path = output_path + "/" + time_now + "_" + smile + ".pdf"
+    time_now = time.strftime("%Y%m%d-%H%M%S")
+    plot_file_path = output_path + "/" + time_now + smile + ".pdf"
 
     # Filter the data to only include the desired smile
     df_smile_specific = df[df.adsorbate == smile]
@@ -266,7 +266,7 @@ def get_general_plot(
         }
 
         # Create the plot
-        time_now = str(datetime.datetime.now())
+        time_now = time.strftime("%Y%m%d-%H%M%S")
         plot_file_path = output_path + "/" + time_now + "_" + "general" + ".pdf"
 
         types = np.unique(df.distribution.tolist())
@@ -407,7 +407,7 @@ def get_parity_upfront(config):
 
                 ### Create a pickle of the summary info and print results
                 df = pd.DataFrame(list_of_parity_info)
-                time_now = str(datetime.datetime.now())
+                time_now = time.strftime("%Y%m%d-%H%M%S")
                 df_file_path = folder_now + time_now + ".pkl"
                 df.to_pickle(df_file_path)
             else:

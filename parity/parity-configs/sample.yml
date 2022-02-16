@@ -9,7 +9,7 @@ input_options:
 output_options:
   pickle_path: 'dense_bulk_relaxation_unrelaxed.pkl'
   config_path: 'dense_bulk_relaxation_unrelaxed.yml'
-  parity_output_folder: "outputs/upfront_parity_trial_now"
+  parity_output_folder: "outputs/test"
   verbose: False
 
 bulk_filters:
@@ -34,5 +34,5 @@ adslab_prediction_steps:
     
 # You can use the same yaml you would to run things, just include this additional info below!
 models_to_assess:
-  checkpoint_paths: ['configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt', 'configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt']
+  checkpoint_paths: ['configs/ocp_config_checkpoints/gemnet-is2re-finetuned-11-01.pt']
   make_ML_v_ML_parity: True
