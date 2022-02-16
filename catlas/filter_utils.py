@@ -12,28 +12,28 @@ def get_elements_in_groups(groups: list) -> list:
 
     if "transition metal" in groups:
         new_valid_els = [str(el) for el in Element if el.is_transition_metal]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "post-transition metal" in groups:
         new_valid_els = [str(el) for el in Element if el.is_post_transition_metal]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "metalloid" in groups:
         new_valid_els = [str(el) for el in Element if el.is_metalloid]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "rare earth metal" in groups:
         new_valid_els = [str(el) for el in Element if el.is_rare_earth_metal]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "alkali" in groups:
         new_valid_els = [str(el) for el in Element if el.is_alkali]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "alkaline" in groups or "alkali earth" in groups:
         new_valid_els = [str(el) for el in Element if el.is_alkaline]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "chalcogen" in groups:
         new_valid_els = [str(el) for el in Element if el.is_calcogen]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
     if "halogen" in groups:
         new_valid_els = [str(el) for el in Element if el.is_halogen]
-        valid_els = [*valid_els, new_valid_els]
+        valid_els.extend(new_valid_els)
 
     implemented_groups = [
         "transition metal",
