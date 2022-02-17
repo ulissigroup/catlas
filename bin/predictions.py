@@ -2,6 +2,7 @@ import yaml
 from parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
+from catlas.filter_utils import get_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
@@ -34,6 +35,7 @@ import pickle
 import tqdm
 import datetime
 import joblib
+import lmdb
 
 joblib.memory._build_func_identifier = better_build_func_identifier
 
@@ -60,12 +62,31 @@ if __name__ == "__main__":
     # Set up joblib memory to use for caching hard steps
     memory = Memory(config["memory_cache_location"], verbose=0)
 
-    # Load and filter the bulks
-    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
-        config["input_options"]["bulk_file"]
-    )
-    bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
+    # Load the bulks
+    load_bulks_cached = memory.cache(load_bulks) 
+    bulks = load_bulks_cached(config["input_options"]["bulk_file"])
+    bulk_bag = db.from_sequence(bulks, npartitions=200)
+    
+    # Create pourbaix lmdb if it doesnt exist
+    if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
+        conditions = config["bulk_filters"]["filter_by_pourbaix_stability"]
+        if not os.path.isfile(conditions["lmdb_path"]):
+            warnings.warn("No lmdb was found here:" + conditions["lmdb_path"] + ' Making the lmdb instead')
+            pbx_dicts = bulk_bag.map(get_pourbaix_info, conditions['mp_api_key']).compute()
+ 
+            db = lmdb.open(conditions["lmdb_path"], map_size=1099511627776 * 2, subdir=False,
+                           meminit=False, map_async=True)
+
+            for entry in pbx_dicts:
+                # Add data and key values
+                txn = db.begin(write=True)
+                txn.put(key = entry['mpid'].encode("ascii"), value = pickle.dumps(entry, protocol=-1)) 
+                txn.commit() 
+            db.sync()
+            db.close()
+
+    # Filter the bulks
+    bulk_df = bulk_bag.to_dataframe().persist()
     print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)

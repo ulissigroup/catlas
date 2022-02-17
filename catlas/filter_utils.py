@@ -4,6 +4,51 @@ from pymatgen.core.periodic_table import Element
 import lmdb
 import pickle
 import os
+from mp_api import MPRester
+import pickle
+from pymatgen.analysis.pourbaix_diagram import (
+    PourbaixDiagram,
+    PourbaixEntry,
+)
+
+
+def get_pourbaix_info(entry: dict, mp_api_key: str) -> dict:
+    mpid = entry['bulk_mpid']
+    output = {}
+    output['mpid'] = mpid
+    # Grab entry from MP and associated Pourbaix entries
+    try:
+        with MPRester(mp_api_key) as mpr:
+            try:
+                pmg_entry = mpr.get_entry_by_material_id(mpid)[0]
+            except:
+                mpid = mpr.get_materials_id_from_task_id(mpid)
+                pmg_entry = mpr.get_entry_by_material_id(mpid_new)[0]
+
+            # Get the composition information
+            comp_dict = pmg_entry.composition.fractional_composition.as_dict()
+            comp_dict.pop("H", None)
+            comp_dict.pop("O", None)
+            comp = list(comp_dict.keys())
+
+            # Deal with weird H only bulks
+            # Query the pourbaix entries
+            pbx_entries = mpr.get_pourbaix_entries(comp)
+        for entry in pbx_entries:
+            if entry.entry_id == mpid:
+                pbx_entry = entry
+
+        # Construct pourbaix diagram
+        pbx = PourbaixDiagram(pbx_entries, comp_dict=comp_dict, filter_solids=True)
+        output['pbx'] = pbx
+        output['pbx_entry'] = pbx_entry
+        return output
+    except:
+        output['pbx'] = 'failed'
+        output['pbx_entry'] = 'failed'
+        with open('/home/jovyan/shared-scratch/Brook/pbx_test/'+mpid+".pkl", 'wb') as f:
+            pickle.dump(output,f)
+        return output
 
 
 def get_elements_in_groups(groups: list) -> list:
