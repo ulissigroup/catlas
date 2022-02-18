@@ -63,9 +63,11 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load the bulks
-    load_bulks_cached = memory.cache(load_bulks)
-    bulks = load_bulks_cached(config["input_options"]["bulk_file"])
-    bulk_bag = db.from_sequence(bulks, npartitions=200)
+    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
+        config["input_options"]["bulk_file"]
+    )
+    bulk_bag = db.from_delayed([bulks_delayed])
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
 
     # Create pourbaix lmdb if it doesnt exist
     if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
@@ -76,6 +78,7 @@ if __name__ == "__main__":
                 + conditions["lmdb_path"]
                 + " Making the lmdb instead"
             )
+            bulk_bag = bulk_bag.repartition(npartitions=200)
             pbx_dicts = bulk_bag.map(
                 get_pourbaix_info, conditions["mp_api_key"]
             ).compute()
@@ -100,7 +103,7 @@ if __name__ == "__main__":
             db.close()
 
     # Filter the bulks
-    bulk_df = bulk_bag.to_dataframe().persist()
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
     print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
 
     filtered_catalyst_df = bulk_filter(config, bulk_df)
