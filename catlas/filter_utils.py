@@ -6,6 +6,7 @@ import pickle
 import os
 from mp_api import MPRester
 import pickle
+from pymatgen.io.ase import AseAtomsAdaptor as aaa
 from pymatgen.analysis.pourbaix_diagram import (
     PourbaixDiagram,
     PourbaixEntry,
@@ -13,41 +14,42 @@ from pymatgen.analysis.pourbaix_diagram import (
 
 
 def get_pourbaix_info(entry: dict, mp_api_key: str) -> dict:
-    mpid = entry['bulk_mpid']
+    mpid = entry["bulk_mpid"]
     output = {}
-    output['mpid'] = mpid
+    output["mpid"] = mpid
     # Grab entry from MP and associated Pourbaix entries
     try:
+        # Get the composition information
+        pmg_entry = aaa.get_structure(entry["bulk_atoms"])
+        comp_dict = pmg_entry.composition.fractional_composition.as_dict()
+        comp_dict.pop("H", None)
+        comp_dict.pop("O", None)
+        comp = list(comp_dict.keys())
         with MPRester(mp_api_key) as mpr:
-            try:
-                pmg_entry = mpr.get_entry_by_material_id(mpid)[0]
-            except:
-                mpid = mpr.get_materials_id_from_task_id(mpid)
-                pmg_entry = mpr.get_entry_by_material_id(mpid_new)[0]
-
-            # Get the composition information
-            comp_dict = pmg_entry.composition.fractional_composition.as_dict()
-            comp_dict.pop("H", None)
-            comp_dict.pop("O", None)
-            comp = list(comp_dict.keys())
-
-            # Deal with weird H only bulks
-            # Query the pourbaix entries
+            mpid_new = mpr.get_materials_id_from_task_id(mpid)
             pbx_entries = mpr.get_pourbaix_entries(comp)
         for entry in pbx_entries:
-            if entry.entry_id == mpid:
+            if entry.entry_id == mpid or entry.entry_id == mpid_new:
                 pbx_entry = entry
 
         # Construct pourbaix diagram
         pbx = PourbaixDiagram(pbx_entries, comp_dict=comp_dict, filter_solids=True)
-        output['pbx'] = pbx
-        output['pbx_entry'] = pbx_entry
+        output["pbx"] = pbx
+        output["pbx_entry"] = pbx_entry
         return output
     except:
-        output['pbx'] = 'failed'
-        output['pbx_entry'] = 'failed'
-        with open('/home/jovyan/shared-scratch/Brook/pbx_test/'+mpid+".pkl", 'wb') as f:
-            pickle.dump(output,f)
+        output["pbx"] = "failed"
+        output["pbx_entry"] = "failed"
+        if type(mpid) == str:
+            with open(
+                "/home/jovyan/shared-scratch/Brook/pbx_test/" + mpid + ".pkl", "wb"
+            ) as f:
+                pickle.dump(entry, f)
+        else:
+            with open(
+                "/home/jovyan/shared-scratch/Brook/pbx_test/aaaaaaa.pkl", "wb"
+            ) as f:
+                pickle.dump(entry, f)
         return output
 
 
@@ -120,13 +122,12 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     str_en = mpid.encode("ascii")
     txn = env.begin()
     getit = txn.get(str_en)
-    if getit == None:
-        env.close()
+    entry = pickle.loads(getit)
+    env.close()
+    if entry["pbx"] == "failed":
+        warnings.warn("Pourbaix data for " + mpid + " was not found.")
         return [False]
     else:
-        entry = pickle.loads(getit)
-        env.close()
-
         # see what electrochemical conditions to consider and find the decomposition energies
         if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
             set(conditions.keys())

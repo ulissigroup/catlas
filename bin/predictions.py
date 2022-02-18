@@ -63,25 +63,39 @@ if __name__ == "__main__":
     memory = Memory(config["memory_cache_location"], verbose=0)
 
     # Load the bulks
-    load_bulks_cached = memory.cache(load_bulks) 
+    load_bulks_cached = memory.cache(load_bulks)
     bulks = load_bulks_cached(config["input_options"]["bulk_file"])
     bulk_bag = db.from_sequence(bulks, npartitions=200)
-    
+
     # Create pourbaix lmdb if it doesnt exist
     if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
         conditions = config["bulk_filters"]["filter_by_pourbaix_stability"]
         if not os.path.isfile(conditions["lmdb_path"]):
-            warnings.warn("No lmdb was found here:" + conditions["lmdb_path"] + ' Making the lmdb instead')
-            pbx_dicts = bulk_bag.map(get_pourbaix_info, conditions['mp_api_key']).compute()
- 
-            db = lmdb.open(conditions["lmdb_path"], map_size=1099511627776 * 2, subdir=False,
-                           meminit=False, map_async=True)
+            warnings.warn(
+                "No lmdb was found here:"
+                + conditions["lmdb_path"]
+                + " Making the lmdb instead"
+            )
+            pbx_dicts = bulk_bag.map(
+                get_pourbaix_info, conditions["mp_api_key"]
+            ).compute()
+
+            db = lmdb.open(
+                conditions["lmdb_path"],
+                map_size=1099511627776 * 2,
+                subdir=False,
+                meminit=False,
+                map_async=True,
+            )
 
             for entry in pbx_dicts:
                 # Add data and key values
                 txn = db.begin(write=True)
-                txn.put(key = entry['mpid'].encode("ascii"), value = pickle.dumps(entry, protocol=-1)) 
-                txn.commit() 
+                txn.put(
+                    key=entry["mpid"].encode("ascii"),
+                    value=pickle.dumps(entry, protocol=-1),
+                )
+                txn.commit()
             db.sync()
             db.close()
 
