@@ -4,6 +4,104 @@ from pymatgen.core.periodic_table import Element
 import lmdb
 import pickle
 import os
+import catlas
+from mp_api import MPRester
+import pickle
+from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.analysis.pourbaix_diagram import (
+    PourbaixDiagram,
+    PourbaixEntry,
+)
+
+
+def get_pourbaix_info(entry: dict) -> dict:
+    """
+    Grabs the relevant pourbaix entries for a given mpid
+    from Materials Project and constructs a pourbaix diagram for it.
+
+    Args:
+        entry: bulk structure entry as constructed by
+               catlas.load_bulk_structures.load_bulks_from_db
+        mp_api_key: Users Materials Project API key (next-gen)
+
+    """
+    # Unpack mpid and define some presets
+    pbx_entry = None
+    mpid = entry["bulk_mpid"]
+    output = {"mpid": mpid}
+
+    # Get the composition information
+    pmg_entry = AseAtomsAdaptor.get_structure(entry["bulk_atoms"])
+    comp_dict = pmg_entry.composition.fractional_composition.as_dict()
+    comp_dict.pop("H", None)
+    comp_dict.pop("O", None)
+    comp = list(comp_dict.keys())
+
+    # Handle exception where material is pure H / O
+    if len(comp) == 0:
+        output["pbx"] = "failed"
+        output["pbx_entry"] = "failed"
+        return output
+
+    # Grab the Pourbaix entries
+    with MPRester() as mpr:
+        mpid_new = mpr.get_materials_id_from_task_id(mpid)
+        pbx_entries = mpr.get_pourbaix_entries(comp)
+
+        # Grab the pourbaix entry for the mpid of interest
+        for entry in pbx_entries:
+            if entry.entry_id == mpid:
+                pbx_entry = entry
+
+        # Handle the exception where our mpid is not the most up to date
+        if pbx_entry == None:
+            mpid_new = mpr.get_materials_id_from_task_id(mpid)
+            for entry in pbx_entries:
+                if entry.entry_id == mpid_new:
+                    pbx_entry = entry
+
+    # Construct pourbaix diagram
+    pbx = PourbaixDiagram(pbx_entries, comp_dict=comp_dict, filter_solids=True)
+
+    output["pbx"] = pbx
+    output["pbx_entry"] = pbx_entry
+    return output
+
+
+def write_pourbaix_info(pbx_dicts: list, lmdb_path):
+    """
+    Writes the pourbaix query info to lmdb for future use.
+
+    Args:
+        pbx_dicts: list of dictionaries containing the important pourbaix query
+                   info. Each dictionary contains pbx info for a single mpid
+        lmdb_path: Location where the lmdb will be written (including fname)
+
+    """
+
+    lmdb_path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        lmdb_path,
+    )
+
+    db = lmdb.open(
+        lmdb_path,
+        map_size=1099511627776 * 2,
+        subdir=False,
+        meminit=False,
+        map_async=True,
+    )
+
+    for entry in pbx_dicts:
+        # Add data and key values
+        txn = db.begin(write=True)
+        txn.put(
+            key=entry["mpid"].encode("ascii"),
+            value=pickle.dumps(entry, protocol=-1),
+        )
+        txn.commit()
+    db.sync()
+    db.close()
 
 
 def get_elements_in_groups(groups: list) -> list:
@@ -59,12 +157,27 @@ def get_elements_in_groups(groups: list) -> list:
 
 
 def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
-    """Constructs a pourbaix diagram for the system of interest and evaluates the stability at desired points, returns a list of booleans capturing whether or not the material is stable under given conditions"""
-    dir_path = os.path.dirname(os.path.realpath(__file__))
-    path = dir_path + "/pourbaix_diagrams/pbx1.lmdb"
+    """
+    Reads the relevant Pourbaix info from the lmdb and evaluates stability at the desired
+    points, returns a list of booleans capturing whether or not the material is stable
+    under given conditions.
+
+    Args:
+        mpid: The mpid to perform stability analysis on
+        conditions: The electrochemical conditions of interest
+        lmdb_path: Path to lmdb containing Pourbaix info
+
+    """
+
+    lmdb_path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        lmdb_path,
+    )
+
     # Grab the entry of interest
+    ## Open lmdb
     env = lmdb.open(
-        str(path),
+        str(lmdb_path),
         subdir=False,
         readonly=True,
         lock=False,
@@ -72,16 +185,24 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
         meminit=False,
         max_readers=100,
     )
-    str_en = mpid.encode("ascii")
-    txn = env.begin()
-    getit = txn.get(str_en)
-    if getit == None:
-        env.close()
-        return [False]
-    else:
-        entry = pickle.loads(getit)
-        env.close()
 
+    ## Begin read transaction (txn)
+    txn = env.begin()
+
+    ## Get entry and unpickle it
+    entry_pickled = txn.get(mpid.encode("ascii"))
+    entry = pickle.loads(entry_pickled)
+
+    ## Close lmdb
+    env.close()
+
+    # Handle exception where pourbaix query was unsuccessful
+    if entry["pbx"] == "failed":
+        warnings.warn("Pourbaix data for " + mpid + " was not found.")
+        return [False]
+
+    # Determine electrochemical stability
+    else:
         # see what electrochemical conditions to consider and find the decomposition energies
         if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
             set(conditions.keys())

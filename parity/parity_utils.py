@@ -140,7 +140,7 @@ def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
             elif name == "filter_by_object_size":
                 continue
             else:
-                warnings.warn(name + " has not been implemented")
+                warnings.warn(name + " has not been implemented for parity generation")
     return df
 
 
