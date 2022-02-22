@@ -2,7 +2,7 @@ import yaml
 from parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import get_pourbaix_info
+from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
@@ -71,36 +71,16 @@ if __name__ == "__main__":
 
     # Create pourbaix lmdb if it doesnt exist
     if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
-        conditions = config["bulk_filters"]["filter_by_pourbaix_stability"]
-        if not os.path.isfile(conditions["lmdb_path"]):
+        lmdb_path = config["bulk_filters"]["filter_by_pourbaix_stability"]["lmdb_path"]
+        if not os.path.isfile(lmdb_path):
             warnings.warn(
                 "No lmdb was found here:"
-                + conditions["lmdb_path"]
-                + " Making the lmdb instead"
+                + lmdb_path
+                + ". Making the lmdb instead."
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
-            pbx_dicts = bulk_bag.map(
-                get_pourbaix_info, conditions["mp_api_key"]
-            ).compute()
-
-            db = lmdb.open(
-                conditions["lmdb_path"],
-                map_size=1099511627776 * 2,
-                subdir=False,
-                meminit=False,
-                map_async=True,
-            )
-
-            for entry in pbx_dicts:
-                # Add data and key values
-                txn = db.begin(write=True)
-                txn.put(
-                    key=entry["mpid"].encode("ascii"),
-                    value=pickle.dumps(entry, protocol=-1),
-                )
-                txn.commit()
-            db.sync()
-            db.close()
+            pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
+            write_pourbaix_info(pbx_dicts, lmdb_path)
 
     # Filter the bulks
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
