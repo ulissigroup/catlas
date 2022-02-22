@@ -169,6 +169,11 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
 
     """
 
+    lmdb_path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        lmdb_path,
+    )
+
     # Grab the entry of interest
     ## Open lmdb
     env = lmdb.open(
