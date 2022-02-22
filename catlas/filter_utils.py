@@ -4,6 +4,7 @@ from pymatgen.core.periodic_table import Element
 import lmdb
 import pickle
 import os
+import catlas
 from mp_api import MPRester
 import pickle
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -77,6 +78,12 @@ def write_pourbaix_info(pbx_dicts: list, lmdb_path):
         lmdb_path: Location where the lmdb will be written (including fname)
 
     """
+
+    lmdb_path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        lmdb_path,
+    )
+
     db = lmdb.open(
         lmdb_path,
         map_size=1099511627776 * 2,
