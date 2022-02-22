@@ -164,11 +164,10 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
 
     Args:
         mpid: The mpid to perform stability analysis on
-        conditions: The electrochemical conditions of interest
-        lmdb_path: Path to lmdb containing Pourbaix info
+        conditions: The dictionary of Pourbaix settings set in the config yaml
 
     """
-
+    lmdb_path = conditions["lmdb_path"]
     lmdb_path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         lmdb_path,
