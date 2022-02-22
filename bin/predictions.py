@@ -74,9 +74,7 @@ if __name__ == "__main__":
         lmdb_path = config["bulk_filters"]["filter_by_pourbaix_stability"]["lmdb_path"]
         if not os.path.isfile(lmdb_path):
             warnings.warn(
-                "No lmdb was found here:"
-                + lmdb_path
-                + ". Making the lmdb instead."
+                "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
             pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
