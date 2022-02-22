@@ -4,11 +4,13 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
-    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'19 GiB',--death-timeout, '600']
+    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'10 GiB',--death-timeout, '600']
     name: dask
-    env:
+    env: 
     - name: OMP_NUM_THREADS
       value: 4
+    - name: MP_API_KEY
+      value: "your_api_key"
     - name: PYTHONPATH
       value: "/home/jovyan/ocp:/home/jovyan/catlas"
     - name: NVIDIA_VISIBLE_DEVICES
