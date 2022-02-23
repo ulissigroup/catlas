@@ -30,9 +30,24 @@ A
 
 B
 
-.. _My target:
+
+
+The :func:`pop_keys` function can be used for ...
+
+.. _My target: 
 
 Explicit targets
 ~~~~~~~~~~~~~~~~
 
+.. function:: py:catlas:adslab_predictions:pop_keys(adslab_dict, keys)
+
+   Return None
+
+
+
 Reference 
+
+.. function:: enumerate(sequence[, start=0])
+
+   Return an iterator that yields tuples of an index and an item of the
+   *sequence*. (And so on.)

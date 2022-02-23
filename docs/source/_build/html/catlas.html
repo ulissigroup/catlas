@@ -1,0 +1,258 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>catlas package &#8212; catlas  documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="catlas-package">
+<h1>catlas package<a class="headerlink" href="#catlas-package" title="Permalink to this headline">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="catlas.bulk_structures.html">catlas.bulk_structures package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="catlas.bulk_structures.html#module-catlas.bulk_structures">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="catlas-adslab-predictions-module">
+<h2>catlas.adslab_predictions module<a class="headerlink" href="#catlas-adslab-predictions-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-catlas.cache_utils">
+<span id="catlas-cache-utils-module"></span><h2>catlas.cache_utils module<a class="headerlink" href="#module-catlas.cache_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py exception">
+<dt class="sig sig-object py" id="catlas.cache_utils.CacheOverrideError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">CacheOverrideError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cached_func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Existing</span> <span class="pre">cache</span> <span class="pre">would</span> <span class="pre">be</span> <span class="pre">overridden:</span> <span class="pre">%s\nPlease</span> <span class="pre">revert</span> <span class="pre">your</span> <span class="pre">copy</span> <span class="pre">of</span> <span class="pre">this</span> <span class="pre">function</span> <span class="pre">to</span> <span class="pre">look</span> <span class="pre">like</span> <span class="pre">the</span> <span class="pre">code</span> <span class="pre">in</span> <span class="pre">the</span> <span class="pre">existing</span> <span class="pre">cache</span> <span class="pre">OR</span> <span class="pre">start</span> <span class="pre">a</span> <span class="pre">new</span> <span class="pre">cache</span> <span class="pre">OR</span> <span class="pre">backup/delete</span> <span class="pre">the</span> <span class="pre">existing</span> <span class="pre">cache</span> <span class="pre">manually'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.CacheOverrideError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised for function calls that would wipe an existing cache</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="catlas.cache_utils.CacheOverrideError.memorized_func">
+<span class="sig-name descname"><span class="pre">memorized_func</span></span><a class="headerlink" href="#catlas.cache_utils.CacheOverrideError.memorized_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>cached function that raised the error</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.better_build_func_identifier">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">better_build_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.better_build_func_identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a roughly unique identifier for the cached function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.check_cache">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">check_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cached_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.check_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>checks if cached function is safe to call without overriding cache (adapted from <a class="reference external" href="https://github.com/joblib/joblib/blob/master/joblib/memory.py#L672">https://github.com/joblib/joblib/blob/master/joblib/memory.py#L672</a>)</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><p>cached_func (func): cached function to check</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>whether cached function is safe to call</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.get_cached_func_location">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">get_cached_func_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.get_cached_func_location" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the location inside of your &lt;cache&gt;/joblib/ folder where a cached function is stored.
+Necessary because each function will have multiple subcaches for its codebase.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.hash_func">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">hash_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.hash_func" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hash the function id, its file location, and the function code</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.naive_func_identifier">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">naive_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.naive_func_identifier" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build simple identifier based on function name</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.safe_cache">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">safe_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">memory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.safe_cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper for memory.cache(func) that raises an error if the cache would be overwritten</p>
+</dd></dl>
+
+</section>
+<section id="module-catlas.dask_kube_utils">
+<span id="catlas-dask-kube-utils-module"></span><h2>catlas.dask_kube_utils module<a class="headerlink" href="#module-catlas.dask_kube_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_kube_utils.get_namespace">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_kube_utils.</span></span><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_kube_utils.get_namespace" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_kube_utils.kube_cluster_new_worker">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_kube_utils.</span></span><span class="sig-name descname"><span class="pre">kube_cluster_new_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_kube_utils.kube_cluster_new_worker" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-catlas.dask_utils">
+<span id="catlas-dask-utils-module"></span><h2>catlas.dask_utils module<a class="headerlink" href="#module-catlas.dask_utils" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.dask_utils.SizeDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">SizeDict</span></span><a class="headerlink" href="#catlas.dask_utils.SizeDict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_utils.bag_split_individual_partitions">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">bag_split_individual_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_utils.bag_split_individual_partitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_utils.split_balance_df_partitions">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">split_balance_df_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npartitions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_utils.split_balance_df_partitions" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_utils.to_pickles">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">to_pickles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_utils.to_pickles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="catlas-enumerate-slabs-adslabs-module">
+<h2>catlas.enumerate_slabs_adslabs module<a class="headerlink" href="#catlas-enumerate-slabs-adslabs-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="catlas-filter-utils-module">
+<h2>catlas.filter_utils module<a class="headerlink" href="#catlas-filter-utils-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="catlas-filters-module">
+<h2>catlas.filters module<a class="headerlink" href="#catlas-filters-module" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="module-catlas.load_adsorbate_structures">
+<span id="catlas-load-adsorbate-structures-module"></span><h2>catlas.load_adsorbate_structures module<a class="headerlink" href="#module-catlas.load_adsorbate_structures" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.load_adsorbate_structures.load_ocdata_adsorbates">
+<span class="sig-prename descclassname"><span class="pre">catlas.load_adsorbate_structures.</span></span><span class="sig-name descname"><span class="pre">load_ocdata_adsorbates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catlas.load_adsorbate_structures.load_ocdata_adsorbates" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-catlas.load_bulk_structures">
+<span id="catlas-load-bulk-structures-module"></span><h2>catlas.load_bulk_structures module<a class="headerlink" href="#module-catlas.load_bulk_structures" title="Permalink to this headline">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.load_bulk_structures.load_bulks">
+<span class="sig-prename descclassname"><span class="pre">catlas.load_bulk_structures.</span></span><span class="sig-name descname"><span class="pre">load_bulks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bulk_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.load_bulk_structures.load_bulks" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.load_bulk_structures.load_bulks_from_db">
+<span class="sig-prename descclassname"><span class="pre">catlas.load_bulk_structures.</span></span><span class="sig-name descname"><span class="pre">load_bulks_from_db</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">db_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.load_bulk_structures.load_bulks_from_db" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.load_bulk_structures.load_bulks_from_df">
+<span class="sig-prename descclassname"><span class="pre">catlas.load_bulk_structures.</span></span><span class="sig-name descname"><span class="pre">load_bulks_from_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.load_bulk_structures.load_bulks_from_df" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-catlas">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-catlas" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">catlas</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, Kirby Broderick, Brook Wander, and others in the Ulissi group.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/catlas.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

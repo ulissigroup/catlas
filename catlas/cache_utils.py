@@ -44,7 +44,7 @@ class CacheOverrideError(Exception):
     """Exception raised for function calls that would wipe an existing cache
 
     Attributes:
-        memorized_func -- cached function that raised the error
+        memorized_func: cached function that raised the error
     """
 
     def __init__(
@@ -72,13 +72,13 @@ def safe_cache(memory, func, *args, **kwargs):
 
 
 def check_cache(cached_func):
-    """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
+    """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/master/joblib/memory.py#L672)
 
     Inputs:
-        cached_func -- cached function to check
+        cached_func (func): cached function to check
 
     Returns:
-        True if cached function is safe to call, else False
+        bool: whether cached function is safe to call
 
     """
 
