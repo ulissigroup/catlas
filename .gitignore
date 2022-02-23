@@ -1,5 +1,9 @@
+# npz files
+*npz-files*
+
 # VSCode
 *.code-workspace
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
