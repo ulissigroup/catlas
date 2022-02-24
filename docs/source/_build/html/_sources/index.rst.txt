@@ -18,36 +18,15 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-* :ref:`Installation`
-
-C
-
-`My target`_.
-
-A
-
-* :ref:`My target`
-
-B
+* :ref:`Documentation Tools`
 
 
+Documentation Tools
+-----------------------
 
-The :func:`pop_keys` function can be used for ...
+In addition to ReadTheDocs, the following tools are used to document and stylize *catlas*
 
-.. _My target: 
-
-Explicit targets
-~~~~~~~~~~~~~~~~
-
-.. function:: py:catlas:adslab_predictions:pop_keys(adslab_dict, keys)
-
-   Return None
-
-
-
-Reference 
-
-.. function:: enumerate(sequence[, start=0])
-
-   Return an iterator that yields tuples of an index and an item of the
-   *sequence*. (And so on.)
+- flake8 (linter)
+- darglint (enforces Google-style docstrings)
+- napoleon (imports Google-style docstrings into rST)
+- autodoc (imports modules and processes docstrings into RTD) 
