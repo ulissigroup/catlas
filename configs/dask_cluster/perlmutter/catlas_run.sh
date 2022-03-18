@@ -33,7 +33,8 @@ DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=3600s \
 DASK_DISTRIBUTED__COMM__TIMEOUTS__TCP=3600s \
 srun --gpus-per-task=1 \
      --ntasks-per-node=4 \
-     shifter --env=PYTHONPATH=$SCRATCH/catlas/ dask-worker \
+     shifter --env=PYTHONPATH=/opt/mods/lib/python3.6/site-packages:/home/jovyan/ocp/:$SCRATCH/catlas/ \
+     dask-worker \
      --nthreads 1 \
      --nprocs 1 \
      --no-dashboard \
@@ -47,7 +48,7 @@ srun --gpus-per-task=1 \
 DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=3600s \
 DASK_DISTRIBUTED__COMM__TIMEOUTS__TCP=3600s \
 srun --ntasks-per-node=10 \
-     shifter  --env=PYTHONPATH=$SCRATCH/catlas/ \
+     shifter --env=PYTHONPATH=/opt/mods/lib/python3.6/site-packages:/home/jovyan/ocp/:$SCRATCH/catlas/ \
      dask-worker \
      --nthreads 4 \
      --nprocs 1 \
@@ -57,7 +58,11 @@ srun --ntasks-per-node=10 \
      --local-directory /tmp \
      --scheduler-file $scheduler_file &
 
-shifter python bin/predictions.py config/dask_cluster/perlmutter/test_gpu_relax.yml config/dask_cluster/perlmutter/slurm_scheduler.yml
+shifter --env=PYTHONPATH=/opt/mods/lib/python3.6/site-packages:/home/jovyan/ocp/:$SCRATCH/catlas/ \
+        --env=scheduler_file=$scheduler_file \
+        python bin/predictions.py \
+        configs/dask_cluster/perlmutter/test_gpu_relax.yml \
+        configs/dask_cluster/perlmutter/slurm_scheduler.yml
 
 echo "Killing scheduler"
 kill -9 $dask_pid
