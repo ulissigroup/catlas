@@ -40,7 +40,6 @@ srun --gpus-per-task=1 \
      --memory-limit 20Gib \
      --death-timeout 600 \
      --resources "GPU=1" \
-     --rmm-pool-size 38Gb \ 
      --local-directory /tmp \
      --scheduler-file $scheduler_file &
 
