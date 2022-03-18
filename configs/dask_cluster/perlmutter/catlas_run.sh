@@ -6,6 +6,10 @@
 #SBATCH -N 1
 #SBATCH --image=docker:ulissigroup/kubeflow:predictions
 
+
+export SHIFTER_IMAGETYPE=docker
+export SHIFTER_IMAGE=ulissigroup/kubeflow:predictions
+
 export SLURM_CPU_BIND="cores"
 
 cd $SCRATCH/catlas
@@ -31,23 +35,31 @@ done
 # Start the gpu workers (1 per gpu per node)
 DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=3600s \
 DASK_DISTRIBUTED__COMM__TIMEOUTS__TCP=3600s \
-srun --gpus-per-task=1 \
+srun --overlap --gpus-per-task=1 \
      --ntasks-per-node=4 \
+     -c 2 \
+     --mem-per-gpu=10gb \
+     --exact \
      shifter --env=PYTHONPATH=/opt/mods/lib/python3.6/site-packages:/home/jovyan/ocp/:$SCRATCH/catlas/ \
      dask-worker \
      --nthreads 1 \
      --nprocs 1 \
      --no-dashboard \
-     --memory-limit 20Gib \
+     --memory-limit 10Gib \
      --death-timeout 600 \
-     --resources "GPU=1" \
+     --resources 'GPU=1' \
      --local-directory /tmp \
-     --scheduler-file $scheduler_file &
+     --scheduler-file $scheduler_file & 
 
 # Start the cpu workers (1 per gpu per node)
 DASK_DISTRIBUTED__COMM__TIMEOUTS__CONNECT=3600s \
 DASK_DISTRIBUTED__COMM__TIMEOUTS__TCP=3600s \
-srun --ntasks-per-node=10 \
+srun --overlap \
+     --ntasks-per-node=10 \
+     -c 4 \
+     --mem-per-cpu=2gb \
+     --exact \
+     --gpus=0 \
      shifter --env=PYTHONPATH=/opt/mods/lib/python3.6/site-packages:/home/jovyan/ocp/:$SCRATCH/catlas/ \
      dask-worker \
      --nthreads 4 \
