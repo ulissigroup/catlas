@@ -1,0 +1,37 @@
+dask:
+  partitions: -1 # if -1, 1 row per surface otherwise number of partitions
+
+memory_cache_location: '{{ SCRATCH }}/catlas_cache'
+
+output_options:
+  pickle_path: test_gpu_relaxation.pkl
+  pickle_folder: '{{ SCRATCH }}/catlas/outputs/test_gpu_relaxation/'
+  config_path: test_gpu_relaxations.yml
+  parity_output_folder: 'outputs/parity-outputs/'
+  verbose: false
+
+input_options:
+  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+
+bulk_filters:
+    filter_by_mpids: ['mp-126', 'mp-81', 'mp-30', 'mp-129']
+
+adsorbate_filters:
+    filter_by_smiles: ['*H']
+
+slab_filters:
+    filter_by_object_size: 100
+    filter_by_max_miller_index: 1
+
+adslab_prediction_steps:
+  - step: predict
+    gpu: true
+    batch_size: 4
+    label: 'dE_gemnet_is2re_finetuned'
+    checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  - step: predict
+    gpu: true
+    batch_size: 4
+    label: 'dE_gemnet_relax'
+    checkpoint_path: 'ocp_checkpoints/gemnet_t_direct_h512_all.pt'
+

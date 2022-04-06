@@ -1,5 +1,5 @@
 import yaml
-from parity.parity_utils import get_parity_upfront
+from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
