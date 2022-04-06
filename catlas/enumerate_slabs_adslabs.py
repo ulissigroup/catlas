@@ -73,7 +73,7 @@ def enumerate_adslabs(surface_ads_combo):
         adsorbate_obj, surface_dict["slab_surface_object"], enumerate_all_configs=True
     )
 
-    adslab_result["adslab_atoms"] = combo_obj.adsorbed_surface_atoms
+    adslab_result["adslab_atoms"] = combo_obj.constrained_adsorbed_surfaces
 
     return adslab_result
 
