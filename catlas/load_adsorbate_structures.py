@@ -4,8 +4,12 @@ import os.path
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-def load_ocdata_adsorbates():
-    with open(dir_path + "/adsorbate_structures/adsorbates.pkl", "rb") as fhandle:
+def load_ocdata_adsorbates(adsorbate_path):
+    path = "%s/%s" % (
+        os.path.join(os.path.dirname(catlas.__file__), os.pardir),
+        adsorbate_path,
+    )
+    with open(path, "rb") as fhandle:
         adsorbates = pickle.load(fhandle)
 
         adsorbate_list = []

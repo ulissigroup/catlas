@@ -101,7 +101,7 @@ if __name__ == "__main__":
     filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
-    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
+    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(config["input_options"]["adsorbate_file"])
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
