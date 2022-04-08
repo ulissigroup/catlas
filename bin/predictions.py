@@ -1,7 +1,11 @@
 import yaml
 from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
-from catlas.sankey.sankey_utils import get_sankey_diagram, add_slab_info
+from catlas.sankey.sankey_utils import (
+    get_sankey_diagram,
+    add_slab_info,
+    add_adslab_info,
+)
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -114,7 +118,9 @@ if __name__ == "__main__":
     )
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
-    filtered_adsorbate_df, sankey_dict = adsorbate_filter(config, adsorbate_df, sankey_dict)
+    filtered_adsorbate_df, sankey_dict = adsorbate_filter(
+        config, adsorbate_df, sankey_dict
+    )
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
@@ -145,6 +151,7 @@ if __name__ == "__main__":
 
     # Run adslab predictions
     inference = False
+    num_adslabs = None
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
@@ -198,7 +205,7 @@ if __name__ == "__main__":
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
-            num_adslabs = sum(df_results[most_recent_step].apply(len))
+            num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
         if verbose:
 
             print(
@@ -232,6 +239,7 @@ if __name__ == "__main__":
             df_results.to_pickle(pickle_path)
             if not inference:
                 num_adslabs = sum(df_results["adslab_atoms"].apply(len))
+                num_inferred = 0
         else:
             # screen classes from custom packages
             class_mask = (
@@ -244,4 +252,6 @@ if __name__ == "__main__":
         with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
             yaml.dump(config, fhandle)
 
+    # Make final updates to the sankey diagram and plot it
+    sankey_dict = add_adslab_info(sankey_dict, num_adslabs, num_inferred)
     get_sankey_diagram(sankey_dict, run_id)

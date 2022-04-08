@@ -216,9 +216,9 @@ def energy_prediction(
 
         # Use the relaxed positions to generate relaxed atoms objects
         adslab_atoms = copy.deepcopy(adslab_atoms)
-        for atoms, positions in zip(adslab_atoms["adslab_atoms"], position_predictions):
+        for atoms, positions in zip(adslab_atoms, position_predictions):
             atoms.set_positions(positions)
-        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms["adslab_atoms"]
+        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms
     else:
         energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
 
@@ -227,7 +227,7 @@ def energy_prediction(
     # Identify the best configuration and energy and save that too
     if len(energy_predictions) > 0:
         best_energy = np.min(energy_predictions)
-        best_atoms = adslab_atoms["adslab_atoms"][np.argmin(energy_predictions)].copy()
+        best_atoms = adslab_atoms[np.argmin(energy_predictions)].copy()
         adslab_results["min_" + column_name] = best_energy
         best_atoms.set_calculator(
             SinglePointCalculator(

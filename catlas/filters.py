@@ -128,7 +128,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
             sankey_dict,
             "Slabs",
             sankey_idx,
-            sankey_idx+1,
+            sankey_idx + 1,
             initial_bulks,
         )
     return dask_df, sankey_dict
@@ -174,6 +174,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
     """
     adsorbate_filters = config["adsorbate_filters"]
     initial_adsorbate = len(dask_df)
+    sankey_dict["label"][1] = f"Adsorbates from db ({initial_adsorbate})"
 
     for name, val in adsorbate_filters.items():
         if val != "None":
@@ -181,27 +182,28 @@ def adsorbate_filter(config, dask_df, sankey_dict):
                 dask_df = dask_df[dask_df.adsorbate_smiles.isin(val)]
             else:
                 warnings.warn("Adsorbate filter is not implemented: " + name)
-                
-    # Update the sankey diagram    
+
+    # Update the sankey diagram
+    node_idx = len(sankey_dict["label"])
     sankey_dict = update_dictionary(
-            sankey_dict,
-            f"Filtered adsorbates ({len(dask_df)})",
-            1,
-            len(sankey_dict["label"]),
-            len(dask_df),
-        )
-    filtered_idx = len(sankey_dict["label"])
+        sankey_dict,
+        f"Filtered adsorbates ({len(dask_df)})",
+        1,
+        node_idx,
+        len(dask_df),
+    )
+
     sankey_dict = update_dictionary(
         sankey_dict,
         f"Rejected adsorbates ({initial_adsorbate - len(dask_df)})",
         1,
-        filtered_idx,
+        node_idx + 1,
         initial_adsorbate - len(dask_df),
     )
     sankey_dict = update_dictionary(
         sankey_dict,
         "Adslabs",
-        filtered_idx,
+        node_idx,
         len(sankey_dict["label"]),
         len(dask_df),
     )
