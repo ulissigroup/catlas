@@ -1,6 +1,7 @@
 import yaml
 from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
+from catlas.sankey.sankey_utils import get_sankey_diagram
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -79,12 +80,19 @@ if __name__ == "__main__":
             bulk_bag = bulk_bag.repartition(npartitions=200)
             pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
             write_pourbaix_info(pbx_dicts, lmdb_path)
-
+            
+    # Instantiate Sankey dictionary
+    sankey_dict = {'label': ['Bulks from db', 'Adsorbates from db'],
+                  'source': [],
+                  'target': [],
+                  'value': []}
+    
     # Filter the bulks
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
-    print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
+    initial_bulks = bulk_df.shape[0].compute()
+    print(f"Number of initial bulks: {initial_bulks}")
 
-    filtered_catalyst_df = bulk_filter(config, bulk_df)
+    filtered_catalyst_df, sankey_dict = bulk_filter(config, bulk_df, sankey_dict, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
@@ -218,3 +226,5 @@ if __name__ == "__main__":
 
         with open(config["output_options"]["config_path"], "w") as fhandle:
             yaml.dump(config, fhandle)
+            
+    get_sankey_diagram(sankey_dict, config)
