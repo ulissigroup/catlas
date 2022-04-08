@@ -4,23 +4,24 @@ from pymatgen.core.periodic_table import Element
 from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
 from catlas.sankey.sankey_utils import update_dictionary
 
+
 def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
     """
     Filters a dask dataframe `dask_df` of bulk structures according to rules specified in a config yml `config`.
-    
+
     Args:
         config: dictionary of the config yaml
         dask_df: the working dataframe of bulk inputs
         sankey_dict: a dictionary of values that will be used to populate the output sankey diagram
         initial_bulks: the initial number of bulks
-        
+
     Returns:
         dask_df: the working dataframe of bulk values post-filtering
         sankey_dict: the sankey dictionary with bulk filtering information included
     """
     bulk_filters = config["bulk_filters"]
     sankey_idx = 2
-    sankey_dict['label'][0] = f'Bulks from db ({initial_bulks})'
+    sankey_dict["label"][0] = f"Bulks from db ({initial_bulks})"
 
     for name, val in bulk_filters.items():
         if (
@@ -107,9 +108,21 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
             # Update the sankey dictionary
             node_loss = initial_bulks - len(dask_df)
             initial_bulks = len(dask_df)
-            sankey_dict = update_dictionary(sankey_dict, f"Rejected by {name} ({node_loss})", 0, sankey_idx, node_loss)
+            sankey_dict = update_dictionary(
+                sankey_dict,
+                f"Rejected by {name} ({node_loss})",
+                0,
+                sankey_idx,
+                node_loss,
+            )
             sankey_idx += 1
-        sankey_dict = update_dictionary(sankey_dict, f"Filtered bulks ({initial_bulks})", 0, sankey_idx, initial_bulks)
+        sankey_dict = update_dictionary(
+            sankey_dict,
+            f"Filtered bulks ({initial_bulks})",
+            0,
+            sankey_idx,
+            initial_bulks,
+        )
     return dask_df, sankey_dict
 
 

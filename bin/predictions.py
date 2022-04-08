@@ -43,14 +43,14 @@ joblib.memory._build_func_identifier = better_build_func_identifier
 
 # Load inputs and define global vars
 if __name__ == "__main__":
-    
+
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
-    
+
     # Establish run information
-    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" +config["output_options"]["run_name"]
+    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
 
     # Generate parity plots
@@ -84,19 +84,23 @@ if __name__ == "__main__":
             bulk_bag = bulk_bag.repartition(npartitions=200)
             pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
             write_pourbaix_info(pbx_dicts, lmdb_path)
-            
+
     # Instantiate Sankey dictionary
-    sankey_dict = {'label': ['Bulks from db', 'Adsorbates from db'],
-                  'source': [],
-                  'target': [],
-                  'value': []}
-    
+    sankey_dict = {
+        "label": ["Bulks from db", "Adsorbates from db"],
+        "source": [],
+        "target": [],
+        "value": [],
+    }
+
     # Filter the bulks
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
 
-    filtered_catalyst_df, sankey_dict = bulk_filter(config, bulk_df, sankey_dict, initial_bulks)
+    filtered_catalyst_df, sankey_dict = bulk_filter(
+        config, bulk_df, sankey_dict, initial_bulks
+    )
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
@@ -105,7 +109,9 @@ if __name__ == "__main__":
     filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
-    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(config["input_options"]["adsorbate_file"])
+    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
+        config["input_options"]["adsorbate_file"]
+    )
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
     filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
@@ -229,5 +235,5 @@ if __name__ == "__main__":
 
         with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
             yaml.dump(config, fhandle)
-            
+
     get_sankey_diagram(sankey_dict, run_id)
