@@ -12,6 +12,7 @@ output_options:
 
 input_options:
   bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+  adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
     filter_by_mpids: ['mp-126', 'mp-81', 'mp-30', 'mp-129']
