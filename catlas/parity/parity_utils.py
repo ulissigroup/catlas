@@ -369,11 +369,8 @@ def get_parity_upfront(config, run_id):
     if "adslab_prediction_steps" in config:
 
         ## Create an output folder
-        try:
-            if not os.path.exists(config["output_options"]["parity_output_folder"]):
-                os.makedirs(config["output_options"]["parity_output_folder"])
-        except RuntimeError:
-            print("A folder for parity results must be specified in the config yaml.")
+        if not os.path.exists(f"outputs/{run_id}/parity/"):
+            os.makedirs(f"outputs/{run_id}/parity/")
 
         ## Iterate over steps
         for step in config["adslab_prediction_steps"]:
@@ -388,7 +385,7 @@ def get_parity_upfront(config, run_id):
                 list_of_parity_info = []
 
                 ### Generate a folder for each model to be considered
-                folder_now = f"/outputs/{run_id}parity/step["label"]/"
+                folder_now = f"outputs/{run_id}/parity/" + step["label"]
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
 

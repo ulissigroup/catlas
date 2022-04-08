@@ -34,7 +34,7 @@ from jinja2 import Template
 import os
 import pickle
 import tqdm
-import datetime
+import time
 import joblib
 import lmdb
 
@@ -43,18 +43,19 @@ joblib.memory._build_func_identifier = better_build_func_identifier
 
 # Load inputs and define global vars
 if __name__ == "__main__":
-    # Establish run information
-    run_id = time.strftime("%Y%m%d-%H%M%S") + config["output_options"]["run_name"]
-    os.makedirs(f"outputs/{runid}/")
     
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
+    
+    # Establish run information
+    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" +config["output_options"]["run_name"]
+    os.makedirs(f"outputs/{run_id}/")
 
     # Generate parity plots
     if config["output_options"]["make_parity_plots"]:
-        get_parity_upfront(config)
+        get_parity_upfront(config, run_id)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
         )
