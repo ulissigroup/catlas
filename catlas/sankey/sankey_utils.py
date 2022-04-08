@@ -22,13 +22,13 @@ def update_dictionary(sankey_dict: dict, label: str, source: int, target: int, v
     sankey_dict['value'].append(value)
     return sankey_dict
     
-def get_sankey_diagram(sankey_dict: dict, config: dict):
+def get_sankey_diagram(sankey_dict: dict, run_id: str):
     """
     A function to create a pdf of the Sankey diagram.
     
     Args:
         sankey_dict: a dictionary of values that will be used to populate the output sankey diagram
-        config: a dictionary of the input config yaml contents
+        run_id: unique id for the run to be used as a location for saving outputs
         
     Returns:
         a pdf of the sankey diagram for the run
@@ -45,6 +45,6 @@ def get_sankey_diagram(sankey_dict: dict, config: dict):
       target = sankey_dict["target"],
       value = sankey_dict["value"],
   ))])
-    fig.write_image("sankey.png")
+    fig.write_image(f"outputs/{run_id}/sankey.png")
     
     

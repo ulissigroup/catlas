@@ -43,14 +43,17 @@ joblib.memory._build_func_identifier = better_build_func_identifier
 
 # Load inputs and define global vars
 if __name__ == "__main__":
-
+    # Establish run information
+    run_id = time.strftime("%Y%m%d-%H%M%S") + config["output_options"]["run_name"]
+    os.makedirs(f"outputs/{runid}/")
+    
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
 
     # Generate parity plots
-    if "parity_output_folder" in config["output_options"]:
+    if config["output_options"]["make_parity_plots"]:
         get_parity_upfront(config)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
@@ -168,18 +171,18 @@ if __name__ == "__main__":
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
-    pickle_in_config = "pickle_path" in config["output_options"]
 
     results_bag = results_bag.persist(optimize_graph=False)
 
-    if "pickle_folder" in config["output_options"]:
+    if config["output_options"]["pickle_intermediate_outputs"]:
+        os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
         to_pickles(
             results_bag,
-            config["output_options"]["pickle_folder"] + "/*.pkl",
+            f"outputs/{run_id}/intermediate_pkls/" + "/*.pkl",
             optimize_graph=False,
         )
 
-    if verbose or pickle_in_config:
+    if verbose or config["output_options"]["pickle_final_output"]:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
 
@@ -204,27 +207,26 @@ if __name__ == "__main__":
         results = results_bag.persist(optimize_graph=False)
         wait(results)
 
-    if pickle_in_config:
-        pickle_path = config["output_options"]["pickle_path"]
+    if config["output_options"]["pickle_final_output"]:
+        pickle_path = f"outputs/{run_id}/results_df.pkl"
 
-        if pickle_path != "None":
-            if (
-                "output_all_structures" in config["output_options"]
-                and config["output_options"]["output_all_structures"]
-            ):
-                adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
-                df_results["adslab_atoms"] = adslab_atoms
-                df_results.to_pickle(pickle_path)
-            else:
-                # screen classes from custom packages
-                class_mask = (
-                    df_results.columns.to_series()
-                    .apply(lambda x: str(type(df_results[x].iloc[0])))
-                    .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
-                )
-                df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
+        if (
+            "output_all_structures" in config["output_options"]
+            and config["output_options"]["output_all_structures"]
+        ):
+            adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
+            df_results["adslab_atoms"] = adslab_atoms
+            df_results.to_pickle(pickle_path)
+        else:
+            # screen classes from custom packages
+            class_mask = (
+                df_results.columns.to_series()
+                .apply(lambda x: str(type(df_results[x].iloc[0])))
+                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            )
+            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
-        with open(config["output_options"]["config_path"], "w") as fhandle:
+        with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
             yaml.dump(config, fhandle)
             
-    get_sankey_diagram(sankey_dict, config)
+    get_sankey_diagram(sankey_dict, run_id)
