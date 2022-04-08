@@ -1,7 +1,7 @@
 import yaml
 from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
-from catlas.sankey.sankey_utils import get_sankey_diagram
+from catlas.sankey.sankey_utils import get_sankey_diagram, add_slab_info
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -114,14 +114,17 @@ if __name__ == "__main__":
     )
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
-    filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
+    filtered_adsorbate_df, sankey_dict = adsorbate_filter(config, adsorbate_df, sankey_dict)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
     surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
+    unfiltered_slabs = surface_bag.count().compute()
     surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
+    filtered_slabs = surface_bag.count().compute()
+    sankey_dict = add_slab_info(sankey_dict, unfiltered_slabs, filtered_slabs)
 
     # choose the number of partitions after to use after making adslab combos
     if config["dask"]["partitions"] == -1:
@@ -141,6 +144,7 @@ if __name__ == "__main__":
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
     # Run adslab predictions
+    inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
@@ -174,6 +178,7 @@ if __name__ == "__main__":
                     )
 
                 most_recent_step = "min_" + step["label"]
+                inference = True
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
@@ -192,7 +197,8 @@ if __name__ == "__main__":
     if verbose or config["output_options"]["pickle_final_output"]:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
-
+        if inference:
+            num_adslabs = sum(df_results[most_recent_step].apply(len))
         if verbose:
 
             print(
@@ -224,6 +230,8 @@ if __name__ == "__main__":
             adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
             df_results["adslab_atoms"] = adslab_atoms
             df_results.to_pickle(pickle_path)
+            if not inference:
+                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
         else:
             # screen classes from custom packages
             class_mask = (

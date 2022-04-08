@@ -116,6 +116,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
                 node_loss,
             )
             sankey_idx += 1
+        # Add remaining bulks to the sankey and connect them to slabs
         sankey_dict = update_dictionary(
             sankey_dict,
             f"Filtered bulks ({initial_bulks})",
@@ -123,11 +124,26 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
             sankey_idx,
             initial_bulks,
         )
+        sankey_dict = update_dictionary(
+            sankey_dict,
+            "Slabs",
+            sankey_idx,
+            sankey_idx+1,
+            initial_bulks,
+        )
     return dask_df, sankey_dict
 
 
 def slab_filter(config, dask_dict):
-    """Filters a dask bag `dask_dict` according to rules specified in config yml `config`"""
+    """
+    Filters a dask bag `dask_dict` of slabs according to rules specified in config yml `config`
+        Args:
+        config: dictionary of the config yaml
+        dask_dict: a dictionary containing slab info
+
+    Returns:
+        boolean value (True -> retain slab, False -> reject slab)
+    """
     slab_filters = config["slab_filters"]
 
     keep = True
@@ -143,9 +159,21 @@ def slab_filter(config, dask_dict):
     return keep
 
 
-def adsorbate_filter(config, dask_df):
-    """Filters a dask dataframe `dask_df` of adsorbate structures according to rules specified in config yml `config`"""
+def adsorbate_filter(config, dask_df, sankey_dict):
+    """
+    Filters a dask dataframe `dask_df` of adsorbate structures according to rules specified in config yml `config`.
+    Args:
+        config: dictionary of the config yaml
+        dask_df: the working dataframe of adsorbate inputs
+        sankey_dict: a dictionary of values that will be used to populate the output sankey diagram
+        initial_bulks: the initial number of bulks
+
+    Returns:
+        dask_df: the working dataframe of adsorbate values post-filtering
+        sankey_dict: the sankey dictionary with adsorbate filtering information included
+    """
     adsorbate_filters = config["adsorbate_filters"]
+    initial_adsorbate = len(dask_df)
 
     for name, val in adsorbate_filters.items():
         if val != "None":
@@ -153,5 +181,28 @@ def adsorbate_filter(config, dask_df):
                 dask_df = dask_df[dask_df.adsorbate_smiles.isin(val)]
             else:
                 warnings.warn("Adsorbate filter is not implemented: " + name)
-
-    return dask_df
+                
+    # Update the sankey diagram    
+    sankey_dict = update_dictionary(
+            sankey_dict,
+            f"Filtered adsorbates ({len(dask_df)})",
+            1,
+            len(sankey_dict["label"]),
+            len(dask_df),
+        )
+    filtered_idx = len(sankey_dict["label"])
+    sankey_dict = update_dictionary(
+        sankey_dict,
+        f"Rejected adsorbates ({initial_adsorbate - len(dask_df)})",
+        1,
+        filtered_idx,
+        initial_adsorbate - len(dask_df),
+    )
+    sankey_dict = update_dictionary(
+        sankey_dict,
+        "Adslabs",
+        filtered_idx,
+        len(sankey_dict["label"]),
+        len(dask_df),
+    )
+    return dask_df, sankey_dict
