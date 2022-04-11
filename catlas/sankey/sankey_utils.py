@@ -119,7 +119,7 @@ def get_sankey_diagram(sankey_dict: dict, run_id: str, use_log=True):
         data=[
             go.Sankey(
                 node=dict(
-                    pad=15,
+                    pad=30,
                     thickness=20,
                     line=dict(color="black", width=0.5),
                     label=sankey_dict["label"],

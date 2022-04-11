@@ -205,6 +205,7 @@ if __name__ == "__main__":
         df_results = pd.DataFrame(results)
         if inference:
             num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
+            filtered_slabs = len(df_results)
         if verbose:
 
             print(
@@ -238,6 +239,7 @@ if __name__ == "__main__":
             df_results.to_pickle(pickle_path)
             if not inference:
                 num_adslabs = sum(df_results["adslab_atoms"].apply(len))
+                filtered_slabs = len(df_results)
                 num_inferred = 0
         else:
             # screen classes from custom packages
@@ -253,7 +255,8 @@ if __name__ == "__main__":
 
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
-    filtered_slabs = surface_bag.count().compute()
+
     sankey_dict = add_slab_info(sankey_dict, unfiltered_slabs, filtered_slabs)
     sankey_dict = add_adslab_info(sankey_dict, num_adslabs, num_inferred)
+    print(sankey_dict)
     get_sankey_diagram(sankey_dict, run_id)
