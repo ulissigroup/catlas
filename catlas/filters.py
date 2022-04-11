@@ -116,21 +116,21 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
                 node_loss,
             )
             sankey_idx += 1
-        # Add remaining bulks to the sankey and connect them to slabs
-        sankey_dict = update_dictionary(
-            sankey_dict,
-            f"Filtered bulks ({initial_bulks})",
-            0,
-            sankey_idx,
-            initial_bulks,
-        )
-        sankey_dict = update_dictionary(
-            sankey_dict,
-            "Slabs",
-            sankey_idx,
-            sankey_idx + 1,
-            initial_bulks,
-        )
+    # Add remaining bulks to the sankey and connect them to slabs
+    sankey_dict = update_dictionary(
+        sankey_dict,
+        f"Filtered bulks ({initial_bulks})",
+        0,
+        sankey_idx,
+        initial_bulks,
+    )
+    sankey_dict = update_dictionary(
+        sankey_dict,
+        "Slabs",
+        sankey_idx,
+        sankey_idx + 1,
+        initial_bulks,
+    )
     return dask_df, sankey_dict
 
 

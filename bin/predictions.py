@@ -254,4 +254,5 @@ if __name__ == "__main__":
 
     # Make final updates to the sankey diagram and plot it
     sankey_dict = add_adslab_info(sankey_dict, num_adslabs, num_inferred)
+    print(sankey_dict)
     get_sankey_diagram(sankey_dict, run_id)
