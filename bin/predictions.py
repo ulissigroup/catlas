@@ -91,7 +91,7 @@ if __name__ == "__main__":
 
     # Instantiate Sankey dictionary
     sankey_dict = {
-        "label": ["Bulks from db", "Adsorbates from db"],
+        "label": ["Adsorbates from db", "Bulks from db"],
         "source": [],
         "target": [],
         "value": [],
@@ -126,11 +126,10 @@ if __name__ == "__main__":
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
-    surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
-    unfiltered_slabs = surface_bag.count().compute()
-    surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
-    filtered_slabs = surface_bag.count().compute()
-    sankey_dict = add_slab_info(sankey_dict, unfiltered_slabs, filtered_slabs)
+    unfiltered_surface_bag = filtered_catalyst_bag.map(
+        memory.cache(enumerate_slabs)
+    ).flatten()
+    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
     if config["dask"]["partitions"] == -1:
@@ -253,6 +252,8 @@ if __name__ == "__main__":
             yaml.dump(config, fhandle)
 
     # Make final updates to the sankey diagram and plot it
+    unfiltered_slabs = unfiltered_surface_bag.count().compute()
+    filtered_slabs = surface_bag.count().compute()
+    sankey_dict = add_slab_info(sankey_dict, unfiltered_slabs, filtered_slabs)
     sankey_dict = add_adslab_info(sankey_dict, num_adslabs, num_inferred)
-    print(sankey_dict)
     get_sankey_diagram(sankey_dict, run_id)

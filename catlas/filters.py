@@ -21,7 +21,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
     """
     bulk_filters = config["bulk_filters"]
     sankey_idx = 2
-    sankey_dict["label"][0] = f"Bulks from db ({initial_bulks})"
+    sankey_dict["label"][1] = f"Bulks from db ({initial_bulks})"
 
     for name, val in bulk_filters.items():
         if (
@@ -111,7 +111,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
             sankey_dict = update_dictionary(
                 sankey_dict,
                 f"Rejected by {name} ({node_loss})",
-                0,
+                1,
                 sankey_idx,
                 node_loss,
             )
@@ -120,7 +120,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
     sankey_dict = update_dictionary(
         sankey_dict,
         f"Filtered bulks ({initial_bulks})",
-        0,
+        1,
         sankey_idx,
         initial_bulks,
     )
@@ -174,7 +174,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
     """
     adsorbate_filters = config["adsorbate_filters"]
     initial_adsorbate = len(dask_df)
-    sankey_dict["label"][1] = f"Adsorbates from db ({initial_adsorbate})"
+    sankey_dict["label"][0] = f"Adsorbates from db ({initial_adsorbate})"
 
     for name, val in adsorbate_filters.items():
         if val != "None":
@@ -188,7 +188,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
     sankey_dict = update_dictionary(
         sankey_dict,
         f"Filtered adsorbates ({len(dask_df)})",
-        1,
+        0,
         node_idx,
         len(dask_df),
     )
@@ -196,7 +196,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
     sankey_dict = update_dictionary(
         sankey_dict,
         f"Rejected adsorbates ({initial_adsorbate - len(dask_df)})",
-        1,
+        0,
         node_idx + 1,
         initial_adsorbate - len(dask_df),
     )
