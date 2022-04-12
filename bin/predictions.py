@@ -1,11 +1,7 @@
 import yaml
 from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
-from catlas.sankey.sankey_utils import (
-    get_sankey_diagram,
-    add_slab_info,
-    add_adslab_info,
-)
+from catlas.sankey.sankey_utils import Sankey
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -90,21 +86,23 @@ if __name__ == "__main__":
             write_pourbaix_info(pbx_dicts, lmdb_path)
 
     # Instantiate Sankey dictionary
-    sankey_dict = {
-        "label": ["Adsorbates from db", "Bulks from db"],
-        "source": [],
-        "target": [],
-        "value": [],
-    }
+    sankey = Sankey(
+        {
+            "label": ["Adsorbates from db", "Bulks from db"],
+            "source": [],
+            "target": [],
+            "value": [],
+            "x": [0.001, 0.001],
+            "y": [0.001, 0.8],
+        }
+    )
 
     # Filter the bulks
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
 
-    filtered_catalyst_df, sankey_dict = bulk_filter(
-        config, bulk_df, sankey_dict, initial_bulks
-    )
+    filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
@@ -118,9 +116,7 @@ if __name__ == "__main__":
     )
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
-    filtered_adsorbate_df, sankey_dict = adsorbate_filter(
-        config, adsorbate_df, sankey_dict
-    )
+    filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
@@ -256,7 +252,6 @@ if __name__ == "__main__":
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
 
-    sankey_dict = add_slab_info(sankey_dict, unfiltered_slabs, filtered_slabs)
-    sankey_dict = add_adslab_info(sankey_dict, num_adslabs, num_inferred)
-    print(sankey_dict)
-    get_sankey_diagram(sankey_dict, run_id)
+    sankey = sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
+    sankey = sankey.add_adslab_info(num_adslabs, num_inferred)
+    sankey.get_sankey_diagram(run_id)

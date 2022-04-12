@@ -2,7 +2,7 @@ import warnings
 import numpy as np
 from pymatgen.core.periodic_table import Element
 from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
-from catlas.sankey.sankey_utils import update_dictionary
+from catlas.sankey.sankey_utils import Sankey
 
 
 def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
@@ -21,7 +21,7 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
     """
     bulk_filters = config["bulk_filters"]
     sankey_idx = 2
-    sankey_dict["label"][1] = f"Bulks from db ({initial_bulks})"
+    sankey.info_dict["label"][1] = f"Bulks from db ({initial_bulks})"
 
     for name, val in bulk_filters.items():
         if (
@@ -108,30 +108,33 @@ def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
             # Update the sankey dictionary
             node_loss = initial_bulks - len(dask_df)
             initial_bulks = len(dask_df)
-            sankey_dict = update_dictionary(
-                sankey_dict,
+            sankey.update_dictionary(
                 f"Rejected by {name} ({node_loss})",
                 1,
                 sankey_idx,
                 node_loss,
+                1,
+                "tbd",
             )
             sankey_idx += 1
     # Add remaining bulks to the sankey and connect them to slabs
-    sankey_dict = update_dictionary(
-        sankey_dict,
+    sankey.update_dictionary(
         f"Filtered bulks ({initial_bulks})",
         1,
         sankey_idx,
         initial_bulks,
+        0.2,
+        0.5,
     )
-    sankey_dict = update_dictionary(
-        sankey_dict,
+    sankey.update_dictionary(
         "Slabs",
         sankey_idx,
         sankey_idx + 1,
         initial_bulks,
+        0.4,
+        0.5,
     )
-    return dask_df, sankey_dict
+    return dask_df, sankey
 
 
 def slab_filter(config, dask_dict):
@@ -174,7 +177,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
     """
     adsorbate_filters = config["adsorbate_filters"]
     initial_adsorbate = len(dask_df)
-    sankey_dict["label"][0] = f"Adsorbates from db ({initial_adsorbate})"
+    sankey.info_dict["label"][0] = f"Adsorbates from db ({initial_adsorbate})"
 
     for name, val in adsorbate_filters.items():
         if val != "None":
@@ -185,26 +188,24 @@ def adsorbate_filter(config, dask_df, sankey_dict):
 
     # Update the sankey diagram
     node_idx = len(sankey_dict["label"])
-    sankey_dict = update_dictionary(
-        sankey_dict,
+    sankey.update_dictionary(
         f"Filtered adsorbates ({len(dask_df)})",
         0,
         node_idx,
         len(dask_df),
+        0.2,
+        0.2,
     )
 
-    sankey_dict = update_dictionary(
-        sankey_dict,
+    sankey.update_dictionary(
         f"Rejected adsorbates ({initial_adsorbate - len(dask_df)})",
         0,
         node_idx + 1,
         initial_adsorbate - len(dask_df),
+        1,
+        0.001,
     )
-    sankey_dict = update_dictionary(
-        sankey_dict,
-        "Adslabs",
-        node_idx,
-        len(sankey_dict["label"]),
-        len(dask_df),
+    sankey.update_dictionary(
+        "Adslabs", node_idx, len(sankey_dict["label"]), len(dask_df), 0.08, 0.25
     )
-    return dask_df, sankey_dict
+    return dask_df, sankey
