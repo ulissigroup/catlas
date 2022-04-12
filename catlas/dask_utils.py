@@ -75,6 +75,11 @@ class SizeDict(dict):
         return len(pickle.dumps(self))
 
 
+class SizeList(list):
+    def __sizeof__(self):
+        return len(pickle.dumps(self))
+
+
 def to_pickles(b, path, name_function=None, compute=True, **kwargs):
     files = open_files(
         path,

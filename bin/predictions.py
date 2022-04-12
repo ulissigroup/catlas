@@ -1,6 +1,7 @@
 import yaml
 from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
+from catlas.sankey.sankey_utils import Sankey
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
 from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
@@ -33,7 +34,7 @@ from jinja2 import Template
 import os
 import pickle
 import tqdm
-import datetime
+import time
 import joblib
 import lmdb
 
@@ -48,9 +49,13 @@ if __name__ == "__main__":
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
 
+    # Establish run information
+    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
+    os.makedirs(f"outputs/{run_id}/")
+
     # Generate parity plots
-    if "parity_output_folder" in config["output_options"]:
-        get_parity_upfront(config)
+    if config["output_options"]["make_parity_plots"]:
+        get_parity_upfront(config, run_id)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
         )
@@ -80,11 +85,24 @@ if __name__ == "__main__":
             pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
             write_pourbaix_info(pbx_dicts, lmdb_path)
 
+    # Instantiate Sankey dictionary
+    sankey = Sankey(
+        {
+            "label": ["Adsorbates from db", "Bulks from db"],
+            "source": [],
+            "target": [],
+            "value": [],
+            "x": [0.001, 0.001],
+            "y": [0.001, 0.8],
+        }
+    )
+
     # Filter the bulks
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
-    print("Number of initial bulks: %d" % bulk_df.shape[0].compute())
+    initial_bulks = bulk_df.shape[0].compute()
+    print(f"Number of initial bulks: {initial_bulks}")
 
-    filtered_catalyst_df = bulk_filter(config, bulk_df)
+    filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
     filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
@@ -93,17 +111,21 @@ if __name__ == "__main__":
     filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
     # Load and filter the adsorbates
-    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)()
+    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
+        config["input_options"]["adsorbate_file"]
+    )
     adsorbate_bag = db.from_delayed([adsorbate_delayed])
     adsorbate_df = adsorbate_bag.to_dataframe()
-    filtered_adsorbate_df = adsorbate_filter(config, adsorbate_df)
+    filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
-    surface_bag = filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten()
-    surface_bag = surface_bag.filter(lambda x: slab_filter(config, x))
+    unfiltered_surface_bag = (
+        filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten().persist()
+    )
+    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
     if config["dask"]["partitions"] == -1:
@@ -123,6 +145,8 @@ if __name__ == "__main__":
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
 
     # Run adslab predictions
+    inference = False
+    num_adslabs = None
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             if step["step"] == "predict":
@@ -156,25 +180,28 @@ if __name__ == "__main__":
                     )
 
                 most_recent_step = "min_" + step["label"]
+                inference = True
 
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
-    pickle_in_config = "pickle_path" in config["output_options"]
 
     results_bag = results_bag.persist(optimize_graph=False)
 
-    if "pickle_folder" in config["output_options"]:
+    if config["output_options"]["pickle_intermediate_outputs"]:
+        os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
         to_pickles(
             results_bag,
-            config["output_options"]["pickle_folder"] + "/*.pkl",
+            f"outputs/{run_id}/intermediate_pkls/" + "/*.pkl",
             optimize_graph=False,
         )
 
-    if verbose or pickle_in_config:
+    if verbose or config["output_options"]["pickle_final_output"]:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
-
+        if inference:
+            num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
+            filtered_slabs = len(df_results)
         if verbose:
 
             print(
@@ -196,25 +223,36 @@ if __name__ == "__main__":
         results = results_bag.persist(optimize_graph=False)
         wait(results)
 
-    if pickle_in_config:
-        pickle_path = config["output_options"]["pickle_path"]
+    if config["output_options"]["pickle_final_output"]:
+        pickle_path = f"outputs/{run_id}/results_df.pkl"
 
-        if pickle_path != "None":
-            if (
-                "output_all_structures" in config["output_options"]
-                and config["output_options"]["output_all_structures"]
-            ):
-                adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
-                df_results["adslab_atoms"] = adslab_atoms
-                df_results.to_pickle(pickle_path)
-            else:
-                # screen classes from custom packages
-                class_mask = (
-                    df_results.columns.to_series()
-                    .apply(lambda x: str(type(df_results[x].iloc[0])))
-                    .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
-                )
-                df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
+        if (
+            "output_all_structures" in config["output_options"]
+            and config["output_options"]["output_all_structures"]
+        ):
+            adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
+            df_results["adslab_atoms"] = adslab_atoms
+            df_results.to_pickle(pickle_path)
+            if not inference:
+                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
+                filtered_slabs = len(df_results)
+                num_inferred = 0
+        else:
+            # screen classes from custom packages
+            class_mask = (
+                df_results.columns.to_series()
+                .apply(lambda x: str(type(df_results[x].iloc[0])))
+                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            )
+            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
-        with open(config["output_options"]["config_path"], "w") as fhandle:
+        with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
             yaml.dump(config, fhandle)
+
+    # Make final updates to the sankey diagram and plot it
+    unfiltered_slabs = unfiltered_surface_bag.count().compute()
+
+    sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
+
+    sankey.add_adslab_info(num_adslabs, num_inferred)
+    sankey.get_sankey_diagram(run_id)

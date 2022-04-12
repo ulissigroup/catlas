@@ -6,7 +6,7 @@ from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 import copy
 from ocpmodels.preprocessing import AtomsToGraphs
-from .dask_utils import SizeDict
+from .dask_utils import SizeDict, SizeList
 import logging
 
 
@@ -62,7 +62,7 @@ def enumerate_adslabs(surface_ads_combo):
     surface_dict, ads_dict = surface_ads_combo
 
     # Prep the new adslab result from the adsorbate and surface info dicts
-    adslab_result = SizeDict()
+    adslab_result = SizeList()
 
     adsorbate_obj = CustomAdsorbate(
         ads_dict["adsorbate_atoms"],
@@ -73,7 +73,7 @@ def enumerate_adslabs(surface_ads_combo):
         adsorbate_obj, surface_dict["slab_surface_object"], enumerate_all_configs=True
     )
 
-    adslab_result["adslab_atoms"] = combo_obj.constrained_adsorbed_surfaces
+    adslab_result = combo_obj.constrained_adsorbed_surfaces
 
     return adslab_result
 
@@ -91,9 +91,7 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
         r_edges=False,
     )
 
-    graph_dict["adslab_graphs"] = [
-        a2g.convert(atoms) for atoms in adslab_result["adslab_atoms"]
-    ]
+    graph_dict["adslab_graphs"] = [a2g.convert(atoms) for atoms in adslab_result]
 
     for graph in graph_dict["adslab_graphs"]:
         graph.fid = 0
