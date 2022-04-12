@@ -27,11 +27,11 @@ class Sankey:
         """
         if label is not None:
             self.info_dict["label"].append(label)
+            self.info_dict["x"].append(x)
+            self.info_dict["y"].append(y)
         self.info_dict["source"].append(source)
         self.info_dict["target"].append(target)
         self.info_dict["value"].append(value)
-        self.info_dict["x"].append(x)
-        self.info_dict["y"].append(y)
 
     def add_slab_info(self, num_unfiltered: int, num_filtered: int):
         """
@@ -43,7 +43,7 @@ class Sankey:
         """
         node_idx = len(self.info_dict["label"])
         slab_idx = self.info_dict["label"].index("Slabs")
-        self.info_dict.update_dictionary(
+        self.update_dictionary(
             f"Filtered slabs ({num_filtered})",
             slab_idx,
             node_idx,
@@ -51,7 +51,7 @@ class Sankey:
             0.6,
             0.4,
         )
-        self.info_dict.update_dictionary(
+        self.update_dictionary(
             f"Rejected slabs ({num_unfiltered - num_filtered})",
             slab_idx,
             node_idx + 1,
@@ -59,8 +59,13 @@ class Sankey:
             1,
             "tbd",
         )
-        self.info_dict.update_dictionary(
-            None, node_idx, self.info_dict["label"].index("Adslabs"), num_filtered
+        self.update_dictionary(
+            None,
+            node_idx,
+            self.info_dict["label"].index("Adslabs"),
+            num_filtered,
+            None,
+            None,
         )
         self.info_dict["label"][slab_idx] = f"Slabs ({num_unfiltered})"
 
@@ -79,7 +84,7 @@ class Sankey:
             )
             num_adslabs = 0
         adslab_idx = self.info_dict["label"].index("Adslabs")
-        self.info_dict.update_dictionary(
+        self.update_dictionary(
             f"Inferred energies ({num_inference})",
             adslab_idx,
             len(self.info_dict["label"]),
@@ -89,7 +94,7 @@ class Sankey:
         )
         self.info_dict["label"][adslab_idx] = f"Adslabs ({num_adslabs})"
         if num_adslabs != num_inference:
-            self.info_dict.update_dictionary(
+            self.update_dictionary(
                 f"Not inferred adslabs ({num_adslabs - num_inference})",
                 adslab_idx,
                 len(self.info_dict["label"]),
@@ -110,7 +115,6 @@ class Sankey:
         indices_to_change = [
             idx for idx, value in enumerate(self.info_dict["y"]) if value == "tbd"
         ]
-
         # Alter values if log weighting will be used
         if use_log:
             vals = np.log(self.info_dict["value"])
@@ -120,8 +124,13 @@ class Sankey:
             values = self.info_dict["value"]
 
         # Calculate new node placement and update vals
-        weight_factor = 0.8 / sum([values[idx] for idx in indices_to_change])
-        y_sizes = [weight_factor * values[idx] for idx in indices_to_change]
+        flows_to_1 = [
+            idx
+            for idx, target in enumerate(self.info_dict["target"])
+            if target in indices_to_change
+        ]
+        weight_factor = 0.8 / sum([values[idx] for idx in flows_to_1])
+        y_sizes = [weight_factor * values[idx] for idx in flows_to_1]
         y_now = 0.9
         for idx, idx_set in enumerate(indices_to_change):
             self.info_dict["y"][idx_set] = y_now

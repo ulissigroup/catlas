@@ -122,9 +122,9 @@ if __name__ == "__main__":
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
     # Enumerate and filter surfaces
-    unfiltered_surface_bag = filtered_catalyst_bag.map(
-        memory.cache(enumerate_slabs)
-    ).flatten()
+    unfiltered_surface_bag = (
+        filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten().persist()
+    )
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
@@ -252,6 +252,7 @@ if __name__ == "__main__":
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
 
-    sankey = sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
-    sankey = sankey.add_adslab_info(num_adslabs, num_inferred)
+    sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
+
+    sankey.add_adslab_info(num_adslabs, num_inferred)
     sankey.get_sankey_diagram(run_id)

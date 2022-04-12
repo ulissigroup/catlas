@@ -5,19 +5,19 @@ from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
 from catlas.sankey.sankey_utils import Sankey
 
 
-def bulk_filter(config, dask_df, sankey_dict, initial_bulks):
+def bulk_filter(config, dask_df, sankey, initial_bulks):
     """
     Filters a dask dataframe `dask_df` of bulk structures according to rules specified in a config yml `config`.
 
     Args:
         config: dictionary of the config yaml
         dask_df: the working dataframe of bulk inputs
-        sankey_dict: a dictionary of values that will be used to populate the output sankey diagram
+        sankey: the sankey object
         initial_bulks: the initial number of bulks
 
     Returns:
         dask_df: the working dataframe of bulk values post-filtering
-        sankey_dict: the sankey dictionary with bulk filtering information included
+        sankey: the sankey object with added info
     """
     bulk_filters = config["bulk_filters"]
     sankey_idx = 2
@@ -162,18 +162,18 @@ def slab_filter(config, dask_dict):
     return keep
 
 
-def adsorbate_filter(config, dask_df, sankey_dict):
+def adsorbate_filter(config, dask_df, sankey):
     """
     Filters a dask dataframe `dask_df` of adsorbate structures according to rules specified in config yml `config`.
     Args:
         config: dictionary of the config yaml
         dask_df: the working dataframe of adsorbate inputs
-        sankey_dict: a dictionary of values that will be used to populate the output sankey diagram
+        sankey: the sankey object
         initial_bulks: the initial number of bulks
 
     Returns:
         dask_df: the working dataframe of adsorbate values post-filtering
-        sankey_dict: the sankey dictionary with adsorbate filtering information included
+        sankey: the sankey object with added information
     """
     adsorbate_filters = config["adsorbate_filters"]
     initial_adsorbate = len(dask_df)
@@ -187,7 +187,7 @@ def adsorbate_filter(config, dask_df, sankey_dict):
                 warnings.warn("Adsorbate filter is not implemented: " + name)
 
     # Update the sankey diagram
-    node_idx = len(sankey_dict["label"])
+    node_idx = len(sankey.info_dict["label"])
     sankey.update_dictionary(
         f"Filtered adsorbates ({len(dask_df)})",
         0,
@@ -206,6 +206,6 @@ def adsorbate_filter(config, dask_df, sankey_dict):
         0.001,
     )
     sankey.update_dictionary(
-        "Adslabs", node_idx, len(sankey_dict["label"]), len(dask_df), 0.08, 0.25
+        "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.8, 0.25
     )
     return dask_df, sankey
