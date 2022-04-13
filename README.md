@@ -10,13 +10,13 @@
 
 ## Large file handling
  ### Ulissigroup internal: Create symbolic links for important large files
- `ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints`
- `ln -s /home/jovyan/shared-scratch/catlas/npz-files .catlas/parity/`
- `ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/`
+ - `ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints`
+ - `ln -s /home/jovyan/shared-scratch/catlas/npz-files .catlas/parity/`
+ - `ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/`
  
  ### Other: Add large files to their appropriate place in the repo
- [Model checkpoints](https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md) -> catlas/ocp_checkpoints
- Inference on validation data for parity (link to download coming soon!)
+ - [Model checkpoints](https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md) -> catlas/ocp_checkpoints
+ - Inference on validation data for parity (link to download coming soon!)
 
 ## Usage
 ### Local / kubernetes cluster
@@ -24,6 +24,8 @@
 
 ### HPC (Perlmutter)
 `$ sbatch configs/dask_cluster/perlmutter/catlas_run.sh`
+
+
 For additional options see [NERSC documentation](https://docs.nersc.gov/jobs/)
 
 ## Monitoring
