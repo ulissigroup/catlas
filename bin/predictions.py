@@ -165,6 +165,7 @@ if __name__ == "__main__":
                             column_name=step["label"],
                             batch_size=step["batch_size"],
                             cpu=False,
+                            number_steps=number_steps,
                         )
                 else:
                     results_bag = results_bag.map(
@@ -178,6 +179,7 @@ if __name__ == "__main__":
                         column_name=step["label"],
                         batch_size=step["batch_size"],
                         cpu=True,
+                        number_steps=number_steps,
                     )
 
                 most_recent_step = "min_" + step["label"]

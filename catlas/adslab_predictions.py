@@ -50,8 +50,8 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
-    def __init__(self, checkpoint, batch_size=8, cpu=False, number_steps=200):
-
+    def __init__(self, checkpoint, number_steps, batch_size=8, cpu=False):
+        self.number_steps = number_steps
         setup_imports()
         setup_logging()
 
@@ -152,7 +152,7 @@ class BatchOCPPredictor:
 
         return predictions["energy"]
 
-    def relaxation_prediction(self, graphs_list, number_steps):
+    def relaxation_prediction(self, graphs_list):
 
         if self.device == "cpu":
             torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
@@ -168,7 +168,7 @@ class BatchOCPPredictor:
             relaxed_batch = ml_relaxation.ml_relax(
                 batch=batch,
                 model=self,
-                steps=self.config["task"].get("relaxation_steps", number_steps),
+                steps=self.config["task"].get("relaxation_steps", self.number_steps),
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
                 device=self.device,
@@ -214,7 +214,6 @@ def energy_prediction(
     if BOCPP.config["trainer"] == "forces":
         energy_predictions, position_predictions = BOCPP.relaxation_prediction(
             graphs_dict["adslab_graphs"],
-            number_steps,
         )
         energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
 
