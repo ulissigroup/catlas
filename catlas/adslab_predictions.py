@@ -194,7 +194,7 @@ def energy_prediction(
     column_name,
     batch_size=8,
     cpu=False,
-    number_steps=200,
+    number_steps = 200,
 ):
 
     global BOCPP_dict
@@ -204,7 +204,7 @@ def energy_prediction(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
             cpu=cpu,
-            number_steps=number_steps,
+            number_steps = number_steps,
         )
 
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
@@ -213,8 +213,7 @@ def energy_prediction(
 
     if BOCPP.config["trainer"] == "forces":
         energy_predictions, position_predictions = BOCPP.relaxation_prediction(
-            graphs_dict["adslab_graphs"],
-            number_steps,
+            graphs_dict["adslab_graphs"], number_steps,
         )
         energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
 
@@ -224,14 +223,12 @@ def energy_prediction(
         anomaly_tests = []
         for atoms, positions in zip(adslab_atoms_copy, position_predictions):
             atoms.set_positions(positions)
-            detector = DetectTrajAnomaly(
-                adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
-            )
+            detector = DetectTrajAnomaly(adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags())
             status = {}
-            status["dissociation"] = detector.is_adsorbate_dissociated()
-            status["desorption"] = detector.is_adsorbate_desorbed()
-            status["reconstruction"] = detector.is_surface_reconstructed()
-            anolmaly_tests.append(status)
+            status['dissociation'] = detector.is_adsorbate_dissociated()
+            status['desorption'] = detector.is_adsorbate_desorbed()
+            status['reconstruction'] = detector.is_surface_reconstructed()
+            anomaly_tests.append(status)
             idx += 1
         adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
         adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
