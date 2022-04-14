@@ -149,6 +149,7 @@ if __name__ == "__main__":
     num_adslabs = None
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
+            number_steps = step["number_steps"] if "number_steps" in step else 200
             if step["step"] == "predict":
 
                 if step["gpu"]:
