@@ -1,6 +1,7 @@
 from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
 from ocdata.combined import Combined
+from ocdata.flag_anomaly import DetectTrajAnomaly
 from ase.optimize import LBFGS
 import numpy as np
 from ocpmodels.preprocessing import AtomsToGraphs
@@ -49,8 +50,8 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
-    def __init__(self, checkpoint, batch_size=8, cpu=False):
-
+    def __init__(self, checkpoint, number_steps, batch_size=8, cpu=False):
+        self.number_steps = number_steps
         setup_imports()
         setup_logging()
 
@@ -167,7 +168,7 @@ class BatchOCPPredictor:
             relaxed_batch = ml_relaxation.ml_relax(
                 batch=batch,
                 model=self,
-                steps=self.config["task"].get("relaxation_steps", 200),
+                steps=self.config["task"].get("relaxation_steps", self.number_steps),
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
                 device=self.device,
@@ -193,6 +194,7 @@ def energy_prediction(
     column_name,
     batch_size=8,
     cpu=False,
+    number_steps=200,
 ):
 
     global BOCPP_dict
@@ -202,6 +204,7 @@ def energy_prediction(
             checkpoint=checkpoint_path,
             batch_size=batch_size,
             cpu=cpu,
+            number_steps=number_steps,
         )
 
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
@@ -210,15 +213,28 @@ def energy_prediction(
 
     if BOCPP.config["trainer"] == "forces":
         energy_predictions, position_predictions = BOCPP.relaxation_prediction(
-            graphs_dict["adslab_graphs"]
+            graphs_dict["adslab_graphs"],
         )
         energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
 
         # Use the relaxed positions to generate relaxed atoms objects
-        adslab_atoms = copy.deepcopy(adslab_atoms)
-        for atoms, positions in zip(adslab_atoms, position_predictions):
+        adslab_atoms_copy = copy.deepcopy(adslab_atoms)
+        idx = 0
+        anomaly_tests = []
+        for atoms, positions in zip(adslab_atoms_copy, position_predictions):
             atoms.set_positions(positions)
-        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms
+            detector = DetectTrajAnomaly(
+                adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
+            )
+            status = {}
+            status["dissociation"] = detector.is_adsorbate_dissociated()
+            status["desorption"] = detector.is_adsorbate_desorbed()
+            status["reconstruction"] = detector.is_surface_reconstructed()
+            anomaly_tests.append(status)
+            idx += 1
+        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
+        adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
+        adslab_results["anomaly_detection"] = anomaly_tests
     else:
         energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
 

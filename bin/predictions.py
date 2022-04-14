@@ -149,6 +149,7 @@ if __name__ == "__main__":
     num_adslabs = None
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
+            number_steps = step["number_steps"] if "number_steps" in step else 200
             if step["step"] == "predict":
 
                 if step["gpu"]:
@@ -164,6 +165,7 @@ if __name__ == "__main__":
                             column_name=step["label"],
                             batch_size=step["batch_size"],
                             cpu=False,
+                            number_steps=number_steps,
                         )
                 else:
                     results_bag = results_bag.map(
@@ -177,6 +179,7 @@ if __name__ == "__main__":
                         column_name=step["label"],
                         batch_size=step["batch_size"],
                         cpu=True,
+                        number_steps=number_steps,
                     )
 
                 most_recent_step = "min_" + step["label"]
