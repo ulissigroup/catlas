@@ -1,5 +1,7 @@
 # Outputs
 outputs/
+configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
+configs/dask_cluster/dev_kube_cluster/worker-cpu.yml
 
 # VSCode
 *.vscode*
