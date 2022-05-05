@@ -1,3 +1,6 @@
+# Outputs
+outputs/
+
 # VSCode
 *.vscode*
 *.code-workspace

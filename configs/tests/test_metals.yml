@@ -4,14 +4,15 @@ dask:
 memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
-  pickle_path: test_metals.pkl
-  pickle_folder: '/home/jovyan/shared-scratch/catlas/outputs/test_metals/'
-  config_path: test_metals.yml
-  parity_output_folder: 'outputs/parity-outputs/'
-  verbose: false
+  run_name: "test_metals"
+  pickle_final_output: True
+  pickle_intermediate_outputs: True
+  make_parity_plots: True
+  verbose: False
 
 input_options:
   bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+  adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
     filter_by_mpids: ['mp-126','mp-30', 'mp-101']
