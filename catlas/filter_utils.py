@@ -15,11 +15,12 @@ from pymatgen.analysis.pourbaix_diagram import (
 from pymatgen.core import SETTINGS
 import cerberus
 
+
 def validate_config(yaml: dict) -> None:
     """
-    Validates a config yaml for use in screening. 
+    Validates a config yaml for use in screening.
     """
-    
+
 
 def get_pourbaix_info(entry: dict) -> dict:
     """
@@ -275,212 +276,150 @@ from pymatgen.core import Element
 from cerberus import Validator
 import yaml
 
-mpid_regex = '^mp-\d+$|^mvc-\d+$' # 'mp-#' or 'mvc-#'
+mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [
-        'transition_metal',
-        'post-transition metal',
-        'metalloid',
-        'rare earth metal',
-        'alkali',
-        'alkaline',
-        'chalcogen',
-        'halogen'
-    ]
+    "transition_metal",
+    "post-transition metal",
+    "metalloid",
+    "rare earth metal",
+    "alkali",
+    "alkaline",
+    "chalcogen",
+    "halogen",
+]
+
 
 def validate_element(field, value, error):
     if not Element.is_valid_symbol(value):
-        error(field, "'%s' is not an element"%value)
+        error(field, "'%s' is not an element" % value)
+
 
 def validate_file_exists(field, value, error):
     if not os.path.exists(value):
         error(field, "file path does not exist: '%s'" % value)
 
+
 schema = {
-    'memory_cache_location':
-    {
-        'type':'string', 
-        'check_with': validate_file_exists
-    },
-    'input_options':
-    {
-        'required': True,
-        'type': 'dict',
-        'schema':
-        {
-            'adsorbate_file':
-            {
-                'required': True,
-                'type': 'string',
-                'check_with': validate_file_exists
+    "memory_cache_location": {"type": "string", "check_with": validate_file_exists},
+    "input_options": {
+        "required": True,
+        "type": "dict",
+        "schema": {
+            "adsorbate_file": {
+                "required": True,
+                "type": "string",
+                "check_with": validate_file_exists,
             },
-            'bulk_file': 
-            {
-                'required': True,
-                'type': 'string',
-                'check_with': validate_file_exists
+            "bulk_file": {
+                "required": True,
+                "type": "string",
+                "check_with": validate_file_exists,
             },
         },
     },
-    'adsorbate_filters':
-    {
-        'type': 'dict',
-        'schema':
-        {
-            'filter_by_smiles': 
-            {
-                'type': 'list',
-                'schema': {
-                    'type': 'string'
-                    }
-            }
-        },
+    "adsorbate_filters": {
+        "type": "dict",
+        "schema": {"filter_by_smiles": {"type": "list", "schema": {"type": "string"}}},
     },
-    'bulk_filters':
-    {
-        'type': 'dict',
-        'schema':
-        {
-            'filter_by_mpids':
-            {
-                'type': 'list',
-                'regex': mpid_regex 
+    "bulk_filters": {
+        "type": "dict",
+        "schema": {
+            "filter_by_mpids": {"type": "list", "regex": mpid_regex},
+            "filter_ignore_mpids": {"type": "list", "regex": mpid_regex},
+            "filter_by_acceptable_elements": {
+                "type": "list",
+                "check_with": validate_element,
             },
-            'filter_ignore_mpids':
-            {
-                'type':'list',
-                'regex': mpid_regex
+            "filter_by_required_elements": {
+                "type": "list",
+                "check_with": validate_element,
             },
-            'filter_by_acceptable_elements':
-            {
-                'type':'list',
-                'check_with': validate_element
-            },
-            'filter_by_required_elements':
-            {
-                'type':'list',
-                'check_with': validate_element
-            },
-            'filter_by_num_elements': {'type': 'integer'},
-            'filter_by_object_size': {'type': 'integer'},
-            'filter_by_elements_active_host':
-            {
-                'type': 'dict',
-                'schema':
-                {
-                    'active':
-                    {
-                            'type':'string',
-                            'check_with': validate_element
-                    },
-                    'host':
-                    {
-                            'type':'string',
-                            'check_with': validate_element
-                    }
+            "filter_by_num_elements": {"type": "integer"},
+            "filter_by_object_size": {"type": "integer"},
+            "filter_by_elements_active_host": {
+                "type": "dict",
+                "schema": {
+                    "active": {"type": "string", "check_with": validate_element},
+                    "host": {"type": "string", "check_with": validate_element},
                 },
             },
-            'filter_by_element_groups': 
-            {
-                'type': 'list',
-                'allowed': valid_element_groups
+            "filter_by_element_groups": {
+                "type": "list",
+                "allowed": valid_element_groups,
             },
-            'filter_by_pourbaix_stability':
-            {
-                'type': 'dict',
-                'schema':
-                {
-                    'lmdb_path':
-                    {
-                        'required': True,
-                        'type': 'string',
-                        'check_with': validate_file_exists
+            "filter_by_pourbaix_stability": {
+                "type": "dict",
+                "schema": {
+                    "lmdb_path": {
+                        "required": True,
+                        "type": "string",
+                        "check_with": validate_file_exists,
                     },
-                    'conditions':
-                    {
-                        'required': True,
-                        'excludes': 'pH_lower',
-                        'type': 'dict',
-                        'schema':
-                        {
-                            'pH': {'type': 'float'},
-                            'V': {'type': 'float'},
-                        }
+                    "conditions": {
+                        "required": True,
+                        "excludes": "pH_lower",
+                        "type": "dict",
+                        "schema": {
+                            "pH": {"type": "float"},
+                            "V": {"type": "float"},
+                        },
                     },
-                    'pH_lower':
-                    {
-                        'required': True,
-                        'excludes': 'conditions',
-                        'dependencies': ['pH_upper', 'V_lower', 'V_upper']
+                    "pH_lower": {
+                        "required": True,
+                        "excludes": "conditions",
+                        "dependencies": ["pH_upper", "V_lower", "V_upper"],
                     },
-                    'pH_step': 
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower',
+                    "pH_step": {
+                        "type": "float",
+                        "dependencies": "pH_lower",
                     },
-                    'V_step':
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower'
-                    }
+                    "V_step": {"type": "float", "dependencies": "pH_lower"},
                 },
             },
         },
     },
-    'slab_filters':
-    {
-        'type': 'dict',
-        'schema': 
-        {
-            'filter_by_object_size': {'type':'integer'},
-            'filter_by_max_miller_index': {'type':'integer'}
+    "slab_filters": {
+        "type": "dict",
+        "schema": {
+            "filter_by_object_size": {"type": "integer"},
+            "filter_by_max_miller_index": {"type": "integer"},
         },
     },
-    'output_options':
-    {
-        'required': True,
-        'type': 'dict',
-        'schema':
-        {
-            'make_parity_plots': {'type': 'boolean'},
-            'output_all_structures': {'type': 'boolean'},
-            'pickle_intermediate_outputs': {'type': 'boolean'},
-            'pickle_final_output': {'type': 'boolean'},
-            'verbose': {'type': 'boolean'},
-            'run_name': {
-                'required': True,
-                'type': 'string'
-            }
-        }
+    "output_options": {
+        "required": True,
+        "type": "dict",
+        "schema": {
+            "make_parity_plots": {"type": "boolean"},
+            "output_all_structures": {"type": "boolean"},
+            "pickle_intermediate_outputs": {"type": "boolean"},
+            "pickle_final_output": {"type": "boolean"},
+            "verbose": {"type": "boolean"},
+            "run_name": {"required": True, "type": "string"},
+        },
     },
-    'adslab_prediction_steps':
-    {
-        'required': False,
-        'type': 'list',
-        'schema':
-        {
-            'type': 'dict',
-            'schema':
-            {
-                'checkpoint_path': {
-                    'type': 'string',
-                    'check_with': validate_file_exists,
-                    'regex': '.*.pt', # cerberus doesn't understand re "$"; requires full match
+    "adslab_prediction_steps": {
+        "required": False,
+        "type": "list",
+        "schema": {
+            "type": "dict",
+            "schema": {
+                "checkpoint_path": {
+                    "type": "string",
+                    "check_with": validate_file_exists,
+                    "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
                 },
-                'gpu': {
-                    'type': 'boolean',
-                    'required': True
-                    },
-                'label':
-                {
-                    'required': True,
-                    'type': 'string',
+                "gpu": {"type": "boolean", "required": True},
+                "label": {
+                    "required": True,
+                    "type": "string",
                 },
-                'number_steps': {
-                    'type': 'integer',
+                "number_steps": {
+                    "type": "integer",
                 },
-                'batch_size': {'type': 'integer'}
+                "batch_size": {"type": "integer"},
             },
-        }
-    }
+        },
+    },
 }
-v = Validator(schema)
+
+config_validator = Validator(schema)

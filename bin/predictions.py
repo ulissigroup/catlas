@@ -3,7 +3,7 @@ from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.sankey.sankey_utils import Sankey
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
+from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info, config_validator
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
@@ -48,13 +48,25 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
+    if not config_validator.validate(config):
+        raise ValueError(
+            "Config has the following errors:\n%s"
+            % "\n".join(
+                [
+                    ": ".join(['"%s"' % str(i) for i in item])
+                    for item in config_validator.errors.items()
+                ]
+            )
+        )
 
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
 
     # Generate parity plots
-    if ("make_parity_plots" in config["output_options"]) and (config["output_options"]["make_parity_plots"]):
+    if ("make_parity_plots" in config["output_options"]) and (
+        config["output_options"]["make_parity_plots"]
+    ):
         get_parity_upfront(config, run_id)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
