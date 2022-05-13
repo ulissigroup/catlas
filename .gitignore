@@ -1,5 +1,6 @@
 # Outputs
 outputs/
+ocp_checkpoints/
 configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
 configs/dask_cluster/dev_kube_cluster/worker-cpu.yml
 
