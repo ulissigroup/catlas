@@ -95,8 +95,6 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                     )
                 ]
 
-            else:
-                warnings.warn("Bulk filter is not implemented: " + name)
 
             if config["output_options"]["verbose"]:
                 print(
@@ -157,8 +155,6 @@ def slab_filter(config, dask_dict):
                 keep = keep and (dask_dict["slab_natoms"] <= val)
             elif name == "filter_by_max_miller_index":
                 keep = keep and (dask_dict["slab_max_miller_index"] <= val)
-            else:
-                warnings.warn("Slab filter is not implemented: " + name)
     return keep
 
 
@@ -183,8 +179,6 @@ def adsorbate_filter(config, dask_df, sankey):
         if val != "None":
             if name == "filter_by_smiles":
                 dask_df = dask_df[dask_df.adsorbate_smiles.isin(val)]
-            else:
-                warnings.warn("Adsorbate filter is not implemented: " + name)
 
     # Update the sankey diagram
     node_idx = len(sankey.info_dict["label"])
