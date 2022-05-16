@@ -34,7 +34,7 @@ cluster = KubeCluster(
     scheduler_service_wait_timeout=240,
 )
 
-cluster.adapt(minimum=2, maximum=2)
+cluster.adapt(minimum=2, maximum=10)
 
 # Connect to the cluster
 client = Client(cluster)
