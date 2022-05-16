@@ -1,6 +1,6 @@
 import yaml
 import dask
-from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
+from dask_kubernetes.common.objects import make_pod_from_dict, clean_pod_template
 import subprocess
 
 

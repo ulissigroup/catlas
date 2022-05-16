@@ -2,7 +2,7 @@ from dask.distributed import Client
 from dask_kubernetes import KubeCluster
 import os
 from jinja2 import Template
-from dask_kubernetes.objects import make_pod_from_dict
+from dask_kubernetes.common.objects import make_pod_from_dict
 
 dask.config.set({"distributed.comm.timeouts.connect": 240})
 
