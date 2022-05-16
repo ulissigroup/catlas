@@ -1,11 +1,12 @@
 from dask.distributed import Client
 from dask_kubernetes import KubeCluster
-from dask_kubernetes.objects import make_pod_from_dict, clean_pod_template
+from dask_kubernetes.common.objects import make_pod_from_dict, clean_pod_template
 from catlas.dask_kube_utils import kube_cluster_new_worker, get_namespace
 import dask
 import subprocess
 from jinja2 import Template
-
+import yaml
+import os
 
 dask.config.set({"distributed.comm.timeouts.connect": 120})
 dask.config.set({"distributed.worker.daemon": False})
