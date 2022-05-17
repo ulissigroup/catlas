@@ -14,7 +14,7 @@ spec:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
     args: [dask-scheduler]
-    name: dask
+    name: dask-worker
     env:
     - name: NVIDIA_VISIBLE_DEVICES
       value: "none"
