@@ -258,8 +258,8 @@ if __name__ == "__main__":
             )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
-        with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
-            yaml.dump(config, fhandle)
+    with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
+        yaml.dump(config, fhandle)
 
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
