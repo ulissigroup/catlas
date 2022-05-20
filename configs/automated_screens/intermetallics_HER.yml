@@ -1,0 +1,28 @@
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
+
+input_options:
+  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+
+output_options:
+  pickle_final_output: True # True pickles the resulting predictions
+  run_name: '{{ GITHUB_RUN_ID }}'
+  make_parity_plots: True
+  verbose: False
+
+bulk_filters:
+  filter_by_acceptable_elements: ['Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', 'Pb', 'Bi', 'In']
+  filter_by_object_size: 40 # 60
+
+adsorbate_filters:
+  filter_by_smiles: ['*H', '*CO']
+
+slab_filters:
+  filter_by_object_size: 90
+  filter_by_max_miller_index: 1 # Planar surfaces only like Pt111
+
+adslab_prediction_steps:
+- gpu: true
+  batch_size: 4
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+
