@@ -1,4 +1,5 @@
 from pymatgen.core import Element
+from pathlib import Path
 import yaml
 import os
 
@@ -21,12 +22,21 @@ def validate_element(field, value, error):
         error(field, "invalid elements: [%s]" % ", ".join(["\"%s\""%e for e in invalid_elements]))
 
 
-def validate_file_exists(field, value, error):
+def validate_path_exists(field, value, error):
     if not os.path.exists(value):
         error(field, "file path does not exist: '%s'" % value)
 
+
+def validate_folder_exists(field, value, error):
+    """A more permissive check to check if a file can be created if it doesn't exist"""
+    path_list = value.split("/")
+    if "." in path_list[-1]: # path is file; check containing folder
+        value = "/".join(path_list[:-1])
+    if not os.path.exists(value):
+        error(field, "file path's enclosing folder does not exist: '%s'" % value)
+
 config_schema = {
-    "memory_cache_location": {"type": "string", "check_with": validate_file_exists},
+    "memory_cache_location": {"type": "string", "check_with": validate_path_exists},
     "input_options": {
         "required": True,
         "type": "dict",
@@ -34,12 +44,12 @@ config_schema = {
             "adsorbate_file": {
                 "required": False,
                 "type": "string",
-                "check_with": validate_file_exists,
+                "check_with": validate_path_exists,
             },
             "bulk_file": {
                 "required": True,
                 "type": "string",
-                "check_with": validate_file_exists,
+                "check_with": validate_path_exists,
             },
         },
     },
@@ -82,12 +92,12 @@ config_schema = {
                     {
                         'required': True,
                         'type': 'string',
-                        'check_with': validate_file_exists
+                        'check_with': validate_folder_exists
                     },
                     'max_decomposition_energy':
                     {
                         'required': True,
-                        'type': 'string',
+                        'type': 'float',
                     },
                     'conditions_list':
                     {
@@ -167,7 +177,7 @@ config_schema = {
             "schema": {
                 "checkpoint_path": {
                     "type": "string",
-                    "check_with": validate_file_exists,
+                    "check_with": validate_path_exists,
                     "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
                 },
                 "gpu": {"type": "boolean", "required": True},

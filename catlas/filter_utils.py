@@ -175,6 +175,7 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
         conditions: The dictionary of Pourbaix settings set in the config yaml
 
     """
+    max_decomposition_energy = conditions["max_decomposition_energy"]
     lmdb_path = conditions["lmdb_path"]
     lmdb_path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
@@ -213,16 +214,16 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
         # see what electrochemical conditions to consider and find the decomposition energies
         if "pH_lower" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_range(
-                entry["pbx"], entry["pbx_entry"], conditions
+                entry["pbx"], entry["pbx_entry"], conditions, max_decomposition_energy
             )
         elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions["conditions_list"]
+                entry["pbx"], entry["pbx_entry"], conditions["conditions_list"], max_decomposition_energy
             )
         return decomp_bools
 
 
-def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
+def get_decomposition_bools_from_range(pbx, pbx_entry, conditions, max_decomposition_energy):
     """Evaluates the decomposition energies under the desired range of conditions"""
     list_of_bools = []
 
@@ -249,21 +250,21 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     for pH in pH_range:
         for V in V_range:
             decomp_energy = pbx.get_decomposition_energy(pbx_entry, pH, V)
-            if decomp_energy <= conditions["max_decomposition_energy"]:
+            if decomp_energy <= max_decomposition_energy:
                 list_of_bools.append(True)
             else:
                 list_of_bools.append(False)
     return list_of_bools
 
 
-def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
+def get_decomposition_bools_from_list(pbx, pbx_entry, conditions_list, max_decomposition_energy):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
-    for condition in conditions:
+    for condition in conditions_list:
         decomp_energy = pbx.get_decomposition_energy(
             pbx_entry, condition["pH"], condition["V"]
         )
-        if decomp_energy <= conditions["max_decomposition_energy"]:
+        if decomp_energy <= max_decomposition_energy:
             list_of_bools.append(True)
         else:
             list_of_bools.append(False)
