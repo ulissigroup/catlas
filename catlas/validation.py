@@ -4,6 +4,14 @@ from pathlib import Path
 import yaml
 import os
 
+class CustomValidator(Validator):
+    '''In development. Use to validate that pH and V are in correct order'''
+    def _validate_is_lower(self, other, field, value):
+        if other not in self.document:
+            return False
+        if value > self.document[other]:
+            self._error(field, "Must be lower than %s" % other)
+
 mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [
     "transition_metal",
@@ -15,7 +23,6 @@ valid_element_groups = [
     "chalcogen",
     "halogen",
 ]
-
 
 def validate_element(field, value, error):
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
@@ -93,7 +100,7 @@ config_schema = {
                     {
                         'required': True,
                         'type': 'string',
-                        'check_with': validate_folder_exists
+                        'check_with': validate_folder_exists,
                     },
                     'max_decomposition_energy':
                     {
@@ -114,13 +121,13 @@ config_schema = {
                                 'pH': {'type': 'float'},
                                 'V': {'type': 'float'},
                             }
-                        }
+                        },
                     },
                     'pH_lower':
                     {
                         'required': True,
                         'excludes': 'conditions_list',
-                        'dependencies': ['pH_upper', 'V_lower', 'V_upper']
+                        'dependencies': ['pH_upper', 'V_lower', 'V_upper'],
                     },
                     'pH_upper': 
                     {
@@ -135,7 +142,7 @@ config_schema = {
                     'V_lower':
                     {
                         'type': 'float',
-                        'dependencies': 'pH_lower'
+                        'dependencies': 'pH_lower',
                     },
                     'V_upper':
                     {
