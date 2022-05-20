@@ -1,4 +1,5 @@
 from pymatgen.core import Element
+from cerberus import Validator
 from pathlib import Path
 import yaml
 import os
@@ -193,3 +194,5 @@ config_schema = {
         },
     },
 }
+
+config_validator = Validator(config_schema)

@@ -23,7 +23,7 @@ import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
 )
-from catlas.validation import config_schema
+from catlas.validation import config_validator
 import dask.bag as db
 import dask
 import sys
@@ -40,7 +40,6 @@ import joblib
 import lmdb
 
 joblib.memory._build_func_identifier = better_build_func_identifier
-from cerberus import Validator
 
 
 # Load inputs and define global vars
@@ -50,7 +49,6 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
-    config_validator = Validator(config_schema)
     if not config_validator.validate(config):
         raise ValueError(
             "Config has the following errors:\n%s"
