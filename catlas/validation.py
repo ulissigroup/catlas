@@ -24,10 +24,15 @@ valid_element_groups = [
     "halogen",
 ]
 
+
 def validate_element(field, value, error):
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
-        error(field, "invalid elements: [%s]" % ", ".join(["\"%s\""%e for e in invalid_elements]))
+        error(
+            field,
+            "invalid elements: [%s]"
+            % ", ".join(['"%s"' % e for e in invalid_elements]),
+        )
 
 
 def validate_path_exists(field, value, error):
@@ -38,10 +43,11 @@ def validate_path_exists(field, value, error):
 def validate_folder_exists(field, value, error):
     """A more permissive check to check if a file can be created if it doesn't exist"""
     path_list = value.split("/")
-    if "." in path_list[-1]: # path is file; check containing folder
+    if "." in path_list[-1]:  # path is file; check containing folder
         value = "/".join(path_list[:-1])
     if not os.path.exists(value):
         error(field, "file path's enclosing folder does not exist: '%s'" % value)
+
 
 config_schema = {
     "memory_cache_location": {"type": "string", "check_with": validate_path_exists},
@@ -91,69 +97,57 @@ config_schema = {
                 "type": "list",
                 "allowed": valid_element_groups,
             },
-            'filter_by_pourbaix_stability':
-            {
-                'type': 'dict',
-                'schema':
-                {
-                    'lmdb_path':
-                    {
-                        'required': True,
-                        'type': 'string',
-                        'check_with': validate_folder_exists,
+            "filter_by_pourbaix_stability": {
+                "type": "dict",
+                "schema": {
+                    "lmdb_path": {
+                        "required": True,
+                        "type": "string",
+                        "check_with": validate_folder_exists,
                     },
-                    'max_decomposition_energy':
-                    {
-                        'required': True,
-                        'type': 'float',
+                    "max_decomposition_energy": {
+                        "required": True,
+                        "type": "float",
                     },
-                    'conditions_list':
-                    {
-                        'required': True,
-                        'excludes': ['pH_lower', 'pH_upper', 'pH_step', 'V_lower', 'V_upper', 'V_step'],
-                        'type': 'list',
-                        'schema':
-                        {
-                            'type': 'dict',
-                            'required': True,
-                            'schema':
-                            {
-                                'pH': {'type': 'float'},
-                                'V': {'type': 'float'},
-                            }
+                    "conditions_list": {
+                        "required": True,
+                        "excludes": [
+                            "pH_lower",
+                            "pH_upper",
+                            "pH_step",
+                            "V_lower",
+                            "V_upper",
+                            "V_step",
+                        ],
+                        "type": "list",
+                        "schema": {
+                            "type": "dict",
+                            "required": True,
+                            "schema": {
+                                "pH": {"type": "float"},
+                                "V": {"type": "float"},
+                            },
                         },
                     },
-                    'pH_lower':
-                    {
-                        'required': True,
-                        'excludes': 'conditions_list',
-                        'dependencies': ['pH_upper', 'V_lower', 'V_upper'],
+                    "pH_lower": {
+                        "required": True,
+                        "excludes": "conditions_list",
+                        "dependencies": ["pH_upper", "V_lower", "V_upper"],
                     },
-                    'pH_upper': 
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower',
+                    "pH_upper": {
+                        "type": "float",
+                        "dependencies": "pH_lower",
                     },
-                    'pH_step': 
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower',
+                    "pH_step": {
+                        "type": "float",
+                        "dependencies": "pH_lower",
                     },
-                    'V_lower':
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower',
+                    "V_lower": {
+                        "type": "float",
+                        "dependencies": "pH_lower",
                     },
-                    'V_upper':
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower'
-                    },
-                    'V_step':
-                    {
-                        'type': 'float',
-                        'dependencies': 'pH_lower'
-                    },
+                    "V_upper": {"type": "float", "dependencies": "pH_lower"},
+                    "V_step": {"type": "float", "dependencies": "pH_lower"},
                 },
             },
         },

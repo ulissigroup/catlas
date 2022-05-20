@@ -95,7 +95,6 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                     )
                 ]
 
-
             if config["output_options"]["verbose"]:
                 print(
                     'filter "'

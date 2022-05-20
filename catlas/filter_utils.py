@@ -218,12 +218,17 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
             )
         elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions["conditions_list"], max_decomposition_energy
+                entry["pbx"],
+                entry["pbx_entry"],
+                conditions["conditions_list"],
+                max_decomposition_energy,
             )
         return decomp_bools
 
 
-def get_decomposition_bools_from_range(pbx, pbx_entry, conditions, max_decomposition_energy):
+def get_decomposition_bools_from_range(
+    pbx, pbx_entry, conditions, max_decomposition_energy
+):
     """Evaluates the decomposition energies under the desired range of conditions"""
     list_of_bools = []
 
@@ -257,7 +262,9 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions, max_decomposi
     return list_of_bools
 
 
-def get_decomposition_bools_from_list(pbx, pbx_entry, conditions_list, max_decomposition_energy):
+def get_decomposition_bools_from_list(
+    pbx, pbx_entry, conditions_list, max_decomposition_energy
+):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
     for condition in conditions_list:
@@ -269,4 +276,3 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions_list, max_decom
         else:
             list_of_bools.append(False)
     return list_of_bools
-

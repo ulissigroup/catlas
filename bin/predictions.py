@@ -60,7 +60,7 @@ if __name__ == "__main__":
             )
         )
     else:
-        print('Config validated')
+        print("Config validated")
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
