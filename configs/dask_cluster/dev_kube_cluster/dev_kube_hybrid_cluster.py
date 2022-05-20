@@ -42,7 +42,7 @@ with open("./configs/dask_cluster/dev_kube_cluster/worker-cpu.yml", "w") as fhan
     fhandle.write(template.render(**os.environ))
 
 kube_cluster_new_worker(cluster, "configs/dask_cluster/dev_kube_cluster/worker-cpu.yml")
-cluster.scale(20)
+cluster.scale(4)
 
 # Connect to the cluster
 client = Client(cluster)
