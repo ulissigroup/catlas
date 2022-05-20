@@ -211,15 +211,13 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     # Determine electrochemical stability
     else:
         # see what electrochemical conditions to consider and find the decomposition energies
-        if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
-            set(conditions.keys())
-        ):
+        if "pH_lower" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_range(
                 entry["pbx"], entry["pbx_entry"], conditions
             )
-        elif "conditions" in conditions:
+        elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions
+                entry["pbx"], entry["pbx_entry"], conditions["conditions_list"]
             )
         return decomp_bools
 
@@ -261,7 +259,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
-    for condition in conditions["conditions"]:
+    for condition in conditions:
         decomp_energy = pbx.get_decomposition_energy(
             pbx_entry, condition["pH"], condition["V"]
         )
@@ -271,155 +269,3 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
             list_of_bools.append(False)
     return list_of_bools
 
-
-from pymatgen.core import Element
-from cerberus import Validator
-import yaml
-
-mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
-valid_element_groups = [
-    "transition_metal",
-    "post-transition metal",
-    "metalloid",
-    "rare earth metal",
-    "alkali",
-    "alkaline",
-    "chalcogen",
-    "halogen",
-]
-
-
-def validate_element(field, value, error):
-    if not Element.is_valid_symbol(value):
-        error(field, "'%s' is not an element" % value)
-
-
-def validate_file_exists(field, value, error):
-    if not os.path.exists(value):
-        error(field, "file path does not exist: '%s'" % value)
-
-
-schema = {
-    "memory_cache_location": {"type": "string", "check_with": validate_file_exists},
-    "input_options": {
-        "required": True,
-        "type": "dict",
-        "schema": {
-            "adsorbate_file": {
-                "required": True,
-                "type": "string",
-                "check_with": validate_file_exists,
-            },
-            "bulk_file": {
-                "required": True,
-                "type": "string",
-                "check_with": validate_file_exists,
-            },
-        },
-    },
-    "adsorbate_filters": {
-        "type": "dict",
-        "schema": {"filter_by_smiles": {"type": "list", "schema": {"type": "string"}}},
-    },
-    "bulk_filters": {
-        "type": "dict",
-        "schema": {
-            "filter_by_mpids": {"type": "list", "regex": mpid_regex},
-            "filter_ignore_mpids": {"type": "list", "regex": mpid_regex},
-            "filter_by_acceptable_elements": {
-                "type": "list",
-                "check_with": validate_element,
-            },
-            "filter_by_required_elements": {
-                "type": "list",
-                "check_with": validate_element,
-            },
-            "filter_by_num_elements": {"type": "integer"},
-            "filter_by_object_size": {"type": "integer"},
-            "filter_by_elements_active_host": {
-                "type": "dict",
-                "schema": {
-                    "active": {"type": "string", "check_with": validate_element},
-                    "host": {"type": "string", "check_with": validate_element},
-                },
-            },
-            "filter_by_element_groups": {
-                "type": "list",
-                "allowed": valid_element_groups,
-            },
-            "filter_by_pourbaix_stability": {
-                "type": "dict",
-                "schema": {
-                    "lmdb_path": {
-                        "required": True,
-                        "type": "string",
-                        "check_with": validate_file_exists,
-                    },
-                    "conditions": {
-                        "required": True,
-                        "excludes": "pH_lower",
-                        "type": "dict",
-                        "schema": {
-                            "pH": {"type": "float"},
-                            "V": {"type": "float"},
-                        },
-                    },
-                    "pH_lower": {
-                        "required": True,
-                        "excludes": "conditions",
-                        "dependencies": ["pH_upper", "V_lower", "V_upper"],
-                    },
-                    "pH_step": {
-                        "type": "float",
-                        "dependencies": "pH_lower",
-                    },
-                    "V_step": {"type": "float", "dependencies": "pH_lower"},
-                },
-            },
-        },
-    },
-    "slab_filters": {
-        "type": "dict",
-        "schema": {
-            "filter_by_object_size": {"type": "integer"},
-            "filter_by_max_miller_index": {"type": "integer"},
-        },
-    },
-    "output_options": {
-        "required": True,
-        "type": "dict",
-        "schema": {
-            "make_parity_plots": {"type": "boolean"},
-            "output_all_structures": {"type": "boolean"},
-            "pickle_intermediate_outputs": {"type": "boolean"},
-            "pickle_final_output": {"type": "boolean"},
-            "verbose": {"type": "boolean"},
-            "run_name": {"required": True, "type": "string"},
-        },
-    },
-    "adslab_prediction_steps": {
-        "required": False,
-        "type": "list",
-        "schema": {
-            "type": "dict",
-            "schema": {
-                "checkpoint_path": {
-                    "type": "string",
-                    "check_with": validate_file_exists,
-                    "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
-                },
-                "gpu": {"type": "boolean", "required": True},
-                "label": {
-                    "required": True,
-                    "type": "string",
-                },
-                "number_steps": {
-                    "type": "integer",
-                },
-                "batch_size": {"type": "integer"},
-            },
-        },
-    },
-}
-
-config_validator = Validator(schema)

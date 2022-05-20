@@ -3,7 +3,7 @@ from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.sankey.sankey_utils import Sankey
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info, config_validator
+from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
@@ -23,6 +23,7 @@ import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
 )
+from catlas.validation import config_schema
 import dask.bag as db
 import dask
 import sys
@@ -39,6 +40,7 @@ import joblib
 import lmdb
 
 joblib.memory._build_func_identifier = better_build_func_identifier
+from cerberus import Validator
 
 
 # Load inputs and define global vars
@@ -48,6 +50,7 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ))
+    config_validator = Validator(config_schema)
     if not config_validator.validate(config):
         raise ValueError(
             "Config has the following errors:\n%s"
