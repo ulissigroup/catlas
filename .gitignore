@@ -4,6 +4,7 @@ ocp_checkpoints
 parity
 configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
 configs/dask_cluster/dev_kube_cluster/worker-cpu.yml
+catlas/pourbaix_diagrams
 
 # VSCode
 *.vscode*
