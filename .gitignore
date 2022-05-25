@@ -1,3 +1,6 @@
+# Intermediate files
+dev_kube_cluster/*.yml
+
 # Outputs
 outputs/
 parity
