@@ -1,8 +1,12 @@
 # Outputs
 outputs/
+parity
+ocp_checkpoints
+catlas/pourbaix_diagrams
 
 # VSCode
 *.code-workspace
+vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
