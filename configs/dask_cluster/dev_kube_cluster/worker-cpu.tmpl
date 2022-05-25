@@ -1,5 +1,14 @@
 kind: Pod
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: network
+            operator: In
+            values:
+            - 10gb
   restartPolicy: Never
   containers:
   - image: ulissigroup/kubeflow:predictions
