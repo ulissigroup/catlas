@@ -6,7 +6,7 @@ catlas/pourbaix_diagrams
 
 # VSCode
 *.code-workspace
-vscode/
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
