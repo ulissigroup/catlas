@@ -13,8 +13,13 @@ spec:
   containers:
   - image: ulissigroup/kubeflow:predictions
     imagePullPolicy: Always
+<<<<<<< HEAD
     args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'18 GiB',--death-timeout, '600']
     name: dask
+=======
+    args: [dask-worker, --nthreads, '1',--nprocs,'2', --no-dashboard, --memory-limit,'10 GiB',--death-timeout, '600']
+    name: dask-worker
+>>>>>>> origin/main
     env: 
     - name: OMP_NUM_THREADS
       value: 1

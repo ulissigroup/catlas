@@ -112,7 +112,6 @@ if __name__ == "__main__":
     )
 
     # Filter the bulks
-    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
 
