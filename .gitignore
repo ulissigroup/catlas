@@ -1,5 +1,6 @@
 # Intermediate files
-dev_kube_cluster/*.yml
+configs/dask_cluster/dev_kube_cluster/worker-cpu.yml
+configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
 
 # Outputs
 outputs/
