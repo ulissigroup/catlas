@@ -8,6 +8,7 @@ import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 from .dask_utils import SizeDict, SizeList
 import logging
+import torch
 
 
 class CustomAdsorbate(Adsorbate):
