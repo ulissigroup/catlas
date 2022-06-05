@@ -1,3 +1,4 @@
+"""Function to load bulks from an ase.db."""
 from ase.db import connect
 import os.path
 import numpy as np
@@ -16,25 +17,22 @@ required_fields = (
 
 
 def load_bulks(bulk_path):
+    """
+    Load bulks from an ase.db
+
+    Args:
+        bulk_path: a relative path (from the main catlas directory) to the ase.db
+    """
 
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         bulk_path,
     )
 
-    # Remove this entire line to revert to the previous cache
+    path_name, _ = os.path.splitext(path)
+    db_name = path_name.split("/")[-1]
 
-    path_name, ext = os.path.splitext(path)
-    source_name = path_name.split("/")[-1]
-
-    if ext == ".db":
-        return load_bulks_from_db(path, source_name)
-    elif (ext == ".pkl") or (ext == ".json"):
-        return load_bulks_from_df(path, source_name)
-
-
-def load_bulks_from_db(db_path, db_name):
-    with connect(db_path) as db:
+    with connect(path) as db:
 
         # Turn each entry into a dictionary that will become the dataframe columns
         bulk_list = []
@@ -43,7 +41,7 @@ def load_bulks_from_db(db_path, db_name):
                 SizeDict(
                     {
                         "bulk_atoms": row.toatoms(),
-                        "bulk_mpid": row.mpid,
+                        "bulk_id": row.bulk_id,
                         "bulk_data_source": db_name,
                         "bulk_natoms": row.natoms,
                         "bulk_xc": "RPBE",
@@ -53,23 +51,10 @@ def load_bulks_from_db(db_path, db_name):
                         "bulk_elements": np.unique(
                             row.toatoms().get_chemical_symbols()
                         ),
+                        "bulk_e_above_hull": row.energy_above_hull,
+                        "bulk_band_gap": row.band_gap,
                     }
                 )
             )
 
         return bulk_list
-
-
-def load_bulks_from_df(df_path, df_name):
-
-    _, ext = os.path.splitext(df_path)
-    if ext == ".pkl":
-        bulk_df = pd.DataFrame(pd.read_pickle(df_path))
-    elif ext == ".json":
-        bulk_df = pd.DataFrame(pd.read_json(df_path))
-
-    bulk_df = bulk_df.loc[:, required_fields]
-    bulk_df["source"] = df_name
-    bulk_df = bulk_df.rename(lambda x: "bulk_" + x, axis=1)
-    bulk_list = bulk_df.to_dict("records")
-    return bulk_list
