@@ -8,6 +8,7 @@ import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 from .dask_utils import SizeDict, SizeList
 import logging
+import torch
 
 
 class CustomAdsorbate(Adsorbate):
@@ -91,11 +92,17 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
         r_edges=False,
     )
 
-    graph_dict["adslab_graphs"] = [a2g.convert(atoms) for atoms in adslab_result]
+    graph_list = []
 
-    for graph in graph_dict["adslab_graphs"]:
+    for adslab in adslab_result:
+        tags = adslab.get_tags()
+        graph = a2g.convert(adslab)
+        graph.tags = torch.LongTensor(tags)
         graph.fid = 0
         graph.sid = 0
+        graph_list.append(graph)
+
+    graph_dict["adslab_graphs"] = graph_list
 
     return graph_dict
 
