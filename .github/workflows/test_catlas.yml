@@ -94,5 +94,6 @@ jobs:
         kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
         python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
     - name: Shut down dask cluster
+      if: always()
       run: |
         kubectl delete daskcluster catlas-hybrid-cluster
