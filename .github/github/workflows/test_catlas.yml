@@ -88,10 +88,10 @@ jobs:
     - name: Test cpu relaxation inference with kubecluster
       run: |
         cd catlas
-        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
+        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
     - name: Test gpu relaxation with kubecluster
       run: |
         cd catlas
         kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
-        python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_gpu_cluster.py
+        python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
         kubectl delete daskcluster catlas-hybrid-cluster
