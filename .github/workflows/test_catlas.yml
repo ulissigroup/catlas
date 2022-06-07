@@ -82,8 +82,8 @@ jobs:
         python setup.py develop
     - name: Startup dask cluster
       run: |
-        kubectl apply -f configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
-        kubectl scale --replicas=8 daskworkergroup catlas-hybrid-cluster-default-worker-group
+        kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-default-worker-group
     - name: Test cpu relaxation inference with kubecluster
       run: |
         cd catlas
