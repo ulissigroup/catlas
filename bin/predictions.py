@@ -52,6 +52,10 @@ if __name__ == "__main__":
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
+    
+    # Print catlas to terminal
+    with open("catlas/catlas_ascii.txt", "r") as f:
+        print(f.read())
 
     # Generate parity plots
     if config["output_options"]["make_parity_plots"]:
