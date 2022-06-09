@@ -27,10 +27,10 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
         if (
             str(val) != "None"
         ):  # depending on how yaml is specified, val may either be "None" or NoneType
-            if name == "filter_by_mpids":
-                dask_df = dask_df[dask_df.bulk_mpid.isin(val)]
-            elif name == "filter_ignore_mpids":
-                dask_df = dask_df[~dask_df.bulk_mpid.isin(val)]
+            if name == "filter_by_bulk_ids":
+                dask_df = dask_df[dask_df.bulk_id.isin(val)]
+            elif name == "filter_ignore_bulk_ids":
+                dask_df = dask_df[~dask_df.bulk_id.isin(val)]
             elif name == "filter_by_acceptable_elements":
                 dask_df = dask_df[
                     dask_df.bulk_elements.apply(
@@ -86,14 +86,35 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                 ]
             elif name == "filter_by_pourbaix_stability":
                 dask_df = dask_df[
-                    dask_df.bulk_mpid.apply(
+                    dask_df.bulk_id.apply(
                         lambda x, conditions: any(
                             get_pourbaix_stability(x, conditions)
                         ),
                         conditions=val,
-                        meta=("bulk_mpid", "bool"),
+                        meta=("bulk_id", "bool"),
                     )
                 ]
+
+            elif name == "filter_by_bulk_e_above_hull":
+                dask_df = dask_df[dask_df.bulk_e_above_hull <= val]
+
+            elif name == "filter_by_bulk_band_gap":
+                if "min_gap" in val and "max_gap" in val:
+                    dask_df = dask_df[
+                        (dask_df.bulk_band_gap >= val["min_gap"])
+                        & (dask_df.bulk_band_gap <= val["max_gap"])
+                    ]
+                elif "min_gap" in val:
+                    dask_df = dask_df[(dask_df.bulk_band_gap >= val["min_gap"])]
+                elif "max_gap" in val:
+                    dask_df = dask_df[(dask_df.bulk_band_gap <= val["max_gap"])]
+                else:
+                    warnings.warn(
+                        "Band gap filtering was not specified properly -> skipping it."
+                    )
+
+            else:
+                warnings.warn("Bulk filter is not implemented: " + name)
 
             if config["output_options"]["verbose"]:
                 print(

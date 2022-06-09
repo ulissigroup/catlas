@@ -24,7 +24,7 @@ def validate_config(yaml: dict) -> None:
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
-    from Materials Project and constructs a pourbaix diagram for it.
+    from Materials Project and constructs a pourbaix diagram for it. This currently only supports MP materials.
 
     Args:
         entry: bulk structure entry as constructed by
@@ -34,7 +34,14 @@ def get_pourbaix_info(entry: dict) -> dict:
     """
     # Unpack mpid and define some presets
     pbx_entry = None
-    mpid = entry["bulk_mpid"]
+    mpid = entry["bulk_id"]
+
+    # Raise an error if non-MP materials used
+    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mcv":
+        raise ValueError(
+            "Pourbaix filtering is only supported for Materials Project materials."
+        )
+
     output = {"mpid": mpid}
 
     # Get the composition information

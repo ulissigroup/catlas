@@ -48,7 +48,7 @@ if __name__ == "__main__":
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
-    config = yaml.load(template.render(**os.environ))
+    config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
     if not config_validator.validate(config):
         raise ValueError(
             "Config has the following errors:\n%s"
@@ -64,6 +64,10 @@ if __name__ == "__main__":
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
+
+    # Print catlas to terminal
+    with open("catlas/catlas_ascii.txt", "r") as f:
+        print(f.read())
 
     # Generate parity plots
     if ("make_parity_plots" in config["output_options"]) and (config["output_options"]["make_parity_plots"]):
@@ -153,7 +157,6 @@ if __name__ == "__main__":
 
     # Run adslab predictions
     inference = False
-    num_adslabs = None
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             number_steps = step["number_steps"] if "number_steps" in step else 200
@@ -190,6 +193,7 @@ if __name__ == "__main__":
             most_recent_step = "min_" + step["label"]
             inference = True
 
+    # Handle results
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
@@ -209,14 +213,14 @@ if __name__ == "__main__":
         df_results = pd.DataFrame(results)
         if inference:
             num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
-            filtered_slabs = len(df_results)
+        filtered_slabs = len(df_results)
         if verbose:
 
             print(
                 df_results[
                     [
                         "bulk_elements",
-                        "bulk_mpid",
+                        "bulk_id",
                         "bulk_data_source",
                         "slab_millers",
                         "adsorbate_smiles",
@@ -230,6 +234,7 @@ if __name__ == "__main__":
         # on only running GPU inference on GPUs is saved
         results = results_bag.persist(optimize_graph=False)
         wait(results)
+        filtered_slabs = results.count().compute()
 
     if config["output_options"]["pickle_final_output"]:
         pickle_path = f"outputs/{run_id}/results_df.pkl"
@@ -260,6 +265,11 @@ if __name__ == "__main__":
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
 
+    if "num_adslabs" not in vars():
+        num_adslabs = num_inferred = 0
+        warnings.warn(
+            "Adslabs were enumerated but will not be counted for the Sankey diagram."
+        )
     sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
 
     sankey.add_adslab_info(num_adslabs, num_inferred)

@@ -93,6 +93,12 @@ config_schema = {
                     "host": {"type": "string", "check_with": validate_element},
                 },
             },
+            "filter_by_bulk_e_above_hull": {
+                "type": "float",
+            },
+            "filter_by_bulk_band_gap": {
+                "type": "float"
+            },
             "filter_by_element_groups": {
                 "type": "list",
                 "allowed": valid_element_groups,

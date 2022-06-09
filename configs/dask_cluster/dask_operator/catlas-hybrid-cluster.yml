@@ -1,0 +1,145 @@
+apiVersion: kubernetes.dask.org/v1
+kind: DaskCluster
+metadata:
+  name: catlas-hybrid-cluster
+spec:
+  worker:
+    replicas: 2
+    spec:
+        containers:
+          - image: ulissigroup/kubeflow:predictions
+            imagePullPolicy: Always
+            args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'10 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)']
+            name: dask-worker
+            env: 
+            - name: OMP_NUM_THREADS
+              value: "4"
+            - name: MP_API_KEY
+              value: "your_api_key"
+            - name: PYTHONPATH
+              value: "/home/jovyan/ocp:/home/jovyan/catlas"
+            - name: NVIDIA_VISIBLE_DEVICES
+              value: "none"
+            - name: MALLOC_TRIM_THRESHOLD_
+              value: "0"
+            resources:
+              limits:
+                cpu: "4"
+                memory: 21G
+              requests:
+                cpu: "4"
+                memory: 21G
+            volumeMounts:
+            - mountPath: /home/jovyan/ocp
+              name: workspace-inference
+              subPath: ocp
+            - mountPath: /home/jovyan/catlas
+              name: workspace-inference
+              subPath: catlas
+            - mountPath: /home/jovyan/shared-scratch
+              name: shared-scratch
+            - mountPath: /home/jovyan/dask-worker-space
+              name: shared-scratch
+              subPath: catlas/dask-worker-space
+        volumes:
+          - name: shared-scratch
+            persistentVolumeClaim:
+              claimName: shared-scratch
+          - name: workspace-inference
+            persistentVolumeClaim:
+              claimName: workspace-inference
+  scheduler:
+    spec:
+      containers:
+      - name: scheduler
+        image: ulissigroup/kubeflow:predictions
+        imagePullPolicy: Always
+        args:
+          - dask-scheduler
+        ports:
+          - name: tcp-comm
+            containerPort: 8786
+            protocol: TCP
+          - name: http-dashboard
+            containerPort: 8787
+            protocol: TCP
+        readinessProbe:
+          httpGet:
+            port: http-dashboard
+            path: /health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            port: http-dashboard
+            path: /health
+          initialDelaySeconds: 15
+          periodSeconds: 20
+    service:
+      type: ClusterIP
+      selector:
+        dask.org/cluster-name: catlas-hybrid-cluster
+        dask.org/component: scheduler
+      ports:
+      - name: tcp-comm
+        protocol: TCP
+        port: 8786
+        targetPort: "tcp-comm"
+      - name: http-dashboard
+        protocol: TCP
+        port: 8787
+        targetPort: "http-dashboard"
+
+---
+
+apiVersion: kubernetes.dask.org/v1
+kind: DaskWorkerGroup
+metadata:
+  name: catlas-hybrid-cluster-gpu-worker-group
+spec:
+  cluster: catlas-hybrid-cluster
+  worker:
+    replicas: 0
+    spec:
+      containers:
+      - image: ulissigroup/kubeflow:predictions
+        imagePullPolicy: Always
+        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'20 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)']
+        name: dask-worker
+        env:
+        - name: OMP_NUM_THREADS
+          value: "1"
+        - name: PYTHONPATH
+          value: "/home/jovyan/ocp:/home/jovyan/catlas"
+        - name: MALLOC_TRIM_THRESHOLD_
+          value: "0"
+        - name: MP_API_KEY
+          value: "your_api_key"
+        resources:
+          limits:
+            cpu: "4"
+            memory: 21G
+            nvidia.com/gpu: "1"
+          requests:
+            cpu: "4"
+            memory: 21G
+            nvidia.com/gpu: "1"
+        volumeMounts:
+        - mountPath: /home/jovyan/ocp
+          name: workspace-inference
+          subPath: ocp
+        - mountPath: /home/jovyan/catlas
+          name: workspace-inference
+          subPath: catlas
+        - mountPath: /home/jovyan/shared-scratch
+          name: shared-scratch
+        - mountPath: /home/jovyan/dask-worker-space
+          name: shared-scratch
+          subPath: catlas/dask-worker-space
+      volumes:
+      - name: shared-scratch
+        persistentVolumeClaim:
+          claimName: shared-scratch
+      - name: workspace-inference
+        persistentVolumeClaim:
+          claimName: workspace-inference
