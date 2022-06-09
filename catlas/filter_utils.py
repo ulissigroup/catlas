@@ -12,7 +12,6 @@ from pymatgen.analysis.pourbaix_diagram import (
     PourbaixDiagram,
     PourbaixEntry,
 )
-from pymatgen.core import SETTINGS
 import cerberus
 
 
@@ -52,7 +51,7 @@ def get_pourbaix_info(entry: dict) -> dict:
         return output
 
     # Grab the Pourbaix entries
-    with MPRester(SETTINGS["MP_API_KEY"]) as mpr:
+    with MPRester() as mpr:
         mpid_new = mpr.get_materials_id_from_task_id(mpid)
         pbx_entries = mpr.get_pourbaix_entries(comp)
 

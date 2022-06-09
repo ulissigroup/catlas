@@ -66,9 +66,7 @@ if __name__ == "__main__":
     os.makedirs(f"outputs/{run_id}/")
 
     # Generate parity plots
-    if ("make_parity_plots" in config["output_options"]) and (
-        config["output_options"]["make_parity_plots"]
-    ):
+    if ("make_parity_plots" in config["output_options"]) and (config["output_options"]["make_parity_plots"]):
         get_parity_upfront(config, run_id)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
