@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
-    config = yaml.load(template.render(**os.environ))
+    config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
 
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
