@@ -30,7 +30,7 @@ def get_pourbaix_info(entry: dict) -> dict:
     mpid = entry["bulk_id"]
 
     # Raise an error if non-MP materials used
-    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mcv":
+    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
             "Pourbaix filtering is only supported for Materials Project materials."
         )
