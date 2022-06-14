@@ -131,10 +131,7 @@ if __name__ == "__main__":
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
-    if config["dask"]["partitions"] == -1:
-        npartitions = min(bulk_num * adsorbate_num * 4, 2000)
-    else:
-        npartitions = config["dask"]["partitions"]
+    npartitions = min(bulk_num * adsorbate_num * 4, 2000)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
