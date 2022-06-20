@@ -53,13 +53,13 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Grab the Pourbaix entries
     with MPRester() as mpr:
         mpid_new = mpr.get_materials_id_from_task_id(mpid)
-        
+
         # Handle the exception where the material has been fully deprecated
         if mpid_new is None:
             output["pbx"] = "failed"
             output["pbx_entry"] = "failed"
             return output
-        
+
         pbx_entries = mpr.get_pourbaix_entries(comp)
 
         # Grab the pourbaix entry for the mpid of interest
@@ -106,7 +106,6 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
         map_async=True,
     )
 
-    
     # Add data and key values
     txn = db.begin(write=True)
     txn.put(
@@ -116,11 +115,11 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
     txn.commit()
     db.sync()
     db.close()
-    
+
+
 def pb_query_and_write(entry: dict, lmdb_path: str):
     pourbaix_info = get_pourbaix_info(entry)
     write_pourbaix_info(pourbaix_info, lmdb_path)
-    
 
 
 def get_elements_in_groups(groups: list) -> list:
@@ -210,7 +209,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
 
     ## Get entry and unpickle it
     entry_pickled = txn.get(bulk_id.encode("ascii"))
-    
+
     if entry_pickled != None:
         entry = pickle.loads(entry_pickled)
     else:
@@ -297,7 +296,7 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
             )
         except:
             decomp_energy = 2
-            with open(bulk_id + '.pkl', "wb") as f:
+            with open(bulk_id + ".pkl", "wb") as f:
                 pickle.dump(pbx, f)
         if decomp_energy <= conditions["max_decomposition_energy"]:
             list_of_bools.append(True)
