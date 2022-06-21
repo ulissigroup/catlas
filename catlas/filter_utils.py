@@ -290,9 +290,14 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
     for condition in conditions["conditions"]:
-        decomp_energy = pbx.get_decomposition_energy(
-            pbx_entry, condition["pH"], condition["V"]
-        )
+        try:
+            decomp_energy = pbx.get_decomposition_energy(
+                pbx_entry, condition["pH"], condition["V"]
+            )
+        except:
+            decomp_energy = 2
+            with open(bulk_id + ".pkl", "wb") as f:
+                pickle.dump(pbx, f)
         if decomp_energy <= conditions["max_decomposition_energy"]:
             list_of_bools.append(True)
         else:
