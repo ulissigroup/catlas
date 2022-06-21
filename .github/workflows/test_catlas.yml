@@ -3,7 +3,7 @@ name: Test catlas with simple screening
 env:
   OMP_NUM_THREADS: '1'
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   test_local_scheduler:
