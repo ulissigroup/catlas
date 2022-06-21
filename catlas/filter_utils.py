@@ -29,7 +29,6 @@ def get_pourbaix_info(entry: dict) -> dict:
     Args:
         entry: bulk structure entry as constructed by
                catlas.load_bulk_structures.load_bulks_from_db
-        mp_api_key: Users Materials Project API key (next-gen)
 
     """
     # Unpack mpid and define some presets
@@ -37,9 +36,9 @@ def get_pourbaix_info(entry: dict) -> dict:
     mpid = entry["bulk_id"]
 
     # Raise an error if non-MP materials used
-    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mcv":
+    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
-            "Pourbaix filtering is only supported for Materials Project materials."
+            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."% mpid
         )
 
     output = {"mpid": mpid}

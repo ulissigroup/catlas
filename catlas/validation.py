@@ -74,7 +74,7 @@ config_schema = {
     "bulk_filters": {
         "type": "dict",
         "schema": {
-            "filter_by_mpids": {"type": "list", "regex": mpid_regex},
+            "filter_by_bulk_ids": {"type": "list", "regex": mpid_regex},
             "filter_ignore_mpids": {"type": "list", "regex": mpid_regex},
             "filter_by_acceptable_elements": {
                 "type": "list",
@@ -109,7 +109,7 @@ config_schema = {
                     "lmdb_path": {
                         "required": True,
                         "type": "string",
-                        "check_with": validate_folder_exists,
+                        # "check_with": validate_folder_exists,
                     },
                     "max_decomposition_energy": {
                         "required": True,

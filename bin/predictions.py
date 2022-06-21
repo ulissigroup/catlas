@@ -98,7 +98,7 @@ if __name__ == "__main__":
                 "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
-            pbx_dicts = bulk_bag.map(get_pourbaix_info).compute()
+            pbx_dicts = bulk_bag.map(get_pourbaix_info).compute(retries=10)
             write_pourbaix_info(pbx_dicts, lmdb_path)
 
     # Instantiate Sankey dictionary
