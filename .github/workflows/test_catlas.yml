@@ -3,7 +3,7 @@ name: Test catlas with simple screening
 env:
   OMP_NUM_THREADS: '1'
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   test_local_scheduler:
@@ -83,6 +83,7 @@ jobs:
     - name: Startup dask cluster
       run: |
         kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sleep 10
         kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-default-worker-group
     - name: Test cpu relaxation inference with kubecluster
       run: |

@@ -38,7 +38,7 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                             [el in valid_elements for el in x]
                         ),
                         valid_elements=val,
-                        meta=("bulk_elements", "bool"),
+                        meta=("in_acceptable_elements", "bool"),
                     )
                 ]
 
@@ -70,7 +70,7 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                         ),
                         active=val["active"],
                         host=val["host"],
-                        meta=("bulk_elements", "bool"),
+                        meta=("active_host_satisfied", "bool"),
                     )
                 ]
             elif name == "filter_by_element_groups":
@@ -81,17 +81,18 @@ def bulk_filter(config, dask_df, sankey, initial_bulks):
                             [el in valid_elements for el in x]
                         ),
                         valid_elements=valid_els,
-                        meta=("bulk_elements", "bool"),
+                        meta=("element_in_group", "bool"),
                     )
                 ]
             elif name == "filter_by_pourbaix_stability":
                 dask_df = dask_df[
-                    dask_df.bulk_id.apply(
+                    dask_df.apply(
                         lambda x, conditions: any(
                             get_pourbaix_stability(x, conditions)
                         ),
+                        axis=1,
                         conditions=val,
-                        meta=("bulk_id", "bool"),
+                        meta=("pourbaix_stability", "bool"),
                     )
                 ]
 

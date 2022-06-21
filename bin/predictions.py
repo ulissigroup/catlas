@@ -3,7 +3,7 @@ from catlas.parity.parity_utils import get_parity_upfront
 from catlas.load_bulk_structures import load_bulks
 from catlas.sankey.sankey_utils import Sankey
 from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import get_pourbaix_info, write_pourbaix_info
+from catlas.filter_utils import pb_query_and_write
 from catlas.load_adsorbate_structures import load_ocdata_adsorbates
 from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
@@ -98,8 +98,7 @@ if __name__ == "__main__":
                 "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
-            pbx_dicts = bulk_bag.map(get_pourbaix_info).compute(retries=10)
-            write_pourbaix_info(pbx_dicts, lmdb_path)
+            pbx_dicts = bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
 
     # Instantiate Sankey dictionary
     sankey = Sankey(
@@ -142,6 +141,7 @@ if __name__ == "__main__":
     )
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
+    # choose the number of partitions after to use after making adslab combos
     npartitions = min(bulk_num * adsorbate_num * 4, 2000)
 
     # Enumerate slab - adsorbate combos
