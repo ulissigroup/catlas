@@ -43,8 +43,7 @@ def validate_path_exists(field, value, error):
 def validate_folder_exists(field, value, error):
     """A more permissive check to check if a file can be created if it doesn't exist"""
     path_list = value.split("/")
-    if "." in path_list[-1]:  # path is file; check containing folder
-        value = "/".join(path_list[:-1])
+    value = "/".join(path_list[:-1])
     if not os.path.exists(value):
         error(field, "file path's enclosing folder does not exist: '%s'" % value)
 
