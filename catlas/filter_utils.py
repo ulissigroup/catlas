@@ -38,7 +38,8 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Raise an error if non-MP materials used
     if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
-            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."% mpid
+            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."
+            % mpid
         )
 
     output = {"mpid": mpid}
@@ -256,9 +257,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         return decomp_bools
 
 
-def get_decomposition_bools_from_range(
-    pbx, pbx_entry, conditions
-):
+def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     """Evaluates the decomposition energies under the desired range of conditions"""
     list_of_bools = []
 
@@ -296,7 +295,7 @@ def get_decomposition_bools_from_range(
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
-    for condition in conditions['conditions_list']:
+    for condition in conditions["conditions_list"]:
         decomp_energy = pbx.get_decomposition_energy(
             pbx_entry, condition["pH"], condition["V"]
         )

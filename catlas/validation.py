@@ -96,9 +96,7 @@ config_schema = {
             "filter_by_bulk_e_above_hull": {
                 "type": "float",
             },
-            "filter_by_bulk_band_gap": {
-                "type": "float"
-            },
+            "filter_by_bulk_band_gap": {"type": "float"},
             "filter_by_element_groups": {
                 "type": "list",
                 "allowed": valid_element_groups,
@@ -128,7 +126,7 @@ config_schema = {
                             "schema": {
                                 "pH": {"type": "float"},
                                 "V": {"type": "float"},
-                                "max_decomposition_energy": {"type": "float"}
+                                "max_decomposition_energy": {"type": "float"},
                             },
                         },
                     },
