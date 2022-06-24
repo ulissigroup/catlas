@@ -111,10 +111,6 @@ config_schema = {
                         "type": "string",
                         # "check_with": validate_folder_exists,
                     },
-                    "max_decomposition_energy": {
-                        "required": True,
-                        "type": "float",
-                    },
                     "conditions_list": {
                         "required": True,
                         "excludes": [
@@ -132,6 +128,7 @@ config_schema = {
                             "schema": {
                                 "pH": {"type": "float"},
                                 "V": {"type": "float"},
+                                "max_decomposition_energy": {"type": "float"}
                             },
                         },
                     },
@@ -149,6 +146,10 @@ config_schema = {
                         "dependencies": "pH_lower",
                     },
                     "V_lower": {
+                        "type": "float",
+                        "dependencies": "pH_lower",
+                    },
+                    "max_decomposition_energy": {
                         "type": "float",
                         "dependencies": "pH_lower",
                     },
