@@ -50,7 +50,7 @@ def validate_folder_exists(field, value, error):
 
 
 config_schema = {
-    "memory_cache_location": {"type": "string", "check_with": validate_path_exists},
+    "memory_cache_location": {"type": "string", "check_with": validate_folder_exists},
     "input_options": {
         "required": True,
         "type": "dict",
