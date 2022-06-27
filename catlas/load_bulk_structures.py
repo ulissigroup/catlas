@@ -3,7 +3,6 @@ from ase.db import connect
 import os.path
 import numpy as np
 import pandas as pd
-from .dask_utils import SizeDict
 import catlas
 
 required_fields = (
@@ -38,7 +37,6 @@ def load_bulks(bulk_path):
         bulk_list = []
         for row in db.select():
             bulk_list.append(
-                SizeDict(
                     {
                         "bulk_atoms": row.toatoms(),
                         "bulk_id": row.bulk_id,
@@ -54,7 +52,6 @@ def load_bulks(bulk_path):
                         "bulk_e_above_hull": row.energy_above_hull,
                         "bulk_band_gap": row.band_gap,
                     }
-                )
             )
 
         return bulk_list
