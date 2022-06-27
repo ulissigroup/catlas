@@ -41,7 +41,7 @@ def validate_path_exists(field, value, error):
 
 
 def validate_folder_exists(field, value, error):
-    """A more permissive check to check if a file can be created if it doesn't exist"""
+    """A more permissive check to check if a file/folder can be created if it doesn't exist"""
     path_list = value.split("/")
     value = "/".join(path_list[:-1])
     if not os.path.exists(value):
