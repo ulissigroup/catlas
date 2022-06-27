@@ -33,12 +33,26 @@ from dask.distributed import wait
 from jinja2 import Template
 import os
 import pickle
+import cloudpickle
 import tqdm
 import time
 import joblib
 import lmdb
+import dask.sizeof
 
 joblib.memory._build_func_identifier = better_build_func_identifier
+
+
+# Register a better method to track the size of complex dictionaries and lists
+# (basically pickle and count the size). Needed to accurately track data in dask cluster.
+@dask.sizeof.sizeof.register(dict)
+def sizeof_python_dict(d):
+    return len(cloudpickle.dumps(d))
+
+
+@dask.sizeof.sizeof.register(list)
+def sizeof_python_list(l):
+    return len(cloudpickle.dumps(l))
 
 
 # Load inputs and define global vars
