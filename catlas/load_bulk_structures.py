@@ -37,21 +37,19 @@ def load_bulks(bulk_path):
         bulk_list = []
         for row in db.select():
             bulk_list.append(
-                    {
-                        "bulk_atoms": row.toatoms(),
-                        "bulk_id": row.bulk_id,
-                        "bulk_data_source": db_name,
-                        "bulk_natoms": row.natoms,
-                        "bulk_xc": "RPBE",
-                        "bulk_nelements": len(
-                            np.unique(row.toatoms().get_chemical_symbols())
-                        ),
-                        "bulk_elements": np.unique(
-                            row.toatoms().get_chemical_symbols()
-                        ),
-                        "bulk_e_above_hull": row.energy_above_hull,
-                        "bulk_band_gap": row.band_gap,
-                    }
+                {
+                    "bulk_atoms": row.toatoms(),
+                    "bulk_id": row.bulk_id,
+                    "bulk_data_source": db_name,
+                    "bulk_natoms": row.natoms,
+                    "bulk_xc": "RPBE",
+                    "bulk_nelements": len(
+                        np.unique(row.toatoms().get_chemical_symbols())
+                    ),
+                    "bulk_elements": np.unique(row.toatoms().get_chemical_symbols()),
+                    "bulk_e_above_hull": row.energy_above_hull,
+                    "bulk_band_gap": row.band_gap,
+                }
             )
 
         return bulk_list
