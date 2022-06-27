@@ -17,7 +17,7 @@ from pymatgen.analysis.pourbaix_diagram import (
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
-    from Materials Project and constructs a pourbaix diagram for it.
+    from Materials Project and constructs a pourbaix diagram for it. This currently only supports MP materials.
 
     Args:
         entry: bulk structure entry as constructed by
@@ -27,7 +27,14 @@ def get_pourbaix_info(entry: dict) -> dict:
     """
     # Unpack mpid and define some presets
     pbx_entry = None
-    mpid = entry["bulk_mpid"]
+    mpid = entry["bulk_id"]
+
+    # Raise an error if non-MP materials used
+    if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
+        raise ValueError(
+            "Pourbaix filtering is only supported for Materials Project materials."
+        )
+
     output = {"mpid": mpid}
 
     # Get the composition information
@@ -46,6 +53,13 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Grab the Pourbaix entries
     with MPRester() as mpr:
         mpid_new = mpr.get_materials_id_from_task_id(mpid)
+
+        # Handle the exception where the material has been fully deprecated
+        if mpid_new is None:
+            output["pbx"] = "failed"
+            output["pbx_entry"] = "failed"
+            return output
+
         pbx_entries = mpr.get_pourbaix_entries(comp)
 
         # Grab the pourbaix entry for the mpid of interest
@@ -54,7 +68,7 @@ def get_pourbaix_info(entry: dict) -> dict:
                 pbx_entry = entry
 
         # Handle the exception where our mpid is not the most up to date
-        if pbx_entry == None:
+        if pbx_entry is None:
             mpid_new = mpr.get_materials_id_from_task_id(mpid)
             for entry in pbx_entries:
                 if entry.entry_id == mpid_new:
@@ -68,13 +82,13 @@ def get_pourbaix_info(entry: dict) -> dict:
     return output
 
 
-def write_pourbaix_info(pbx_dicts: list, lmdb_path):
+def write_pourbaix_info(pbx_entry: dict, lmdb_path):
     """
     Writes the pourbaix query info to lmdb for future use.
 
     Args:
-        pbx_dicts: list of dictionaries containing the important pourbaix query
-                   info. Each dictionary contains pbx info for a single mpid
+        pbx_entry: dictionary containing the important pourbaix query
+                   info info for a single mpid
         lmdb_path: Location where the lmdb will be written (including fname)
 
     """
@@ -92,16 +106,20 @@ def write_pourbaix_info(pbx_dicts: list, lmdb_path):
         map_async=True,
     )
 
-    for entry in pbx_dicts:
-        # Add data and key values
-        txn = db.begin(write=True)
-        txn.put(
-            key=entry["mpid"].encode("ascii"),
-            value=pickle.dumps(entry, protocol=-1),
-        )
-        txn.commit()
+    # Add data and key values
+    txn = db.begin(write=True)
+    txn.put(
+        key=pbx_entry["mpid"].encode("ascii"),
+        value=pickle.dumps(pbx_entry, protocol=-1),
+    )
+    txn.commit()
     db.sync()
     db.close()
+
+
+def pb_query_and_write(entry: dict, lmdb_path: str):
+    pourbaix_info = get_pourbaix_info(entry)
+    write_pourbaix_info(pourbaix_info, lmdb_path)
 
 
 def get_elements_in_groups(groups: list) -> list:
@@ -156,21 +174,22 @@ def get_elements_in_groups(groups: list) -> list:
     return list(np.unique(valid_els))
 
 
-def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
+def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     """
     Reads the relevant Pourbaix info from the lmdb and evaluates stability at the desired
     points, returns a list of booleans capturing whether or not the material is stable
     under given conditions.
 
     Args:
-        mpid: The mpid to perform stability analysis on
+        entry: A dictionary containing the bulk entry which will be assessed
         conditions: The dictionary of Pourbaix settings set in the config yaml
 
     """
-    lmdb_path = conditions["lmdb_path"]
+    lmdb_path_simple = conditions["lmdb_path"]
+    bulk_id = entry["bulk_id"]
     lmdb_path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-        lmdb_path,
+        lmdb_path_simple,
     )
 
     # Grab the entry of interest
@@ -189,17 +208,34 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
     txn = env.begin()
 
     ## Get entry and unpickle it
-    entry_pickled = txn.get(mpid.encode("ascii"))
-    entry = pickle.loads(entry_pickled)
+    entry_pickled = txn.get(bulk_id.encode("ascii"))
+
+    if entry_pickled != None:
+        entry = pickle.loads(entry_pickled)
+    else:
+        print(f"querying {bulk_id} becuase it wasn't found in the lmdb path provided")
+        env.close()
+        pb_query_and_write(entry, lmdb_path_simple)
+        env = lmdb.open(
+            str(lmdb_path),
+            subdir=False,
+            readonly=True,
+            lock=False,
+            readahead=False,
+            meminit=False,
+            max_readers=100,
+        )
+        txn = env.begin()
+        entry_pickled = txn.get(bulk_id.encode("ascii"))
+        entry = pickle.loads(entry_pickled)
 
     ## Close lmdb
     env.close()
 
     # Handle exception where pourbaix query was unsuccessful
     if entry["pbx"] == "failed":
-        warnings.warn("Pourbaix data for " + mpid + " was not found.")
+        warnings.warn("Pourbaix data for " + bulk_id + " was not found.")
         return [False]
-
     # Determine electrochemical stability
     else:
         # see what electrochemical conditions to consider and find the decomposition energies
@@ -211,7 +247,7 @@ def get_pourbaix_stability(mpid: str, conditions: dict) -> list:
             )
         elif "conditions" in conditions:
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions
+                entry["pbx"], entry["pbx_entry"], conditions, bulk_id
             )
         return decomp_bools
 
@@ -250,7 +286,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     return list_of_bools
 
 
-def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
+def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
     for condition in conditions["conditions"]:

@@ -3,7 +3,7 @@ name: Test catlas with simple screening
 env:
   OMP_NUM_THREADS: '1'
 
-on: [push]
+on: [push, workflow_dispatch]
 
 jobs:
   test_local_scheduler:
@@ -26,7 +26,6 @@ jobs:
         ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/
         python setup.py develop
         python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/local_cluster/local_cluster.py
-
   test_local_scheduler_relaxation:
     name: Test catlas with local scheduler and cpu relaxations
 
@@ -60,7 +59,6 @@ jobs:
       image: docker://ulissigroup/kubeflow:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
-
     steps:
     - uses: azure/k8s-set-context@v1
       with:
@@ -82,13 +80,21 @@ jobs:
         cd catlas
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
-        python bin/predictions.py configs/tests/test_metals.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
+    - name: Startup dask cluster
+      run: |
+        kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sleep 10
+        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-default-worker-group
     - name: Test cpu relaxation inference with kubecluster
       run: |
         cd catlas
-        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_cpu_cluster.py
+        python bin/predictions.py configs/tests/test_cpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
     - name: Test gpu relaxation with kubecluster
       run: |
         cd catlas
-        python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/github_kube_cluster/github_kube_gpu_cluster.py
-
+        kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
+        python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
+    - name: Shut down dask cluster
+      if: always()
+      run: |
+        kubectl delete daskcluster catlas-hybrid-cluster
