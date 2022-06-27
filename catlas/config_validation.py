@@ -106,7 +106,7 @@ config_schema = {
                     "lmdb_path": {
                         "required": True,
                         "type": "string",
-                        # "check_with": validate_folder_exists,
+                        "check_with": validate_folder_exists,
                     },
                     "conditions_list": {
                         "required": True,
