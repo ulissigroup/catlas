@@ -23,7 +23,7 @@ import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
 )
-from catlas.validation import config_validator
+from catlas.config_validation import config_validator
 import dask.bag as db
 import dask
 import sys
