@@ -80,8 +80,19 @@ config_schema = {
             "filter_by_elements_active_host": {
                 "type": "dict",
                 "schema": {
-                    "active": {"type": "string", "check_with": validate_element},
-                    "host": {"type": "string", "check_with": validate_element},
+                    "active": {
+                        "type": "list",
+                        "schema": {
+                            "type": "string",
+                            "check_with": validate_element
+                            },
+                    },
+                    "host": {
+                        "type": "list",
+                        "schema": {
+                            {"type": "string", "check_with": validate_element},
+                        },
+                    },
                 },
             },
             "filter_by_bulk_e_above_hull": {
