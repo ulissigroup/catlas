@@ -4,14 +4,6 @@ from pathlib import Path
 import yaml
 import os
 
-# class CustomValidator(Validator):
-#     '''In development. Use to validate that pH and V are in correct order'''
-#     def _validate_is_lower(self, other, field, value):
-#         if other not in self.document:
-#             return False
-#         if value > self.document[other]:
-#             self._error(field, "Must be lower than %s" % other)
-
 mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [
     "transition_metal",
