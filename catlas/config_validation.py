@@ -47,7 +47,7 @@ config_schema = {
         "type": "dict",
         "schema": {
             "adsorbate_file": {
-                "required": False,
+                "required": True,
                 "type": "string",
                 "check_with": validate_path_exists,
             },
