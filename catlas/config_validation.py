@@ -82,10 +82,7 @@ config_schema = {
                 "schema": {
                     "active": {
                         "type": "list",
-                        "schema": {
-                            "type": "string",
-                            "check_with": validate_element
-                            },
+                        "schema": {"type": "string", "check_with": validate_element},
                     },
                     "host": {
                         "type": "list",
