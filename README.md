@@ -11,7 +11,7 @@
 ## Large file handling
  ### Ulissigroup internal: Create symbolic links for important large files
  - `ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints`
- - `ln -s /home/jovyan/shared-scratch/catlas/npz-files .catlas/parity/`
+ - `ln -s /home/jovyan/shared-scratch/catlas/npz-files ./catlas/parity/`
  - `ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/`
  
  ### Other: Add large files to their appropriate place in the repo
