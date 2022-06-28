@@ -86,9 +86,7 @@ config_schema = {
                     },
                     "host": {
                         "type": "list",
-                        "schema": {
-                            {"type": "string", "check_with": validate_element},
-                        },
+                        "schema": {"type": "string", "check_with": validate_element},
                     },
                 },
             },
