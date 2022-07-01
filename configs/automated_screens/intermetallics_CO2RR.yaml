@@ -1,7 +1,8 @@
 memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
 
 input_options:
-  bulk_file: 'catlas/bulk_structures/ocdata_bulks.db'
+  bulk_file: 'catlas/bulk_structures/ocp_bulks_w_properties.db'
+  adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 output_options:
   pickle_final_output: True # True pickles the resulting predictions
