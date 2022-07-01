@@ -82,9 +82,11 @@ jobs:
         python setup.py develop
     - name: Startup dask cluster
       run: |
+        sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/dask_connect.py
         kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
         sleep 10
-        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-default-worker-group
+        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
     - name: Test cpu relaxation inference with kubecluster
       run: |
         cd catlas
@@ -92,9 +94,9 @@ jobs:
     - name: Test gpu relaxation with kubecluster
       run: |
         cd catlas
-        kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
+        kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
         python bin/predictions.py configs/tests/test_gpu_relax.yml configs/dask_cluster/dask_operator/dask_connect.py
     - name: Shut down dask cluster
       if: always()
       run: |
-        kubectl delete daskcluster catlas-hybrid-cluster
+        kubectl delete daskcluster catlas-hybrid-cluster-$GITHUB_RUN_ID
