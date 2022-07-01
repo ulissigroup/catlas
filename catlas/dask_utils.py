@@ -70,16 +70,6 @@ def bag_split_individual_partitions(bag):
     return Bag(graph, name=new_name, npartitions=sum(nsplits))
 
 
-class SizeDict(dict):
-    def __sizeof__(self):
-        return len(pickle.dumps(self))
-
-
-class SizeList(list):
-    def __sizeof__(self):
-        return len(pickle.dumps(self))
-
-
 def to_pickles(b, path, name_function=None, compute=True, **kwargs):
     files = open_files(
         path,
