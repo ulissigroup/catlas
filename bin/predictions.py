@@ -218,7 +218,7 @@ if __name__ == "__main__":
         if inference:
             num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
         filtered_slabs = len(df_results)
-        if verbose:
+        if verbose and inference:
 
             print(
                 df_results[
@@ -229,6 +229,18 @@ if __name__ == "__main__":
                         "slab_millers",
                         "adsorbate_smiles",
                         most_recent_step,
+                    ]
+                ]
+            )
+        elif verbose:
+            print(
+                df_results[
+                    [
+                        "bulk_elements",
+                        "bulk_id",
+                        "bulk_data_source",
+                        "slab_millers",
+                        "adsorbate_smiles",
                     ]
                 ]
             )
