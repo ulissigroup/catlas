@@ -82,6 +82,7 @@ jobs:
         python setup.py develop
     - name: Startup dask cluster
       run: |
+        sed "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
         kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
         sleep 10
         kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-default-worker-group
