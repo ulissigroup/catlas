@@ -34,12 +34,26 @@ from dask.distributed import wait
 from jinja2 import Template
 import os
 import pickle
+import cloudpickle
 import tqdm
 import time
 import joblib
 import lmdb
+import dask.sizeof
 
 joblib.memory._build_func_identifier = better_build_func_identifier
+
+
+# Register a better method to track the size of complex dictionaries and lists
+# (basically pickle and count the size). Needed to accurately track data in dask cluster.
+@dask.sizeof.sizeof.register(dict)
+def sizeof_python_dict(d):
+    return len(cloudpickle.dumps(d))
+
+
+@dask.sizeof.sizeof.register(list)
+def sizeof_python_list(l):
+    return len(cloudpickle.dumps(l))
 
 
 # Load inputs and define global vars
@@ -216,7 +230,7 @@ if __name__ == "__main__":
         if inference:
             num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
         filtered_slabs = len(df_results)
-        if verbose:
+        if verbose and inference:
 
             print(
                 df_results[
@@ -227,6 +241,18 @@ if __name__ == "__main__":
                         "slab_millers",
                         "adsorbate_smiles",
                         most_recent_step,
+                    ]
+                ]
+            )
+        elif verbose:
+            print(
+                df_results[
+                    [
+                        "bulk_elements",
+                        "bulk_id",
+                        "bulk_data_source",
+                        "slab_millers",
+                        "adsorbate_smiles",
                     ]
                 ]
             )
