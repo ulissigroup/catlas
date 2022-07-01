@@ -202,8 +202,6 @@ def adsorbate_filter(config, dask_df, sankey):
         if val != "None":
             if name == "filter_by_smiles":
                 dask_df = dask_df[dask_df.adsorbate_smiles.isin(val)]
-            else:
-                warnings.warn("Adsorbate filter is not implemented: " + name)
 
     # Update the sankey diagram
     node_idx = len(sankey.info_dict["label"])

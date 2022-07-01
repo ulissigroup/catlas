@@ -23,6 +23,7 @@ import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
 )
+from catlas.config_validation import config_validator
 import dask.bag as db
 import dask
 import sys
@@ -62,7 +63,18 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
-
+    if not config_validator.validate(config):
+        raise ValueError(
+            "Config has the following errors:\n%s"
+            % "\n".join(
+                [
+                    ": ".join(['"%s"' % str(i) for i in item])
+                    for item in config_validator.errors.items()
+                ]
+            )
+        )
+    else:
+        print("Config validated")
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
@@ -72,7 +84,9 @@ if __name__ == "__main__":
         print(f.read())
 
     # Generate parity plots
-    if config["output_options"]["make_parity_plots"]:
+    if ("make_parity_plots" in config["output_options"]) and (
+        config["output_options"]["make_parity_plots"]
+    ):
         get_parity_upfront(config, run_id)
         print(
             "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
@@ -162,24 +176,8 @@ if __name__ == "__main__":
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             number_steps = step["number_steps"] if "number_steps" in step else 200
-            if step["step"] == "predict":
-
-                if step["gpu"]:
-                    with dask.annotate(resources={"GPU": 1}, priority=10):
-                        results_bag = results_bag.map(
-                            memory.cache(
-                                energy_prediction,
-                                ignore=["batch_size", "graphs_dict", "cpu"],
-                            ),
-                            adslab_atoms=adslab_atoms_bag,
-                            graphs_dict=graphs_bag,
-                            checkpoint_path=step["checkpoint_path"],
-                            column_name=step["label"],
-                            batch_size=step["batch_size"],
-                            cpu=False,
-                            number_steps=number_steps,
-                        )
-                else:
+            if step["gpu"]:
+                with dask.annotate(resources={"GPU": 1}, priority=10):
                     results_bag = results_bag.map(
                         memory.cache(
                             energy_prediction,
@@ -190,12 +188,26 @@ if __name__ == "__main__":
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=True,
+                        cpu=False,
                         number_steps=number_steps,
                     )
+            else:
+                results_bag = results_bag.map(
+                    memory.cache(
+                        energy_prediction,
+                        ignore=["batch_size", "graphs_dict", "cpu"],
+                    ),
+                    adslab_atoms=adslab_atoms_bag,
+                    graphs_dict=graphs_bag,
+                    checkpoint_path=step["checkpoint_path"],
+                    column_name=step["label"],
+                    batch_size=step["batch_size"],
+                    cpu=True,
+                    number_steps=number_steps,
+                )
 
-                most_recent_step = "min_" + step["label"]
-                inference = True
+            most_recent_step = "min_" + step["label"]
+            inference = True
 
     # Handle results
     verbose = (
@@ -275,8 +287,8 @@ if __name__ == "__main__":
             )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
-        with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
-            yaml.dump(config, fhandle)
+    with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
+        yaml.dump(config, fhandle)
 
     # Make final updates to the sankey diagram and plot it
     unfiltered_slabs = unfiltered_surface_bag.count().compute()

@@ -1,5 +1,14 @@
 kind: Pod
 spec:
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: network
+            operator: In
+            values:
+            - 10gb
   restartPolicy: Never
   containers:
   - image: ulissigroup/kubeflow:predictions
@@ -8,7 +17,7 @@ spec:
     name: dask-worker
     env: 
     - name: OMP_NUM_THREADS
-      value: 4
+      value: 1
     - name: MP_API_KEY
       value: "your_api_key"
     - name: PYTHONPATH

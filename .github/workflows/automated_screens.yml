@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 2880
 
     steps:
-    - uses: azure/k8s-set-context@v1
+    - uses: azure/k8s-set-context@v2
       with:
         method: kubeconfig
         kubeconfig: ${{ secrets.ZULISSI_KUBECONFIG }}
@@ -33,7 +33,7 @@ jobs:
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         (cd /home/jovyan/ocp && git pull)
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         lfs: true
         path: catlas

@@ -1,8 +1,17 @@
+# Intermediate files
+configs/dask_cluster/dev_kube_cluster/worker-cpu.yml
+configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
+
 # Outputs
 outputs/
+ocp_checkpoints
+parity
+catlas/pourbaix_diagrams
 
 # VSCode
+*.vscode*
 *.code-workspace
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -147,3 +156,4 @@ dask-worker-space
 
 # Vi
 *.swp
+pourbaix_diagrams

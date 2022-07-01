@@ -12,6 +12,7 @@ from pymatgen.analysis.pourbaix_diagram import (
     PourbaixDiagram,
     PourbaixEntry,
 )
+import cerberus
 
 
 def get_pourbaix_info(entry: dict) -> dict:
@@ -22,7 +23,6 @@ def get_pourbaix_info(entry: dict) -> dict:
     Args:
         entry: bulk structure entry as constructed by
                catlas.load_bulk_structures.load_bulks_from_db
-        mp_api_key: Users Materials Project API key (next-gen)
 
     """
     # Unpack mpid and define some presets
@@ -32,7 +32,8 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Raise an error if non-MP materials used
     if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
-            "Pourbaix filtering is only supported for Materials Project materials."
+            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."
+            % mpid
         )
 
     output = {"mpid": mpid}
@@ -239,13 +240,11 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     # Determine electrochemical stability
     else:
         # see what electrochemical conditions to consider and find the decomposition energies
-        if set(("pH_lower", "pH_upper", "V_lower", "V_upper")).issubset(
-            set(conditions.keys())
-        ):
+        if "pH_lower" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_range(
                 entry["pbx"], entry["pbx_entry"], conditions
             )
-        elif "conditions" in conditions:
+        elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
                 entry["pbx"], entry["pbx_entry"], conditions, bulk_id
             )
@@ -261,6 +260,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
         conditions["pH_step"] = 0.2
     if "V_step" not in conditions:
         conditions["V_step"] = 0.1
+    max_decomposition_energy = conditions["max_decomposition_energy"]
 
     # Setup evaluation ranges
     pH_range = list(
@@ -279,7 +279,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     for pH in pH_range:
         for V in V_range:
             decomp_energy = pbx.get_decomposition_energy(pbx_entry, pH, V)
-            if decomp_energy <= conditions["max_decomposition_energy"]:
+            if decomp_energy <= max_decomposition_energy:
                 list_of_bools.append(True)
             else:
                 list_of_bools.append(False)
@@ -289,11 +289,11 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
     """Evaluates the decomposition energies under the desired set of conditions"""
     list_of_bools = []
-    for condition in conditions["conditions"]:
+    for condition in conditions["conditions_list"]:
         decomp_energy = pbx.get_decomposition_energy(
             pbx_entry, condition["pH"], condition["V"]
         )
-        if decomp_energy <= conditions["max_decomposition_energy"]:
+        if decomp_energy <= condition["max_decomposition_energy"]:
             list_of_bools.append(True)
         else:
             list_of_bools.append(False)
