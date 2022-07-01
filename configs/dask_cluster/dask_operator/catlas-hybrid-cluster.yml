@@ -57,6 +57,15 @@ spec:
                   operator:  "DoesNotExist"
   scheduler:
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: network
+                operator: In
+                values:
+                - 10gb
       containers:
       - name: scheduler
         image: ulissigroup/kubeflow:predictions
