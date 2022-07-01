@@ -14,6 +14,7 @@ from pymatgen.analysis.pourbaix_diagram import (
 )
 import cerberus
 
+
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
