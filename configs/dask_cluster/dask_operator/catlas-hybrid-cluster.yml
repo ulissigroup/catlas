@@ -76,12 +76,13 @@ spec:
             path: /health
           initialDelaySeconds: 5
           periodSeconds: 10
-        livenessProbe:
-          httpGet:
-            port: http-dashboard
-            path: /health
-          initialDelaySeconds: 15
-          periodSeconds: 20
+        resources:
+          limits:
+            cpu: "4"
+            memory: 10G
+          requests:
+            cpu: "4"
+            memory: 10G
     service:
       type: ClusterIP
       selector:
