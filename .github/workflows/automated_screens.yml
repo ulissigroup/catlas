@@ -27,7 +27,6 @@ jobs:
         context: ulissigroup-desktops-fqdn
       id: setcontext
     - run: |
-        sudo apt update && sudo apt install git-lfs
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID
         mkdir -p /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
         ln -s /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/catlas
@@ -35,18 +34,33 @@ jobs:
         rsync -a /home/jovyan/ocp /home/jovyan/shared-scratch/catlas_runners/$GITHUB_RUN_ID/
     - uses: actions/checkout@v3
       with:
-        lfs: true
         path: catlas
-    - run: |
+    - name: Test direct inference with kubecluster
+      run: |
         cd catlas
+        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
         python setup.py develop
-        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+    - name: Startup dask cluster
+      run: |
+        sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/dask_connect.py
+        kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sleep 10
+        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
+        kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
     - run: |
         cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
     - run: |
         cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py
     - run: |
         cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/github_kube_cluster/github_kube_hybrid_cluster.py
+        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py
+    - run: |
+        cd catlas
+        python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
+    - name: Shut down dask cluster
+      if: always()
+      run: |
+        kubectl delete daskcluster catlas-hybrid-cluster-$GITHUB_RUN_ID
