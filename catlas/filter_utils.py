@@ -14,13 +14,6 @@ from pymatgen.analysis.pourbaix_diagram import (
 )
 import cerberus
 
-
-def validate_config(yaml: dict) -> None:
-    """
-    Validates a config yaml for use in screening.
-    """
-
-
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
