@@ -47,7 +47,7 @@ jobs:
         kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
         sleep 10
         kubectl scale --replicas=80 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
-        kubectl scale --replicas=0 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
+        kubectl scale --replicas=6 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
     - run: |
         cd catlas
         python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py

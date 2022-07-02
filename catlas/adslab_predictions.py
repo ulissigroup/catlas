@@ -193,9 +193,10 @@ def energy_prediction(
     checkpoint_path,
     column_name,
     batch_size=8,
-    cpu=False,
     number_steps=200,
 ):
+
+    cpu = torch.cuda.device_count() > 0
 
     global BOCPP_dict
 
