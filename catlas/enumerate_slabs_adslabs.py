@@ -8,7 +8,8 @@ import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 import logging
 import torch
-import catlas
+import catlas.cache_utils
+
 
 class CustomAdsorbate(Adsorbate):
     def __init__(self, ads_atoms, bond_indicies, smiles):

@@ -4,6 +4,7 @@ import os.path
 import numpy as np
 import pandas as pd
 import catlas
+import catlas.cache_utils
 
 required_fields = (
     "atoms",

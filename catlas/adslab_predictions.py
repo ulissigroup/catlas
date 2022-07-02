@@ -17,7 +17,7 @@ from ocpmodels.common.utils import (
 
 from torch.utils.data import DataLoader
 import torch
-import catlas
+import catlas.cache_utils
 import os
 from tqdm import tqdm
 
