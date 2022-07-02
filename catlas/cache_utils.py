@@ -9,6 +9,7 @@ import hashlib as hl
 import sys
 import json
 from joblib.func_inspect import get_func_code
+from joblib.hashing import hash
 
 
 def get_cached_func_location(func):
