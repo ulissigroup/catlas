@@ -9,11 +9,11 @@ spec:
         containers:
           - image: ulissigroup/kubeflow:predictions
             imagePullPolicy: Always
-            args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'4 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)']
+            args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)']
             name: dask-worker
             env: 
             - name: OMP_NUM_THREADS
-              value: "4"
+              value: "2"
             - name: MP_API_KEY
               value: "your_api_key"
             - name: PYTHONPATH
@@ -25,10 +25,10 @@ spec:
             resources:
               limits:
                 cpu: "2"
-                memory: 4G
+                memory: 6G
               requests:
                 cpu: "2"
-                memory: 4G
+                memory: 6G
             volumeMounts:
             - mountPath: /home/jovyan/ocp
               name: workspace-inference
