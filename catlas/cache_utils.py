@@ -54,7 +54,7 @@ def token(config) -> str:
 def hash_func(func):
     """Hash the function id, its file location, and the function code"""
     func_code, _, first_line = get_func_code(func)
-    func_code_h = token([func_code, first_line])
+    func_code_h = hash([func_code, first_line])
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
