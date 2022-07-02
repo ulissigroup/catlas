@@ -5,7 +5,7 @@ from joblib.memory import (
     extract_first_line,
     JobLibCollisionWarning,
 )
-
+import hashlib as hl
 
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
@@ -36,7 +36,8 @@ joblib.memory._build_func_identifier = better_build_func_identifier
 
 def hash_func(func):
     """Hash the function id, its file location, and the function code"""
-    func_code_h = hash(getattr(func, "__code__", None))
+    func_code = getattr(func, "__code__", None)
+    func_code_h = hl.sha256(func_code.encode('utf-8')).hexdigest()
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 

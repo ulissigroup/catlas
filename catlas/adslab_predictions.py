@@ -9,7 +9,6 @@ import yaml
 from ocpmodels.datasets import data_list_collater
 from ase.calculators.singlepoint import SinglePointCalculator
 from ocpmodels.common.relaxation import ml_relaxation
-
 from ocpmodels.common.utils import (
     radius_graph_pbc,
     setup_imports,
