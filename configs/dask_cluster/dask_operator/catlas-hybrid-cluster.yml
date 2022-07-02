@@ -121,7 +121,7 @@ spec:
       containers:
       - image: ulissigroup/kubeflow:predictions
         imagePullPolicy: Always
-        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'10 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)']
+        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)']
         name: dask-worker
         env:
         - name: OMP_NUM_THREADS
@@ -135,11 +135,11 @@ spec:
         resources:
           limits:
             cpu: "2"
-            memory: 10G
+            memory: 16G
             nvidia.com/gpu: "1"
           requests:
             cpu: "2"
-            memory: 10G
+            memory: 16G
             nvidia.com/gpu: "1"
         volumeMounts:
         - mountPath: /home/jovyan/ocp
