@@ -3,7 +3,7 @@ name: Automated screening
 env:
   OMP_NUM_THREADS: '1'
 
-on: [workflow_dispatch]
+on: [push, workflow_dispatch]
 
 jobs:
 
