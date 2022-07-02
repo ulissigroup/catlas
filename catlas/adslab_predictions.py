@@ -196,7 +196,7 @@ def energy_prediction(
     number_steps=200,
 ):
 
-    cpu = torch.cuda.device_count() > 0
+    cpu = torch.cuda.device_count() == 0
 
     global BOCPP_dict
 
