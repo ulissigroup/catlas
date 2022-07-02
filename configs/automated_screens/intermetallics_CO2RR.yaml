@@ -22,8 +22,8 @@ slab_filters:
   filter_by_max_miller_index: 2
 
 adslab_prediction_steps:
-- gpu: true
-  batch_size: 4
+- gpu: false
+  batch_size: 2
   label: 'dE_gemnet_is2re_finetuned'
   checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 
