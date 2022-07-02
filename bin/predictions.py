@@ -177,17 +177,17 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             number_steps = step["number_steps"] if "number_steps" in step else 200
             results_bag = results_bag.map(
-                        memory.cache(
-                            energy_prediction,
-                            ignore=["batch_size", "graphs_dict"],
-                        ),
-                        adslab_atoms=adslab_atoms_bag,
-                        graphs_dict=graphs_bag,
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
-                        batch_size=step["batch_size"],
-                        number_steps=number_steps,
-                    )
+                memory.cache(
+                    energy_prediction,
+                    ignore=["batch_size", "graphs_dict"],
+                ),
+                adslab_atoms=adslab_atoms_bag,
+                graphs_dict=graphs_bag,
+                checkpoint_path=step["checkpoint_path"],
+                column_name=step["label"],
+                batch_size=step["batch_size"],
+                number_steps=number_steps,
+            )
 
             most_recent_step = "min_" + step["label"]
             inference = True

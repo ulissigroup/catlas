@@ -13,7 +13,7 @@ spec:
             name: dask-worker
             env: 
             - name: OMP_NUM_THREADS
-              value: "2"
+              value: "1"
             - name: MP_API_KEY
               value: "your_api_key"
             - name: PYTHONPATH
@@ -24,10 +24,10 @@ spec:
               value: "0"
             resources:
               limits:
-                cpu: "2"
+                cpu: "1"
                 memory: 6G
               requests:
-                cpu: "2"
+                cpu: "1"
                 memory: 6G
             volumeMounts:
             - mountPath: /home/jovyan/ocp
@@ -87,11 +87,11 @@ spec:
           periodSeconds: 10
         resources:
           limits:
-            cpu: "4"
-            memory: 10G
+            cpu: "2"
+            memory: 4G
           requests:
-            cpu: "4"
-            memory: 10G
+            cpu: "2"
+            memory: 4G
     service:
       type: ClusterIP
       selector:
@@ -134,11 +134,11 @@ spec:
           value: "your_api_key"
         resources:
           limits:
-            cpu: "2"
+            cpu: "1"
             memory: 16G
             nvidia.com/gpu: "1"
           requests:
-            cpu: "2"
+            cpu: "1"
             memory: 16G
             nvidia.com/gpu: "1"
         volumeMounts:
