@@ -6,6 +6,8 @@ from joblib.memory import (
     JobLibCollisionWarning,
 )
 import hashlib as hl
+import sys
+import json
 
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
@@ -34,10 +36,20 @@ def better_build_func_identifier(func):
 joblib.memory._build_func_identifier = better_build_func_identifier
 
 
+def token(config) -> str:
+    """Generates a hex token that identifies a config.
+       taken from stackoverflow 45674572
+    """
+    # `sign_mask` is used to make `hash` return unsigned values
+    sign_mask = (1 << sys.hash_info.width) - 1
+    # Use `json.dumps` with `repr` to ensure the config is hashable
+    json_config = json.dumps(config, default=repr)
+    # Get the hash as a positive hex value with consistent padding without '0x'
+    return f'{hash(json_config) & sign_mask:#0{sys.hash_info.width//4}x}'[2:]
+
 def hash_func(func):
     """Hash the function id, its file location, and the function code"""
-    func_code = getattr(func, "__code__", None)
-    func_code_h = hl.sha256(func_code.encode('utf-8')).hexdigest()
+    func_code_h = token(getattr(func, "__code__", None))
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
