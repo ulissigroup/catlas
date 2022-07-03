@@ -6,7 +6,7 @@ import os
 
 mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [
-    "transition_metal",
+    "transition metal",
     "post-transition metal",
     "metalloid",
     "rare earth metal",
