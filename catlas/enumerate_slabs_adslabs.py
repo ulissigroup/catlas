@@ -72,7 +72,7 @@ def enumerate_adslabs(surface_ads_combo):
         adsorbate_obj, surface_dict["slab_surface_object"], enumerate_all_configs=True
     )
 
-    adslab_result = combo_obj.constrained_adsorbed_surfaces
+    adslab_result = copy.deepcopy(combo_obj.constrained_adsorbed_surfaces)
 
     return adslab_result
 
