@@ -102,7 +102,7 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
     graph_dict["adslab_graphs"] = graph_list
 
-    return graph_dict
+    return copy.deepcopy(graph_dict)
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
