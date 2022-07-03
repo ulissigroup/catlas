@@ -13,7 +13,7 @@ spec:
             name: dask-worker
             env: 
             - name: OMP_NUM_THREADS
-              value: "1"
+              value: "2"
             - name: MP_API_KEY
               value: "your_api_key"
             - name: PYTHONPATH
@@ -22,12 +22,14 @@ spec:
               value: "none"
             - name: MALLOC_TRIM_THRESHOLD_
               value: "0"
+            - name: KMP_AFFINITY
+              value: "granularity=fine,compact,1,0"
             resources:
               limits:
-                cpu: "1"
+                cpu: "2"
                 memory: 6G
               requests:
-                cpu: "1"
+                cpu: "2"
                 memory: 6G
             volumeMounts:
             - mountPath: /home/jovyan/ocp
@@ -125,7 +127,7 @@ spec:
         name: dask-worker
         env:
         - name: OMP_NUM_THREADS
-          value: "1"
+          value: "2"
         - name: PYTHONPATH
           value: "/home/jovyan/ocp:/home/jovyan/catlas"
         - name: MALLOC_TRIM_THRESHOLD_
@@ -134,11 +136,11 @@ spec:
           value: "your_api_key"
         resources:
           limits:
-            cpu: "1"
+            cpu: "2"
             memory: 16G
             nvidia.com/gpu: "1"
           requests:
-            cpu: "1"
+            cpu: "2"
             memory: 16G
             nvidia.com/gpu: "1"
         volumeMounts:
