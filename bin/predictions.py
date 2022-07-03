@@ -170,20 +170,24 @@ if __name__ == "__main__":
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
+    hash_adslab_atoms_bag = adslab_atoms_bag.map(joblib.hash)
 
     # Run adslab predictions
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             number_steps = step["number_steps"] if "number_steps" in step else 200
+            hash_results_bag = results_bag.map(joblib.hash)
             if step["gpu"]:
                 with dask.annotate(resources={"GPU": 1}, priority=10):
                     results_bag = results_bag.map(
                         memory.cache(
                             energy_prediction,
-                            ignore=["batch_size", "graphs_dict"],
+                            ignore=["batch_size", "graphs_dict", "adslab_atoms", "adslab_dict"],
                         ),
                         adslab_atoms=adslab_atoms_bag,
+                        hash_adslab_atoms = hash_adslab_atoms_bag,
+                        hash_adslab_dict = hash_results_bag,
                         graphs_dict=graphs_bag,
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
@@ -194,9 +198,11 @@ if __name__ == "__main__":
                 results_bag = results_bag.map(
                     memory.cache(
                         energy_prediction,
-                        ignore=["batch_size", "graphs_dict"],
+                        ignore=["batch_size", "graphs_dict", "adslab_atoms", "adslab_dict"],
                     ),
                     adslab_atoms=adslab_atoms_bag,
+                    hash_adslab_atoms = hash_adslab_atoms_bag,
+                    hash_adslab_dict = hash_results_bag,
                     graphs_dict=graphs_bag,
                     checkpoint_path=step["checkpoint_path"],
                     column_name=step["label"],

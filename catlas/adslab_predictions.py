@@ -188,6 +188,8 @@ class BatchOCPPredictor:
 def energy_prediction(
     adslab_dict,
     adslab_atoms,
+    hash_adslab_atoms,
+    hash_adslab_dict,
     graphs_dict,
     checkpoint_path,
     column_name,
