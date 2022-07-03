@@ -48,18 +48,14 @@ jobs:
         sleep 10
         kubectl scale --replicas=80 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
         kubectl scale --replicas=6 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
-    - run: |
+    - name: Run screens
+      run: |
         cd catlas
-        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py &
         python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
+        wait
     - name: Shut down dask cluster
       if: always()
       run: |
