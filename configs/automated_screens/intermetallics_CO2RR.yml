@@ -11,7 +11,7 @@ output_options:
   verbose: False
 
 bulk_filters:
-  filter_by_element_groups: ['transition_metal']
+  filter_by_element_groups: ['transition metal']
   filter_by_object_size: 40 # 60
 
 adsorbate_filters:
