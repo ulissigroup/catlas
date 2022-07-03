@@ -196,6 +196,9 @@ def energy_prediction(
     batch_size=8,
     number_steps=200,
 ):
+    adslab_atoms = copy.deepcopy(adslab_atoms)
+    graphs_dict = copy.deepcopy(graphs_dict)
+    adslab_dict = copy.deepcopy(adslab_dict)
 
     cpu = torch.cuda.device_count() == 0
 
@@ -261,4 +264,4 @@ def energy_prediction(
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name] = None
 
-    return adslab_results
+    return copy.deepcopy(adslab_results)

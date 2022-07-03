@@ -25,6 +25,8 @@ class CustomBulk(Bulk):
 
 def enumerate_slabs(bulk_dict, max_miller=2):
 
+    bulk_dict = copy.deepcopy(bulk_dict)
+
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
@@ -54,11 +56,12 @@ def enumerate_slabs(bulk_dict, max_miller=2):
 
     logger.info("enumerate_slabs_finished: %s" % str(bulk_dict))
 
-    return surface_list
+    return copy.deepcopy(surface_list)
 
 
 def enumerate_adslabs(surface_ads_combo):
-    surface_dict, ads_dict = surface_ads_combo
+
+    surface_dict, ads_dict = copy.deepcopy(surface_ads_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts
     adslab_result = []
@@ -72,12 +75,14 @@ def enumerate_adslabs(surface_ads_combo):
         adsorbate_obj, surface_dict["slab_surface_object"], enumerate_all_configs=True
     )
 
-    adslab_result = copy.deepcopy(combo_obj.constrained_adsorbed_surfaces)
+    adslab_result = combo_obj.constrained_adsorbed_surfaces
 
-    return adslab_result
+    return copy.deepcopy(adslab_result)
 
 
 def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
+
+    adslab_result = copy.deepcopy(adslab_result)
 
     graph_dict = {}
 
@@ -106,11 +111,11 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
-    surface_dict, ads_dict = surface_adsorbate_combo
+    surface_dict, ads_dict = copy.deepcopy(surface_adsorbate_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts
     adslab_result = {}
-    adslab_result.update(copy.deepcopy(surface_dict))
-    adslab_result.update(copy.deepcopy(ads_dict))
+    adslab_result.update(surface_dict)
+    adslab_result.update(ads_dict)
 
-    return adslab_result
+    return copy.deepcopy(adslab_result)
