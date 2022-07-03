@@ -22,8 +22,6 @@ spec:
               value: "none"
             - name: MALLOC_TRIM_THRESHOLD_
               value: "0"
-            - name: KMP_AFFINITY
-              value: "granularity=fine,compact,1,0"
             resources:
               limits:
                 cpu: "2"
