@@ -8,8 +8,12 @@ from joblib.memory import (
 import hashlib as hl
 import sys
 import json
-from joblib.func_inspect import get_func_code
+from joblib.func_inspect import get_func_code, filter_args
 from joblib.hashing import hash
+import cloudpickle
+import lmdb
+import time
+from pathlib import Path
 
 
 def get_cached_func_location(func):
@@ -33,10 +37,7 @@ def better_build_func_identifier(func):
     parts.append(str(h_code))
 
     # We reuse historical fs-like way of building a function identifier
-    return os.path.join(*parts)
-
-
-joblib.memory._build_func_identifier = better_build_func_identifier
+    return tuple(parts)
 
 
 def token(config) -> str:
@@ -117,3 +118,93 @@ def check_cache(cached_func):
         return True
 
     return False
+
+
+open_lmdbs = {}
+
+
+def lmdb_memoize(folder, func, ignore=(), mmap_mode=None, shard_digits=2):
+    base = better_build_func_identifier(func)
+
+    def wrapper(*args, **kwargs):
+        """Wrapper for callable to cache arguments and return values."""
+        key = hash(
+            filter_args(func, ignore, args, kwargs), coerce_mmap=(mmap_mode is not None)
+        ).encode("utf-8")
+
+        lmdb_loc = folder + ".".join(base)
+        if shard_digits > 0:
+            lmdb_loc = str(lmdb_loc) + "/" + key.decode()[0:shard_digits] + "/"
+
+        if lmdb_loc in open_lmdbs and open_lmdbs[lmdb_loc] != 'creating':
+            lmdb_env = open_lmdbs[lmdb_loc]
+        elif lmdb_loc in open_lmdbs and open_lmdbs[lmdb_loc] == 'creating':
+            connected = False
+            while open_lmdbs[lmdb_loc] == 'creating':
+                pass
+            lmdb_env = open_lmdbs[lmdb_loc]
+        else:
+            open_lmdbs[lmdb_loc] = 'creating'
+
+            Path(lmdb_loc).mkdir(parents=True, exist_ok=True)
+
+            connected = False
+
+            while not connected:
+                try:
+                    lmdb_env = lmdb.Environment(
+                        lmdb_loc,
+                        map_size=1024 * 1024 * 1024 * 1024,
+                        metasync=True,
+                        meminit=False,
+                        lock=True,
+                        max_dbs=0,
+                        max_readers=1000,
+                    )
+                    connected = True
+                except lmdb.LockError:
+                    pass
+
+            open_lmdbs[lmdb_loc] = lmdb_env
+
+        calculation_required = False
+
+        retrieved = False
+        while not retrieved:
+            try:
+                with lmdb_env.begin(write=False) as txn:
+                    result = txn.get(key)
+                retrieved = True
+            except lmdb.LockError:
+                print("Lock Error! Trying Again!")
+                pass
+
+        if result is None:
+            calculation_required = True
+
+        if calculation_required:
+            computed_result = func(*args, **kwargs)
+
+            committed = False
+
+            while not committed:
+                try:
+                    with lmdb_env.begin(write=True) as txn:
+                        result = txn.get(key)
+
+                        if result is None:
+                            txn.put(key, cloudpickle.dumps(computed_result))
+                            result = computed_result
+                        else:
+                            result = cloudpickle.loads(result)
+
+                        committed = True
+                except lmdb.LockError:
+                    print("Lock Error! Trying Again!")
+                    pass
+        else:
+            result = cloudpickle.loads(result)
+
+        return result
+
+    return wrapper

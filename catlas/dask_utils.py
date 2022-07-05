@@ -12,6 +12,19 @@ import copy
 from fsspec.core import open_files
 import uuid
 
+import dask
+import cloudpickle
+
+# Register a better method to track the size of complex dictionaries and lists
+# (basically pickle and count the size). Needed to accurately track data in dask cluster.
+@dask.sizeof.sizeof.register(dict)
+def sizeof_python_dict(d):
+    return len(cloudpickle.dumps(d))
+
+
+@dask.sizeof.sizeof.register(list)
+def sizeof_python_list(l):
+    return len(cloudpickle.dumps(l))
 
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.

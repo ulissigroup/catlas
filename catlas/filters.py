@@ -3,7 +3,8 @@ import numpy as np
 from pymatgen.core.periodic_table import Element
 from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
 from catlas.sankey.sankey_utils import Sankey
-
+import catlas.cache_utils
+import catlas.dask_utils
 
 def bulk_filter(config, dask_df, sankey, initial_bulks):
     """

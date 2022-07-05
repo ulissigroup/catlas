@@ -9,11 +9,11 @@ spec:
         containers:
           - image: ulissigroup/kubeflow:predictions
             imagePullPolicy: Always
-            args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)']
+            args: [dask-worker, --nthreads, '2',--nprocs,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)',--lifetime,'10 minutes',--lifetime-stagger,'1 minutes',--lifetime-restart,--preload,'catlas.dask_utils']
             name: dask-worker
             env: 
             - name: OMP_NUM_THREADS
-              value: "2"
+              value: "1"
             - name: MP_API_KEY
               value: "your_api_key"
             - name: PYTHONPATH
@@ -121,7 +121,7 @@ spec:
       containers:
       - image: ulissigroup/kubeflow:predictions
         imagePullPolicy: Always
-        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)']
+        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)',--lifetime,'10 minutes',--lifetime-stagger,'1 minutes',--lifetime-restart,--preload,'catlas.dask_utils']
         name: dask-worker
         env:
         - name: OMP_NUM_THREADS

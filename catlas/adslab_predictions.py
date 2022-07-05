@@ -20,6 +20,7 @@ import torch
 import catlas.cache_utils
 import os
 from tqdm import tqdm
+import catlas.dask_utils
 
 BOCPP_dict = {}
 relax_calc = None
@@ -197,7 +198,6 @@ def energy_prediction(
     number_steps=200,
 ):
     adslab_atoms = copy.deepcopy(adslab_atoms)
-    graphs_dict = copy.deepcopy(graphs_dict)
     adslab_dict = copy.deepcopy(adslab_dict)
 
     cpu = torch.cuda.device_count() == 0
@@ -264,4 +264,4 @@ def energy_prediction(
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name] = None
 
-    return copy.deepcopy(adslab_results)
+    return adslab_results

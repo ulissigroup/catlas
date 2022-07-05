@@ -8,7 +8,7 @@ import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 import logging
 import torch
-import catlas.cache_utils
+import catlas.dask_utils
 
 
 class CustomAdsorbate(Adsorbate):
@@ -56,7 +56,7 @@ def enumerate_slabs(bulk_dict, max_miller=2):
 
     logger.info("enumerate_slabs_finished: %s" % str(bulk_dict))
 
-    return copy.deepcopy(surface_list)
+    return surface_list
 
 
 def enumerate_adslabs(surface_ads_combo):
@@ -77,7 +77,7 @@ def enumerate_adslabs(surface_ads_combo):
 
     adslab_result = combo_obj.constrained_adsorbed_surfaces
 
-    return copy.deepcopy(adslab_result)
+    return adslab_result
 
 
 def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
@@ -107,7 +107,7 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
     graph_dict["adslab_graphs"] = graph_list
 
-    return copy.deepcopy(graph_dict)
+    return graph_dict
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
@@ -118,4 +118,4 @@ def merge_surface_adsorbate_combo(surface_adsorbate_combo):
     adslab_result.update(surface_dict)
     adslab_result.update(ads_dict)
 
-    return copy.deepcopy(adslab_result)
+    return adslab_result

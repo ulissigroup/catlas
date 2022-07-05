@@ -1,4 +1,4 @@
-memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github'
+memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache_github/'
 
 input_options:
   bulk_file: 'catlas/bulk_structures/ocp_bulks_w_properties.db'
