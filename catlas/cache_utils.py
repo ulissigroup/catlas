@@ -16,7 +16,6 @@ import time
 from cloudpickle.compat import pickle
 from diskcache import Cache
 import sqlite3
-import shutil
 
 
 def get_cached_func_location(func):
@@ -158,7 +157,13 @@ def diskcache_memoize(
 
         while db_attempts > 0:
             try:
-                with Cache(db_loc, size_limit=size_limit) as cache:
+                with Cache(
+                    db_loc,
+                    size_limit=size_limit,
+                    timeout=240,
+                    sqlite_synchronous=2,
+                    sqlite_journal_model="DELETE",
+                ) as cache:
 
                     # Grab the cached entry (might be None)
                     cache_result = cache.get(key)
@@ -183,32 +188,25 @@ def diskcache_memoize(
                         result = func(*args, **kwargs)
 
                         # Store the result
-                        cache.set(key, cloudpickle.dumps(result))
+                        cache.set(key, cloudpickle.dumps(result), retry=True)
 
                 # We're done, don't loop again
                 db_attempts = 0
 
-            except (sqlite3.OperationalError, AttributeError):
+            except (
+                sqlite3.OperationalError,
+                AttributeError,
+                sqlite3.DatabaseError,
+            ) as e:
                 # We're probably trying to initialize this DB at the same time as some else
                 # Try again a few times
                 db_attempts -= 1
                 if db_attempts > 0:
+                    time.sleep(5)
                     pass
                 else:
                     # We're hit errors too many times, so let's fail
                     raise
-            except sqlite3.DatabaseError:
-                # The DB is corrupted, remove the shard and try again
-                try:
-                    temp_path = db_loc
-                    if temp_path[-1] == '/':
-                        temp_path = temp_path[0:-1]
-                    temp_path += '-delete'
-                    os.rename(db_loc, temp_path)
-                    shutil.rmtree(temp_path)
-                except FileNotFoundError:
-                    # Someone else tried to delete the folder at the same, so we should be ok
-                    pass
 
         return result
 

@@ -6,6 +6,7 @@ from catlas.sankey.sankey_utils import Sankey
 import catlas.cache_utils
 import catlas.dask_utils
 
+
 def bulk_filter(config, dask_df, sankey, initial_bulks):
     """
     Filters a dask dataframe `dask_df` of bulk structures according to rules specified in a config yml `config`.
