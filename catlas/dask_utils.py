@@ -26,6 +26,7 @@ def sizeof_python_dict(d):
 def sizeof_python_list(l):
     return len(cloudpickle.dumps(l))
 
+
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
 
