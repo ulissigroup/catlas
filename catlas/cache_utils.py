@@ -130,7 +130,7 @@ def diskcache_memoize(
     mmap_mode=None,
     shard_digits=2,
     size_limit=2**37,
-    db_attempts=5,
+    DB_ATTEMPTS=5,
 ):
 
     # Use a base name that includes the full function path and a hash on the function code itself
@@ -153,6 +153,8 @@ def diskcache_memoize(
             db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + "/"
 
         result = None
+
+        db_attempts = DB_ATTEMPTS
 
         while db_attempts > 0:
             try:
@@ -186,7 +188,7 @@ def diskcache_memoize(
                 # We're done, don't loop again
                 db_attempts = 0
 
-            except sqlite3.OperationalError:
+            except (sqlite3.OperationalError, AttributeError):
                 # We're probably trying to initialize this DB at the same time as some else
                 # Try again a few times
                 db_attempts -= 1
@@ -198,7 +200,12 @@ def diskcache_memoize(
             except sqlite3.DatabaseError:
                 # The DB is corrupted, remove the shard and try again
                 try:
-                    shutil.rmtree(db_loc)
+                    temp_path = db_loc
+                    if temp_path[-1] == '/':
+                        temp_path = temp_path[0:-1]
+                    temp_path += '-delete'
+                    os.rename(db_loc, temp_path)
+                    shutil.rmtree(temp_path)
                 except FileNotFoundError:
                     # Someone else tried to delete the folder at the same, so we should be ok
                     pass
