@@ -13,7 +13,10 @@ from joblib.hashing import hash
 import cloudpickle
 import lmdb
 import time
-from pathlib import Path
+from cloudpickle.compat import pickle
+from diskcache import Cache
+import sqlite3
+import shutil
 
 
 def get_cached_func_location(func):
@@ -120,90 +123,85 @@ def check_cache(cached_func):
     return False
 
 
-open_lmdbs = {}
+def diskcache_memoize(
+    folder,
+    func,
+    ignore=(),
+    mmap_mode=None,
+    shard_digits=2,
+    size_limit=2**37,
+    db_attempts=5,
+):
 
-
-def lmdb_memoize(folder, func, ignore=(), mmap_mode=None, shard_digits=2):
+    # Use a base name that includes the full function path and a hash on the function code itself
     base = better_build_func_identifier(func)
 
     def wrapper(*args, **kwargs):
         """Wrapper for callable to cache arguments and return values."""
+
+        # Get the key for the arguments
         key = hash(
             filter_args(func, ignore, args, kwargs), coerce_mmap=(mmap_mode is not None)
         ).encode("utf-8")
 
-        lmdb_loc = folder + ".".join(base)
+        # Generate a base db location based on the full function path and a hash on the function code itself
+        db_loc = folder + ".".join(base)
+
+        # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
+        # the numer of shards should be approximately equal to the number of expected simultaneous writers
         if shard_digits > 0:
-            lmdb_loc = str(lmdb_loc) + "/" + key.decode()[0:shard_digits] + "/"
+            db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + "/"
 
-        if lmdb_loc in open_lmdbs and open_lmdbs[lmdb_loc] != 'creating':
-            lmdb_env = open_lmdbs[lmdb_loc]
-        elif lmdb_loc in open_lmdbs and open_lmdbs[lmdb_loc] == 'creating':
-            connected = False
-            while open_lmdbs[lmdb_loc] == 'creating':
-                pass
-            lmdb_env = open_lmdbs[lmdb_loc]
-        else:
-            open_lmdbs[lmdb_loc] = 'creating'
+        result = None
 
-            Path(lmdb_loc).mkdir(parents=True, exist_ok=True)
-
-            connected = False
-
-            while not connected:
-                try:
-                    lmdb_env = lmdb.Environment(
-                        lmdb_loc,
-                        map_size=1024 * 1024 * 1024 * 1024,
-                        metasync=True,
-                        meminit=False,
-                        lock=True,
-                        max_dbs=0,
-                        max_readers=1000,
-                    )
-                    connected = True
-                except lmdb.LockError:
-                    pass
-
-            open_lmdbs[lmdb_loc] = lmdb_env
-
-        calculation_required = False
-
-        retrieved = False
-        while not retrieved:
+        while db_attempts > 0:
             try:
-                with lmdb_env.begin(write=False) as txn:
-                    result = txn.get(key)
-                retrieved = True
-            except lmdb.LockError:
-                print("Lock Error! Trying Again!")
-                pass
+                with Cache(db_loc, size_limit=size_limit) as cache:
 
-        if result is None:
-            calculation_required = True
+                    # Grab the cached entry (might be None)
+                    cache_result = cache.get(key)
 
-        if calculation_required:
-            computed_result = func(*args, **kwargs)
+                    calculation_required = False
 
-            committed = False
+                    if cache_result is None:
+                        # It's not in the cache, compute!
+                        calculation_required = True
+                    else:
+                        try:
+                            # The result is in the cache!
+                            result = cloudpickle.loads(cache_result)
+                            calculation_required = False
+                        except pickle.PicklingError:
+                            # It's in the cache, but the pickle data is corrupted :(
+                            calculation_required = True
 
-            while not committed:
-                try:
-                    with lmdb_env.begin(write=True) as txn:
-                        result = txn.get(key)
+                    # If we need to compute the result, do it, but make sure we only do this once
+                    # in case we're hitting it due to cache connection problems.
+                    if calculation_required and result is None:
+                        result = func(*args, **kwargs)
 
-                        if result is None:
-                            txn.put(key, cloudpickle.dumps(computed_result))
-                            result = computed_result
-                        else:
-                            result = cloudpickle.loads(result)
+                        # Store the result
+                        cache.set(key, cloudpickle.dumps(result))
 
-                        committed = True
-                except lmdb.LockError:
-                    print("Lock Error! Trying Again!")
+                # We're done, don't loop again
+                db_attempts = 0
+
+            except sqlite3.OperationalError:
+                # We're probably trying to initialize this DB at the same time as some else
+                # Try again a few times
+                db_attempts -= 1
+                if db_attempts > 0:
                     pass
-        else:
-            result = cloudpickle.loads(result)
+                else:
+                    # We're hit errors too many times, so let's fail
+                    raise
+            except sqlite3.DatabaseError:
+                # The DB is corrupted, remove the shard and try again
+                try:
+                    shutil.rmtree(db_loc)
+                except FileNotFoundError:
+                    # Someone else tried to delete the folder at the same, so we should be ok
+                    pass
 
         return result
 

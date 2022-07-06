@@ -16,9 +16,6 @@ from catlas.dask_utils import (
     to_pickles,
 )
 
-from catlas.cache_utils import (
-    better_build_func_identifier,
-)
 import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
@@ -33,14 +30,12 @@ from dask.distributed import wait
 from jinja2 import Template
 import os
 import pickle
-import cloudpickle
 import tqdm
 import time
 import joblib
 import lmdb
 import dask.sizeof
 import catlas.dask_utils
-
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -84,7 +79,9 @@ if __name__ == "__main__":
 
     # Load the bulks
     bulks_delayed = dask.delayed(
-        catlas.cache_utils.lmdb_memoize(config["memory_cache_location"], load_bulks)
+        catlas.cache_utils.diskcache_memoize(
+            config["memory_cache_location"], load_bulks
+        )
     )(config["input_options"]["bulk_file"])
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
@@ -137,7 +134,7 @@ if __name__ == "__main__":
     # Enumerate and filter surfaces
     unfiltered_surface_bag = (
         filtered_catalyst_bag.map(
-            catlas.cache_utils.lmdb_memoize(
+            catlas.cache_utils.diskcache_memoize(
                 config["memory_cache_location"], enumerate_slabs
             )
         )
@@ -157,7 +154,7 @@ if __name__ == "__main__":
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
-        catlas.cache_utils.lmdb_memoize(
+        catlas.cache_utils.diskcache_memoize(
             config["memory_cache_location"], enumerate_adslabs
         )
     )
@@ -174,7 +171,7 @@ if __name__ == "__main__":
             if step["gpu"]:
                 with dask.annotate(resources={"GPU": 1}, priority=10):
                     results_bag = results_bag.map(
-                        catlas.cache_utils.lmdb_memoize(
+                        catlas.cache_utils.diskcache_memoize(
                             config["memory_cache_location"],
                             energy_prediction,
                             ignore=[
@@ -195,7 +192,7 @@ if __name__ == "__main__":
                     )
             else:
                 results_bag = results_bag.map(
-                    catlas.cache_utils.lmdb_memoize(
+                    catlas.cache_utils.diskcache_memoize(
                         config["memory_cache_location"],
                         energy_prediction,
                         ignore=[
