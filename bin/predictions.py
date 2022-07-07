@@ -157,6 +157,7 @@ if __name__ == "__main__":
         filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten().persist()
     )
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
+    surface_bag = surface_bag.map(get_nuclearity)
 
     # choose the number of partitions after to use after making adslab combos
     npartitions = min(bulk_num * adsorbate_num * 4, 2000)

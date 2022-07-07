@@ -8,6 +8,7 @@ from ase import neighborlist
 from ase.neighborlist import natural_cutoffs
 import graph_tool as gt
 from graph_tool import topology
+import numpy as np
 
 def get_nuclearity(entry):
     """
