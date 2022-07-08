@@ -1,5 +1,5 @@
 # catlas
-![catlas overview](https://github.com/ulissigroup/catlas/blob/main/catlas_logo.png?raw=
+![catlas overview](https://github.com/ulissigroup/catlas/blob/main/catlas_logo.png?raw=True)
 
 ## Repo graphical overview
 ![catlas overview](https://github.com/ulissigroup/catlas/blob/main/catlas_overview.png?raw=true)
