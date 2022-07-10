@@ -16,6 +16,7 @@ import time
 from cloudpickle.compat import pickle
 from diskcache import Cache
 import sqlite3
+import numpy as np
 
 
 def get_cached_func_location(func):
@@ -122,14 +123,17 @@ def check_cache(cached_func):
     return False
 
 
+cache_dict = {}
+
+
 def diskcache_memoize(
     folder,
     func,
     ignore=(),
     mmap_mode=None,
-    shard_digits=2,
+    shard_digits=1,
     size_limit=2**37,
-    DB_ATTEMPTS=5,
+    DB_ATTEMPTS=30,
 ):
 
     # Use a base name that includes the full function path and a hash on the function code itself
@@ -144,7 +148,7 @@ def diskcache_memoize(
         ).encode("utf-8")
 
         # Generate a base db location based on the full function path and a hash on the function code itself
-        db_loc = folder + ".".join(base)
+        db_loc = ".".join(base)
 
         # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
         # the numer of shards should be approximately equal to the number of expected simultaneous writers
@@ -157,38 +161,45 @@ def diskcache_memoize(
 
         while db_attempts > 0:
             try:
-                with Cache(
-                    db_loc,
-                    size_limit=size_limit,
-                    timeout=240,
-                    sqlite_synchronous=2,
-                    sqlite_journal_model="DELETE",
-                ) as cache:
 
-                    # Grab the cached entry (might be None)
-                    cache_result = cache.get(key)
+                if db_loc not in cache_dict:
+                    cache_dict[db_loc] = Cache(
+                        folder+db_loc,
+                        size_limit=size_limit,
+                        timeout=240,
+                        sqlite_synchronous=2,
+                        sqlite_journal_mode="DELETE",
+                        eviction_policy="none",
+                        disk_min_file_size=2**37,
+                    )
 
-                    calculation_required = False
+                cache = cache_dict[db_loc]
 
-                    if cache_result is None:
-                        # It's not in the cache, compute!
+                # Grab the cached entry (might be None)
+                cache_result = cache.get(key)
+
+                calculation_required = False
+
+                if cache_result is None:
+                    # It's not in the cache, compute!
+                    calculation_required = True
+                else:
+                    try:
+                        # The result is in the cache!
+                        result = cloudpickle.loads(cache_result)
+                        calculation_required = False
+                    except pickle.PicklingError:
+                        # It's in the cache, but the pickle data is corrupted :(
                         calculation_required = True
-                    else:
-                        try:
-                            # The result is in the cache!
-                            result = cloudpickle.loads(cache_result)
-                            calculation_required = False
-                        except pickle.PicklingError:
-                            # It's in the cache, but the pickle data is corrupted :(
-                            calculation_required = True
 
-                    # If we need to compute the result, do it, but make sure we only do this once
-                    # in case we're hitting it due to cache connection problems.
-                    if calculation_required and result is None:
-                        result = func(*args, **kwargs)
+                # If we need to compute the result, do it, but make sure we only do this once
+                # in case we're hitting it due to cache connection problems.
+                if calculation_required and result is None:
+                    result = func(*args, **kwargs)
 
-                        # Store the result
-                        cache.set(key, cloudpickle.dumps(result), retry=True)
+                # Store the result
+                if calculation_required:
+                    cache.set(key, cloudpickle.dumps(result))
 
                 # We're done, don't loop again
                 db_attempts = 0
@@ -206,7 +217,7 @@ def diskcache_memoize(
                     pass
                 else:
                     # We're hit errors too many times, so let's fail
-                    raise
+                    raise Exception(f"Error Connecting to {db_loc}") from e
 
         return result
 
