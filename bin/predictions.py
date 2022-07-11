@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # Load the bulks
     bulks_delayed = dask.delayed(
-        catlas.cache_utils.diskcache_memoize(
+        catlas.cache_utils.sqlitedict_memoize(
             config["memory_cache_location"], load_bulks
         )
     )(config["input_options"]["bulk_file"])
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # Enumerate and filter surfaces
     unfiltered_surface_bag = (
         filtered_catalyst_bag.map(
-            catlas.cache_utils.diskcache_memoize(
+            catlas.cache_utils.sqlitedict_memoize(
                 config["memory_cache_location"], enumerate_slabs
             )
         )
@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
-        catlas.cache_utils.diskcache_memoize(
+        catlas.cache_utils.sqlitedict_memoize(
             config["memory_cache_location"], enumerate_adslabs
         )
     )
@@ -171,7 +171,7 @@ if __name__ == "__main__":
             if step["gpu"]:
                 with dask.annotate(resources={"GPU": 1}, priority=10):
                     results_bag = results_bag.map(
-                        catlas.cache_utils.diskcache_memoize(
+                        catlas.cache_utils.sqlitedict_memoize(
                             config["memory_cache_location"],
                             energy_prediction,
                             ignore=[
@@ -192,7 +192,7 @@ if __name__ == "__main__":
                     )
             else:
                 results_bag = results_bag.map(
-                    catlas.cache_utils.diskcache_memoize(
+                    catlas.cache_utils.sqlitedict_memoize(
                         config["memory_cache_location"],
                         energy_prediction,
                         ignore=[

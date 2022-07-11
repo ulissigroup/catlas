@@ -14,7 +14,9 @@ import cloudpickle
 import lmdb
 import time
 from cloudpickle.compat import pickle
-from diskcache import Cache
+
+# from diskcache import Cache
+from sqlitedict import SqliteDict
 import sqlite3
 import numpy as np
 
@@ -124,16 +126,16 @@ def check_cache(cached_func):
 
 
 cache_dict = {}
+NO_CACHE_RESULT = "not a cache result"
 
 
-def diskcache_memoize(
+def sqlitedict_memoize(
     folder,
     func,
     ignore=(),
     mmap_mode=None,
-    shard_digits=1,
-    size_limit=2**37,
-    DB_ATTEMPTS=30,
+    shard_digits=2,
+    DB_ATTEMPTS=2,
 ):
 
     # Use a base name that includes the full function path and a hash on the function code itself
@@ -153,9 +155,9 @@ def diskcache_memoize(
         # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
         # the numer of shards should be approximately equal to the number of expected simultaneous writers
         if shard_digits > 0:
-            db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + "/"
+            db_loc = str(db_loc) + "." + key.decode()[0:shard_digits] + ".sqlite"
 
-        result = None
+        result = NO_CACHE_RESULT
 
         db_attempts = DB_ATTEMPTS
 
@@ -163,43 +165,29 @@ def diskcache_memoize(
             try:
 
                 if db_loc not in cache_dict:
-                    cache_dict[db_loc] = Cache(
-                        folder+db_loc,
-                        size_limit=size_limit,
-                        timeout=240,
-                        sqlite_synchronous=2,
-                        sqlite_journal_mode="DELETE",
-                        eviction_policy="none",
-                        disk_min_file_size=2**37,
+                    cache_dict[db_loc] = SqliteDict(
+                        folder + db_loc,
+                        encode=cloudpickle.dumps,
+                        decode=cloudpickle.loads,
+                        timeout=30,
                     )
 
                 cache = cache_dict[db_loc]
 
                 # Grab the cached entry (might be None)
-                cache_result = cache.get(key)
-
-                calculation_required = False
-
-                if cache_result is None:
-                    # It's not in the cache, compute!
-                    calculation_required = True
-                else:
+                if key in cache:
                     try:
-                        # The result is in the cache!
-                        result = cloudpickle.loads(cache_result)
-                        calculation_required = False
-                    except pickle.PicklingError:
+                        result = cache[key]
+                    except pickle.PicklingError as e:
                         # It's in the cache, but the pickle data is corrupted :(
-                        calculation_required = True
+                        pass
 
                 # If we need to compute the result, do it, but make sure we only do this once
                 # in case we're hitting it due to cache connection problems.
-                if calculation_required and result is None:
+                if result == NO_CACHE_RESULT:
                     result = func(*args, **kwargs)
-
-                # Store the result
-                if calculation_required:
-                    cache.set(key, cloudpickle.dumps(result))
+                    cache[key] = result
+                    cache.commit()
 
                 # We're done, don't loop again
                 db_attempts = 0
@@ -208,6 +196,7 @@ def diskcache_memoize(
                 sqlite3.OperationalError,
                 AttributeError,
                 sqlite3.DatabaseError,
+                TimeoutError,
             ) as e:
                 # We're probably trying to initialize this DB at the same time as some else
                 # Try again a few times
@@ -217,7 +206,9 @@ def diskcache_memoize(
                     pass
                 else:
                     # We're hit errors too many times, so let's fail
-                    raise Exception(f"Error Connecting to {db_loc}") from e
+                    raise Exception(
+                        f"Error Connecting to {db_loc}, SqliteMultithred log: {cache.log}"
+                    ) from e
 
         return result
 
