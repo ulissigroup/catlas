@@ -14,12 +14,9 @@ import cloudpickle
 import lmdb
 import time
 from cloudpickle.compat import pickle
-
-# from diskcache import Cache
-from sqlitedict import SqliteDict
 import sqlite3
 import numpy as np
-
+from contextlib import closing
 
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
@@ -125,7 +122,6 @@ def check_cache(cached_func):
     return False
 
 
-cache_dict = {}
 NO_CACHE_RESULT = "not a cache result"
 
 
@@ -135,7 +131,8 @@ def sqlitedict_memoize(
     ignore=(),
     mmap_mode=None,
     shard_digits=2,
-    DB_ATTEMPTS=2,
+    DB_ATTEMPTS=20,
+    wait_exponential = 5,
 ):
 
     # Use a base name that includes the full function path and a hash on the function code itself
@@ -161,36 +158,33 @@ def sqlitedict_memoize(
 
         db_attempts = DB_ATTEMPTS
 
+        time.sleep(np.random.exponential(wait_exponential))
+
         while db_attempts > 0:
             try:
+                with SqliteSingleThreadDict(
+                    folder + db_loc,
+                ) as cache:
 
-                if db_loc not in cache_dict:
-                    cache_dict[db_loc] = SqliteDict(
-                        folder + db_loc,
-                        encode=cloudpickle.dumps,
-                        decode=cloudpickle.loads,
-                        timeout=30,
-                    )
+                    #cache.conn._wait_for_initialization()
 
-                cache = cache_dict[db_loc]
+                    # Grab the cached entry (might be None)
+                    if key in cache:
+                        try:
+                            result = cache[key]
+                        except pickle.PicklingError as e:
+                            # It's in the cache, but the pickle data is corrupted :(
+                            pass
 
-                # Grab the cached entry (might be None)
-                if key in cache:
-                    try:
-                        result = cache[key]
-                    except pickle.PicklingError as e:
-                        # It's in the cache, but the pickle data is corrupted :(
-                        pass
+                    # If we need to compute the result, do it, but make sure we only do this once
+                    # in case we're hitting it due to cache connection problems.
+                    if result == NO_CACHE_RESULT:
+                        result = func(*args, **kwargs)
+                        cache[key] = result
 
-                # If we need to compute the result, do it, but make sure we only do this once
-                # in case we're hitting it due to cache connection problems.
-                if result == NO_CACHE_RESULT:
-                    result = func(*args, **kwargs)
-                    cache[key] = result
-                    cache.commit()
+                    # We're done, don't loop again
+                    db_attempts = 0
 
-                # We're done, don't loop again
-                db_attempts = 0
 
             except (
                 sqlite3.OperationalError,
@@ -202,14 +196,72 @@ def sqlitedict_memoize(
                 # Try again a few times
                 db_attempts -= 1
                 if db_attempts > 0:
-                    time.sleep(5)
+                    time.sleep(np.random.exponential(wait_exponential))
                     pass
                 else:
                     # We're hit errors too many times, so let's fail
                     raise Exception(
-                        f"Error Connecting to {db_loc}, SqliteMultithred log: {cache.log}"
+                        f"Error Connecting to {db_loc}"
                     ) from e
 
         return result
 
     return wrapper
+
+class SqliteSingleThreadDict(dict):
+
+    def __init__(self, filename=None, tablename='unnamed', journal_mode="TRUNCATE", encode=cloudpickle.dumps,
+                 decode=cloudpickle.loads):
+        self.filename = filename
+        self.journal_mode = journal_mode
+        self.encode = encode
+        self.decode = decode
+        self.tablename = tablename
+
+    def _new_conn(self):
+        conn = sqlite3.connect(self.filename, check_same_thread=False, timeout=30)
+
+        with closing(conn.cursor()) as cursor:
+            cursor.execute('PRAGMA journal_mode = %s' % self.journal_mode)
+            cursor.execute('PRAGMA synchronous=FULL')
+            MAKE_TABLE = 'CREATE TABLE IF NOT EXISTS "%s" (key TEXT PRIMARY KEY, value BLOB)' % self.tablename
+            cursor.execute(MAKE_TABLE)
+
+        conn.commit()
+        return conn
+
+    def __enter__(self):
+        if not hasattr(self, 'conn') or self.conn is None:
+            self.conn = self._new_conn()
+        return self
+
+    def __exit__(self, *exc_info):
+        self.close()
+
+    def close(self, do_log=True, force=False):
+        if hasattr(self, 'conn') and self.conn is not None:
+            self.conn.commit()
+            self.conn.close()
+            self.conn = None
+
+    def __contains__(self, key):
+        HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
+        with closing(self.conn.cursor()) as cursor:
+            return len(cursor.execute(HAS_ITEM, (key,)).fetchall()) > 0
+        self.conn.commit()
+
+    def __getitem__(self, key):
+        with closing(self.conn.cursor()) as cursor:
+            GET_ITEM = 'SELECT value FROM "%s" WHERE key = ?' % self.tablename
+            item = cursor.execute(GET_ITEM, (key,)).fetchall()
+        if len(item) == 0:
+            raise KeyError(key)
+        value,  = item[0]
+        self.conn.commit()
+        return self.decode(value)
+
+    def __setitem__(self, key, value):
+        with closing(self.conn.cursor()) as cursor:
+            ADD_ITEM = 'REPLACE INTO "%s" (key, value) VALUES (?,?)' % self.tablename
+            cursor.execute(ADD_ITEM, (key, self.encode(value)))
+        self.conn.commit()
