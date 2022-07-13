@@ -19,7 +19,7 @@ import numpy as np
 from contextlib import closing
 import backoff
 import gc
-
+import functools
 
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
@@ -142,6 +142,7 @@ def sqlitedict_memoize(
     @backoff.on_exception(
         backoff.expo, (sqlite3.OperationalError, TimeoutError), max_time=180
     )
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         """Wrapper for callable to cache arguments and return values."""
 
