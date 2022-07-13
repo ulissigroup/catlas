@@ -155,7 +155,7 @@ if __name__ == "__main__":
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
         catlas.cache_utils.sqlitedict_memoize(
-            config["memory_cache_location"], enumerate_adslabs
+            config["memory_cache_location"], enumerate_adslabs, shard_digits=4
         )
     )
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
@@ -180,6 +180,7 @@ if __name__ == "__main__":
                                 "adslab_atoms",
                                 "adslab_dict",
                             ],
+                            shard_digits=4,
                         ),
                         adslab_atoms=adslab_atoms_bag,
                         hash_adslab_atoms=hash_adslab_atoms_bag,
@@ -201,6 +202,7 @@ if __name__ == "__main__":
                             "adslab_atoms",
                             "adslab_dict",
                         ],
+                        shard_digits=4,
                     ),
                     adslab_atoms=adslab_atoms_bag,
                     hash_adslab_atoms=hash_adslab_atoms_bag,
