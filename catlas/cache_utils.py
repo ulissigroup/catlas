@@ -20,6 +20,7 @@ from contextlib import closing
 import backoff
 import gc
 import functools
+from pathlib import Path
 
 
 def get_cached_func_location(func):
@@ -158,7 +159,7 @@ def sqlitedict_memoize(
         # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
         # the numer of shards should be approximately equal to the number of expected simultaneous writers
         if shard_digits > 0:
-            db_loc = str(db_loc) + "." + key.decode()[0:shard_digits] + ".sqlite"
+            db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + ".sqlite"
 
         result = NO_CACHE_RESULT
 
@@ -205,17 +206,30 @@ class SqliteSingleThreadDict(dict):
         self.tablename = tablename
 
     def _new_ro_conn(self):
-        conn = sqlite3.connect(
-            f"file:{self.filename}?mode=ro",
-            check_same_thread=True,
-            timeout=1,
-            uri=True,
-        )
+        try:
+            conn = sqlite3.connect(
+                f"file:{self.filename}?mode=ro",
+                check_same_thread=True,
+                timeout=1,
+                uri=True,
+            )
+        except sqlite3.OperationalError:
+            Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(
+                f"file:{self.filename}?mode=ro",
+                check_same_thread=True,
+                timeout=1,
+                uri=True,
+            )
         conn.isolation_level = None
         return conn
 
     def _new_rw_conn(self):
-        conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
+        try:
+            conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
+        except sqlite3.OperationalError:
+            Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
         conn.isolation_level = None
 
         with conn:
@@ -242,7 +256,6 @@ class SqliteSingleThreadDict(dict):
         if hasattr(self, "ro_conn") and self.ro_conn is not None:
             self.ro_conn.close()
             self.ro_conn = None
-        # gc.collect()
 
     def __contains__(self, key):
         HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
