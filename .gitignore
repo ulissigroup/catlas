@@ -5,7 +5,6 @@ configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
 # Outputs
 outputs/
 ocp_checkpoints
-parity
 catlas/pourbaix_diagrams
 
 # VSCode
