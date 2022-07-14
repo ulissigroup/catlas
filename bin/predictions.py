@@ -169,7 +169,7 @@ if __name__ == "__main__":
             number_steps = step["number_steps"] if "number_steps" in step else 200
             hash_results_bag = results_bag.map(joblib.hash)
             if step["gpu"]:
-                with dask.annotate(resources={"GPU": 1}, priority=10):
+                with dask.annotate(resources={"GPU": 1}, priority=10000000):
                     results_bag = results_bag.map(
                         catlas.cache_utils.sqlitedict_memoize(
                             config["memory_cache_location"],

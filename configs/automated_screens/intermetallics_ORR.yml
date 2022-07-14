@@ -5,7 +5,7 @@ input_options:
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 output_options:
-  pickle_final_output: True # True pickles the resulting predictions
+  pickle_final_output: False # True pickles the resulting predictions
   pickle_intermediate_outputs: False
   run_name: 'intermetallics_ORR_{{ GITHUB_RUN_ID }}'
   verbose: False
