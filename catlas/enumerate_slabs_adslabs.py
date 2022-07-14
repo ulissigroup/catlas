@@ -77,7 +77,18 @@ def enumerate_adslabs(surface_ads_combo):
 
     adslab_result = combo_obj.constrained_adsorbed_surfaces
 
-    return adslab_result
+    # The adslab_result object takes up a ton of memory because they are all
+    # copies of the same atoms object. To reduce memory use, let's just store a
+    # shallow copy of the atoms for each, and update the positions. Note that this means
+    # all other atoms properties are shared between copies, so be careful if you need to
+    # modify things!
+    adslab_result_shallow_copy = []
+    for atoms in adslab_result:
+        atoms_copy = copy.copy(adslab_result[0])
+        atoms_copy.positions = atoms.positions
+        adslab_result_shallow_copy.append(atoms_copy)
+
+    return adslab_result_shallow_copy
 
 
 def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
