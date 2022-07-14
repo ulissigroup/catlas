@@ -21,6 +21,7 @@ import backoff
 import gc
 import functools
 
+
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
     Necessary because each function will have multiple subcaches for its codebase."""
@@ -241,7 +242,7 @@ class SqliteSingleThreadDict(dict):
         if hasattr(self, "ro_conn") and self.ro_conn is not None:
             self.ro_conn.close()
             self.ro_conn = None
-        gc.collect()
+        # gc.collect()
 
     def __contains__(self, key):
         HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
