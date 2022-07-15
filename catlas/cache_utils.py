@@ -178,7 +178,7 @@ def sqlitedict_memoize(
 
         # If we need to compute the result, do it, but make sure we only do this once
         # in case we're hitting it due to cache connection problems.
-        if result == NO_CACHE_RESULT:
+        if (type(result) == str) & (result == NO_CACHE_RESULT):
             result = func(*args, **kwargs)
             cache[key] = result
 
