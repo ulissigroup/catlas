@@ -6,6 +6,7 @@ configs/dask_cluster/dev_kube_cluster/worker-gpu.yml
 outputs/
 ocp_checkpoints
 catlas/pourbaix_diagrams
+catlas/parity/npz-files
 
 # VSCode
 *.vscode*
