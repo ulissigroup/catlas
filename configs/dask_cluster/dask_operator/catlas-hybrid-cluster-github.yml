@@ -1,7 +1,7 @@
 apiVersion: kubernetes.dask.org/v1
 kind: DaskCluster
 metadata:
-  name: catlas-hybrid-cluster
+  name: catlas-hybrid-cluster-GITHUB_RUN_ID
 spec:
   worker:
     replicas: 2
@@ -31,11 +31,11 @@ spec:
                 memory: 6G
             volumeMounts:
             - mountPath: /home/jovyan/ocp
-              name: workspace-inference
-              subPath: ocp
+              name: shared-scratch
+              subPath: catlas_runners/GITHUB_RUN_ID/ocp
             - mountPath: /home/jovyan/catlas
-              name: workspace-inference
-              subPath: catlas
+              name: shared-scratch
+              subPath: catlas_runners/GITHUB_RUN_ID/catlas
             - mountPath: /home/jovyan/shared-scratch
               name: shared-scratch
             - mountPath: /home/jovyan/dask-worker-space
@@ -45,9 +45,6 @@ spec:
           - name: shared-scratch
             persistentVolumeClaim:
               claimName: shared-scratch
-          - name: workspace-inference
-            persistentVolumeClaim:
-              claimName: workspace-inference
         affinity:
           nodeAffinity:
             requiredDuringSchedulingIgnoredDuringExecution:
@@ -95,7 +92,7 @@ spec:
     service:
       type: ClusterIP
       selector:
-        dask.org/cluster-name: catlas-hybrid-cluster
+        dask.org/cluster-name: catlas-hybrid-cluster-GITHUB_RUN_ID
         dask.org/component: scheduler
       ports:
       - name: tcp-comm
@@ -112,9 +109,9 @@ spec:
 apiVersion: kubernetes.dask.org/v1
 kind: DaskWorkerGroup
 metadata:
-  name: catlas-hybrid-cluster-gpu-worker-group
+  name: catlas-hybrid-cluster-GITHUB_RUN_ID-gpu-worker-group
 spec:
-  cluster: catlas-hybrid-cluster
+  cluster: catlas-hybrid-cluster-GITHUB_RUN_ID
   worker:
     replicas: 0
     spec:
@@ -143,11 +140,11 @@ spec:
             nvidia.com/gpu: "1"
         volumeMounts:
         - mountPath: /home/jovyan/ocp
-          name: workspace-inference
-          subPath: ocp
+          name: shared-scratch
+          subPath: catlas_runners/GITHUB_RUN_ID/ocp
         - mountPath: /home/jovyan/catlas
-          name: workspace-inference
-          subPath: catlas
+          name: shared-scratch
+          subPath: catlas_runners/GITHUB_RUN_ID/catlas
         - mountPath: /home/jovyan/shared-scratch
           name: shared-scratch
         - mountPath: /home/jovyan/dask-worker-space
@@ -157,6 +154,3 @@ spec:
       - name: shared-scratch
         persistentVolumeClaim:
           claimName: shared-scratch
-      - name: workspace-inference
-        persistentVolumeClaim:
-          claimName: workspace-inference
