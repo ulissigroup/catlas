@@ -5,6 +5,22 @@ from joblib.memory import (
     extract_first_line,
     JobLibCollisionWarning,
 )
+import hashlib as hl
+import sys
+import json
+from joblib.func_inspect import get_func_code, filter_args
+from joblib.hashing import hash
+import cloudpickle
+import lmdb
+import time
+from cloudpickle.compat import pickle
+import sqlite3
+import numpy as np
+from contextlib import closing
+import backoff
+import gc
+import functools
+from pathlib import Path
 
 
 def get_cached_func_location(func):
@@ -28,15 +44,25 @@ def better_build_func_identifier(func):
     parts.append(str(h_code))
 
     # We reuse historical fs-like way of building a function identifier
-    return os.path.join(*parts)
+    return tuple(parts)
 
 
-joblib.memory._build_func_identifier = better_build_func_identifier
+def token(config) -> str:
+    """Generates a hex token that identifies a config.
+    taken from stackoverflow 45674572
+    """
+    # `sign_mask` is used to make `hash` return unsigned values
+    sign_mask = (1 << sys.hash_info.width) - 1
+    # Use `json.dumps` with `repr` to ensure the config is hashable
+    json_config = json.dumps(config, default=repr)
+    # Get the hash as a positive hex value with consistent padding without '0x'
+    return f"{hash(json_config) & sign_mask:#0{sys.hash_info.width//4}x}"[2:]
 
 
 def hash_func(func):
     """Hash the function id, its file location, and the function code"""
-    func_code_h = hash(getattr(func, "__code__", None))
+    func_code, _, first_line = get_func_code(func)
+    func_code_h = hash([func_code, first_line])
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
@@ -99,3 +125,170 @@ def check_cache(cached_func):
         return True
 
     return False
+
+
+NO_CACHE_RESULT = "not a cache result"
+
+
+def sqlitedict_memoize(
+    folder,
+    func,
+    ignore=(),
+    mmap_mode=None,
+    shard_digits=2,
+):
+
+    # Use a base name that includes the full function path and a hash on the function code itself
+    base = better_build_func_identifier(func)
+
+    @backoff.on_exception(
+        backoff.expo, (sqlite3.OperationalError, TimeoutError), max_time=180
+    )
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        """Wrapper for callable to cache arguments and return values."""
+
+        # Get the key for the arguments
+        key = hash(
+            filter_args(func, ignore, args, kwargs), coerce_mmap=(mmap_mode is not None)
+        ).encode("utf-8")
+
+        # Generate a base db location based on the full function path and a hash on the function code itself
+        db_loc = ".".join(base)
+
+        # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
+        # the numer of shards should be approximately equal to the number of expected simultaneous writers
+        if shard_digits > 0:
+            db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + ".sqlite"
+
+        result = NO_CACHE_RESULT
+
+        cache = SqliteSingleThreadDict(
+            folder + db_loc,
+        )
+
+        # Grab the cached entry (might be None)
+        # if key in cache:
+        try:
+            cache.__enter__()
+            result = cache[key]
+        except (pickle.PicklingError, sqlite3.OperationalError, KeyError) as e:
+            # It's in the cache, but the pickle data is corrupted :(
+            pass
+
+        # If we need to compute the result, do it, and cache the result
+        if (type(result) == str) & (result == NO_CACHE_RESULT):
+            result = func(*args, **kwargs)
+            cache[key] = result
+
+        # Tidy up!
+        cache.close()
+        del cache
+
+        return result
+
+    return wrapper
+
+
+class SqliteSingleThreadDict(dict):
+
+    # This code was originally adapted from the excellect sqlitedict package (Apache2 license)
+    # It was almost entirely re-written as the use case here is much simpler than what sqlitedict provides
+
+    def __init__(
+        self,
+        filename=None,
+        tablename="unnamed",
+        journal_mode="PERSIST",
+        encode=cloudpickle.dumps,
+        decode=cloudpickle.loads,
+    ):
+        self.filename = filename
+        self.journal_mode = journal_mode
+        self.encode = encode
+        self.decode = decode
+        self.tablename = tablename
+
+    def _new_readonly_conn(self):
+        # This function opens a read-only (ro) connection to the database
+        # which is used to either check if data exists, or retrive cached data
+        try:
+            conn = sqlite3.connect(
+                f"file:{self.filename}?mode=ro",
+                check_same_thread=True,
+                timeout=1,
+                uri=True,
+            )
+        except sqlite3.OperationalError:
+            # If we hit an error in a read-only open, it probably means that
+            # the database does not actually exist, so we should make it
+            Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(
+                f"file:{self.filename}?mode=ro",
+                check_same_thread=True,
+                timeout=1,
+                uri=True,
+            )
+        conn.isolation_level = None
+        return conn
+
+    def _new_readwrite_conn(self):
+        # Opens a read/write connection, which we need to insert data
+        # into the cache
+        try:
+            conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
+        except sqlite3.OperationalError:
+            # If we hit an error, it's probably because the directory doesn't exist,
+            # so make it first!
+            Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
+            conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
+        conn.isolation_level = None
+
+        # Set some settings for the DB/connection and make the table if needed
+        with conn:
+            conn.execute("PRAGMA journal_mode = %s" % self.journal_mode)
+            conn.execute("PRAGMA synchronous=FULL")
+            MAKE_TABLE = (
+                'CREATE TABLE IF NOT EXISTS "%s" (key TEXT PRIMARY KEY, value BLOB)'
+                % self.tablename
+            )
+            conn.execute(MAKE_TABLE)
+
+        conn.commit()
+        return conn
+
+    def __enter__(self):
+        if not hasattr(self, "conn") or self.conn is None:
+            self.readonly_conn = self._new_readonly_conn()
+        return self
+
+    def __exit__(self, *exc_info):
+        self.close()
+
+    def close(self):
+        # Tidy up by closing the read-only connection
+        if hasattr(self, "readonlyo_conn") and self.readonly_conn is not None:
+            self.readonly_conn.close()
+            self.readonly_conn = None
+
+    def __contains__(self, key):
+        HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
+        with self.readonly_conn as conn:
+            return len(conn.execute(HAS_ITEM, (key,)).fetchall()) > 0
+
+    def __getitem__(self, key):
+        # Read an item from the cache given a key
+        with self.readonly_conn as readonly_conn:
+            GET_ITEM = 'SELECT value FROM "%s" WHERE key = ?' % self.tablename
+            item = readonly_conn.execute(GET_ITEM, (key,)).fetchall()
+        if len(item) == 0:
+            raise KeyError(key)
+        (value,) = item[0]
+        return self.decode(value)
+
+    def __setitem__(self, key, value):
+        # Set an item in the cache given a key/value pair
+        with closing(self._new_readwrite_conn()) as readwrite_conn:
+            ADD_ITEM = 'REPLACE INTO "%s" (key, value) VALUES (?,?)' % self.tablename
+            readwrite_conn.execute(ADD_ITEM, (key, self.encode(value)))
+            readwrite_conn.commit()

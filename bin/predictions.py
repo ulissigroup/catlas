@@ -16,9 +16,6 @@ from catlas.dask_utils import (
     to_pickles,
 )
 
-from catlas.cache_utils import (
-    better_build_func_identifier,
-)
 import warnings
 from catlas.adslab_predictions import (
     energy_prediction,
@@ -28,33 +25,17 @@ import dask.bag as db
 import dask
 import sys
 import dask.dataframe as ddf
-from joblib import Memory
 import pandas as pd
 from dask.distributed import wait
 from jinja2 import Template
 import os
 import pickle
-import cloudpickle
 import tqdm
 import time
 import joblib
 import lmdb
 import dask.sizeof
-
-joblib.memory._build_func_identifier = better_build_func_identifier
-
-
-# Register a better method to track the size of complex dictionaries and lists
-# (basically pickle and count the size). Needed to accurately track data in dask cluster.
-@dask.sizeof.sizeof.register(dict)
-def sizeof_python_dict(d):
-    return len(cloudpickle.dumps(d))
-
-
-@dask.sizeof.sizeof.register(list)
-def sizeof_python_list(l):
-    return len(cloudpickle.dumps(l))
-
+import catlas.dask_utils
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -96,13 +77,12 @@ if __name__ == "__main__":
     dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
     exec(dask_cluster_script)
 
-    # Set up joblib memory to use for caching hard steps
-    memory = Memory(config["memory_cache_location"], verbose=0)
-
     # Load the bulks
-    bulks_delayed = dask.delayed(memory.cache(load_bulks))(
-        config["input_options"]["bulk_file"]
-    )
+    bulks_delayed = dask.delayed(
+        catlas.cache_utils.sqlitedict_memoize(
+            config["memory_cache_location"], load_bulks
+        )
+    )(config["input_options"]["bulk_file"])
     bulk_bag = db.from_delayed([bulks_delayed])
     bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
 
@@ -153,12 +133,18 @@ if __name__ == "__main__":
 
     # Enumerate and filter surfaces
     unfiltered_surface_bag = (
-        filtered_catalyst_bag.map(memory.cache(enumerate_slabs)).flatten().persist()
+        filtered_catalyst_bag.map(
+            catlas.cache_utils.sqlitedict_memoize(
+                config["memory_cache_location"], enumerate_slabs
+            )
+        )
+        .flatten()
+        .persist()
     )
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
 
     # choose the number of partitions after to use after making adslab combos
-    npartitions = min(bulk_num * adsorbate_num * 4, 2000)
+    npartitions = min(bulk_num * adsorbate_num * 4, 1000)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
@@ -167,42 +153,64 @@ if __name__ == "__main__":
     )
 
     # Enumerate the adslab configs and the graphs on any worker
-    adslab_atoms_bag = surface_adsorbate_combo_bag.map(memory.cache(enumerate_adslabs))
+    adslab_atoms_bag = surface_adsorbate_combo_bag.map(
+        catlas.cache_utils.sqlitedict_memoize(
+            config["memory_cache_location"], enumerate_adslabs, shard_digits=4
+        )
+    )
     graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
+    hash_adslab_atoms_bag = adslab_atoms_bag.map(joblib.hash)
 
     # Run adslab predictions
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
             number_steps = step["number_steps"] if "number_steps" in step else 200
+            hash_results_bag = results_bag.map(joblib.hash)
             if step["gpu"]:
-                with dask.annotate(resources={"GPU": 1}, priority=10):
+                with dask.annotate(resources={"GPU": 1}, priority=10000000):
                     results_bag = results_bag.map(
-                        memory.cache(
+                        catlas.cache_utils.sqlitedict_memoize(
+                            config["memory_cache_location"],
                             energy_prediction,
-                            ignore=["batch_size", "graphs_dict", "cpu"],
+                            ignore=[
+                                "batch_size",
+                                "graphs_dict",
+                                "adslab_atoms",
+                                "adslab_dict",
+                            ],
+                            shard_digits=4,
                         ),
                         adslab_atoms=adslab_atoms_bag,
+                        hash_adslab_atoms=hash_adslab_atoms_bag,
+                        hash_adslab_dict=hash_results_bag,
                         graphs_dict=graphs_bag,
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
-                        cpu=False,
                         number_steps=number_steps,
                     )
             else:
                 results_bag = results_bag.map(
-                    memory.cache(
+                    catlas.cache_utils.sqlitedict_memoize(
+                        config["memory_cache_location"],
                         energy_prediction,
-                        ignore=["batch_size", "graphs_dict", "cpu"],
+                        ignore=[
+                            "batch_size",
+                            "graphs_dict",
+                            "adslab_atoms",
+                            "adslab_dict",
+                        ],
+                        shard_digits=4,
                     ),
                     adslab_atoms=adslab_atoms_bag,
+                    hash_adslab_atoms=hash_adslab_atoms_bag,
+                    hash_adslab_dict=hash_results_bag,
                     graphs_dict=graphs_bag,
                     checkpoint_path=step["checkpoint_path"],
                     column_name=step["label"],
                     batch_size=step["batch_size"],
-                    cpu=True,
                     number_steps=number_steps,
                 )
 
