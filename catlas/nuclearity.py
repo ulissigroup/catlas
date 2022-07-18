@@ -41,12 +41,12 @@ def get_nuclearity(entry):
             atom.symbol == element and atom.index in surface_indices
             for atom in slab_atoms
         ]
-        surface_atoms_of_elements_rep = [
+        surface_atoms_of_element_rep = [
             atom.symbol == element and atom.index in surface_indices_rep
             for atom in replicated_slab_atoms
         ]
 
-        if sum(surface_atoms_of_elements) == 0:
+        if sum(surface_atoms_of_element) == 0:
             output_dict[element] = {"nuclearity": 0, "nuclearities": []}
 
         else:
@@ -54,7 +54,7 @@ def get_nuclearity(entry):
                 surface_atoms_of_element, overall_connectivity_matrix
             )
             hist_rep = get_nuclearity_neighbor_counts(
-                surface_atoms_of_elements_rep, overall_connectivity_matrix_rep
+                surface_atoms_of_element_rep, overall_connectivity_matrix_rep
             )
             output_dict[element] = evaluate_infiniteness(hist, hist_rep)
     entry["nuclearity_info"] = output_dict
