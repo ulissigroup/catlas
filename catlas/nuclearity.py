@@ -37,42 +37,42 @@ def get_nuclearity(entry):
     # Iterate over atoms and assess nuclearity
     output_dict = {}
     for element in elements:
-        connected_surface_atoms = [
+        surface_atoms_of_element = [
             atom.symbol == element and atom.index in surface_indices
             for atom in slab_atoms
         ]
-        connected_surface_atoms_rep = [
+        surface_atoms_of_elements_rep = [
             atom.symbol == element and atom.index in surface_indices_rep
             for atom in replicated_slab_atoms
         ]
 
-        if sum(connected_surface_atoms) == 0:
+        if sum(surface_atoms_of_elements) == 0:
             output_dict[element] = {"nuclearity": 0, "nuclearities": []}
 
         else:
             hist = get_nuclearity_neighbor_counts(
-                connected_surface_atoms, overall_connectivity_matrix
+                surface_atoms_of_element, overall_connectivity_matrix
             )
             hist_rep = get_nuclearity_neighbor_counts(
-                connected_surface_atoms_rep, overall_connectivity_matrix_rep
+                surface_atoms_of_elements_rep, overall_connectivity_matrix_rep
             )
             output_dict[element] = evaluate_infiniteness(hist, hist_rep)
     entry["nuclearity_info"] = output_dict
     return entry
 
 
-def get_nuclearity_neighbor_counts(connected_surface_atoms, connectivity_matrix):
+def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix):
     """
     Function that counts the like surface neighbors for surface atoms
     Args:
-        connected_surface_atoms: list of all surface atoms which are of a specific element
+        surface_atoms_of_element: list of all surface atoms which are of a specific element
         connectivity_matrix: matrix memorializing which atoms in the slab are connected
 
     Returns:
         hist: counts of neighbor groups
     """
-    connectivity_matrix = connectivity_matrix[connected_surface_atoms, :]
-    connectivity_matrix = connectivity_matrix[:, connected_surface_atoms]
+    connectivity_matrix = connectivity_matrix[surface_atoms_of_element, :]
+    connectivity_matrix = connectivity_matrix[:, surface_atoms_of_element]
     graph = gt.Graph(directed=False)
     graph.add_vertex(n=connectivity_matrix.shape[0])
     graph.add_edge_list(np.transpose(connectivity_matrix.nonzero()))
@@ -85,8 +85,8 @@ def evaluate_infiniteness(hist, hist_rep):
     Function that compares the connected counts between the minimal slab
     and a repeated slab to classify the type of infiniteness.
     Args:
-        hist: counts of neighbor types in the minimal slab
-        hist: counts of neighbor types in the minimal slab
+        hist: list of nuclearities observed in minimal slab
+        hist_rep: list of nuclearities observed in replicated slab
 
     Returns:
         nuclearity dict: the max nuclearity and all nuclearities for the
