@@ -42,24 +42,24 @@ jobs:
         python setup.py develop
     - name: Startup dask cluster
       run: |
-        sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        sed -i "s/GITHUB_RUN_ID/$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster-github.yml
         sed -i "s/catlas-hybrid-cluster/catlas-hybrid-cluster-$GITHUB_RUN_ID/g" catlas/configs/dask_cluster/dask_operator/dask_connect.py
-        kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+        kubectl apply -f catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster-github.yml
         sleep 10
-        kubectl scale --replicas=2 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
-        kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
-    - run: |
+        kubectl scale --replicas=80 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-default-worker-group
+        kubectl scale --replicas=8 daskworkergroup catlas-hybrid-cluster-$GITHUB_RUN_ID-gpu-worker-group
+    - name: Run screens
+      shell: bash
+      run: |
         cd catlas
-        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py
-    - run: |
-        cd catlas
-        python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py
+        python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py & 
+        python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        for job in `jobs -p` 
+        do
+            wait $job
+        done
     - name: Shut down dask cluster
       if: always()
       run: |

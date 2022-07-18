@@ -9,7 +9,6 @@ import yaml
 from ocpmodels.datasets import data_list_collater
 from ase.calculators.singlepoint import SinglePointCalculator
 from ocpmodels.common.relaxation import ml_relaxation
-
 from ocpmodels.common.utils import (
     radius_graph_pbc,
     setup_imports,
@@ -18,9 +17,10 @@ from ocpmodels.common.utils import (
 
 from torch.utils.data import DataLoader
 import torch
-import catlas
+import catlas.cache_utils
 import os
 from tqdm import tqdm
+import catlas.dask_utils
 
 BOCPP_dict = {}
 relax_calc = None
@@ -189,13 +189,18 @@ class BatchOCPPredictor:
 def energy_prediction(
     adslab_dict,
     adslab_atoms,
+    hash_adslab_atoms,
+    hash_adslab_dict,
     graphs_dict,
     checkpoint_path,
     column_name,
     batch_size=8,
-    cpu=False,
     number_steps=200,
 ):
+    adslab_atoms = copy.deepcopy(adslab_atoms)
+    adslab_dict = copy.deepcopy(adslab_dict)
+
+    cpu = torch.cuda.device_count() == 0
 
     global BOCPP_dict
 

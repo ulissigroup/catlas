@@ -8,6 +8,7 @@ import copy
 from ocpmodels.preprocessing import AtomsToGraphs
 import logging
 import torch
+import catlas.dask_utils
 
 
 class CustomAdsorbate(Adsorbate):
@@ -23,6 +24,8 @@ class CustomBulk(Bulk):
 
 
 def enumerate_slabs(bulk_dict, max_miller=2):
+
+    bulk_dict = copy.deepcopy(bulk_dict)
 
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
@@ -57,7 +60,8 @@ def enumerate_slabs(bulk_dict, max_miller=2):
 
 
 def enumerate_adslabs(surface_ads_combo):
-    surface_dict, ads_dict = surface_ads_combo
+
+    surface_dict, ads_dict = copy.deepcopy(surface_ads_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts
     adslab_result = []
@@ -73,10 +77,23 @@ def enumerate_adslabs(surface_ads_combo):
 
     adslab_result = combo_obj.constrained_adsorbed_surfaces
 
-    return adslab_result
+    # The adslab_result object takes up a ton of memory because they are all
+    # copies of the same atoms object. To reduce memory use, let's just store a
+    # shallow copy of the atoms for each, and update the positions. Note that this means
+    # all other atoms properties are shared between copies, so be careful if you need to
+    # modify things!
+    adslab_result_shallow_copy = []
+    for atoms in adslab_result:
+        atoms_copy = copy.copy(adslab_result[0])
+        atoms_copy.positions = atoms.positions
+        adslab_result_shallow_copy.append(atoms_copy)
+
+    return adslab_result_shallow_copy
 
 
 def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
+
+    adslab_result = copy.deepcopy(adslab_result)
 
     graph_dict = {}
 
@@ -105,11 +122,11 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
-    surface_dict, ads_dict = surface_adsorbate_combo
+    surface_dict, ads_dict = copy.deepcopy(surface_adsorbate_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts
     adslab_result = {}
-    adslab_result.update(copy.deepcopy(surface_dict))
-    adslab_result.update(copy.deepcopy(ads_dict))
+    adslab_result.update(surface_dict)
+    adslab_result.update(ads_dict)
 
     return adslab_result
