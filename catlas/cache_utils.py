@@ -176,21 +176,25 @@ def sqlitedict_memoize(
             # It's in the cache, but the pickle data is corrupted :(
             pass
 
-        # If we need to compute the result, do it, but make sure we only do this once
-        # in case we're hitting it due to cache connection problems.
+        # If we need to compute the result, do it, and cache the result
         if (type(result) == str) & (result == NO_CACHE_RESULT):
             result = func(*args, **kwargs)
             cache[key] = result
 
+        # Tidy up!
         cache.close()
-
         del cache
+
         return result
 
     return wrapper
 
 
 class SqliteSingleThreadDict(dict):
+
+    # This code was originally adapted from the excellect sqlitedict package (Apache2 license)
+    # It was almost entirely re-written as the use case here is much simpler than what sqlitedict provides
+
     def __init__(
         self,
         filename=None,
@@ -205,7 +209,9 @@ class SqliteSingleThreadDict(dict):
         self.decode = decode
         self.tablename = tablename
 
-    def _new_ro_conn(self):
+    def _new_readonly_conn(self):
+        # This function opens a read-only (ro) connection to the database
+        # which is used to either check if data exists, or retrive cached data
         try:
             conn = sqlite3.connect(
                 f"file:{self.filename}?mode=ro",
@@ -214,6 +220,8 @@ class SqliteSingleThreadDict(dict):
                 uri=True,
             )
         except sqlite3.OperationalError:
+            # If we hit an error in a read-only open, it probably means that
+            # the database does not actually exist, so we should make it
             Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
             conn = sqlite3.connect(
                 f"file:{self.filename}?mode=ro",
@@ -224,14 +232,19 @@ class SqliteSingleThreadDict(dict):
         conn.isolation_level = None
         return conn
 
-    def _new_rw_conn(self):
+    def _new_readwrite_conn(self):
+        # Opens a read/write connection, which we need to insert data
+        # into the cache
         try:
             conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
         except sqlite3.OperationalError:
+            # If we hit an error, it's probably because the directory doesn't exist,
+            # so make it first!
             Path(self.filename).parent.mkdir(parents=True, exist_ok=True)
             conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
         conn.isolation_level = None
 
+        # Set some settings for the DB/connection and make the table if needed
         with conn:
             conn.execute("PRAGMA journal_mode = %s" % self.journal_mode)
             conn.execute("PRAGMA synchronous=FULL")
@@ -246,34 +259,36 @@ class SqliteSingleThreadDict(dict):
 
     def __enter__(self):
         if not hasattr(self, "conn") or self.conn is None:
-            self.ro_conn = self._new_ro_conn()
+            self.readonly_conn = self._new_readonly_conn()
         return self
 
     def __exit__(self, *exc_info):
         self.close()
 
     def close(self):
-        if hasattr(self, "ro_conn") and self.ro_conn is not None:
-            self.ro_conn.close()
-            self.ro_conn = None
+        # Tidy up by closing the read-only connection
+        if hasattr(self, "readonlyo_conn") and self.readonly_conn is not None:
+            self.readonly_conn.close()
+            self.readonly_conn = None
 
     def __contains__(self, key):
         HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
-        with self.ro_conn as conn:
+        with self.readonly_conn as conn:
             return len(conn.execute(HAS_ITEM, (key,)).fetchall()) > 0
 
     def __getitem__(self, key):
-        with self.ro_conn as ro_conn:
+        # Read an item from the cache given a key
+        with self.readonly_conn as readonly_conn:
             GET_ITEM = 'SELECT value FROM "%s" WHERE key = ?' % self.tablename
-            item = ro_conn.execute(GET_ITEM, (key,)).fetchall()
+            item = readonly_conn.execute(GET_ITEM, (key,)).fetchall()
         if len(item) == 0:
             raise KeyError(key)
         (value,) = item[0]
         return self.decode(value)
 
     def __setitem__(self, key, value):
-        rw_conn = self._new_rw_conn()
-        with closing(self._new_rw_conn()) as rw_conn:
+        # Set an item in the cache given a key/value pair
+        with closing(self._new_readwrite_conn()) as readwrite_conn:
             ADD_ITEM = 'REPLACE INTO "%s" (key, value) VALUES (?,?)' % self.tablename
-            rw_conn.execute(ADD_ITEM, (key, self.encode(value)))
-            rw_conn.commit()
+            readwrite_conn.execute(ADD_ITEM, (key, self.encode(value)))
+            readwrite_conn.commit()
