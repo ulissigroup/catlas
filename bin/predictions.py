@@ -11,6 +11,7 @@ from catlas.enumerate_slabs_adslabs import (
     convert_adslabs_to_graphs,
     merge_surface_adsorbate_combo,
 )
+from catlas.nuclearity import get_nuclearity
 from catlas.dask_utils import (
     bag_split_individual_partitions,
     to_pickles,
@@ -142,6 +143,7 @@ if __name__ == "__main__":
         .persist()
     )
     surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
+    surface_bag = surface_bag.map(get_nuclearity)
 
     # choose the number of partitions after to use after making adslab combos
     npartitions = min(bulk_num * adsorbate_num * 4, 1000)
