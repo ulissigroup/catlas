@@ -85,7 +85,8 @@ def enumerate_adslabs(surface_ads_combo):
     adslab_result_shallow_copy = []
     for atoms in adslab_result:
         atoms_copy = copy.copy(adslab_result[0])
-        atoms_copy.positions = atoms.positions
+        atoms_copy.arrays = copy.copy(atoms_copy.arrays)
+        atoms_copy.arrays["positions"] = atoms.positions
         adslab_result_shallow_copy.append(atoms_copy)
 
     return adslab_result_shallow_copy
