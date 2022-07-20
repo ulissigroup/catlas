@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import time
 from scipy.stats import linregress
 from catlas.filter_utils import get_elements_in_groups
+from catlas.filters import bulk_filter
+import dask.dataframe as dd
 
 
 def get_model_id(checkpoint_path: str) -> str:
@@ -74,14 +76,14 @@ def get_specific_smile_plot(
 
         # Process data for all splits
         info_dict_now = make_subplot(
-            ax1, df_smile_specific, "overall", energy_key1, energy_key2
+            ax1, df_smile_specific, "overall", number_steps, energy_key1, energy_key2
         )
         info_dict = update_info(info_dict, "overall", info_dict_now)
 
         # Process data for split 1
         df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
         name_now = smile + " " + types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, energy_key1, energy_key2)
+        info_dict_now = make_subplot(ax2, df_now, name_now, number_steps, energy_key1, energy_key2)
         info_dict = update_info(info_dict, name_now, info_dict_now)
 
         if len(types) == 2:
@@ -89,7 +91,7 @@ def get_specific_smile_plot(
             df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
             name_now = smile + " " + types[1]
             info_dict_now = make_subplot(
-                ax3, df_now, name_now, energy_key1, energy_key2
+                ax3, df_now, name_now, number_steps, energy_key1, energy_key2
             )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
@@ -156,8 +158,8 @@ def get_general_plot(
         # Process data for split 1
         df_now = df[df.distribution == types[0]]
         name_now = types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, energy_key1, energy_key2)
-        info_dict = update_info(info_dict, name_now, number_steps, info_dict_now)
+        info_dict_now = make_subplot(ax2, df_now, name_now, number_steps, energy_key1, energy_key2)
+        info_dict = update_info(info_dict, name_now, info_dict_now)
 
         # Process data for split 2 if it exists
         if len(types) >= 2:
@@ -197,7 +199,7 @@ def make_subplot(subplot, df, name, number_steps, energy_key1, energy_key2) -> d
     """Helper function for larger plot generation. Processes each subplot."""
     x = df[energy_key1].tolist()
     y = np.array(df[energy_key2].tolist())
-    if np.shape(y)[0] > 1 and np.shape(y)[1] > 1:
+    if len(np.shape(y)) == 2:
         y = y[:, number_steps]
     MAE = sum(abs(np.array(x) - np.array(y))) / len(x)
     slope, intercept, r, p, se = linregress(x, y)
@@ -257,7 +259,9 @@ def get_parity_upfront(config, run_id):
             if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
                 number_steps = step["number_steps"] if "number_steps" in step else 200
                 ### Apply filters
-                df_filtered = apply_filters(config["bulk_filters"], df)
+                df = pd.read_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
+                ddf = dd.from_pandas(df, npartitions = 2)
+                df_filtered = bulk_filter(config, ddf).compute()
 
                 list_of_parity_info = []
 
