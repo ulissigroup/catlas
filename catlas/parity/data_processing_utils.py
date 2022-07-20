@@ -43,6 +43,7 @@ class ProcessValNPZ:
 
     @staticmethod
     def _get_bulk_elements_and_num(stoichiometry):
+        """Get the unique bulk elements and number of from stoichiometry"""
         return list(stoichiometry.keys()), len(list(stoichiometry.keys()))
 
     def process_data(self):
@@ -70,7 +71,7 @@ class ProcessValNPZ:
         dft_df.to_pickle(df_path)
 
 
-class ProcessValTraj:
+class ProcessValidationTraj:
     def __init__(self, traj_path):
         """
         Initialize class to handle trajectory analysis
@@ -80,6 +81,7 @@ class ProcessValTraj:
         """
 
     def _get_status(self, traj, frame):
+        """Inspects the trajectory for anomolies."""
         try:
             status = {}
             detector = DetectTrajAnomaly(traj[0], traj[frame], traj[0].get_tags())
@@ -100,6 +102,7 @@ class ProcessValTraj:
             return False
 
     def _get_energies(self, traj):
+        """Iterate through the trajectory frame and return per frame energies."""
         try:
             energies = []
             for frame in traj:
@@ -117,8 +120,8 @@ class ProcessValTraj:
             traj = Trajectory(self.traj_path)
             status = self._get_status(traj, -1)
             energy = self._get_energies(traj)
-            now = {"random_id": random_id, "energies": energy, "status": status}
+            now = {"random_id": random_id, "ML_energy": energy, "status": status}
             return now
 
         except:
-            return {"random_id": random_id, "energies": "failed", "status": "failed"}
+            return {"random_id": random_id, "ML_energy": "failed", "status": "failed"}
