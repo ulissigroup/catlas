@@ -20,6 +20,7 @@ def get_model_id(checkpoint_path: str) -> str:
     model_id = pt_filename.split(".")[0]
     return model_id
 
+
 def get_specific_smile_plot(
     smile: str,
     df: pd.DataFrame,
@@ -83,7 +84,9 @@ def get_specific_smile_plot(
         # Process data for split 1
         df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
         name_now = smile + " " + types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, number_steps, energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax2, df_now, name_now, number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, name_now, info_dict_now)
 
         if len(types) == 2:
@@ -152,13 +155,17 @@ def get_general_plot(
         f, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(1, 5, sharey=True)
 
         # Process data for all splits
-        info_dict_now = make_subplot(ax1, df, "overall", number_steps, energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax1, df, "overall", number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, "overall", info_dict_now)
 
         # Process data for split 1
         df_now = df[df.distribution == types[0]]
         name_now = types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, number_steps, energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax2, df_now, name_now, number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, name_now, info_dict_now)
 
         # Process data for split 2 if it exists
@@ -259,11 +266,13 @@ def get_parity_upfront(config, run_id):
             if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
                 number_steps = step["number_steps"] if "number_steps" in step else 200
                 if "filter_by_bulk_ids" in config["bulk_filters"]:
-                    warnings.warn("Filtering by bulk id is not implemented for parity because it is too specific, consider filtering by additional characteristics of interest to obtain a proper parity plot.")
-                
+                    warnings.warn(
+                        "Filtering by bulk id is not implemented for parity because it is too specific, consider filtering by additional characteristics of interest to obtain a proper parity plot."
+                    )
+
                 ### Apply filters
                 df = pd.read_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
-                ddf = dd.from_pandas(df, npartitions = 2)
+                ddf = dd.from_pandas(df, npartitions=2)
                 df_filtered = bulk_filter(config, ddf).compute()
 
                 list_of_parity_info = []
@@ -275,7 +284,9 @@ def get_parity_upfront(config, run_id):
 
                 ### Generate adsorbate specific plots
                 for smile in config["adsorbate_filters"]["filter_by_smiles"]:
-                    info_now = get_specific_smile_plot(smile, df_filtered, folder_now, number_steps)
+                    info_now = get_specific_smile_plot(
+                        smile, df_filtered, folder_now, number_steps
+                    )
                     list_of_parity_info.append(info_now)
 
                 ### Generate overall model plot

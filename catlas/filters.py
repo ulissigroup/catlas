@@ -22,7 +22,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
     """
     bulk_filters = config["bulk_filters"]
     columns = dask_df.columns
-    
+
     if sankey is not None:
         sankey_idx = 2
         sankey.info_dict["label"][1] = f"Bulks from db ({initial_bulks})"
@@ -100,7 +100,9 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                     )
                 ]
 
-            elif name == "filter_by_bulk_e_above_hull" and "bulk_e_above_hull" in columns:
+            elif (
+                name == "filter_by_bulk_e_above_hull" and "bulk_e_above_hull" in columns
+            ):
                 dask_df = dask_df[dask_df.bulk_e_above_hull <= val]
 
             elif name == "filter_by_bulk_band_gap" and "bulk_band_gap" in columns:
