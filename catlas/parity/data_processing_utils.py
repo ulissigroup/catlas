@@ -71,7 +71,7 @@ class ProcessValNPZ:
         dft_df.to_pickle(df_path)
 
 
-class ProcessValidationTraj:
+class ProcessValTraj:
     def __init__(self, traj_path):
         """
         Initialize class to handle trajectory analysis
@@ -79,6 +79,7 @@ class ProcessValidationTraj:
         Args:
             traj_path: the path to the trajectory to be considered
         """
+        self.traj_path = traj_path
 
     def _get_status(self, traj, frame):
         """Inspects the trajectory for anomolies."""
@@ -113,7 +114,7 @@ class ProcessValidationTraj:
             return [np.nan] * len(traj)
 
     def get_result(self):
-        name = file.split("/")[-1].split(".")[0]
+        name = self.traj_path.split("/")[-1].split(".")[0]
         random_num = name.split("/")[-1]
         random_id = "random" + str(random_num)
         try:

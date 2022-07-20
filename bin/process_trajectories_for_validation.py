@@ -1,5 +1,5 @@
 """Process trajectories to summary validation pickle file."""
-from catlas.parity.data_processing_utils import ProcessValidationTraj
+from catlas.parity.data_processing_utils import ProcessValTraj
 from dask.distributed import Client, LocalCluster
 import dask.bag as db
 import glob
@@ -8,7 +8,7 @@ import pandas as pd
 
 
 def process_traj_wrapper(traj_path):
-    return ProcessValidationTraj(traj_path).get_result()
+    return ProcessValTraj(traj_path).get_result()
 
 
 def get_bulk_elements_and_num(stoichiometry):
@@ -19,37 +19,20 @@ def get_bulk_elements_and_num(stoichiometry):
 if __name__ == "__main__":
     # Set things up to parse the arguments
     arg_parser = argparse.ArgumentParser()
+    arg_parser.add_argument("--folders", nargs="*", type=str)
     arg_parser.add_argument(
-        "--folders",
-        nargs="*",
-        type=str,
-        default=[1, 2, 3],
+        "--dft_df_path", type=str, default="catlas/parity/df_pkls/OC_20_val_data.pkl"
     )
-    arg_parser.add_argument(
-        "--dft_df_path",
-        nargs=1,
-        type=str,
-        default="catlas/parity/df_pkls/OC_20_val_data.pkl",
-    )
-    arg_parser.add_argument(
-        "--model_id",
-        nargs=1,
-        type=str,
-    )
+    arg_parser.add_argument("--model_id", type=str)
 
-    arg_parser.add_argument(
-        "--n_workers",
-        nargs=1,
-        type=int,
-        default=4,
-    )
+    arg_parser.add_argument("--n_workers", type=int, default=4)
 
     # parse the command line and unpack them
     args = arg_parser.parse_args()
     folders = args.folders
     dft_df_path = args.dft_df_path
     model_id = args.model_id
-    n_workers = arg.n_workers
+    n_workers = args.n_workers
 
     # Start the cluster to parallelize processing
     cluster = LocalCluster(n_workers=n_workers, threads_per_worker=1)
