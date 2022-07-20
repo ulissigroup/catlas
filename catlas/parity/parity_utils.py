@@ -258,6 +258,9 @@ def get_parity_upfront(config, run_id):
             model_id = get_model_id(step["checkpoint_path"])
             if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
                 number_steps = step["number_steps"] if "number_steps" in step else 200
+                if "filter_by_bulk_ids" in config["bulk_filters"]:
+                    warnings.warn("Filtering by bulk id is not implemented for parity because it is too specific, consider filtering by additional characteristics of interest to obtain a proper parity plot.")
+                
                 ### Apply filters
                 df = pd.read_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
                 ddf = dd.from_pandas(df, npartitions = 2)
