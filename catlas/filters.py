@@ -21,7 +21,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
         sankey: the sankey object with added info
     """
     bulk_filters = config["bulk_filters"]
-    columns = dask_df.columns.compute()
+    columns = dask_df.columns
     
     if sankey is not None:
         sankey_idx = 2
