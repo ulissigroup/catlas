@@ -65,7 +65,6 @@ class ProcessValNPZ:
         dft_df["bulk_elements"], dft_df["bulk_nelements"] = zip(
             *dft_df.stoichiometry.apply(self._get_bulk_elements_and_num)
         )
-        dft_df.rename(columns={"energy dE [eV]": "DFT_energy"}, inplace=True)
 
         # Pickle results for future use
         dft_df.to_pickle(df_path)
