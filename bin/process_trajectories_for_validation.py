@@ -58,5 +58,7 @@ if __name__ == "__main__":
         *merged_df.stoichiometry.apply(get_bulk_elements_and_num)
     )
 
+    merged_df = merged_df[merged_df.status]
+
     # Write df to pkl for future use in parity
     merged_df.to_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
