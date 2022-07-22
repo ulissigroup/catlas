@@ -14,11 +14,11 @@ input_options:
 bulk_filters:
     filter_by_bulk_ids: ['mp-126','mp-30', 'mp-81', 'mp-13', 'mp-79']
     filter_by_pourbaix_stability: 
-      max_decomposition_energy: 0.5
       lmdb_path: "catlas/pourbaix_diagrams/20220222_query.lmdb"
-      conditions:
+      conditions_list:
         - pH: 7
           V: -0.5
+          max_decomposition_energy: 0
 
 adsorbate_filters:
     filter_by_smiles: ['*H']
