@@ -287,7 +287,7 @@ def get_parity_upfront(config, run_id):
                 folder_now = f"outputs/{run_id}/parity/" + step["label"]
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
-                make_parity_plots(df_filtered, config, folder_now)
+                make_parity_plots(df_filtered, config, folder_now, number_steps)
 
             else:
                 warnings.warn(
