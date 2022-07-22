@@ -204,11 +204,11 @@ def get_general_plot(
 
 def make_subplot(subplot, df, name, number_steps, energy_key1, energy_key2) -> dict:
     """Helper function for larger plot generation. Processes each subplot."""
-    x = df[energy_key1].tolist()
+    x = np.array(df[energy_key1].tolist())
     y = np.array(df[energy_key2].tolist())
     if len(np.shape(y)) == 2:
         y = y[:, number_steps]
-    MAE = sum(abs(np.array(x) - np.array(y))) / len(x)
+    MAE = np.sum(np.abs(x - y)) / len(x)
     slope, intercept, r, p, se = linregress(x, y)
 
     subplot.set_title(name)
@@ -253,6 +253,14 @@ def update_info(info_dict: dict, name: str, info_to_add: dict) -> dict:
 
 
 def get_parity_upfront(config, run_id):
+    """
+    Get parity plot to cover intended scope of work in catlas.
+
+    Args:
+        config: a dictionary loaded from a catlas input yaml
+        run_id: name of the output folder
+    """
+
     if "adslab_prediction_steps" in config:
 
         ## Create an output folder
@@ -275,30 +283,39 @@ def get_parity_upfront(config, run_id):
                 ddf = dd.from_pandas(df, npartitions=2)
                 df_filtered = bulk_filter(config, ddf).compute()
 
-                list_of_parity_info = []
-
                 ### Generate a folder for each model to be considered
                 folder_now = f"outputs/{run_id}/parity/" + step["label"]
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
+                make_parity_plots(df_filtered, config, folder_now)
 
-                ### Generate adsorbate specific plots
-                for smile in config["adsorbate_filters"]["filter_by_smiles"]:
-                    info_now = get_specific_smile_plot(
-                        smile, df_filtered, folder_now, number_steps
-                    )
-                    list_of_parity_info.append(info_now)
-
-                ### Generate overall model plot
-                info_now = get_general_plot(df_filtered, folder_now, number_steps)
-                list_of_parity_info.append(info_now)
-
-                ### Create a pickle of the summary info and print results
-                df = pd.DataFrame(list_of_parity_info)
-                df_file_path = folder_now + "parity_summary_df" + ".pkl"
-                df.to_pickle(df_file_path)
             else:
                 warnings.warn(
                     model_id
                     + " validation pkl has not been found and therefore parity plots cannot be generated"
                 )
+
+
+def make_parity_plots(df_filtered, config, output_path, number_steps_all):
+    list_of_parity_info = []
+
+    # Generate adsorbate specific plots
+    for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+        ## Parse specific step numbers where applicable
+        if type(number_steps_all) == dict:
+            number_steps = number_steps_all[smile]
+        else:
+            number_steps = number_steps_all
+        info_now = get_specific_smile_plot(
+            smile, df_filtered, output_path, number_steps
+        )
+        list_of_parity_info.append(info_now)
+
+    # Generate overall model plot
+    info_now = get_general_plot(df_filtered, output_path, number_steps=200)
+    list_of_parity_info.append(info_now)
+
+    # Create a pickle of the summary info and print results
+    df = pd.DataFrame(list_of_parity_info)
+    df_file_path = output_path + "parity_summary_df" + ".pkl"
+    df.to_pickle(df_file_path)
