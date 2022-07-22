@@ -88,7 +88,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         meta=("element_in_group", "bool"),
                     )
                 ]
-            elif name == "filter_by_pourbaix_stability":
+            elif name == "filter_by_pourbaix_stability" and "bulk_id" in columns:
                 dask_df = dask_df[
                     dask_df.apply(
                         lambda x, conditions: any(
