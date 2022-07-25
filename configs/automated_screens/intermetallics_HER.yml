@@ -13,7 +13,15 @@ output_options:
 
 bulk_filters:
   filter_by_element_groups: ['transition metal']
-  filter_by_object_size: 40 # 60
+  filter_by_object_size: 60
+  filter_by_pourbaix_stability: 
+    max_decomposition_energy: 0.5
+    lmdb_path: "catlas/pourbaix_diagrams/20220222_query.lmdb"
+    V_lower: -0.5
+    V_upper: 1
+    V_step: 0.05
+    pH_lower: 0
+    pH_upper: 2
 
 adsorbate_filters:
   filter_by_smiles: ['*H', '*CO']

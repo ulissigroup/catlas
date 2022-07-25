@@ -12,7 +12,13 @@ input_options:
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
-    filter_by_bulk_ids: ['mp-126','mp-30', 'mp-101']
+    filter_by_bulk_ids: ['mp-126','mp-30', 'mp-81', 'mp-13', 'mp-79']
+    filter_by_pourbaix_stability: 
+      lmdb_path: "catlas/pourbaix_diagrams/20220222_query.lmdb"
+      conditions_list:
+        - pH: 7
+          V: -0.5
+          max_decomposition_energy: 0
 
 adsorbate_filters:
     filter_by_smiles: ['*H']
