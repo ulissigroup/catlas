@@ -43,7 +43,7 @@ class ProcessValNPZ:
 
     @staticmethod
     def _get_bulk_elements_and_num(stoichiometry):
-        """Get the unique bulk elements and number of from stoichiometry"""
+        """Get the unique bulk elements and number of unique bulk elements from stoichiometry"""
         return list(stoichiometry.keys()), len(list(stoichiometry.keys()))
 
     def process_data(self):
@@ -80,21 +80,23 @@ class ProcessValTraj:
         """
         self.traj_path = traj_path
 
-    def _get_status(self, traj, frame):
+    def _find_anomalies(self, traj, frame):
         """Inspects the trajectory for anomolies."""
         try:
-            status = {}
+            anomaly_tests = {}
             detector = DetectTrajAnomaly(traj[0], traj[frame], traj[0].get_tags())
-            status["dissociation"] = detector.is_adsorbate_dissociated()
-            status["desorption"] = detector.is_adsorbate_desorbed(neighbor_thres=3)
-            status["reconstruction"] = detector.is_surface_reconstructed(
+            anomaly_tests["dissociation"] = detector.is_adsorbate_dissociated()
+            anomaly_tests["desorption"] = detector.is_adsorbate_desorbed(
+                neighbor_thres=3
+            )
+            anomaly_tests["reconstruction"] = detector.is_surface_reconstructed(
                 slab_movement_thres=1
             )
             return all(
                 [
-                    ~status["dissociation"],
-                    ~status["desorption"],
-                    ~status["reconstruction"],
+                    ~anomaly_tests["dissociation"],
+                    ~anomaly_tests["desorption"],
+                    ~anomaly_tests["reconstruction"],
                 ]
             )
 
@@ -118,10 +120,18 @@ class ProcessValTraj:
         random_id = "random" + str(random_num)
         try:
             traj = Trajectory(self.traj_path)
-            status = self._get_status(traj, -1)
+            is_good_traj = self._find_anomalies(traj, -1)
             energy = self._get_energies(traj)
-            now = {"random_id": random_id, "ML_energy": energy, "status": status}
+            now = {
+                "random_id": random_id,
+                "ML_energy": energy,
+                "good_trajectory": is_good_traj,
+            }
             return now
 
         except:
-            return {"random_id": random_id, "ML_energy": "failed", "status": "failed"}
+            return {
+                "random_id": random_id,
+                "ML_energy": "failed",
+                "good_trajectory": False,
+            }
