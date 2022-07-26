@@ -59,7 +59,7 @@ if __name__ == "__main__":
         print("Config validated")
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
-    os.makedirs(f"{MODULE_PATH}outputs/{run_id}/")
+    os.makedirs(f"outputs/{run_id}/")
 
     # Print catlas to terminal
     with open("catlas/catlas_ascii.txt", "r") as f:
