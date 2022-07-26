@@ -37,7 +37,6 @@ import joblib
 import lmdb
 import dask.sizeof
 import catlas.dask_utils
-from catlas import MODULE_PATH
 
 # Load inputs and define global vars
 if __name__ == "__main__":
