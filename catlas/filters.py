@@ -60,7 +60,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         required_elements=val,
                     )
                 ]
-            elif name == "filter_by_object_size" and "bulk_natoms" in columns:
+            elif name == "filter_by_object_size":
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             elif name == "filter_by_elements_active_host":
                 dask_df = dask_df[
@@ -88,7 +88,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         meta=("element_in_group", "bool"),
                     )
                 ]
-            elif name == "filter_by_pourbaix_stability" and "bulk_id" in columns:
+            elif name == "filter_by_pourbaix_stability":
                 dask_df = dask_df[
                     dask_df.apply(
                         lambda x, conditions: any(
@@ -100,12 +100,10 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                     )
                 ]
 
-            elif (
-                name == "filter_by_bulk_e_above_hull" and "bulk_e_above_hull" in columns
-            ):
+            elif name == "filter_by_bulk_e_above_hull":
                 dask_df = dask_df[dask_df.bulk_e_above_hull <= val]
 
-            elif name == "filter_by_bulk_band_gap" and "bulk_band_gap" in columns:
+            elif name == "filter_by_bulk_band_gap":
                 if "min_gap" in val and "max_gap" in val:
                     dask_df = dask_df[
                         (dask_df.bulk_band_gap >= val["min_gap"])
