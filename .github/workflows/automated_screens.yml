@@ -39,6 +39,8 @@ jobs:
       run: |
         cd catlas
         ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
+        ln -s /home/jovyan/shared-scratch/catlas/df_pkls ./catlas/parity/
+        ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/
         python setup.py develop
     - name: Startup dask cluster
       run: |

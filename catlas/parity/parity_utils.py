@@ -10,144 +10,22 @@ import matplotlib.pyplot as plt
 import time
 from scipy.stats import linregress
 from catlas.filter_utils import get_elements_in_groups
+from catlas.filters import bulk_filter
+import dask.dataframe as dd
 
 
-def get_npz_path(checkpoint_path: str) -> str:
+def get_model_id(checkpoint_path: str) -> str:
     """get the npz path for a specific checkpoint file"""
     pt_filename = checkpoint_path.split("/")[-1]
     model_id = pt_filename.split(".")[0]
-    return "parity/npz-files/" + model_id + ".npz"
-
-
-def get_predicted_E(row, ML_data):
-    """Finds the corresponding ML energy for a given DFT calculation"""
-    random_id = row.random_id
-    distribution = row.distribution
-    id_now = re.findall(r"([0-9]+)", random_id)[0]
-    if distribution == "id":
-        idx = np.where(ML_data["id_ids"] == id_now)
-        energy = ML_data["id_energy"][idx]
-    elif distribution == "ood_ads":
-        idx = np.where(ML_data["ood_ads_ids"] == id_now)
-        energy = ML_data["ood_ads_energy"][idx]
-    elif distribution == "ood_cat":
-        idx = np.where(ML_data["ood_cat_ids"] == id_now)
-        energy = ML_data["ood_cat_energy"][idx]
-    elif distribution == "ood":
-        idx = np.where(ML_data["ood_both_ids"] == id_now)
-        energy = ML_data["ood_both_energy"][idx]
-    return energy[0]
-
-
-def data_preprocessing(npz_path: str, dft_df_path: str) -> pd.DataFrame:
-    """Creates the primary dataframe for use in analysis"""
-    model_id = npz_path.split("/")[-1]
-    model_id = model_id.split(".")[0]
-
-    df_path = "parity/df_pkls/" + model_id + ".pkl"
-    if not exists(df_path):
-
-        # Open files
-        ML_data = dict(load(npz_path))
-        with open(dft_df_path, "rb") as f:
-            dft_df = pd.read_pickle(f)
-
-        # Get ML energies
-        dft_df["ML_energy"] = dft_df.apply(get_predicted_E, args=(ML_data,), axis=1)
-        dft_df.rename(columns={"energy dE [eV]": "DFT_energy"}, inplace=True)
-
-        # Pickle results for future use
-        dft_df.to_pickle(df_path)
-
-    else:
-        dft_df = pd.read_pickle(df_path)
-
-    return dft_df
-
-
-def apply_filters(bulk_filters: dict, df: pd.DataFrame) -> pd.DataFrame:
-    """filters the dataframe to only include material types specified in the yaml"""
-
-    def get_acceptable_elements_boolean(
-        stoichiometry: dict, acceptable_els: list
-    ) -> bool:
-        elements = set(stoichiometry.keys())
-        return elements.issubset(acceptable_els)
-
-    def get_required_elements_boolean(stoichiometry: dict, required_els: list) -> bool:
-        elements = list(stoichiometry.keys())
-        return all([required_el in elements for required_el in required_els])
-
-    def get_number_elements_boolean(stoichiometry: dict, number_els: list) -> bool:
-        element_num = len(list(stoichiometry.keys()))
-        return element_num in number_els
-
-    def get_active_host_boolean(stoichiometry: dict, active_host_els: dict) -> bool:
-        active = active_host_els["active"]
-        host = active_host_els["host"]
-        elements = set(stoichiometry.keys())
-        return all(
-            [
-                all([el in [*active, *host] for el in elements]),
-                any([el in host for el in elements]),
-                any([el in active for el in elements]),
-            ]
-        )
-
-    for name, val in bulk_filters.items():
-        if (
-            str(val) != "None"
-        ):  # depending on how yaml is created, val may either be "None" or NoneType
-            if name == "filter_by_acceptable_elements":
-                df["filter_acceptable_els"] = df.stoichiometry.apply(
-                    get_acceptable_elements_boolean, args=(val,)
-                )
-                df = df[df.filter_acceptable_els]
-                df = df.drop(columns=["filter_acceptable_els"])
-            elif name == "filter_by_required_elements":
-                df["filter_required_els"] = df.stoichiometry.apply(
-                    get_required_elements_boolean, args=(val,)
-                )
-                df = df[df.filter_required_els]
-                df = df.drop(columns=["filter_required_els"])
-
-            elif name == "filter_by_num_elements":
-                df["filter_number_els"] = df.stoichiometry.apply(
-                    get_number_elements_boolean, args=(val,)
-                )
-                df = df[df.filter_number_els]
-                df = df.drop(columns=["filter_number_els"])
-
-            elif name == "filter_by_element_groups":
-                valid_els = get_elements_in_groups(val)
-                df["filter_acceptable_els"] = df.stoichiometry.apply(
-                    get_acceptable_elements_boolean, args=(valid_els,)
-                )
-                df = df[df.filter_acceptable_els]
-                df = df.drop(columns=["filter_acceptable_els"])
-
-            elif name == "filter_by_elements_active_host":
-                df["filter_active_host_els"] = df.stoichiometry.apply(
-                    get_active_host_boolean, args=(val,)
-                )
-                df = df[df.filter_active_host_els]
-                df = df.drop(columns=["filter_active_host_els"])
-
-            elif name == "filter_ignore_mpids":
-                continue
-            elif name == "filter_by_mpids":
-                warnings.warn(name + " has not been implemented for parity generation")
-            elif name == "filter_by_object_size":
-                continue
-            else:
-                warnings.warn(name + " has not been implemented for parity generation")
-    return df
+    return model_id
 
 
 def get_specific_smile_plot(
     smile: str,
     df: pd.DataFrame,
     output_path: str,
+    number_steps,
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
@@ -199,14 +77,16 @@ def get_specific_smile_plot(
 
         # Process data for all splits
         info_dict_now = make_subplot(
-            ax1, df_smile_specific, "overall", energy_key1, energy_key2
+            ax1, df_smile_specific, "overall", number_steps, energy_key1, energy_key2
         )
         info_dict = update_info(info_dict, "overall", info_dict_now)
 
         # Process data for split 1
         df_now = df_smile_specific[df_smile_specific.distribution == types[0]]
         name_now = smile + " " + types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax2, df_now, name_now, number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, name_now, info_dict_now)
 
         if len(types) == 2:
@@ -214,7 +94,7 @@ def get_specific_smile_plot(
             df_now = df_smile_specific[df_smile_specific.distribution == types[1]]
             name_now = smile + " " + types[1]
             info_dict_now = make_subplot(
-                ax3, df_now, name_now, energy_key1, energy_key2
+                ax3, df_now, name_now, number_steps, energy_key1, energy_key2
             )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
@@ -227,6 +107,7 @@ def get_specific_smile_plot(
 def get_general_plot(
     df: pd.DataFrame,
     output_path: str,
+    number_steps,
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
@@ -274,13 +155,17 @@ def get_general_plot(
         f, (ax1, ax2, ax3, ax4, ax5) = plt.subplots(1, 5, sharey=True)
 
         # Process data for all splits
-        info_dict_now = make_subplot(ax1, df, "overall", energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax1, df, "overall", number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, "overall", info_dict_now)
 
         # Process data for split 1
         df_now = df[df.distribution == types[0]]
         name_now = types[0]
-        info_dict_now = make_subplot(ax2, df_now, name_now, energy_key1, energy_key2)
+        info_dict_now = make_subplot(
+            ax2, df_now, name_now, number_steps, energy_key1, energy_key2
+        )
         info_dict = update_info(info_dict, name_now, info_dict_now)
 
         # Process data for split 2 if it exists
@@ -288,7 +173,7 @@ def get_general_plot(
             df_now = df[df.distribution == types[1]]
             name_now = types[1]
             info_dict_now = make_subplot(
-                ax3, df_now, name_now, energy_key1, energy_key2
+                ax3, df_now, name_now, number_steps, energy_key1, energy_key2
             )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
@@ -297,7 +182,7 @@ def get_general_plot(
             df_now = df[df.distribution == types[2]]
             name_now = types[2]
             info_dict_now = make_subplot(
-                ax4, df_now, name_now, energy_key1, energy_key2
+                ax4, df_now, name_now, number_steps, energy_key1, energy_key2
             )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
@@ -306,7 +191,7 @@ def get_general_plot(
             df_now = df[df.distribution == types[3]]
             name_now = types[3]
             info_dict_now = make_subplot(
-                ax5, df_now, name_now, energy_key1, energy_key2
+                ax5, df_now, name_now, number_steps, energy_key1, energy_key2
             )
             info_dict = update_info(info_dict, name_now, info_dict_now)
 
@@ -317,11 +202,13 @@ def get_general_plot(
         return info_dict
 
 
-def make_subplot(subplot, df, name, energy_key1, energy_key2) -> dict:
+def make_subplot(subplot, df, name, number_steps, energy_key1, energy_key2) -> dict:
     """Helper function for larger plot generation. Processes each subplot."""
-    x = df[energy_key1].tolist()
-    y = df[energy_key2].tolist()
-    MAE = sum(abs(np.array(x) - np.array(y))) / len(x)
+    x = np.array(df[energy_key1].tolist())
+    y = np.array(df[energy_key2].tolist())
+    if len(np.shape(y)) == 2:
+        y = y[:, number_steps]
+    MAE = np.sum(np.abs(x - y)) / len(x)
     slope, intercept, r, p, se = linregress(x, y)
 
     subplot.set_title(name)
@@ -366,6 +253,14 @@ def update_info(info_dict: dict, name: str, info_to_add: dict) -> dict:
 
 
 def get_parity_upfront(config, run_id):
+    """
+    Get parity plot to cover intended scope of work in catlas.
+
+    Args:
+        config: a dictionary loaded from a catlas input yaml
+        run_id: name of the output folder
+    """
+
     if "adslab_prediction_steps" in config:
 
         ## Create an output folder
@@ -375,35 +270,47 @@ def get_parity_upfront(config, run_id):
         ## Iterate over steps
         for step in config["adslab_prediction_steps"]:
             ### Load the data
-            npz_path = get_npz_path(step["checkpoint_path"])
-            if os.path.exists(npz_path):
-                df = data_preprocessing(npz_path, "parity/df_pkls/OC_20_val_data.pkl")
+            model_id = get_model_id(step["checkpoint_path"])
+            if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
+                number_steps = step["number_steps"] if "number_steps" in step else 200
 
                 ### Apply filters
-                df_filtered = apply_filters(config["bulk_filters"], df)
-
-                list_of_parity_info = []
+                df = pd.read_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
+                ddf = dd.from_pandas(df, npartitions=2)
+                df_filtered = bulk_filter(config, ddf).compute()
 
                 ### Generate a folder for each model to be considered
                 folder_now = f"outputs/{run_id}/parity/" + step["label"]
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
+                make_parity_plots(df_filtered, config, folder_now, number_steps)
 
-                ### Generate adsorbate specific plots
-                for smile in config["adsorbate_filters"]["filter_by_smiles"]:
-                    info_now = get_specific_smile_plot(smile, df_filtered, folder_now)
-                    list_of_parity_info.append(info_now)
-
-                ### Generate overall model plot
-                info_now = get_general_plot(df_filtered, folder_now)
-                list_of_parity_info.append(info_now)
-
-                ### Create a pickle of the summary info and print results
-                df = pd.DataFrame(list_of_parity_info)
-                df_file_path = folder_now + "parity_summary_df" + ".pkl"
-                df.to_pickle(df_file_path)
             else:
                 warnings.warn(
-                    npz_path
-                    + " has not been found and therefore parity plots cannot be generated"
+                    model_id
+                    + " validation pkl has not been found and therefore parity plots cannot be generated"
                 )
+
+
+def make_parity_plots(df_filtered, config, output_path, number_steps_all):
+    list_of_parity_info = []
+    # Generate adsorbate specific plots
+    for smile in config["adsorbate_filters"]["filter_by_smiles"]:
+        ## Parse specific step numbers where applicable
+        if type(number_steps_all) == dict:
+            number_steps = number_steps_all[smile]
+        else:
+            number_steps = number_steps_all
+        info_now = get_specific_smile_plot(
+            smile, df_filtered, output_path, number_steps
+        )
+        list_of_parity_info.append(info_now)
+
+    # Generate overall model plot
+    info_now = get_general_plot(df_filtered, output_path, number_steps=200)
+    list_of_parity_info.append(info_now)
+
+    # Create a pickle of the summary info and print results
+    df = pd.DataFrame(list_of_parity_info)
+    df_file_path = output_path + "parity_summary_df" + ".pkl"
+    df.to_pickle(df_file_path)
