@@ -248,18 +248,31 @@ def energy_prediction(
     # Identify the best configuration and energy and save that too
     if len(energy_predictions) > 0:
         best_energy = np.min(energy_predictions)
-        best_atoms = adslab_atoms[np.argmin(energy_predictions)].copy()
+        best_atoms_initial = adslab_atoms[np.argmin(energy_predictions)].copy()
         adslab_results["min_" + column_name] = best_energy
-        best_atoms.set_calculator(
+        best_atoms_initial.set_calculator(
             SinglePointCalculator(
-                atoms=best_atoms,
+                atoms=best_atoms_initial,
                 energy=best_energy,
                 forces=None,
                 stresses=None,
                 magmoms=None,
             )
         )
-        adslab_results["atoms_min_" + column_name] = best_atoms
+        adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
+        # If relaxing, save the best relaxed configuration
+        if BOCPP.config["trainer"] == "forces":
+            best_atoms_relaxed = adslab_atoms_copy[np.argmin(energy_predictions)].copy()
+            best_atoms_relaxed.set_calculator(
+                SinglePointCalculator(
+                    atoms=best_atoms_relaxed,
+                    energy=best_energy,
+                    forces=None,
+                    stresses=None,
+                    magmoms=None,
+                )
+            )
+            adslab_results["atoms_min_" + column_name + "_relaxed"] = best_atoms_relaxed
     else:
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name] = None
