@@ -17,6 +17,7 @@ valid_element_groups = [
 ]
 
 
+
 def validate_element(field, value, error):
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
@@ -75,7 +76,10 @@ config_schema = {
                 "type": "list",
                 "check_with": validate_element,
             },
-            "filter_by_num_elements": {"type": "integer"},
+            "filter_by_num_elements": {
+                "type": "list",
+                "schema": {"type": "integer", "min": 1},
+            },
             "filter_by_object_size": {"type": "integer"},
             "filter_by_elements_active_host": {
                 "type": "dict",
