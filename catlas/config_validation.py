@@ -75,7 +75,10 @@ config_schema = {
                 "type": "list",
                 "check_with": validate_element,
             },
-            "filter_by_num_elements": {"type": "integer"},
+            "filter_by_num_elements": {
+                "type": "list",
+                "schema": {"type": "integer", "min": 1},
+            },
             "filter_by_object_size": {"type": "integer"},
             "filter_by_elements_active_host": {
                 "type": "dict",
