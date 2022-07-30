@@ -17,7 +17,6 @@ valid_element_groups = [
 ]
 
 
-
 def validate_element(field, value, error):
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
