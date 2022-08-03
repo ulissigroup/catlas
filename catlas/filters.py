@@ -60,7 +60,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         required_elements=val,
                     )
                 ]
-            elif name == "filter_by_object_size":
+            elif name == "filter_by_object_size" and "bulk_natoms" in columns:
                 dask_df = dask_df[dask_df.bulk_natoms <= val]
             elif name == "filter_by_elements_active_host":
                 dask_df = dask_df[
