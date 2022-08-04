@@ -1,42 +1,43 @@
-import yaml
-from catlas.parity.parity_utils import get_parity_upfront
-from catlas.load_bulk_structures import load_bulks
-from catlas.sankey.sankey_utils import Sankey
-from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import pb_query_and_write
-from catlas.load_adsorbate_structures import load_ocdata_adsorbates
-from catlas.enumerate_slabs_adslabs import (
-    enumerate_slabs,
-    enumerate_adslabs,
-    convert_adslabs_to_graphs,
-    merge_surface_adsorbate_combo,
-)
-from catlas.nuclearity import get_nuclearity
-from catlas.dask_utils import (
-    bag_split_individual_partitions,
-    to_pickles,
-)
-
-import warnings
-from catlas.adslab_predictions import (
-    energy_prediction,
-)
-from catlas.config_validation import config_validator
-import dask.bag as db
-import dask
-import sys
-import dask.dataframe as ddf
-import pandas as pd
-from dask.distributed import wait
-from jinja2 import Template
 import os
 import pickle
-import tqdm
+import sys
 import time
+import warnings
+
+import dask
+import dask.sizeof
 import joblib
 import lmdb
-import dask.sizeof
+import pandas as pd
+import tqdm
+import yaml
+from dask import bag as db, dataframe as ddf
+from dask.distributed import wait
+from jinja2 import Template
+
 import catlas.dask_utils
+from catlas.adslab_predictions import energy_prediction
+from catlas.config_validation import config_validator
+from catlas.dask_utils import bag_split_individual_partitions, to_pickles
+from catlas.enumerate_slabs_adslabs import (
+    convert_adslabs_to_graphs,
+    enumerate_adslabs,
+    enumerate_slabs,
+    merge_surface_adsorbate_combo,
+)
+from catlas.filter_utils import pb_query_and_write
+from catlas.filters import (
+    adsorbate_filter,
+    bulk_filter,
+    predictions_filter,
+    slab_filter,
+)
+from catlas.load_adsorbate_structures import load_ocdata_adsorbates
+from catlas.load_bulk_structures import load_bulks
+from catlas.nuclearity import get_nuclearity
+from catlas.parity.parity_utils import get_parity_upfront
+from catlas.sankey.sankey_utils import Sankey
+
 
 # Load inputs and define global vars
 if __name__ == "__main__":

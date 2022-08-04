@@ -12,7 +12,7 @@ input_options:
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
-    filter_by_bulk_ids: ['mp-81']
+    filter_by_bulk_ids: ['mp-81','mp-30']
 
 adsorbate_filters:
     filter_by_smiles: ['*H']
@@ -26,6 +26,16 @@ adslab_prediction_steps:
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  - type: filter_by_adsorption_energy
+    adsorbate_smiles: ['*H']
+    min_value: -0.5
+    max_value: 0.5
+    filter_column: 'min_dE_gemnet_is2re_finetuned'
+  - type: filter_by_adsorption_energy
+    adsorbate_smiles: ['*CO']
+    min_value: -0.7
+    max_value: -0.2
+    filter_column: 'min_dE_gemnet_is2re_finetuned'
   - gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
