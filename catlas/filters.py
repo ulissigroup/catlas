@@ -252,12 +252,12 @@ def predictions_filter(bag_partition, config, sankey):
         else:
             hash_dict[key] = [row]
 
-    min_value = config.get("min_value", -np.inf)
-    max_value = config.get("max_value", -np.inf)
-
     # Iterate over all unique hashes
     for key, value in hash_dict.items():
         if config["type"] == "filter_by_adsorption_energy":
+            min_value = config.get("min_value", -np.inf)
+            max_value = config.get("max_value", -np.inf)
+
             adsorbate_rows = [
                 row
                 for row in value
@@ -269,6 +269,27 @@ def predictions_filter(bag_partition, config, sankey):
                 for row in adsorbate_rows
                 if row["filter_column"] >= min_value
                 and row["filter_column"] <= max_value
+            ]
+
+            # If no rows pass the filter, then all rows should be filtered out
+            if len(matching_rows) == 0:
+                for row in value:
+                    row["filter_reason"] = config
+        elif config["type"] == "filter_by_adsorption_energy_target":
+            target_value = config["target_value"]
+            range_value = config.get("range_value", 0.5)
+
+            adsorbate_rows = [
+                row
+                for row in value
+                if row["adsorbate_smiles"] == config["adsorbate_smiles"]
+                and "filter_reason" not in row
+            ]
+            matching_rows = [
+                row
+                for row in adsorbate_rows
+                if row["filter_column"] >= target_value - range_value
+                and row["filter_column"] <= target_value + range_value
             ]
 
             # If no rows pass the filter, then all rows should be filtered out

@@ -46,7 +46,7 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
-    if not config_validator.validate(config):
+    if config.get("validate", True) and not config_validator.validate(config):
         raise ValueError(
             "Config has the following errors:\n%s"
             % "\n".join(

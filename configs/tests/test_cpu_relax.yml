@@ -1,3 +1,5 @@
+validate: False
+
 memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
@@ -26,15 +28,15 @@ adslab_prediction_steps:
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - type: filter_by_adsorption_energy
+  - type: filter_by_adsorption_energy_target
     adsorbate_smiles: ['*H']
-    min_value: -0.5
-    max_value: 0.5
+    target_value: 0.0
+    range_value: 0.5
     filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - type: filter_by_adsorption_energy
+  - type: filter_by_adsorption_energy_target
     adsorbate_smiles: ['*CO']
-    min_value: -0.7
-    max_value: -0.2
+    target_value: -0.6
+    range_value: 0.5
     filter_column: 'min_dE_gemnet_is2re_finetuned'
   - gpu: false
     batch_size: 4
