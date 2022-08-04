@@ -133,7 +133,7 @@ def sqlitedict_memoize(
         result = NO_CACHE_RESULT
 
         cache = SqliteSingleThreadDict(
-            folder + '/' + db_loc,
+            folder + "/" + db_loc,
         )
 
         # Grab the cached entry (might be None)
