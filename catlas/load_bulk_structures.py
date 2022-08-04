@@ -1,10 +1,13 @@
 """Function to load bulks from an ase.db."""
-from ase.db import connect
 import os.path
+
 import numpy as np
 import pandas as pd
+from ase.db import connect
+
 import catlas
 import catlas.cache_utils
+
 
 required_fields = (
     "atoms",

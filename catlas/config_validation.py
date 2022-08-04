@@ -1,8 +1,11 @@
-from pymatgen.core import Element
-from cerberus import Validator
-from pathlib import Path
-import yaml
 import os
+from pathlib import Path
+
+import yaml
+from cerberus import Validator
+
+from pymatgen.core import Element
+
 
 mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [

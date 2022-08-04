@@ -1,26 +1,29 @@
-from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
+import os
+
+import numpy as np
+import torch
+import yaml
+from ase.calculators.singlepoint import SinglePointCalculator
+from ase.optimize import LBFGS
 from ocdata.combined import Combined
 from ocdata.flag_anomaly import DetectTrajAnomaly
-from ase.optimize import LBFGS
-import numpy as np
-from ocpmodels.preprocessing import AtomsToGraphs
-import yaml
-from ocpmodels.datasets import data_list_collater
-from ase.calculators.singlepoint import SinglePointCalculator
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
+
+import catlas.cache_utils
+import catlas.dask_utils
+from ocpmodels.common.registry import registry
 from ocpmodels.common.relaxation import ml_relaxation
+from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 from ocpmodels.common.utils import (
     radius_graph_pbc,
     setup_imports,
     setup_logging,
 )
+from ocpmodels.datasets import data_list_collater
+from ocpmodels.preprocessing import AtomsToGraphs
 
-from torch.utils.data import DataLoader
-import torch
-import catlas.cache_utils
-import os
-from tqdm import tqdm
-import catlas.dask_utils
 
 BOCPP_dict = {}
 relax_calc = None
@@ -33,8 +36,6 @@ def pop_keys(adslab_dict, keys):
     return adslab_dict
 
 
-from torch.utils.data import Dataset
-from ocpmodels.common.registry import registry
 
 
 class GraphsListDataset(Dataset):

@@ -1,9 +1,11 @@
 import warnings
+
 import numpy as np
-from pymatgen.core.periodic_table import Element
-from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
+
 import catlas.cache_utils
 import catlas.dask_utils
+from catlas.filter_utils import get_elements_in_groups, get_pourbaix_stability
+from pymatgen.core.periodic_table import Element
 
 
 def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
