@@ -36,8 +36,6 @@ def pop_keys(adslab_dict, keys):
     return adslab_dict
 
 
-
-
 class GraphsListDataset(Dataset):
     def __init__(self, graphs_list):
         self.graphs_list = graphs_list
