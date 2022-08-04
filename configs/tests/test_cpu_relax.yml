@@ -24,7 +24,8 @@ slab_filters:
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
-  - gpu: false
+  - type: inference
+    gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
@@ -38,7 +39,8 @@ adslab_prediction_steps:
     target_value: -0.6
     range_value: 0.5
     filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - gpu: false
+  - type: inference
+    gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
     checkpoint_path: 'ocp_checkpoints/gemnet_t_direct_h512_all.pt'

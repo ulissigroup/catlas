@@ -271,7 +271,7 @@ def get_parity_upfront(config, run_id):
         inference_steps = [
             step
             for step in config["adslab_prediction_steps"]
-            if step.get("type", "inference")
+            if step["type"] == "inference"
         ]
         for step in inference_steps:
             ### Load the data
