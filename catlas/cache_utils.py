@@ -66,37 +66,6 @@ def hash_func(func):
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
-class CacheOverrideError(Exception):
-    """Exception raised for function calls that would wipe an existing cache
-
-    Attributes:
-        memorized_func -- cached function that raised the error
-    """
-
-    def __init__(
-        self,
-        cached_func,
-        message="Existing cache would be overridden: %s\nPlease revert your copy of this function to look like the code in the existing cache OR start a new cache OR backup/delete the existing cache manually",
-    ):
-        self.cached_func = cached_func
-        self.message = message
-        super().__init__(
-            self.message
-            % os.path.join(
-                cached_func.store_backend.location,
-                joblib.memory._build_func_identifier(cached_func.func),
-            )
-        )
-
-
-def safe_cache(memory, func, *args, **kwargs):
-    """Wrapper for memory.cache(func) that raises an error if the cache would be overwritten"""
-    cached_func = memory.cache(func, *args, **kwargs)
-    if not check_cache(cached_func):
-        raise CacheOverrideError(cached_func)
-    return cached_func
-
-
 def check_cache(cached_func):
     """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
@@ -164,7 +133,7 @@ def sqlitedict_memoize(
         result = NO_CACHE_RESULT
 
         cache = SqliteSingleThreadDict(
-            folder + db_loc,
+            folder + '/' + db_loc,
         )
 
         # Grab the cached entry (might be None)
