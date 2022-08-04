@@ -234,3 +234,44 @@ def adsorbate_filter(config, dask_df, sankey):
         "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.8, 0.25
     )
     return dask_df, sankey
+
+
+def predictions_filter(bag_partition, config, sankey):
+
+    # Use either the provided hashes, or default to the surface atoms object
+    hash_columns = config.get("hash_columns", "slab_surface_object")
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = [row[column] for column in hash_columns]
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    min_value = config.get("min_value", -np.inf)
+    max_value = config.get("max_value", -np.inf)
+
+    # Iterate over all unique hashes
+    for key, value in hash_dict.items():
+        if config["type"] == "filter_by_adsorption_energy":
+            adsorbate_rows = [
+                row
+                for row in value
+                if row["adsorbate_smiles"] == config["adsorbate_smiles"]
+                and "filter_reason" not in row
+            ]
+            matching_rows = [
+                row
+                for row in adsorbate_rows
+                if row["filter_column"] >= min_value
+                and row["filter_column"] <= max_value
+            ]
+
+            # If no rows pass the filter, then all rows should be filtered out
+            if len(matching_rows) == 0:
+                for row in value:
+                    row["filter_reason"] = config
+
+    return bag_partition

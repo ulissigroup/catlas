@@ -168,10 +168,38 @@ if __name__ == "__main__":
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
-            number_steps = step["number_steps"] if "number_steps" in step else 200
-            hash_results_bag = results_bag.map(joblib.hash)
-            if step["gpu"]:
-                with dask.annotate(resources={"GPU": 1}, priority=10000000):
+            if "type" in step and "filter" in step["type"]:
+                hash_results_bag = hash_results_bag.map_partition(
+                    predictions_filter, step, sankey
+                )
+            else:
+                inference = True
+                number_steps = step["number_steps"] if "number_steps" in step else 200
+                hash_results_bag = results_bag.map(joblib.hash)
+                if step["gpu"]:
+                    with dask.annotate(resources={"GPU": 1}, priority=10000000):
+                        results_bag = results_bag.map(
+                            catlas.cache_utils.sqlitedict_memoize(
+                                config["memory_cache_location"],
+                                energy_prediction,
+                                ignore=[
+                                    "batch_size",
+                                    "graphs_dict",
+                                    "adslab_atoms",
+                                    "adslab_dict",
+                                ],
+                                shard_digits=4,
+                            ),
+                            adslab_atoms=adslab_atoms_bag,
+                            hash_adslab_atoms=hash_adslab_atoms_bag,
+                            hash_adslab_dict=hash_results_bag,
+                            graphs_dict=graphs_bag,
+                            checkpoint_path=step["checkpoint_path"],
+                            column_name=step["label"],
+                            batch_size=step["batch_size"],
+                            number_steps=number_steps,
+                        )
+                else:
                     results_bag = results_bag.map(
                         catlas.cache_utils.sqlitedict_memoize(
                             config["memory_cache_location"],
@@ -193,31 +221,8 @@ if __name__ == "__main__":
                         batch_size=step["batch_size"],
                         number_steps=number_steps,
                     )
-            else:
-                results_bag = results_bag.map(
-                    catlas.cache_utils.sqlitedict_memoize(
-                        config["memory_cache_location"],
-                        energy_prediction,
-                        ignore=[
-                            "batch_size",
-                            "graphs_dict",
-                            "adslab_atoms",
-                            "adslab_dict",
-                        ],
-                        shard_digits=4,
-                    ),
-                    adslab_atoms=adslab_atoms_bag,
-                    hash_adslab_atoms=hash_adslab_atoms_bag,
-                    hash_adslab_dict=hash_results_bag,
-                    graphs_dict=graphs_bag,
-                    checkpoint_path=step["checkpoint_path"],
-                    column_name=step["label"],
-                    batch_size=step["batch_size"],
-                    number_steps=number_steps,
-                )
 
-            most_recent_step = "min_" + step["label"]
-            inference = True
+                most_recent_step = "min_" + step["label"]
 
     # Handle results
     verbose = (

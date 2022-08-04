@@ -197,84 +197,94 @@ def energy_prediction(
     batch_size=8,
     number_steps=200,
 ):
-    adslab_atoms = copy.deepcopy(adslab_atoms)
-    adslab_dict = copy.deepcopy(adslab_dict)
-
-    cpu = torch.cuda.device_count() == 0
-
-    global BOCPP_dict
-
-    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
-        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
-            checkpoint=checkpoint_path,
-            batch_size=batch_size,
-            cpu=cpu,
-            number_steps=number_steps,
-        )
-
-    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
 
     adslab_results = copy.copy(adslab_dict)
 
-    if BOCPP.config["trainer"] == "forces":
-        energy_predictions, position_predictions = BOCPP.relaxation_prediction(
-            graphs_dict["adslab_graphs"],
-        )
-        energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
-
-        # Use the relaxed positions to generate relaxed atoms objects
-        adslab_atoms_copy = copy.deepcopy(adslab_atoms)
-        idx = 0
-        anomaly_tests = []
-        for atoms, positions in zip(adslab_atoms_copy, position_predictions):
-            atoms.set_positions(positions)
-            detector = DetectTrajAnomaly(
-                adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
-            )
-            status = {}
-            status["dissociation"] = detector.is_adsorbate_dissociated()
-            status["desorption"] = detector.is_adsorbate_desorbed()
-            status["reconstruction"] = detector.is_surface_reconstructed()
-            anomaly_tests.append(status)
-            idx += 1
-        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
-        adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
-        adslab_results["anomaly_detection"] = anomaly_tests
+    if "filter_reason" in adslab_dict:
+        adslab_results["min_" + column_name] = np.nan
+        adslab_results["atoms_min_" + column_name] = None
+        return adslab_results
     else:
-        energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+        adslab_atoms = copy.deepcopy(adslab_atoms)
+        adslab_dict = copy.deepcopy(adslab_dict)
 
-    adslab_results[column_name] = energy_predictions
+        cpu = torch.cuda.device_count() == 0
 
-    # Identify the best configuration and energy and save that too
-    if len(energy_predictions) > 0:
-        best_energy = np.min(energy_predictions)
-        best_atoms_initial = adslab_atoms[np.argmin(energy_predictions)].copy()
-        adslab_results["min_" + column_name] = best_energy
-        best_atoms_initial.set_calculator(
-            SinglePointCalculator(
-                atoms=best_atoms_initial,
-                energy=best_energy,
-                forces=None,
-                stresses=None,
-                magmoms=None,
+        global BOCPP_dict
+
+        if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
+            BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
+                checkpoint=checkpoint_path,
+                batch_size=batch_size,
+                cpu=cpu,
+                number_steps=number_steps,
             )
-        )
-        adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
-        # If relaxing, save the best relaxed configuration
+
+        BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+
         if BOCPP.config["trainer"] == "forces":
-            best_atoms_relaxed = adslab_atoms_copy[np.argmin(energy_predictions)].copy()
-            best_atoms_relaxed.set_calculator(
+            energy_predictions, position_predictions = BOCPP.relaxation_prediction(
+                graphs_dict["adslab_graphs"],
+            )
+            energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
+
+            # Use the relaxed positions to generate relaxed atoms objects
+            adslab_atoms_copy = copy.deepcopy(adslab_atoms)
+            idx = 0
+            anomaly_tests = []
+            for atoms, positions in zip(adslab_atoms_copy, position_predictions):
+                atoms.set_positions(positions)
+                detector = DetectTrajAnomaly(
+                    adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
+                )
+                status = {}
+                status["dissociation"] = detector.is_adsorbate_dissociated()
+                status["desorption"] = detector.is_adsorbate_desorbed()
+                status["reconstruction"] = detector.is_surface_reconstructed()
+                anomaly_tests.append(status)
+                idx += 1
+            adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
+            adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
+            adslab_results["anomaly_detection"] = anomaly_tests
+        else:
+            energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+
+        adslab_results[column_name] = energy_predictions
+
+        # Identify the best configuration and energy and save that too
+        if len(energy_predictions) > 0:
+            best_energy = np.min(energy_predictions)
+            best_atoms_initial = adslab_atoms[np.argmin(energy_predictions)].copy()
+            adslab_results["min_" + column_name] = best_energy
+            best_atoms_initial.set_calculator(
                 SinglePointCalculator(
-                    atoms=best_atoms_relaxed,
+                    atoms=best_atoms_initial,
                     energy=best_energy,
                     forces=None,
                     stresses=None,
                     magmoms=None,
                 )
             )
-            adslab_results["atoms_min_" + column_name + "_relaxed"] = best_atoms_relaxed
-    else:
-        adslab_results["min_" + column_name] = np.nan
-        adslab_results["atoms_min_" + column_name] = None
+            adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
+            # If relaxing, save the best relaxed configuration
+            if BOCPP.config["trainer"] == "forces":
+                best_atoms_relaxed = adslab_atoms_copy[
+                    np.argmin(energy_predictions)
+                ].copy()
+                best_atoms_relaxed.set_calculator(
+                    SinglePointCalculator(
+                        atoms=best_atoms_relaxed,
+                        energy=best_energy,
+                        forces=None,
+                        stresses=None,
+                        magmoms=None,
+                    )
+                )
+                adslab_results[
+                    "atoms_min_" + column_name + "_relaxed"
+                ] = best_atoms_relaxed
+        else:
+            adslab_results["min_" + column_name] = np.nan
+            adslab_results["atoms_min_" + column_name] = None
 
-    return adslab_results
+        return adslab_results
