@@ -85,9 +85,7 @@ class BatchOCPPredictor:
                     config["model_attributes"]["scale_file"],
                 )
             else:
-                config["model_attributes"][
-                    "scale_file"
-                ] = "%s/%s" % (
+                config["model_attributes"]["scale_file"] = "%s/%s" % (
                     os.path.dirname(checkpoint),
                     config["model_attributes"]["scale_file"],
                 )
