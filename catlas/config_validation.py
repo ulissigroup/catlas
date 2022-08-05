@@ -200,7 +200,7 @@ config_schema = {
                         "type": "integer",
                     },
                     "batch_size": {"type": "integer"},
-                    "step_type": {"type": "string", "required": True},
+                    "step_type": {"allowed": ["inference"], "required": True},
                 },
             },
             {
