@@ -41,6 +41,6 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_oc_large_s2ef_all_md_fixed.pt'
+    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_t_direct_h512_all.pt'
     number_steps: 10
 
