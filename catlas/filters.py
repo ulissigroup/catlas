@@ -241,7 +241,9 @@ def adsorbate_filter(config, dask_df, sankey):
 def predictions_filter(bag_partition, config, sankey):
 
     # Use either the provided hashes, or default to the surface atoms object
-    hash_columns = config.get("hash_columns", ["slab_surface_object"])
+    hash_columns = config.get(
+        "hash_columns", ["bulk_id", "slab_millers", "slab_shift", "slab_top"]
+    )
 
     # Hash all entries by the desired columns
     hash_dict = {}
@@ -256,7 +258,7 @@ def predictions_filter(bag_partition, config, sankey):
     for key, value in hash_dict.items():
         if config["step_type"] == "filter_by_adsorption_energy":
             min_value = config.get("min_value", -np.inf)
-            max_value = config.get("max_value", -np.inf)
+            max_value = config.get("max_value", np.inf)
 
             adsorbate_rows = [
                 row
@@ -274,11 +276,11 @@ def predictions_filter(bag_partition, config, sankey):
             # If no rows pass the filter, then all rows should be filtered out
             if len(matching_rows) == 0:
                 for row in value:
-                    row["filter_reason"] = config
+                    if "filter_reason" not in row:
+                        row["filter_reason"] = config
         elif config["step_type"] == "filter_by_adsorption_energy_target":
             target_value = config["target_value"]
             range_value = config.get("range_value", 0.5)
-
             adsorbate_rows = [
                 row
                 for row in value
@@ -295,6 +297,7 @@ def predictions_filter(bag_partition, config, sankey):
             # If no rows pass the filter, then all rows should be filtered out
             if len(matching_rows) == 0:
                 for row in value:
-                    row["filter_reason"] = config
+                    if "filter_reason" not in row:
+                        row["filter_reason"] = config
 
     return bag_partition

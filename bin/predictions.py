@@ -147,13 +147,11 @@ if __name__ == "__main__":
     surface_bag = surface_bag.map(get_nuclearity)
 
     # choose the number of partitions after to use after making adslab combos
-    npartitions = min(bulk_num * adsorbate_num * 4, 1000)
+    npartitions = min(bulk_num * 10, 1000)
+    surface_bag = surface_bag.repartition(npartitions = npartitions)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
-    surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
-        npartitions=npartitions
-    )
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
