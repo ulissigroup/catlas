@@ -169,12 +169,11 @@ if __name__ == "__main__":
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
-            step_type = step["step_type"]
-            if "filter" in step_type:
+            if "filter" in step["step_type"]:
                 results_bag = results_bag.map_partitions(
                     predictions_filter, step, sankey
                 )
-            elif step_type == "inference":
+            elif step["step_type"] == "inference":
                 inference = True
                 number_steps = step["number_steps"] if "number_steps" in step else 200
                 hash_results_bag = results_bag.map(joblib.hash)

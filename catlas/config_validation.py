@@ -44,6 +44,7 @@ def validate_folder_exists(field, value, error):
 
 
 config_schema = {
+    "validate": {"type": "boolean"},
     "memory_cache_location": {"type": "string", "check_with": validate_folder_exists},
     "input_options": {
         "required": True,
