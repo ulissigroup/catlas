@@ -24,22 +24,22 @@ slab_filters:
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
-  - type: inference
+  - step_type: inference
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - type: filter_by_adsorption_energy_target
+  - step_type: filter_by_adsorption_energy_target
     adsorbate_smiles: ['*H']
     target_value: 0.0
     range_value: 0.5
     filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - type: filter_by_adsorption_energy_target
+  - step_type: filter_by_adsorption_energy_target
     adsorbate_smiles: ['*CO']
     target_value: -0.6
     range_value: 0.5
     filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - type: inference
+  - step_type: inference
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'

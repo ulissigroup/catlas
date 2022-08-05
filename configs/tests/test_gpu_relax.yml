@@ -22,12 +22,12 @@ slab_filters:
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
-  - type: inference
+  - step_type: inference
     gpu: true
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - type: inference
+  - step_type: inference
     gpu: true
     batch_size: 4
     label: 'dE_gemnet_relax'

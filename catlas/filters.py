@@ -254,7 +254,7 @@ def predictions_filter(bag_partition, config, sankey):
 
     # Iterate over all unique hashes
     for key, value in hash_dict.items():
-        if config["type"] == "filter_by_adsorption_energy":
+        if config["step_type"] == "filter_by_adsorption_energy":
             min_value = config.get("min_value", -np.inf)
             max_value = config.get("max_value", -np.inf)
 
@@ -275,7 +275,7 @@ def predictions_filter(bag_partition, config, sankey):
             if len(matching_rows) == 0:
                 for row in value:
                     row["filter_reason"] = config
-        elif config["type"] == "filter_by_adsorption_energy_target":
+        elif config["step_type"] == "filter_by_adsorption_energy_target":
             target_value = config["target_value"]
             range_value = config.get("range_value", 0.5)
 

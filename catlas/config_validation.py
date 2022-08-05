@@ -199,7 +199,7 @@ config_schema = {
                     "type": "integer",
                 },
                 "batch_size": {"type": "integer"},
-                "type": {"type": "string", "required": "true"},
+                "step_type": {"type": "string", "required": "true"},
             },
         },
     },
