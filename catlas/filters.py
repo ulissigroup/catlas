@@ -241,7 +241,7 @@ def adsorbate_filter(config, dask_df, sankey):
 def predictions_filter(bag_partition, config, sankey):
 
     # Use either the provided hashes, or default to the surface atoms object
-    hash_columns = config.get("hash_columns", "slab_surface_object")
+    hash_columns = config.get("hash_columns", ["slab_surface_object"])
 
     # Hash all entries by the desired columns
     hash_dict = {}
