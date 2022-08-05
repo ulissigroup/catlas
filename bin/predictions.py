@@ -148,7 +148,7 @@ if __name__ == "__main__":
 
     # choose the number of partitions after to use after making adslab combos
     npartitions = min(bulk_num * 10, 1000)
-    surface_bag = surface_bag.repartition(npartitions = npartitions)
+    surface_bag = surface_bag.repartition(npartitions=npartitions)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
