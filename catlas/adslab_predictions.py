@@ -2,6 +2,7 @@ import copy
 import os
 
 import numpy as np
+import ocpmodels
 import torch
 import yaml
 from ase.calculators.singlepoint import SinglePointCalculator
@@ -78,10 +79,18 @@ class BatchOCPPredictor:
 
         if "scale_file" in config["model_attributes"]:
             catlas_dir = os.path.dirname(catlas.__file__)
-            config["model_attributes"]["scale_file"] = "%s/ocp_checkpoints/%s" % (
-                os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-                config["model_attributes"]["scale_file"],
-            )
+            if config["model_attributes"]["scale_file"].startswith("config"):
+                config["model_attributes"]["scale_file"] = "%s/%s" % (
+                    os.path.join(os.path.dirname(ocpmodels.__file__), os.pardir),
+                    config["model_attributes"]["scale_file"],
+                )
+            else:
+                config["model_attributes"][
+                    "scale_file"
+                ] = "%s/%s" % (
+                    os.path.dirname(checkpoint),
+                    config["model_attributes"]["scale_file"],
+                )
 
         config["checkpoint"] = checkpoint
 
