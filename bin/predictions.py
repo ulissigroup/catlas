@@ -171,7 +171,7 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             step_type = step["step_type"]
             if "filter" in step_type:
-                hash_results_bag = hash_results_bag.map_partitions(
+                results_bag = results_bag.map_partitions(
                     predictions_filter, step, sankey
                 )
             elif step_type == "inference":

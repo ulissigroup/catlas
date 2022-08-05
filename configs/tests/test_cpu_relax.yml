@@ -15,7 +15,7 @@ bulk_filters:
     filter_by_bulk_ids: ['mp-81','mp-30']
 
 adsorbate_filters:
-    filter_by_smiles: ['*H']
+    filter_by_smiles: ['*H','*CO']
 
 slab_filters:
     filter_by_object_size: 100
@@ -42,5 +42,5 @@ adslab_prediction_steps:
     batch_size: 4
     label: 'dE_gemnet_relax'
     checkpoint_path: 'ocp_checkpoints/gemnet_t_direct_h512_all.pt'
-    number_steps: 10
+    number_steps: 100
 
