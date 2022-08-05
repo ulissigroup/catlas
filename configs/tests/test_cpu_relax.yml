@@ -1,5 +1,3 @@
-validate: False
-
 memory_cache_location: '/home/jovyan/test_cache'
 
 output_options:
