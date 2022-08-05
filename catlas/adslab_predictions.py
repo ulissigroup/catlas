@@ -200,6 +200,7 @@ def energy_prediction(
     adslab_results = copy.copy(adslab_dict)
 
     if "filter_reason" in adslab_dict:
+        adslab_results[column_name] = []
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name] = None
         return adslab_results
@@ -283,6 +284,7 @@ def energy_prediction(
                     "atoms_min_" + column_name + "_relaxed"
                 ] = best_atoms_relaxed
         else:
+            adslab_results[column_name] = []
             adslab_results["min_" + column_name] = np.nan
             adslab_results["atoms_min_" + column_name] = None
 

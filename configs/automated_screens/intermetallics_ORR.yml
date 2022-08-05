@@ -37,7 +37,7 @@ adslab_prediction_steps:
     label: 'dE_gemnet_is2re_finetuned'
     checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
   - step_type: filter_by_adsorption_energy_target
-    adsorbate_smiles: *OH
+    adsorbate_smiles: '*OH'
     target_value: 0.9
     filter_column: 'min_dE_gemnet_is2re_finetuned'
   - step_type: inference
