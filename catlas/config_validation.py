@@ -182,56 +182,58 @@ config_schema = {
     "adslab_prediction_steps": {
         "required": False,
         "type": "list",
-        "anyof_schema": [
-            {
-                "type": "dict",
-                "schema": {
-                    "checkpoint_path": {
-                        "type": "string",
-                        "check_with": validate_path_exists,
-                        "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+        "schema": {
+            "anyof": [
+                {
+                    "type": "dict",
+                    "schema": {
+                        "checkpoint_path": {
+                            "type": "string",
+                            "check_with": validate_path_exists,
+                            "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+                        },
+                        "gpu": {"type": "boolean", "required": True},
+                        "label": {
+                            "required": True,
+                            "type": "string",
+                        },
+                        "number_steps": {
+                            "type": "integer",
+                        },
+                        "batch_size": {"type": "integer"},
+                        "step_type": {"allowed": ["inference"], "required": True},
                     },
-                    "gpu": {"type": "boolean", "required": True},
-                    "label": {
-                        "required": True,
-                        "type": "string",
-                    },
-                    "number_steps": {
-                        "type": "integer",
-                    },
-                    "batch_size": {"type": "integer"},
-                    "step_type": {"allowed": ["inference"], "required": True},
                 },
-            },
-            {
-                "type": "dict",
-                "schema": {
-                    "step_type": {
-                        "allowed": ["filter_by_adsorption_energy_target"],
-                        "required": True,
+                {
+                    "type": "dict",
+                    "schema": {
+                        "step_type": {
+                            "allowed": ["filter_by_adsorption_energy_target"],
+                            "required": True,
+                        },
+                        "target_value": {"type": "float", "required": True},
+                        "range_value": {"type": "float"},
+                        "adsorbate_smiles": {"type": "string", "required": True},
+                        "hash_columns": {"type": "list", "schema": {"type": "string"}},
+                        "filter_column": {"type": "string", "required": True},
                     },
-                    "target_value": {"type": "float", "required": True},
-                    "range_value": {"type": "float"},
-                    "adsorbate_smiles": {"type": "string", "required": True},
-                    "hash_columns": {"type": "list", "schema": {"type": "string"}},
-                    "filter_column": {"type": "string", "required": True},
                 },
-            },
-            {
-                "type": "dict",
-                "schema": {
-                    "step_type": {
-                        "allowed": ["filter_by_adsorption_energy"],
-                        "required": True,
+                {
+                    "type": "dict",
+                    "schema": {
+                        "step_type": {
+                            "allowed": ["filter_by_adsorption_energy"],
+                            "required": True,
+                        },
+                        "min_value": {"type": "float"},
+                        "max_value": {"type": "float"},
+                        "adsorbate_smiles": {"type": "string", "required": True},
+                        "hash_columns": {"type": "list", "schema": {"type": "string"}},
+                        "filter_column": {"type": "string", "required": True},
                     },
-                    "min_value": {"type": "float"},
-                    "max_value": {"type": "float"},
-                    "adsorbate_smiles": {"type": "string", "required": True},
-                    "hash_columns": {"type": "list", "schema": {"type": "string"}},
-                    "filter_column": {"type": "string", "required": True},
                 },
-            },
-        ],
+            ]
+        },
     },
 }
 
