@@ -246,7 +246,7 @@ def predictions_filter(bag_partition, config, sankey):
     # Hash all entries by the desired columns
     hash_dict = {}
     for row in bag_partition:
-        key = [row[column] for column in hash_columns]
+        key = tuple([row[column] for column in hash_columns])
         if key in hash_dict:
             hash_dict[key].append(row)
         else:
