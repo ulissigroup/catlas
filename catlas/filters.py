@@ -267,8 +267,8 @@ def predictions_filter(bag_partition, config, sankey):
             matching_rows = [
                 row
                 for row in adsorbate_rows
-                if row["filter_column"] >= min_value
-                and row["filter_column"] <= max_value
+                if row[config["filter_column"]] >= min_value
+                and row[config["filter_column"]] <= max_value
             ]
 
             # If no rows pass the filter, then all rows should be filtered out
@@ -288,8 +288,8 @@ def predictions_filter(bag_partition, config, sankey):
             matching_rows = [
                 row
                 for row in adsorbate_rows
-                if row["filter_column"] >= target_value - range_value
-                and row["filter_column"] <= target_value + range_value
+                if row[config["filter_column"]] >= target_value - range_value
+                and row[config["filter_column"]] <= target_value + range_value
             ]
 
             # If no rows pass the filter, then all rows should be filtered out
