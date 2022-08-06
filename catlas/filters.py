@@ -94,7 +94,9 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                 dask_df = dask_df[
                     dask_df.apply(
                         lambda x, conditions: any(
-                            get_pourbaix_stability(x, conditions)
+                            catlas.cache_utils.sqlitedict_memoize(
+                                config["memory_cache_location"], get_pourbaix_stability
+                            )(x, conditions)
                         ),
                         axis=1,
                         conditions=val,
@@ -122,6 +124,8 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
 
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
+
+            dask_df = dask_df.persist()
 
             if config["output_options"]["verbose"]:
                 print(

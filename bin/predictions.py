@@ -86,7 +86,7 @@ if __name__ == "__main__":
         )
     )(config["input_options"]["bulk_file"])
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=100).persist()
 
     # Create pourbaix lmdb if it doesnt exist
     if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
@@ -113,7 +113,9 @@ if __name__ == "__main__":
     # Filter the bulks
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
-
+    wait(bulk_df)
+    client.rebalance(bulk_df)
+    client.rebalance(bulk_df)
     filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
