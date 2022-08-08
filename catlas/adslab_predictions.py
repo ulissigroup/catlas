@@ -220,7 +220,9 @@ def energy_prediction(
 
         if not cpu and gpu_mem_per_sample is not None:
             batch_size = int(
-                torch.cuda.get_device_properties(0).total_memory / gpu_mem_per_sample / 1024**3
+                torch.cuda.get_device_properties(0).total_memory
+                / gpu_mem_per_sample
+                / 1024**3
             )
 
         global BOCPP_dict
