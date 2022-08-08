@@ -105,6 +105,7 @@ config_schema = {
                 "type": "list",
                 "allowed": valid_element_groups,
             },
+            "filter_fraction": {"type": "float", "min": 0, "max": 1},
             "filter_by_pourbaix_stability": {
                 "type": "dict",
                 "schema": {
@@ -202,6 +203,7 @@ config_schema = {
                             "type": "integer",
                         },
                         "batch_size": {"type": "integer"},
+                        "gpu_mem_per_sample": {"type": "float"},
                         "step_type": {"allowed": ["inference"], "required": True},
                     },
                 },

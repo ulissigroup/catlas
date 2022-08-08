@@ -201,6 +201,7 @@ def energy_prediction(
     checkpoint_path,
     column_name,
     batch_size=8,
+    gpu_mem_per_sample=None,
     number_steps=200,
 ):
 
@@ -216,6 +217,11 @@ def energy_prediction(
         adslab_dict = copy.deepcopy(adslab_dict)
 
         cpu = torch.cuda.device_count() == 0
+
+        if not cpu and gpu_mem_per_sample is not None:
+            batch_size = int(
+                torch.cuda.get_device_properties(0).total_memory / gpu_mem_per_sample / 1024**3
+            )
 
         global BOCPP_dict
 

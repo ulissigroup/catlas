@@ -122,6 +122,9 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         "Band gap filtering was not specified properly -> skipping it."
                     )
 
+            elif name == "filter_fraction":
+                dask_df = dask_df.sample(frac=val, random_state=42)
+
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
 

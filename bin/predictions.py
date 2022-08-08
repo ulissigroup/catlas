@@ -185,6 +185,7 @@ if __name__ == "__main__":
                                 energy_prediction,
                                 ignore=[
                                     "batch_size",
+                                    "gpu_mem_per_sample",
                                     "graphs_dict",
                                     "adslab_atoms",
                                     "adslab_dict",
@@ -198,6 +199,7 @@ if __name__ == "__main__":
                             checkpoint_path=step["checkpoint_path"],
                             column_name=step["label"],
                             batch_size=step["batch_size"],
+                            gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                             number_steps=number_steps,
                         )
                 else:
