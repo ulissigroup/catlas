@@ -246,7 +246,13 @@ if __name__ == "__main__":
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
-            num_adslabs = num_inferred = sum(df_results[step["label"]].apply(len))
+            num_inferred = []
+            for step in config["adslab_prediction_steps"]:
+                if step["step_type"] == "inference":
+                    counts = sum(df_results[df_results[~"min_"+step["label"].isnull()]][step["label"]].apply(len))
+                    label = step["label"]
+                    num_inferred.append({"counts": counts, "label": label})
+            num_adslabs = sum(df_results["adslab_atoms"].apply(len))
         filtered_slabs = len(df_results)
         if verbose and inference:
 
@@ -295,7 +301,7 @@ if __name__ == "__main__":
             if not inference:
                 num_adslabs = sum(df_results["adslab_atoms"].apply(len))
                 filtered_slabs = len(df_results)
-                num_inferred = 0
+                num_inferred = [0]
         else:
             # screen classes from custom packages
             class_mask = (
@@ -312,7 +318,7 @@ if __name__ == "__main__":
     unfiltered_slabs = unfiltered_surface_bag.count().compute()
 
     if "num_adslabs" not in vars():
-        num_adslabs = num_inferred = 0
+        num_adslabs = num_inferred = [0]
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )

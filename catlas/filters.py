@@ -240,7 +240,7 @@ def adsorbate_filter(config, dask_df, sankey):
         0.001,
     )
     sankey.update_dictionary(
-        "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.8, 0.25
+        "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.6, 0.25
     )
     return dask_df, sankey
 
