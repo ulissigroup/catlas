@@ -48,7 +48,7 @@ class Sankey:
             slab_idx,
             node_idx,
             num_filtered,
-            0.6,
+            0.4,
             0.4,
         )
         self.update_dictionary(
@@ -70,9 +70,9 @@ class Sankey:
         self.info_dict["label"][slab_idx] = f"Slabs ({num_unfiltered})"
 
     def _add_inference_step(
-        inference_list: list, step: int, node_num: int, node_idx: int
+        self, inference_list: list, step: int, node_num: int, node_idx: int
     ):
-        if step < len(inferece_list):
+        if step < len(inference_list):
             node_idx_next = len(self.info_dict["label"])
             node_num_next = inference_list[step]["counts"]
             self.update_dictionary(
@@ -146,7 +146,8 @@ class Sankey:
         y_now = 0.9
         for idx, idx_set in enumerate(indices_to_change):
             self.info_dict["y"][idx_set] = y_now
-            y_now -= y_sizes[idx]
+            if idx != 0:
+                y_now -= 0.5 * y_sizes[idx] + 0.5 * y_sizes[idx - 1]
 
     def get_sankey_diagram(self, run_id: str, use_log=True):
         """
