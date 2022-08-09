@@ -215,7 +215,7 @@ config_schema = {
                             "required": True,
                         },
                         "target_value": {"type": "float", "required": True},
-                        "range_value": {"type": "float"},
+                        "range_value": {"type": "float", "required": True},
                         "adsorbate_smiles": {"type": "string", "required": True},
                         "hash_columns": {"type": "list", "schema": {"type": "string"}},
                         "filter_column": {"type": "string", "required": True},
