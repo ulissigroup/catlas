@@ -249,10 +249,14 @@ if __name__ == "__main__":
             num_inferred = []
             for step in config["adslab_prediction_steps"]:
                 if step["step_type"] == "inference":
-                    counts = sum(df_results[df_results[~"min_"+step["label"].isnull()]][step["label"]].apply(len))
+                    counts = sum(
+                        df_results[~df_results["min_" + step["label"]].isnull()][
+                            step["label"]
+                        ].apply(len)
+                    )
                     label = step["label"]
                     num_inferred.append({"counts": counts, "label": label})
-            num_adslabs = sum(df_results["adslab_atoms"].apply(len))
+            num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
         filtered_slabs = len(df_results)
         if verbose and inference:
 

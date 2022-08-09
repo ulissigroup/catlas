@@ -68,9 +68,10 @@ class Sankey:
             None,
         )
         self.info_dict["label"][slab_idx] = f"Slabs ({num_unfiltered})"
-        
-        
-    def _add_inference_step(inference_list: list, step: int, node_num: int, node_idx: int):
+
+    def _add_inference_step(
+        inference_list: list, step: int, node_num: int, node_idx: int
+    ):
         if step < len(inferece_list):
             node_idx_next = len(self.info_dict["label"])
             node_num_next = inference_list[step]["counts"]
@@ -79,7 +80,7 @@ class Sankey:
                 node_idx,
                 len(self.info_dict["label"]),
                 node_num_next,
-                0.6+0.4*(step+1) / len(inference_list) ,
+                0.6 + 0.4 * (step + 1) / len(inference_list),
                 0.4,
             )
             if node_num != inference_list[step]["counts"]:
@@ -88,11 +89,12 @@ class Sankey:
                     node_idx,
                     len(self.info_dict["label"]),
                     node_num - inference_list[step]["counts"],
-                    0.6+0.4*(step+1) / len(inference_list),
+                    0.6 + 0.4 * (step + 1) / len(inference_list),
                     0.6,
                 )
-            self._add_inference_step(inference_list, step+1, node_num_next, node_idx_next)
-                            
+            self._add_inference_step(
+                inference_list, step + 1, node_num_next, node_idx_next
+            )
 
     def add_adslab_info(self, num_adslabs: int, num_inference: list):
         """
@@ -108,11 +110,10 @@ class Sankey:
                 "Adslabs were not computed and therefore will not appear in the Sankey diagram"
             )
             num_adslabs = 0
-            
+
         adslab_idx = self.info_dict["label"].index("Adslabs")
         self.info_dict["label"][adslab_idx] = f"Adslabs ({num_adslabs})"
         self._add_inference_step(num_inference, 0, num_adslabs, adslab_idx)
-
 
     def update_y_positions(self, use_log):
         """
