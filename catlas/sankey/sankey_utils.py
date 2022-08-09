@@ -130,7 +130,7 @@ class Sankey:
         # Alter values if log weighting will be used
         if use_log:
             vals = np.log(self.info_dict["value"])
-            values = [val if val > 0 else 0.1 for val in vals]
+            values = [val if val > 0 else 0.01 for val in vals]
             self.info_dict["value"] = values
         else:
             values = self.info_dict["value"]
@@ -143,11 +143,13 @@ class Sankey:
         ]
         weight_factor = 0.8 / sum([values[idx] for idx in flows_to_1])
         y_sizes = [weight_factor * values[idx] for idx in flows_to_1]
-        y_now = 0.9
+        y_now = 1
         for idx, idx_set in enumerate(indices_to_change):
-            self.info_dict["y"][idx_set] = y_now
-            if idx != 0:
+            if idx == 0:
+                y_now -= 0.5 * y_sizes[idx]
+            else:
                 y_now -= 0.5 * y_sizes[idx] + 0.5 * y_sizes[idx - 1]
+            self.info_dict["y"][idx_set] = y_now
 
     def get_sankey_diagram(self, run_id: str, use_log=True):
         """
