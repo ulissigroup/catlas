@@ -1,26 +1,30 @@
-from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 import copy
+import os
+
+import numpy as np
+import ocpmodels
+import torch
+import yaml
+from ase.calculators.singlepoint import SinglePointCalculator
+from ase.optimize import LBFGS
 from ocdata.combined import Combined
 from ocdata.flag_anomaly import DetectTrajAnomaly
-from ase.optimize import LBFGS
-import numpy as np
-from ocpmodels.preprocessing import AtomsToGraphs
-import yaml
-from ocpmodels.datasets import data_list_collater
-from ase.calculators.singlepoint import SinglePointCalculator
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
+
+import catlas.cache_utils
+import catlas.dask_utils
+from ocpmodels.common.registry import registry
 from ocpmodels.common.relaxation import ml_relaxation
+from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 from ocpmodels.common.utils import (
     radius_graph_pbc,
     setup_imports,
     setup_logging,
 )
+from ocpmodels.datasets import data_list_collater
+from ocpmodels.preprocessing import AtomsToGraphs
 
-from torch.utils.data import DataLoader
-import torch
-import catlas.cache_utils
-import os
-from tqdm import tqdm
-import catlas.dask_utils
 
 BOCPP_dict = {}
 relax_calc = None
@@ -31,10 +35,6 @@ def pop_keys(adslab_dict, keys):
     for key in keys:
         adslab_dict.pop(key)
     return adslab_dict
-
-
-from torch.utils.data import Dataset
-from ocpmodels.common.registry import registry
 
 
 class GraphsListDataset(Dataset):
@@ -79,10 +79,16 @@ class BatchOCPPredictor:
 
         if "scale_file" in config["model_attributes"]:
             catlas_dir = os.path.dirname(catlas.__file__)
-            config["model_attributes"]["scale_file"] = "%s/ocp_checkpoints/%s" % (
-                os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-                config["model_attributes"]["scale_file"],
-            )
+            if config["model_attributes"]["scale_file"].startswith("config"):
+                config["model_attributes"]["scale_file"] = "%s/%s" % (
+                    os.path.join(os.path.dirname(ocpmodels.__file__), os.pardir),
+                    config["model_attributes"]["scale_file"],
+                )
+            else:
+                config["model_attributes"]["scale_file"] = "%s/%s" % (
+                    os.path.dirname(checkpoint),
+                    config["model_attributes"]["scale_file"],
+                )
 
         config["checkpoint"] = checkpoint
 
@@ -195,86 +201,106 @@ def energy_prediction(
     checkpoint_path,
     column_name,
     batch_size=8,
+    gpu_mem_per_sample=None,
     number_steps=200,
 ):
-    adslab_atoms = copy.deepcopy(adslab_atoms)
-    adslab_dict = copy.deepcopy(adslab_dict)
-
-    cpu = torch.cuda.device_count() == 0
-
-    global BOCPP_dict
-
-    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
-        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
-            checkpoint=checkpoint_path,
-            batch_size=batch_size,
-            cpu=cpu,
-            number_steps=number_steps,
-        )
-
-    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
 
     adslab_results = copy.copy(adslab_dict)
 
-    if BOCPP.config["trainer"] == "forces":
-        energy_predictions, position_predictions = BOCPP.relaxation_prediction(
-            graphs_dict["adslab_graphs"],
-        )
-        energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
-
-        # Use the relaxed positions to generate relaxed atoms objects
-        adslab_atoms_copy = copy.deepcopy(adslab_atoms)
-        idx = 0
-        anomaly_tests = []
-        for atoms, positions in zip(adslab_atoms_copy, position_predictions):
-            atoms.set_positions(positions)
-            detector = DetectTrajAnomaly(
-                adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
-            )
-            status = {}
-            status["dissociation"] = detector.is_adsorbate_dissociated()
-            status["desorption"] = detector.is_adsorbate_desorbed()
-            status["reconstruction"] = detector.is_surface_reconstructed()
-            anomaly_tests.append(status)
-            idx += 1
-        adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
-        adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
-        adslab_results["anomaly_detection"] = anomaly_tests
+    if "filter_reason" in adslab_dict:
+        adslab_results[column_name] = []
+        adslab_results["min_" + column_name] = np.nan
+        adslab_results["atoms_min_" + column_name] = None
+        return adslab_results
     else:
-        energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+        adslab_atoms = copy.deepcopy(adslab_atoms)
+        adslab_dict = copy.deepcopy(adslab_dict)
 
-    adslab_results[column_name] = energy_predictions
+        cpu = torch.cuda.device_count() == 0
 
-    # Identify the best configuration and energy and save that too
-    if len(energy_predictions) > 0:
-        best_energy = np.min(energy_predictions)
-        best_atoms_initial = adslab_atoms[np.argmin(energy_predictions)].copy()
-        adslab_results["min_" + column_name] = best_energy
-        best_atoms_initial.set_calculator(
-            SinglePointCalculator(
-                atoms=best_atoms_initial,
-                energy=best_energy,
-                forces=None,
-                stresses=None,
-                magmoms=None,
+        if not cpu and gpu_mem_per_sample is not None:
+            batch_size = int(
+                torch.cuda.get_device_properties(0).total_memory
+                / gpu_mem_per_sample
+                / 1024**3
             )
-        )
-        adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
-        # If relaxing, save the best relaxed configuration
+
+        global BOCPP_dict
+
+        if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
+            BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
+                checkpoint=checkpoint_path,
+                batch_size=batch_size,
+                cpu=cpu,
+                number_steps=number_steps,
+            )
+
+        BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+
         if BOCPP.config["trainer"] == "forces":
-            best_atoms_relaxed = adslab_atoms_copy[np.argmin(energy_predictions)].copy()
-            best_atoms_relaxed.set_calculator(
+            energy_predictions, position_predictions = BOCPP.relaxation_prediction(
+                graphs_dict["adslab_graphs"],
+            )
+            energy_predictions = np.array([p.cpu().numpy() for p in energy_predictions])
+
+            # Use the relaxed positions to generate relaxed atoms objects
+            adslab_atoms_copy = copy.deepcopy(adslab_atoms)
+            idx = 0
+            anomaly_tests = []
+            for atoms, positions in zip(adslab_atoms_copy, position_predictions):
+                atoms.set_positions(positions)
+                detector = DetectTrajAnomaly(
+                    adslab_atoms[idx], atoms, adslab_atoms[idx].get_tags()
+                )
+                status = {}
+                status["dissociation"] = detector.is_adsorbate_dissociated()
+                status["desorption"] = detector.is_adsorbate_desorbed()
+                status["reconstruction"] = detector.is_surface_reconstructed()
+                anomaly_tests.append(status)
+                idx += 1
+            adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
+            adslab_results["unrelaxed_atoms_" + column_name] = adslab_atoms
+            adslab_results["anomaly_detection"] = anomaly_tests
+        else:
+            energy_predictions = BOCPP.direct_prediction(graphs_dict["adslab_graphs"])
+
+        adslab_results[column_name] = energy_predictions
+
+        # Identify the best configuration and energy and save that too
+        if len(energy_predictions) > 0:
+            best_energy = np.min(energy_predictions)
+            best_atoms_initial = adslab_atoms[np.argmin(energy_predictions)].copy()
+            adslab_results["min_" + column_name] = best_energy
+            best_atoms_initial.set_calculator(
                 SinglePointCalculator(
-                    atoms=best_atoms_relaxed,
+                    atoms=best_atoms_initial,
                     energy=best_energy,
                     forces=None,
                     stresses=None,
                     magmoms=None,
                 )
             )
-            adslab_results["atoms_min_" + column_name + "_relaxed"] = best_atoms_relaxed
-    else:
-        adslab_results["min_" + column_name] = np.nan
-        adslab_results["atoms_min_" + column_name] = None
+            adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
+            # If relaxing, save the best relaxed configuration
+            if BOCPP.config["trainer"] == "forces":
+                best_atoms_relaxed = adslab_atoms_copy[
+                    np.argmin(energy_predictions)
+                ].copy()
+                best_atoms_relaxed.set_calculator(
+                    SinglePointCalculator(
+                        atoms=best_atoms_relaxed,
+                        energy=best_energy,
+                        forces=None,
+                        stresses=None,
+                        magmoms=None,
+                    )
+                )
+                adslab_results[
+                    "atoms_min_" + column_name + "_relaxed"
+                ] = best_atoms_relaxed
+        else:
+            adslab_results[column_name] = []
+            adslab_results["min_" + column_name] = np.nan
+            adslab_results["atoms_min_" + column_name] = None
 
-    return adslab_results
+        return adslab_results

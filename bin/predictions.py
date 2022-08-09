@@ -1,42 +1,43 @@
-import yaml
-from catlas.parity.parity_utils import get_parity_upfront
-from catlas.load_bulk_structures import load_bulks
-from catlas.sankey.sankey_utils import Sankey
-from catlas.filters import bulk_filter, adsorbate_filter, slab_filter
-from catlas.filter_utils import pb_query_and_write
-from catlas.load_adsorbate_structures import load_ocdata_adsorbates
-from catlas.enumerate_slabs_adslabs import (
-    enumerate_slabs,
-    enumerate_adslabs,
-    convert_adslabs_to_graphs,
-    merge_surface_adsorbate_combo,
-)
-from catlas.nuclearity import get_nuclearity
-from catlas.dask_utils import (
-    bag_split_individual_partitions,
-    to_pickles,
-)
-
-import warnings
-from catlas.adslab_predictions import (
-    energy_prediction,
-)
-from catlas.config_validation import config_validator
-import dask.bag as db
-import dask
-import sys
-import dask.dataframe as ddf
-import pandas as pd
-from dask.distributed import wait
-from jinja2 import Template
 import os
 import pickle
-import tqdm
+import sys
 import time
+import warnings
+import numpy as np
+import dask
+import dask.sizeof
 import joblib
 import lmdb
-import dask.sizeof
+import pandas as pd
+import tqdm
+import yaml
+from dask import bag as db, dataframe as ddf
+from dask.distributed import wait
+from jinja2 import Template
+
 import catlas.dask_utils
+from catlas.adslab_predictions import energy_prediction
+from catlas.config_validation import config_validator
+from catlas.dask_utils import bag_split_individual_partitions, to_pickles
+from catlas.enumerate_slabs_adslabs import (
+    convert_adslabs_to_graphs,
+    enumerate_adslabs,
+    enumerate_slabs,
+    merge_surface_adsorbate_combo,
+)
+from catlas.filter_utils import pb_query_and_write
+from catlas.filters import (
+    adsorbate_filter,
+    bulk_filter,
+    predictions_filter,
+    slab_filter,
+)
+from catlas.load_adsorbate_structures import load_ocdata_adsorbates
+from catlas.load_bulk_structures import load_bulks
+from catlas.nuclearity import get_nuclearity
+from catlas.parity.parity_utils import get_parity_upfront
+from catlas.sankey.sankey_utils import Sankey
+
 
 # Load inputs and define global vars
 if __name__ == "__main__":
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
-    if not config_validator.validate(config):
+    if config.get("validate", True) and not config_validator.validate(config):
         raise ValueError(
             "Config has the following errors:\n%s"
             % "\n".join(
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         )
     )(config["input_options"]["bulk_file"])
     bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=50).persist()
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=100).persist()
 
     # Create pourbaix lmdb if it doesnt exist
     if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
@@ -113,6 +114,13 @@ if __name__ == "__main__":
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
 
+    # Force dask to distribute the bulk objects across all workers
+    # Two rebalances were necessary for some reason.
+    wait(bulk_df)
+    client.rebalance(bulk_df)
+    client.rebalance(bulk_df)
+
+    # Filter the bulks
     filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
@@ -125,8 +133,7 @@ if __name__ == "__main__":
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
         config["input_options"]["adsorbate_file"]
     )
-    adsorbate_bag = db.from_delayed([adsorbate_delayed])
-    adsorbate_df = adsorbate_bag.to_dataframe()
+    adsorbate_df = db.from_delayed([adsorbate_delayed]).to_dataframe()
     filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
@@ -146,13 +153,11 @@ if __name__ == "__main__":
     surface_bag = surface_bag.map(get_nuclearity)
 
     # choose the number of partitions after to use after making adslab combos
-    npartitions = min(bulk_num * adsorbate_num * 4, 1000)
+    npartitions = min(bulk_num * 10, 1000)
+    surface_bag = surface_bag.repartition(npartitions=npartitions)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
-    surface_adsorbate_combo_bag = surface_adsorbate_combo_bag.repartition(
-        npartitions=npartitions
-    )
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
@@ -168,9 +173,15 @@ if __name__ == "__main__":
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
-            number_steps = step["number_steps"] if "number_steps" in step else 200
-            hash_results_bag = results_bag.map(joblib.hash)
-            if step["gpu"]:
+            if "filter" in step["step_type"]:
+                results_bag = results_bag.map_partitions(
+                    predictions_filter, step, sankey
+                )
+            elif step["step_type"] == "inference" and step["gpu"]:
+                inference = True
+                number_steps = step["number_steps"] if "number_steps" in step else 200
+                hash_results_bag = results_bag.map(joblib.hash)
+
                 with dask.annotate(resources={"GPU": 1}, priority=10000000):
                     results_bag = results_bag.map(
                         catlas.cache_utils.sqlitedict_memoize(
@@ -178,6 +189,7 @@ if __name__ == "__main__":
                             energy_prediction,
                             ignore=[
                                 "batch_size",
+                                "gpu_mem_per_sample",
                                 "graphs_dict",
                                 "adslab_atoms",
                                 "adslab_dict",
@@ -191,9 +203,14 @@ if __name__ == "__main__":
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
+                        gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                         number_steps=number_steps,
                     )
-            else:
+            elif step["step_type"] == "inference" and not step["gpu"]:
+                inference = True
+                number_steps = step["number_steps"] if "number_steps" in step else 200
+                hash_results_bag = results_bag.map(joblib.hash)
+
                 results_bag = results_bag.map(
                     catlas.cache_utils.sqlitedict_memoize(
                         config["memory_cache_location"],
@@ -216,8 +233,7 @@ if __name__ == "__main__":
                     number_steps=number_steps,
                 )
 
-            most_recent_step = "min_" + step["label"]
-            inference = True
+                most_recent_step = "min_" + step["label"]
 
     # Handle results
     verbose = (
