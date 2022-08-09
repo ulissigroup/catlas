@@ -113,9 +113,14 @@ if __name__ == "__main__":
     # Filter the bulks
     initial_bulks = bulk_df.shape[0].compute()
     print(f"Number of initial bulks: {initial_bulks}")
+
+    # Force dask to distribute the bulk objects across all workers
+    # Two rebalances were necessary for some reason.
     wait(bulk_df)
     client.rebalance(bulk_df)
     client.rebalance(bulk_df)
+
+    # Filter the bulks
     filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
     bulk_num = filtered_catalyst_df.shape[0].compute()
     print("Number of filtered bulks: %d" % bulk_num)
@@ -128,8 +133,7 @@ if __name__ == "__main__":
     adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
         config["input_options"]["adsorbate_file"]
     )
-    adsorbate_bag = db.from_delayed([adsorbate_delayed])
-    adsorbate_df = adsorbate_bag.to_dataframe()
+    adsorbate_df = db.from_delayed([adsorbate_delayed]).to_dataframe()
     filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
     adsorbate_num = filtered_adsorbate_df.shape[0].compute()
     filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
@@ -173,42 +177,19 @@ if __name__ == "__main__":
                 results_bag = results_bag.map_partitions(
                     predictions_filter, step, sankey
                 )
-            elif step["step_type"] == "inference":
+            elif step["step_type"] == "inference" and step["gpu"]:
                 inference = True
                 number_steps = step["number_steps"] if "number_steps" in step else 200
                 hash_results_bag = results_bag.map(joblib.hash)
-                if step["gpu"]:
-                    with dask.annotate(resources={"GPU": 1}, priority=10000000):
-                        results_bag = results_bag.map(
-                            catlas.cache_utils.sqlitedict_memoize(
-                                config["memory_cache_location"],
-                                energy_prediction,
-                                ignore=[
-                                    "batch_size",
-                                    "gpu_mem_per_sample",
-                                    "graphs_dict",
-                                    "adslab_atoms",
-                                    "adslab_dict",
-                                ],
-                                shard_digits=4,
-                            ),
-                            adslab_atoms=adslab_atoms_bag,
-                            hash_adslab_atoms=hash_adslab_atoms_bag,
-                            hash_adslab_dict=hash_results_bag,
-                            graphs_dict=graphs_bag,
-                            checkpoint_path=step["checkpoint_path"],
-                            column_name=step["label"],
-                            batch_size=step["batch_size"],
-                            gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
-                            number_steps=number_steps,
-                        )
-                else:
+
+                with dask.annotate(resources={"GPU": 1}, priority=10000000):
                     results_bag = results_bag.map(
                         catlas.cache_utils.sqlitedict_memoize(
                             config["memory_cache_location"],
                             energy_prediction,
                             ignore=[
                                 "batch_size",
+                                "gpu_mem_per_sample",
                                 "graphs_dict",
                                 "adslab_atoms",
                                 "adslab_dict",
@@ -222,8 +203,35 @@ if __name__ == "__main__":
                         checkpoint_path=step["checkpoint_path"],
                         column_name=step["label"],
                         batch_size=step["batch_size"],
+                        gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                         number_steps=number_steps,
                     )
+            elif step["step_type"] == "inference" and not step["gpu"]:
+                inference = True
+                number_steps = step["number_steps"] if "number_steps" in step else 200
+                hash_results_bag = results_bag.map(joblib.hash)
+
+                results_bag = results_bag.map(
+                    catlas.cache_utils.sqlitedict_memoize(
+                        config["memory_cache_location"],
+                        energy_prediction,
+                        ignore=[
+                            "batch_size",
+                            "graphs_dict",
+                            "adslab_atoms",
+                            "adslab_dict",
+                        ],
+                        shard_digits=4,
+                    ),
+                    adslab_atoms=adslab_atoms_bag,
+                    hash_adslab_atoms=hash_adslab_atoms_bag,
+                    hash_adslab_dict=hash_results_bag,
+                    graphs_dict=graphs_bag,
+                    checkpoint_path=step["checkpoint_path"],
+                    column_name=step["label"],
+                    batch_size=step["batch_size"],
+                    number_steps=number_steps,
+                )
 
                 most_recent_step = "min_" + step["label"]
 

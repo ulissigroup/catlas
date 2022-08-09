@@ -284,7 +284,9 @@ def predictions_filter(bag_partition, config, sankey):
             if len(matching_rows) == 0:
                 for row in value:
                     if "filter_reason" not in row:
-                        row["filter_reason"] = config
+                        row[
+                            "filter_reason"
+                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range [{min_value},{max_value}] eV'
         elif config["step_type"] == "filter_by_adsorption_energy_target":
             target_value = config["target_value"]
             range_value = config.get("range_value", 0.5)
@@ -305,6 +307,8 @@ def predictions_filter(bag_partition, config, sankey):
             if len(matching_rows) == 0:
                 for row in value:
                     if "filter_reason" not in row:
-                        row["filter_reason"] = config
+                        row[
+                            "filter_reason"
+                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range {target_value}+/-{range_value} eV'
 
     return bag_partition
