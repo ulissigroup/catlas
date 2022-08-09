@@ -17,30 +17,21 @@ bulk_filters:
     max_decomposition_energy: 0.5
     lmdb_path: "catlas/pourbaix_diagrams/20220222_query.lmdb"
     V_lower: -1.35
-    V_upper: -0.25
+    V_upper: -0.55
     V_step: 0.05
     pH_lower: 3
-    pH_upper: 5
+    pH_upper: 3
     
 adsorbate_filters:
-  filter_by_smiles: ['*H', '*CO','*OH','*CHO','*OCCOH']
+  filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
   filter_by_object_size: 90
   filter_by_max_miller_index: 2
 
 adslab_prediction_steps:
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - step_type: filter_by_adsorption_energy_target
-    adsorbate_smiles: '*CO'
-    target_value: -0.6
-    filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_oc_large_s2ef_all_md'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_oc_large_s2ef_all_md.pt'
+- gpu: true
+  batch_size: 8
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+

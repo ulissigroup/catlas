@@ -1,8 +1,6 @@
-import os.path
 import pickle
-
+import os.path
 import catlas
-
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 

@@ -22,15 +22,13 @@ slab_filters:
     filter_by_max_miller_index: 1
 
 adslab_prediction_steps:
-  - step_type: inference
-    gpu: true
+  - gpu: true
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - step_type: inference
-    gpu: true
+    checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+  - gpu: true
     batch_size: 4
-    label: 'dE_gemnet_oc_large_s2ef_all_md'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_oc_large_s2ef_all_md.pt'
+    label: 'dE_gemnet_relax'
+    checkpoint_path: 'ocp_checkpoints/gemnet_t_direct_h512_all.pt'
     number_steps: 10
 

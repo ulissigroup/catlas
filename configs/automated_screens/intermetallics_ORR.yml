@@ -24,26 +24,15 @@ bulk_filters:
     pH_upper: 2
 
 adsorbate_filters:
-  filter_by_smiles: ['*OH', '*O','*OOH']
+  filter_by_smiles: ['*OH', '*O']
 
 slab_filters:
   filter_by_object_size: 90
   filter_by_max_miller_index: 1 # Planar surfaces only like Pt111
 
 adslab_prediction_steps:
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - step_type: filter_by_adsorption_energy_target
-    adsorbate_smiles: '*OH'
-    target_value: 0.9
-    filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_oc_large_s2ef_all_md'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_oc_large_s2ef_all_md.pt'
-
+- gpu: true
+  batch_size: 8
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
 

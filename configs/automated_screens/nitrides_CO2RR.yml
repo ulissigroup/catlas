@@ -12,35 +12,19 @@ output_options:
 
 bulk_filters:
   filter_by_acceptable_elements: ['N', 'Sc', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Co', 'Ni', 'Cu', 'Zn', 'Y', 'Zr', 'Nb', 'Mo', 'Tc', 'Ru', 'Rh', 'Pd', 'Ag', 'Cd', 'Ta', 'W', 'Re', 'Os', 'Ir', 'Pt', 'Au', 'Hg', 'Al', 'Ga', 'Sn', 'Pb', 'Bi', 'In']
+  filter_by_object_size: 40 # 60
   filter_by_required_elements: ['N']
-  filter_by_pourbaix_stability:
-    max_decomposition_energy: 0.5
-    lmdb_path: "catlas/pourbaix_diagrams/20220222_query.lmdb"
-    V_lower: -1.35
-    V_upper: -0.25
-    V_step: 0.05
-    pH_lower: 3
-    pH_upper: 5
 
 adsorbate_filters:
-  filter_by_smiles: ['*H', '*CO','*OH','*CHO','*OCCOH']
+  filter_by_smiles: ['*H', '*CO','*OH','*CHO']
 
 slab_filters:
   filter_by_object_size: 90
   filter_by_max_miller_index: 2
 
 adslab_prediction_steps:
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt'
-  - step_type: filter_by_adsorption_energy_target
-    adsorbate_smiles: '*CO'
-    target_value: -0.6
-    filter_column: 'min_dE_gemnet_is2re_finetuned'
-  - step_type: inference
-    gpu: true
-    batch_size: 8
-    label: 'dE_gemnet_oc_large_s2ef_all_md'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_oc_large_s2ef_all_md.pt'
+- gpu: true
+  batch_size: 8
+  label: 'dE_gemnet_is2re_finetuned'
+  checkpoint_path: 'ocp_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+
