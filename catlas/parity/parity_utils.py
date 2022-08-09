@@ -268,12 +268,7 @@ def get_parity_upfront(config, run_id):
             os.makedirs(f"outputs/{run_id}/parity/")
 
         ## Iterate over steps
-        inference_steps = [
-            step
-            for step in config["adslab_prediction_steps"]
-            if step["step_type"] == "inference"
-        ]
-        for step in inference_steps:
+        for step in config["adslab_prediction_steps"]:
             ### Load the data
             model_id = get_model_id(step["checkpoint_path"])
             if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
