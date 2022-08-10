@@ -1,26 +1,23 @@
-import os
-import joblib.memory
-from joblib.func_inspect import get_func_name
-from joblib.memory import (
-    extract_first_line,
-    JobLibCollisionWarning,
-)
-import hashlib as hl
-import sys
-import json
-from joblib.func_inspect import get_func_code, filter_args
-from joblib.hashing import hash
-import cloudpickle
-import lmdb
-import time
-from cloudpickle.compat import pickle
-import sqlite3
-import numpy as np
-from contextlib import closing
-import backoff
-import gc
 import functools
+import gc
+import hashlib as hl
+import json
+import os
+import sqlite3
+import sys
+import time
+from contextlib import closing
 from pathlib import Path
+
+import backoff
+import cloudpickle
+import joblib.memory
+import lmdb
+import numpy as np
+from cloudpickle.compat import pickle
+from joblib.func_inspect import filter_args, get_func_code, get_func_name
+from joblib.hashing import hash
+from joblib.memory import JobLibCollisionWarning, extract_first_line
 
 
 def get_cached_func_location(func):

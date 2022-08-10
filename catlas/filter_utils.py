@@ -1,18 +1,16 @@
-import warnings
-import numpy as np
-from pymatgen.core.periodic_table import Element
-import lmdb
-import pickle
 import os
-import catlas
-from mp_api import MPRester
 import pickle
-from pymatgen.io.ase import AseAtomsAdaptor
-from pymatgen.analysis.pourbaix_diagram import (
-    PourbaixDiagram,
-    PourbaixEntry,
-)
+import warnings
+
 import cerberus
+import lmdb
+import numpy as np
+from mp_api import MPRester
+
+import catlas
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
+from pymatgen.core.periodic_table import Element
+from pymatgen.io.ase import AseAtomsAdaptor
 
 
 def get_pourbaix_info(entry: dict) -> dict:
@@ -298,3 +296,10 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
         else:
             list_of_bools.append(False)
     return list_of_bools
+
+
+def get_first_type(x):
+    if type(x) == list and len(x) > 0:
+        return type(x[0])
+    else:
+        return type(x)

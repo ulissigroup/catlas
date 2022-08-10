@@ -1,9 +1,11 @@
 import warnings
+
 import numpy as np
-from pymatgen.core.periodic_table import Element
-from catlas.filter_utils import get_pourbaix_stability, get_elements_in_groups
+
 import catlas.cache_utils
 import catlas.dask_utils
+from catlas.filter_utils import get_elements_in_groups, get_pourbaix_stability
+from pymatgen.core.periodic_table import Element
 
 
 def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
@@ -92,7 +94,9 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                 dask_df = dask_df[
                     dask_df.apply(
                         lambda x, conditions: any(
-                            get_pourbaix_stability(x, conditions)
+                            catlas.cache_utils.sqlitedict_memoize(
+                                config["memory_cache_location"], get_pourbaix_stability
+                            )(x, conditions)
                         ),
                         axis=1,
                         conditions=val,
@@ -118,8 +122,13 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
                         "Band gap filtering was not specified properly -> skipping it."
                     )
 
+            elif name == "filter_fraction":
+                dask_df = dask_df.sample(frac=val, random_state=42)
+
             else:
                 warnings.warn("Bulk filter is not implemented: " + name)
+
+            dask_df = dask_df.persist()
 
             if config["output_options"]["verbose"]:
                 print(
@@ -234,3 +243,72 @@ def adsorbate_filter(config, dask_df, sankey):
         "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.6, 0.25
     )
     return dask_df, sankey
+
+
+def predictions_filter(bag_partition, config, sankey):
+
+    # Use either the provided hashes, or default to the surface atoms object
+    hash_columns = config.get(
+        "hash_columns", ["bulk_id", "slab_millers", "slab_shift", "slab_top"]
+    )
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = tuple([row[column] for column in hash_columns])
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    # Iterate over all unique hashes
+    for key, value in hash_dict.items():
+        if config["step_type"] == "filter_by_adsorption_energy":
+            min_value = config.get("min_value", -np.inf)
+            max_value = config.get("max_value", np.inf)
+
+            adsorbate_rows = [
+                row
+                for row in value
+                if row["adsorbate_smiles"] == config["adsorbate_smiles"]
+                and "filter_reason" not in row
+            ]
+            matching_rows = [
+                row
+                for row in adsorbate_rows
+                if row[config["filter_column"]] >= min_value
+                and row[config["filter_column"]] <= max_value
+            ]
+
+            # If no rows pass the filter, then all rows should be filtered out
+            if len(matching_rows) == 0:
+                for row in value:
+                    if "filter_reason" not in row:
+                        row[
+                            "filter_reason"
+                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range [{min_value},{max_value}] eV'
+        elif config["step_type"] == "filter_by_adsorption_energy_target":
+            target_value = config["target_value"]
+            range_value = config.get("range_value", 0.5)
+            adsorbate_rows = [
+                row
+                for row in value
+                if row["adsorbate_smiles"] == config["adsorbate_smiles"]
+                and "filter_reason" not in row
+            ]
+            matching_rows = [
+                row
+                for row in adsorbate_rows
+                if row[config["filter_column"]] >= target_value - range_value
+                and row[config["filter_column"]] <= target_value + range_value
+            ]
+
+            # If no rows pass the filter, then all rows should be filtered out
+            if len(matching_rows) == 0:
+                for row in value:
+                    if "filter_reason" not in row:
+                        row[
+                            "filter_reason"
+                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range {target_value}+/-{range_value} eV'
+
+    return bag_partition
