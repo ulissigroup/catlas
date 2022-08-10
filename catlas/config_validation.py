@@ -1,8 +1,11 @@
-from pymatgen.core import Element
-from cerberus import Validator
-from pathlib import Path
-import yaml
 import os
+from pathlib import Path
+
+import yaml
+from cerberus import Validator
+
+from pymatgen.core import Element
+
 
 mpid_regex = "^mp-\d+$|^mvc-\d+$"  # 'mp-#' or 'mvc-#'
 valid_element_groups = [
@@ -41,6 +44,7 @@ def validate_folder_exists(field, value, error):
 
 
 config_schema = {
+    "validate": {"type": "boolean"},
     "memory_cache_location": {"type": "string", "check_with": validate_folder_exists},
     "input_options": {
         "required": True,
@@ -101,6 +105,7 @@ config_schema = {
                 "type": "list",
                 "allowed": valid_element_groups,
             },
+            "filter_fraction": {"type": "float", "min": 0, "max": 1},
             "filter_by_pourbaix_stability": {
                 "type": "dict",
                 "schema": {
@@ -180,23 +185,57 @@ config_schema = {
         "required": False,
         "type": "list",
         "schema": {
-            "type": "dict",
-            "schema": {
-                "checkpoint_path": {
-                    "type": "string",
-                    "check_with": validate_path_exists,
-                    "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+            "anyof": [
+                {
+                    "type": "dict",
+                    "schema": {
+                        "checkpoint_path": {
+                            "type": "string",
+                            "check_with": validate_path_exists,
+                            "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+                        },
+                        "gpu": {"type": "boolean", "required": True},
+                        "label": {
+                            "required": True,
+                            "type": "string",
+                        },
+                        "number_steps": {
+                            "type": "integer",
+                        },
+                        "batch_size": {"type": "integer"},
+                        "gpu_mem_per_sample": {"type": "float"},
+                        "step_type": {"allowed": ["inference"], "required": True},
+                    },
                 },
-                "gpu": {"type": "boolean", "required": True},
-                "label": {
-                    "required": True,
-                    "type": "string",
+                {
+                    "type": "dict",
+                    "schema": {
+                        "step_type": {
+                            "allowed": ["filter_by_adsorption_energy_target"],
+                            "required": True,
+                        },
+                        "target_value": {"type": "float", "required": True},
+                        "range_value": {"type": "float", "required": True},
+                        "adsorbate_smiles": {"type": "string", "required": True},
+                        "hash_columns": {"type": "list", "schema": {"type": "string"}},
+                        "filter_column": {"type": "string", "required": True},
+                    },
                 },
-                "number_steps": {
-                    "type": "integer",
+                {
+                    "type": "dict",
+                    "schema": {
+                        "step_type": {
+                            "allowed": ["filter_by_adsorption_energy"],
+                            "required": True,
+                        },
+                        "min_value": {"type": "float"},
+                        "max_value": {"type": "float"},
+                        "adsorbate_smiles": {"type": "string", "required": True},
+                        "hash_columns": {"type": "list", "schema": {"type": "string"}},
+                        "filter_column": {"type": "string", "required": True},
+                    },
                 },
-                "batch_size": {"type": "integer"},
-            },
+            ]
         },
     },
 }

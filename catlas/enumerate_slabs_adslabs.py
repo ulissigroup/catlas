@@ -1,14 +1,16 @@
+import copy
+import logging
+
 import numpy as np
+import torch
 from ocdata import precompute_sample_structures as compute
-from ocdata.surfaces import Surface
-from ocdata.combined import Combined
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
-import copy
-from ocpmodels.preprocessing import AtomsToGraphs
-import logging
-import torch
+from ocdata.combined import Combined
+from ocdata.surfaces import Surface
+
 import catlas.dask_utils
+from ocpmodels.preprocessing import AtomsToGraphs
 
 
 class CustomAdsorbate(Adsorbate):

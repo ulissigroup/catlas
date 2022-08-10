@@ -38,7 +38,7 @@ jobs:
     - name: Test direct inference with kubecluster
       run: |
         cd catlas
-        ln -s /home/jovyan/shared-scratch/catlas/ocp_checkpoints
+        ln -s /home/jovyan/shared-scratch/ocp_checkpoints
         ln -s /home/jovyan/shared-scratch/catlas/df_pkls ./catlas/parity/
         ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/
         python setup.py develop
@@ -56,7 +56,7 @@ jobs:
         cd catlas
         python bin/predictions.py configs/automated_screens/nitrides_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py & 
         python bin/predictions.py configs/automated_screens/intermetallics_ORR.yml configs/dask_cluster/dask_operator/dask_connect.py &
-        python bin/predictions.py configs/automated_screens/intermetallics_HER.yml configs/dask_cluster/dask_operator/dask_connect.py &
+        python bin/predictions.py configs/automated_screens/HER.yml configs/dask_cluster/dask_operator/dask_connect.py &
         python bin/predictions.py configs/automated_screens/intermetallics_CO2RR.yml configs/dask_cluster/dask_operator/dask_connect.py &
         for job in `jobs -p` 
         do
