@@ -296,3 +296,10 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
         else:
             list_of_bools.append(False)
     return list_of_bools
+
+
+def get_first_type(x):
+    if type(x) == list and len(x) > 0:
+        return type(x[0])
+    else:
+        return type(x)

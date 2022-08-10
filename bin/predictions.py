@@ -25,7 +25,7 @@ from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
     merge_surface_adsorbate_combo,
 )
-from catlas.filter_utils import pb_query_and_write
+from catlas.filter_utils import pb_query_and_write, get_first_type
 from catlas.filters import (
     adsorbate_filter,
     bulk_filter,
@@ -318,7 +318,15 @@ if __name__ == "__main__":
             # screen classes from custom packages
             class_mask = (
                 df_results.columns.to_series()
-                .apply(lambda x: str(type(df_results[x].iloc[0])))
+                .apply(
+                    lambda x: str(
+                        get_first_type(
+                            df_results[x].iloc[df_results[x].first_valid_index()]
+                        )
+                    )
+                    if type(df_results[x].first_valid_index()) == int
+                    else str(type(df_results[x].iloc[0]))
+                )
                 .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
             )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
