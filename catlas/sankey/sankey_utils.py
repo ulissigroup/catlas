@@ -48,7 +48,7 @@ class Sankey:
             slab_idx,
             node_idx,
             num_filtered,
-            0.6,
+            0.4,
             0.4,
         )
         self.update_dictionary(
@@ -69,7 +69,34 @@ class Sankey:
         )
         self.info_dict["label"][slab_idx] = f"Slabs ({num_unfiltered})"
 
-    def add_adslab_info(self, num_adslabs: int, num_inference: int):
+    def _add_inference_step(
+        self, inference_list: list, step: int, node_num: int, node_idx: int
+    ):
+        if step < len(inference_list):
+            node_idx_next = len(self.info_dict["label"])
+            node_num_next = inference_list[step]["counts"]
+            self.update_dictionary(
+                f"Inferred energies {inference_list[step]['label']} ({node_num_next})",
+                node_idx,
+                len(self.info_dict["label"]),
+                node_num_next,
+                0.6 + 0.4 * (step + 1) / len(inference_list),
+                0.4,
+            )
+            if node_num != inference_list[step]["counts"]:
+                self.update_dictionary(
+                    f"Adslabs filtered out ({node_num - inference_list[step]['counts']})",
+                    node_idx,
+                    len(self.info_dict["label"]),
+                    node_num - inference_list[step]["counts"],
+                    0.6 + 0.4 * (step + 1) / len(inference_list),
+                    0.6,
+                )
+            self._add_inference_step(
+                inference_list, step + 1, node_num_next, node_idx_next
+            )
+
+    def add_adslab_info(self, num_adslabs: int, num_inference: list):
         """
         Updates the Sankey dictionary with adslab information.
 
@@ -83,25 +110,10 @@ class Sankey:
                 "Adslabs were not computed and therefore will not appear in the Sankey diagram"
             )
             num_adslabs = 0
+
         adslab_idx = self.info_dict["label"].index("Adslabs")
-        self.update_dictionary(
-            f"Inferred energies ({num_inference})",
-            adslab_idx,
-            len(self.info_dict["label"]),
-            num_inference,
-            1,
-            "tbd",
-        )
         self.info_dict["label"][adslab_idx] = f"Adslabs ({num_adslabs})"
-        if num_adslabs != num_inference:
-            self.update_dictionary(
-                f"Not inferred adslabs ({num_adslabs - num_inference})",
-                adslab_idx,
-                len(self.info_dict["label"]),
-                num_adslabs - num_inference,
-                1,
-                0.1,
-            )
+        self._add_inference_step(num_inference, 0, num_adslabs, adslab_idx)
 
     def update_y_positions(self, use_log):
         """
@@ -113,12 +125,12 @@ class Sankey:
         """
         # Grab indices of those to change
         indices_to_change = [
-            idx for idx, value in enumerate(self.info_dict["y"]) if value == "tbd"
+            idx for idx, value in enumerate(self.info_dict["x"]) if value == 1
         ]
         # Alter values if log weighting will be used
         if use_log:
             vals = np.log(self.info_dict["value"])
-            values = [val if val > 0 else 0.1 for val in vals]
+            values = [val if val > 0 else 0.01 for val in vals]
             self.info_dict["value"] = values
         else:
             values = self.info_dict["value"]
@@ -131,10 +143,13 @@ class Sankey:
         ]
         weight_factor = 0.8 / sum([values[idx] for idx in flows_to_1])
         y_sizes = [weight_factor * values[idx] for idx in flows_to_1]
-        y_now = 0.9
+        y_now = 1
         for idx, idx_set in enumerate(indices_to_change):
+            if idx == 0:
+                y_now -= 0.5 * y_sizes[idx]
+            else:
+                y_now -= 0.5 * y_sizes[idx] + 0.5 * y_sizes[idx - 1]
             self.info_dict["y"][idx_set] = y_now
-            y_now -= y_sizes[idx]
 
     def get_sankey_diagram(self, run_id: str, use_log=True):
         """

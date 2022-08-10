@@ -148,7 +148,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
             1,
             sankey_idx,
             initial_bulks,
-            0.2,
+            0.1,
             0.5,
         )
         sankey.update_dictionary(
@@ -156,7 +156,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
             sankey_idx,
             sankey_idx + 1,
             initial_bulks,
-            0.4,
+            0.3,
             0.5,
         )
         return dask_df, sankey
@@ -227,10 +227,10 @@ def adsorbate_filter(config, dask_df, sankey):
         0,
         node_idx + 1,
         initial_adsorbate - len(dask_df),
-        1,
+        0.999,
         0.001,
     )
     sankey.update_dictionary(
-        "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.8, 0.25
+        "Adslabs", node_idx, len(sankey.info_dict["label"]), len(dask_df), 0.6, 0.25
     )
     return dask_df, sankey
