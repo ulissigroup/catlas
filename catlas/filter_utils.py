@@ -11,6 +11,8 @@ import catlas
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 def get_pourbaix_info(entry: dict) -> dict:
@@ -303,3 +305,99 @@ def get_first_type(x):
         return type(x[0])
     else:
         return type(x)
+
+    
+def add_full_wyckoffs(bulk):
+
+    sg = SpacegroupAnalyzer(bulk)
+    symbulk = sg.get_symmetrized_structure()
+    wyckoff_letters = symbulk.wyckoff_letters
+    equivalent_indices = symbulk.equivalent_indices
+
+    wyckoffs = []
+    for i, site in enumerate(symbulk):
+        eqi = [eqi for eqi in equivalent_indices if i in eqi][0]
+        wyckoffs.append('%s%s%s' %(site.species_string, len(eqi), symbulk.wyckoff_letters[i]))
+    symbulk.add_site_property('full_wyckoff', wyckoffs)
+    return symbulk
+
+def surface_area(slab):
+    m = slab.lattice.matrix
+    return np.linalg.norm(np.cross(m[0], m[1]))
+
+
+def get_bond_length(ucell, neighbor_factor):
+    
+    bond_lengths_dict = {}
+    for site in ucell:
+        if site.full_wyckoff in bond_lengths_dict.keys():
+            continue
+        r, neighbors = 2, []
+        while len(neighbors) == 0:
+            neighbors = ucell.get_neighbors(site, r)
+            r += 1
+        neighbors = sorted(neighbors, key=lambda n: n[1])
+        d = neighbors[0]
+        bond_lengths_dict[site.full_wyckoff] = d[1]*neighbor_factor
+        
+    return bond_lengths_dict
+
+
+def get_bulk_cn(ucell, neighbor_factor):
+    bond_lengths_dict = get_bond_length(ucell, neighbor_factor)
+    bulk_cn_dict = {}
+    for site in ucell:
+        k = site.full_wyckoff
+        if k in bulk_cn_dict.keys():
+            continue
+        bulk_cn_dict[k] = len(ucell.get_neighbors(site, bond_lengths_dict[k]))
+    return bulk_cn_dict
+
+
+def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
+    ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
+    bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
+    bind_length_dict = get_bond_length(ucell, neighbor_factor)
+    tot_bb = 0
+    for site in AseAtomsAdaptor.get_structure(dask_dict["slab_surface_object"].surface_atoms):
+        if site.frac_coords[2] < slab.center_of_mass[2]:
+            # analyze the top surface only
+            continue
+        neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
+        bulk_cn = bulk_cn_dict[site.full_wyckoff]
+        if len(neighbors) == bulk_cn:
+            continue
+        if len(neighbors) > bulk_cn:
+            warnings.warn(f"For {dask_dict["bulk_id"]} {dask_dict["slab_millers"]} {dask_dict["slab_shift"]} the slab cn was observed to be larger than the bulk")
+        tot_bb += (bulk_cn - len(neighbors)) / bulk_cn
+    return tot_bb
+
+
+def get_total_nn(dask_dict: dict, neighbor_factor: float) -> int:
+    ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
+    bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
+    bind_length_dict = get_bond_length(ucell, neighbor_factor)
+    tot_nn = 0
+    for site in AseAtomsAdaptor.get_structure(dask_dict["slab_surface_object"].surface_atoms):
+        if site.frac_coords[2] < slab.center_of_mass[2]:
+            # analyze the top surface only
+            continue
+        neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
+        bulk_cn = bulk_cn_dict[site.full_wyckoff]
+        if len(neighbors) == bulk_cn:
+            continue
+        if len(neighbors) > bulk_cn:
+            warnings.warn(f"For {dask_dict["bulk_id"]} {dask_dict["slab_millers"]} {dask_dict["slab_shift"]} the slab cn was observed to be larger than the bulk")
+        tot_nn += len(neighbors)
+    return tot_nn
+
+
+def get_broken_bonds(dask_dict: dict, neighbor_factor: float) -> float:
+    a = surface_area(slab)
+    cns = get_total_bb(ucell, slab, neighbor_factor)
+    return cns * ecoh * (1 / (2 * a))
+
+def get_surface_density(dask_dict: dict, neighbor_factor: float) -> float:
+    a = surface_area(slab)
+    cns = get_total_nn(dask_dict, neighbor_factor)
+    return cns * ecoh * (1 / (2 * a))

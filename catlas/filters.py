@@ -4,7 +4,12 @@ import numpy as np
 
 import catlas.cache_utils
 import catlas.dask_utils
-from catlas.filter_utils import get_elements_in_groups, get_pourbaix_stability
+from catlas.filter_utils import (
+    get_elements_in_groups,
+    get_pourbaix_stability,
+    get_broken_bonds,
+    get_surface_density,
+)
 from pymatgen.core.periodic_table import Element
 
 
@@ -193,6 +198,26 @@ def slab_filter(config, dask_dict):
                 keep = keep and (dask_dict["slab_natoms"] <= val)
             elif name == "filter_by_max_miller_index":
                 keep = keep and (np.abs(dask_dict["slab_max_miller_index"]) <= val)
+            elif name == "filter_by_broken_bonds":
+                neighbor_factor = (
+                    val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+                )
+                keep = (
+                    keep
+                    and val["max"]
+                    < get_broken_bonds(dask_dict, neighbor_factor)
+                    > val["min"]
+                )
+            elif name == "filter_by_surface_density":
+                neighbor_factor = (
+                    val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+                )
+                keep = (
+                    keep
+                    and val["max"]
+                    < get_surface_density(dask_dict, neighbor_factor)
+                    > val["min"]
+                )
             else:
                 warnings.warn("Slab filter is not implemented: " + name)
     return keep
