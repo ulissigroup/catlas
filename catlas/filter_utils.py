@@ -308,7 +308,17 @@ def get_first_type(x):
 
 
 def add_full_wyckoffs(bulk):
+    """
+    Identifies the Wyckoff symbols for each site in the bulk. Symbols
+        are labelled by element, multiplicity and Wyckoff letter. Need
+        it to obtain information about slab sites relativeo to the bulk
+    Args:
+        bulk (Structure): PMG Structure representation of a bulk.
 
+    Returns:
+        (Structure): The bulk structure with Wyckoff symbols as site properties.
+
+    """
     sg = SpacegroupAnalyzer(bulk)
     symbulk = sg.get_symmetrized_structure()
     wyckoff_letters = symbulk.wyckoff_letters
@@ -325,12 +335,32 @@ def add_full_wyckoffs(bulk):
 
 
 def surface_area(slab):
+    """
+    Gets cross section surface area of the slab
+    Args:
+        slab (Slab): PMG Structure representation of a Slab.
+
+    Returns:
+        (float): surface area
+
+    """
     m = slab.lattice.matrix
     return np.linalg.norm(np.cross(m[0], m[1]))
 
 
 def get_bond_length(ucell, neighbor_factor):
+    """
+    Gets all bond lengths of all symmetrically distinct sights and
+        organizes it as a dictionary with the unique Wyckoff symbol as
+        key and the bondlegnth as float value
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
 
+    Returns:
+        dict: {wyckoff symbol (str): bondlength (float)}
+    """
     bond_lengths_dict = {}
     for site in ucell:
         if site.full_wyckoff in bond_lengths_dict.keys():
@@ -347,6 +377,18 @@ def get_bond_length(ucell, neighbor_factor):
 
 
 def get_bulk_cn(ucell, neighbor_factor):
+    """
+    Gets coordination number of each symmetrically distinct site in the
+        unit cell and organizes it as a dictionary with the unique Wyckoff
+        symbol as key and the coordination number as an int value
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (dict): {wyckoff symbol (str): coordination number (int)}
+    """
     bond_lengths_dict = get_bond_length(ucell, neighbor_factor)
     bulk_cn_dict = {}
     for site in ucell:
@@ -358,6 +400,18 @@ def get_bulk_cn(ucell, neighbor_factor):
 
 
 def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
+    """
+    Calculates the total ratio of broken bonds to bulk coordination
+        number. Often used as a factor in surface energy
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        slab (Slab): PMG Structure representation of a Slab cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Sum of undercoordination/full bulk coordination for each surface site
+    """
     ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
@@ -381,6 +435,17 @@ def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
 
 
 def get_total_nn(dask_dict: dict, neighbor_factor: float) -> int:
+    """
+    Calculates the sum of nearest neighbors for each surface site
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        slab (Slab): PMG Structure representation of a Slab cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (int): Sum of surface coordination number
+    """
     ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
@@ -403,13 +468,148 @@ def get_total_nn(dask_dict: dict, neighbor_factor: float) -> int:
     return tot_nn
 
 
-def get_broken_bonds(dask_dict: dict, neighbor_factor: float) -> float:
+def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
+    """
+    Estimates surface energy using a broken bond model
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        slab (Slab): PMG Structure representation of a Slab cell.
+        ecoh (float): Cohesive energy which correlates to the surface energy
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Rough estimate of surface energy
+    """
     a = surface_area(slab)
     cns = get_total_bb(ucell, slab, neighbor_factor)
-    return cns * ecoh * (1 / (2 * a))
+    return cns * (1 / (2 * a))
 
 
 def get_surface_density(dask_dict: dict, neighbor_factor: float) -> float:
+    """
+    Estimates surface density multiplied by cohesive
+        energy, not really sure what this would represent
+    Args:
+        ucell (Structure): PMG Structure representation of a bulk unit cell.
+        slab (Slab): PMG Structure representation of a Slab cell.
+        ecoh (float): Cohesive energy which correlates to the surface energy
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Rough estimate of cohesive energy x surface density
+    """
     a = surface_area(slab)
     cns = get_total_nn(dask_dict, neighbor_factor)
-    return cns * ecoh * (1 / (2 * a))
+    return cns * (1 / (2 * a))
+
+
+def filter_by_surface_property(bag_partition, name: str, val: dict):
+    """
+    Parse all miller facets per material and pick those that should be lower energy
+    by the broken bond model or the surface density model
+
+    Args:
+        bag_partition: a partition of a dask bag containing enumerated surfaces
+        name: filter name to be applied (comes from the main catlas config)
+        val: values associated with name from the config yaml file, which futher
+            specify how the filter shoulf be applied
+    """
+    # Use either the provided hashes, or default to the surface atoms object
+    hash_column = "bulk_id"
+
+    neighbor_factor = val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = row[hash_column]
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    # Iterate over all unique hashes
+    filtered_bag_partition = []
+    for key, value in hash_dict.items():
+        if name == "filter_by_broken_bonds":
+            surface_model_values = [
+                get_broken_bonds(row, neighbor_factor) for row in value
+            ]
+        elif name == "filter_by_surface_density":
+            surface_model_values = [
+                get_surface_density(row, neighbor_factor) for row in value
+            ]
+
+        if "top_k" in val:
+            select_indices = np.argpartition(surface_model_values, val["top_k"])[
+                : val["top_k"]
+            ]
+
+        elif "top_proportion" in val:
+            k = np.ceil(val["top_proportion"] * len(surface_model_values))
+            select_indices = np.argpartition(surface_model_values, k)[:k]
+
+        filtered_bag_partition.extend(
+            [row for idx, row in enumerate(value) if idx in select_indices]
+        )
+
+    return filtered_bag_partition
+
+
+def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
+    """
+    Parse each facet and pick the one that should be the lowest energy
+    by the broken bond model or the surface density model
+
+    Args:
+        bag_partition: a partition of a dask bag containing enumerated surfaces
+        name: filter name to be applied (comes from the main catlas config)
+        val: values associated with name from the config yaml file, which futher
+            specify how the filter shoulf be applied
+    """
+    # Use either the provided hashes, or default to the surface atoms object
+    hash_column = ["bulk_id", "slab_millers"]
+
+    neighbor_factor = val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+
+    difference_threshold = (
+        val["difference_threshold"] if "difference_threshold" in val else 0.1
+    )
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = tuple(row[hash_column[0]], (row[hash_column[1]]))
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    # Iterate over all unique hashes
+    filtered_bag_partition = []
+    for key, value in hash_dict.items():
+        if name == "filter_best_shift_by_broken_bonds":
+            surface_model_values = [
+                get_broken_bonds(row, neighbor_factor) for row in value
+            ]
+        elif name == "filter_best_shift_by_surface_density":
+            surface_model_values = [
+                get_surface_density(row, neighbor_factor) for row in value
+            ]
+        sorted_indices = np.argsort(surface_model_values)
+
+        best_surface = surface_model_values[sorted_indices[0]]
+        selected_indices = []
+        for idx in sorted_indices:
+            if (
+                surface_model_values[idx] - best_surface
+            ) <= distance_threshold * best_surface:
+                selected_indices.append(idx)
+            else:
+                break
+        filtered_bag_partition.extend(
+            [row for idx, row in enumerate(value) if idx in select_indices]
+        )
+    return filtered_bag_partition

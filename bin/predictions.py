@@ -149,7 +149,7 @@ if __name__ == "__main__":
         .flatten()
         .persist()
     )
-    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
+    surface_bag = unfiltered_surface_bag.map_partitions(slab_filter, config)
     surface_bag = surface_bag.map(get_nuclearity)
 
     # choose the number of partitions after to use after making adslab combos

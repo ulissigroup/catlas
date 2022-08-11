@@ -178,7 +178,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
         return dask_df
 
 
-def slab_filter(config, dask_dict):
+def slab_filter(bag_partition, config):
     """
     Filters a dask bag `dask_dict` of slabs according to rules specified in config yml `config`
         Args:
@@ -189,38 +189,33 @@ def slab_filter(config, dask_dict):
         boolean value (True -> retain slab, False -> reject slab)
     """
     slab_filters = config["slab_filters"]
-
-    keep = True
-
     for name, val in slab_filters.items():
         if val != "None":
             if name == "filter_by_object_size":
-                keep = keep and (dask_dict["slab_natoms"] <= val)
+                bag_partition = [
+                    row for row in bag_partition if row["slab_natoms"] <= val
+                ]
             elif name == "filter_by_max_miller_index":
-                keep = keep and (np.abs(dask_dict["slab_max_miller_index"]) <= val)
+                bag_partition = [
+                    row
+                    for row in bag_partition
+                    if np.abs(row["slab_max_miller_index"]) <= val
+                ]
             elif name == "filter_by_broken_bonds":
-                neighbor_factor = (
-                    val["neighbor_factor"] if "neighbor_factor" in val else 1.1
-                )
-                keep = (
-                    keep
-                    and val["max"]
-                    < get_broken_bonds(dask_dict, neighbor_factor)
-                    > val["min"]
-                )
+                bag_partition = filter_by_surface_property(bag_partition, name, val)
             elif name == "filter_by_surface_density":
-                neighbor_factor = (
-                    val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+                bag_partition = filter_by_surface_property(bag_partition, name, val)
+            elif name == "filter_best_shift_by_broken_bonds":
+                bag_partition = filter_best_facet_by_surface_property(
+                    bag_partition, name, val
                 )
-                keep = (
-                    keep
-                    and val["max"]
-                    < get_surface_density(dask_dict, neighbor_factor)
-                    > val["min"]
+            elif name == "filter_best_shift_by_surface_density":
+                bag_partition = filter_best_facet_by_surface_property(
+                    bag_partition, name, val
                 )
             else:
                 warnings.warn("Slab filter is not implemented: " + name)
-    return keep
+    return bag_partition
 
 
 def adsorbate_filter(config, dask_df, sankey):
