@@ -309,5 +309,4 @@ def energy_prediction(
             if relaxation:
                 adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
-
         return adslab_results
