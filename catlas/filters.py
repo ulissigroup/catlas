@@ -7,8 +7,8 @@ import catlas.dask_utils
 from catlas.filter_utils import (
     get_elements_in_groups,
     get_pourbaix_stability,
-    get_broken_bonds,
-    get_surface_density,
+    filter_by_surface_property,
+    filter_best_facet_by_surface_property,
 )
 from pymatgen.core.periodic_table import Element
 

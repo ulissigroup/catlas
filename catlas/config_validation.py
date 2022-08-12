@@ -167,6 +167,59 @@ config_schema = {
         "schema": {
             "filter_by_object_size": {"type": "integer"},
             "filter_by_max_miller_index": {"type": "integer"},
+            "filter_by_broken_bonds": {
+                "type": "dict",
+                "schema": {
+                    "top_k": {
+                        "type": "integer",
+                        "required": True,
+                        "excludes": "top_proportion",
+                    },
+                    "top_proportion": {
+                        "type": "float",
+                        "required": True,
+                        "excludes": "top_k",
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
+                },
+            },
+            "filter_by_broken_bonds": {
+                "type": "dict",
+                "schema": {
+                    "top_k": {
+                        "type": "integer",
+                        "required": True,
+                        "excludes": "top_proportion",
+                    },
+                    "top_proportion": {
+                        "type": "float",
+                        "required": True,
+                        "excludes": "top_k",
+                    },
+                },
+            },
+            "filter_best_shift_by_broken_bonds": {
+                "type": "dict",
+                "schema": {
+                    "difference_threshold": {
+                        "type": "float",
+                        "required": False,
+                        "min": 0,
+                        "max": 0.5,
+                    }
+                },
+            },
+            "filter_best_shift_by_surface_density": {
+                "type": "dict",
+                "schema": {
+                    "difference_threshold": {
+                        "type": "float",
+                        "required": False,
+                        "min": 0,
+                        "max": 0.5,
+                    }
+                },
+            },
         },
     },
     "output_options": {

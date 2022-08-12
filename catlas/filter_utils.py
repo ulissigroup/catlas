@@ -399,7 +399,7 @@ def get_bulk_cn(ucell, neighbor_factor):
     return bulk_cn_dict
 
 
-def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
+def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
     """
     Calculates the total ratio of broken bonds to bulk coordination
         number. Often used as a factor in surface energy
@@ -412,13 +412,10 @@ def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Sum of undercoordination/full bulk coordination for each surface site
     """
-    ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
     tot_bb = 0
-    for site in AseAtomsAdaptor.get_structure(
-        dask_dict["slab_surface_object"].surface_atoms
-    ):
+    for site in slab:
         if site.frac_coords[2] < slab.center_of_mass[2]:
             # analyze the top surface only
             continue
@@ -434,7 +431,7 @@ def get_total_bb(dask_dict: dict, neighbor_factor: float) -> float:
     return tot_bb
 
 
-def get_total_nn(dask_dict: dict, neighbor_factor: float) -> int:
+def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
     """
     Calculates the sum of nearest neighbors for each surface site
     Args:
@@ -446,13 +443,10 @@ def get_total_nn(dask_dict: dict, neighbor_factor: float) -> int:
     Returns:
         (int): Sum of surface coordination number
     """
-    ucell = AseAtomsAdaptor.get_structure(dask_dict["bulk_atoms"])
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
     tot_nn = 0
-    for site in AseAtomsAdaptor.get_structure(
-        dask_dict["slab_surface_object"].surface_atoms
-    ):
+    for site in slab:
         if site.frac_coords[2] < slab.center_of_mass[2]:
             # analyze the top surface only
             continue
@@ -481,6 +475,8 @@ def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Rough estimate of surface energy
     """
+    slab = AseAtomsAdaptor.get_structure(row["slab_surface_object"].surface_atoms)
+    ucell = AseAtomsAdaptor.get_structure(row["bulk_atoms"])
     a = surface_area(slab)
     cns = get_total_bb(ucell, slab, neighbor_factor)
     return cns * (1 / (2 * a))
