@@ -218,7 +218,6 @@ def energy_prediction(
         )
 
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
-    assert (BOCPP.config["trainer"] == "forces") or (BOCPP.config["trainer"] == "energy")
     relaxation = BOCPP.config["trainer"] == "forces"
 
     if "filter_reason" in adslab_dict:
