@@ -207,10 +207,25 @@ def energy_prediction(
 
     adslab_results = copy.copy(adslab_dict)
 
+    global BOCPP_dict
+
+    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
+        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
+            checkpoint=checkpoint_path,
+            batch_size=batch_size,
+            cpu=cpu,
+            number_steps=number_steps,
+        )
+
+    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+
     if "filter_reason" in adslab_dict:
         adslab_results[column_name] = []
         adslab_results["min_" + column_name] = np.nan
-        adslab_results["atoms_min_" + column_name] = None
+        adslab_results["atoms_min_" + column_name + "_initial"] = None
+        if BOCPP.config["trainer"] == "forces":
+            adslab_results["atoms_min_" + column_name + "_relaxed"] = None
+
         return adslab_results
     else:
         adslab_atoms = copy.deepcopy(adslab_atoms)
@@ -224,18 +239,6 @@ def energy_prediction(
                 / gpu_mem_per_sample
                 / 1024**3
             )
-
-        global BOCPP_dict
-
-        if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
-            BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
-                checkpoint=checkpoint_path,
-                batch_size=batch_size,
-                cpu=cpu,
-                number_steps=number_steps,
-            )
-
-        BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
 
         if BOCPP.config["trainer"] == "forces":
             energy_predictions, position_predictions = BOCPP.relaxation_prediction(
@@ -301,6 +304,9 @@ def energy_prediction(
         else:
             adslab_results[column_name] = []
             adslab_results["min_" + column_name] = np.nan
-            adslab_results["atoms_min_" + column_name] = None
+            adslab_results["atoms_min_" + column_name + "_initial"] = None
+            if BOCPP.config["trainer"] == "forces":
+                adslab_results["atoms_min_" + column_name + "_relaxed"] = None
+
 
         return adslab_results
