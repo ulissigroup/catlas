@@ -218,6 +218,8 @@ def energy_prediction(
         )
 
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+    assert (BOCPP.config["trainer"] == "forces") or (BOCPP.config["trainer"] == "energy")
+    relaxation = BOCPP.config["trainer"] == "forces"
 
     if "filter_reason" in adslab_dict:
         adslab_results[column_name] = []
@@ -240,7 +242,7 @@ def energy_prediction(
                 / 1024**3
             )
 
-        if BOCPP.config["trainer"] == "forces":
+        if relaxation:
             energy_predictions, position_predictions = BOCPP.relaxation_prediction(
                 graphs_dict["adslab_graphs"],
             )
@@ -285,7 +287,7 @@ def energy_prediction(
             )
             adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
             # If relaxing, save the best relaxed configuration
-            if BOCPP.config["trainer"] == "forces":
+            if relaxation:
                 best_atoms_relaxed = adslab_atoms_copy[
                     np.argmin(energy_predictions)
                 ].copy()
@@ -305,7 +307,7 @@ def energy_prediction(
             adslab_results[column_name] = []
             adslab_results["min_" + column_name] = np.nan
             adslab_results["atoms_min_" + column_name + "_initial"] = None
-            if BOCPP.config["trainer"] == "forces":
+            if relaxation:
                 adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
 
