@@ -217,6 +217,7 @@ def energy_prediction(
             number_steps=number_steps,
         )
 
+    cpu = torch.cuda.device_count() == 0
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
     relaxation = BOCPP.config["trainer"] == "forces"
 
@@ -231,8 +232,6 @@ def energy_prediction(
     else:
         adslab_atoms = copy.deepcopy(adslab_atoms)
         adslab_dict = copy.deepcopy(adslab_dict)
-
-        cpu = torch.cuda.device_count() == 0
 
         if not cpu and gpu_mem_per_sample is not None:
             batch_size = int(
