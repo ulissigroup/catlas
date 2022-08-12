@@ -39,7 +39,7 @@ def get_pourbaix_info(entry: dict) -> dict:
     output = {"mpid": mpid}
 
     # Get the composition information
-    pmg_entry = AseAtomsAdaptor.get_structure(entry["bulk_atoms"])
+    pmg_entry = entry["bulk_struc"]
     comp_dict = pmg_entry.composition.fractional_composition.as_dict()
     comp_dict.pop("H", None)
     comp_dict.pop("O", None)
@@ -307,33 +307,6 @@ def get_first_type(x):
         return type(x)
 
 
-def add_full_wyckoffs(bulk):
-    """
-    Identifies the Wyckoff symbols for each site in the bulk. Symbols
-        are labelled by element, multiplicity and Wyckoff letter. Need
-        it to obtain information about slab sites relativeo to the bulk
-    Args:
-        bulk (Structure): PMG Structure representation of a bulk.
-
-    Returns:
-        (Structure): The bulk structure with Wyckoff symbols as site properties.
-
-    """
-    sg = SpacegroupAnalyzer(bulk)
-    symbulk = sg.get_symmetrized_structure()
-    wyckoff_letters = symbulk.wyckoff_letters
-    equivalent_indices = symbulk.equivalent_indices
-
-    wyckoffs = []
-    for i, site in enumerate(symbulk):
-        eqi = [eqi for eqi in equivalent_indices if i in eqi][0]
-        wyckoffs.append(
-            "%s%s%s" % (site.species_string, len(eqi), symbulk.wyckoff_letters[i])
-        )
-    symbulk.add_site_property("full_wyckoff", wyckoffs)
-    return symbulk
-
-
 def surface_area(slab):
     """
     Gets cross section surface area of the slab
@@ -475,14 +448,14 @@ def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Rough estimate of surface energy
     """
-    slab = AseAtomsAdaptor.get_structure(row["slab_surface_object"].surface_atoms)
-    ucell = AseAtomsAdaptor.get_structure(row["bulk_atoms"])
+    slab = row["surface_structure"]
+    ucell = row["bulk_structure"]
     a = surface_area(slab)
     cns = get_total_bb(ucell, slab, neighbor_factor)
     return cns * (1 / (2 * a))
 
 
-def get_surface_density(dask_dict: dict, neighbor_factor: float) -> float:
+def get_surface_density(row: dict, neighbor_factor: float) -> float:
     """
     Estimates surface density multiplied by cohesive
         energy, not really sure what this would represent
@@ -496,6 +469,8 @@ def get_surface_density(dask_dict: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Rough estimate of cohesive energy x surface density
     """
+    slab = row["surface_structure"]
+    ucell = row["bulk_structure"]
     a = surface_area(slab)
     cns = get_total_nn(dask_dict, neighbor_factor)
     return cns * (1 / (2 * a))

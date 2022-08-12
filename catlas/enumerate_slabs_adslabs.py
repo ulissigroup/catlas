@@ -3,7 +3,7 @@ import logging
 
 import numpy as np
 import torch
-from ocdata import precompute_sample_structures as compute
+from catlas.enumeration_utils import enumerate_surfaces_for_saving
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 from ocdata.combined import Combined
@@ -11,6 +11,7 @@ from ocdata.surfaces import Surface
 
 import catlas.dask_utils
 from ocpmodels.preprocessing import AtomsToGraphs
+from pymatgen.io.ase import AseAtomsAdaptor
 
 
 class CustomAdsorbate(Adsorbate):
@@ -21,8 +22,8 @@ class CustomAdsorbate(Adsorbate):
 
 
 class CustomBulk(Bulk):
-    def __init__(self, bulk_atoms):
-        self.bulk_atoms = bulk_atoms
+    def __init__(self, bulk_structure):
+        self.bulk_atoms = AseAtomsAdaptor.get_atoms(bulk_structure)
 
 
 def enumerate_slabs(bulk_dict, max_miller=2):
@@ -32,10 +33,11 @@ def enumerate_slabs(bulk_dict, max_miller=2):
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
-    bulk_obj = CustomBulk(bulk_dict["bulk_atoms"])
+    bulk_obj = CustomBulk(bulk_dict["bulk_structure"])
 
-    surfaces = compute.enumerate_surfaces_for_saving(
-        bulk_dict["bulk_atoms"], max_miller=2
+    surfaces = enumerate_surfaces_for_saving(
+        bulk_dict["bulk_structure"],
+        max_miller=max_miller,
     )
     surface_list = []
     for surface in surfaces:
@@ -47,6 +49,7 @@ def enumerate_slabs(bulk_dict, max_miller=2):
         surface_result.update(
             {
                 "slab_surface_object": surface_object,
+                "surface_structure": surface_struct,
                 "slab_millers": millers,
                 "slab_max_miller_index": np.max(millers),
                 "slab_shift": shift,
