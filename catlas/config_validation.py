@@ -25,14 +25,15 @@ def validate_element(field, value, error):
     if len(invalid_elements) > 0:
         error(
             field,
-            "invalid elements: [%s]"
-            % ", ".join(['"%s"' % e for e in invalid_elements]),
+            f"""invalid elements: [{
+                ", ".join([f'"{e}"' for e in invalid_elements])
+            }]""",
         )
 
 
 def validate_path_exists(field, value, error):
     if not os.path.exists(value):
-        error(field, "file path does not exist: '%s'" % value)
+        error(field, f"file path does not exist: '{value}'")
 
 
 def validate_folder_exists(field, value, error):
@@ -40,7 +41,7 @@ def validate_folder_exists(field, value, error):
     path_list = value.split("/")
     value = "/".join(path_list[:-1])
     if not os.path.exists(value):
-        error(field, "file path's enclosing folder does not exist: '%s'" % value)
+        error(field, f"file path's enclosing folder does not exist: '{value}'")
 
 
 config_schema = {
