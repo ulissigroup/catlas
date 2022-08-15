@@ -55,9 +55,8 @@ class BatchOCPPredictor:
         setup_imports()
         setup_logging()
 
-        checkpoint = "%s/%s" % (
-            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-            checkpoint,
+        checkpoint = os.path.join(
+            os.path.dirname(catlas.__file__), os.pardir, checkpoint
         )
 
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
@@ -80,12 +79,16 @@ class BatchOCPPredictor:
         if "scale_file" in config["model_attributes"]:
             catlas_dir = os.path.dirname(catlas.__file__)
             if config["model_attributes"]["scale_file"].startswith("config"):
-                config["model_attributes"]["scale_file"] = "%s/%s" % (
-                    os.path.join(os.path.dirname(ocpmodels.__file__), os.pardir),
-                    config["model_attributes"]["scale_file"],
+                config["model_attributes"]["scale_file"] = (
+                    os.path.join(
+                        os.path.dirname(ocpmodels.__file__),
+                        os.pardir,
+                        config["model_attributes"]["scale_file"],
+                    ),
                 )
+
             else:
-                config["model_attributes"]["scale_file"] = "%s/%s" % (
+                config["model_attributes"]["scale_file"] = os.path.join(
                     os.path.dirname(checkpoint),
                     config["model_attributes"]["scale_file"],
                 )
