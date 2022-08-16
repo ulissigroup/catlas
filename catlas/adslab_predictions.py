@@ -124,7 +124,15 @@ class BatchOCPPredictor:
             self.load_checkpoint(checkpoint)
 
     def make_dataloader(self, graphs_list):
+        """Make the dataloader used to feed graphs into the OCP model.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): a list of graphs
+            to run predictions on.
+
+        Returns:
+            data_loader: a dataloader object that can be used by OCP models.
+        """
         # Make a dataset
         graphs_list_dataset = GraphsListDataset(graphs_list)
 
