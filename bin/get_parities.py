@@ -39,5 +39,6 @@ if __name__ == "__main__":
     ):
         get_parity_upfront(config, run_id)
         print(
-            "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+            """Parity plots are ready if data was available, please review them to
+                ensure the model selected meets your needs."""
         )
