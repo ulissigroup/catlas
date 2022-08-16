@@ -92,7 +92,8 @@ if __name__ == "__main__":
     ):
         get_parity_upfront(config, run_id)
         print(
-            "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+            """Parity plots are ready if data was available, please review them to
+                ensure the model selected meets your needs."""
         )
 
     # Start the dask cluster
@@ -137,7 +138,7 @@ if __name__ == "__main__":
     # Force dask to distribute the bulk objects across all workers
     # Two rebalances were necessary for some reason.
     wait(bulk_df)
-    client.rebalance(bulk_df)
+    client.rebalance(bulk_df)  # `client` is defined during `exec(dask_cluster_script)`
     client.rebalance(bulk_df)
 
     # Filter the bulks
