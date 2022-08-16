@@ -161,7 +161,17 @@ class BatchOCPPredictor:
             )  # `logging` defined by `setup_logging()`
 
     def direct_prediction(self, graphs_list):
+        """Run direct energy predictions on a graph. Predict the relaxed
+        energy without running ML relaxations.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): a list of
+            graphs to perform inference on
+
+        Returns:
+            Iterable[float]: A vector of predicted energies corresponding to
+            the input graphs.
+        """
         data_loader = self.make_dataloader(graphs_list)
 
         # Batch inference
