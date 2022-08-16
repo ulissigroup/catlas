@@ -166,7 +166,7 @@ class BatchOCPPredictor:
 
         Args:
             graphs_list (Iterable[torch_geometric.data.Data]): a list of
-            graphs to perform inference on
+            graphs to perform inference on.
 
         Returns:
             Iterable[float]: A vector of predicted energies corresponding to
