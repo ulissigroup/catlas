@@ -4,26 +4,19 @@ import os
 import numpy as np
 import ocpmodels
 import torch
-import yaml
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.optimize import LBFGS
-from ocdata.combined import Combined
 from ocdata.flag_anomaly import DetectTrajAnomaly
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from tqdm import tqdm
 
 import catlas.cache_utils
 import catlas.dask_utils
 from ocpmodels.common.registry import registry
 from ocpmodels.common.relaxation import ml_relaxation
-from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 from ocpmodels.common.utils import (
-    radius_graph_pbc,
     setup_imports,
     setup_logging,
 )
-from ocpmodels.datasets import data_list_collater
-from ocpmodels.preprocessing import AtomsToGraphs
 
 
 BOCPP_dict = {}
