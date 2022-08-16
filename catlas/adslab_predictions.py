@@ -209,6 +209,8 @@ def energy_prediction(
 
     global BOCPP_dict
 
+    cpu = torch.cuda.device_count() == 0
+
     if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
         BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
             checkpoint=checkpoint_path,
@@ -217,7 +219,6 @@ def energy_prediction(
             number_steps=number_steps,
         )
 
-    cpu = torch.cuda.device_count() == 0
     BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
     relaxation = BOCPP.config["trainer"] == "forces"
 
