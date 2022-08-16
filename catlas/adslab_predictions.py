@@ -169,8 +169,7 @@ class BatchOCPPredictor:
             graphs to perform inference on.
 
         Returns:
-            Iterable[float]: A vector of predicted energies corresponding to
-            the input graphs.
+            Iterable[float]: the predicted energies of the input graphs.
         """
         data_loader = self.make_dataloader(graphs_list)
 
@@ -182,7 +181,19 @@ class BatchOCPPredictor:
         return predictions["energy"]
 
     def relaxation_prediction(self, graphs_list):
+        """Run relaxation energy predictions on a list of graphs. Relax each graph,
+        then predict the energy of the final structure.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): a list of graphs to
+            perform relaxations on
+
+        Returns:
+            relaxation_predictions (Iterable[float]): the predicted energies of the
+            input graphs
+            relaxation_positions (Iterable[torch_geometric.data.Data]): the final
+            relaxed positions of the input graphs.
+        """
         if self.device == "cpu":
             torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
 
@@ -227,7 +238,37 @@ def energy_prediction(
     gpu_mem_per_sample=None,
     number_steps=200,
 ):
+    """Predict the energies of a list of adslabs.
 
+    Args:
+        adslab_dict (dict): A dictionary corresponding to `adslab_atoms` used to store
+        results. Should be ignored during cache comparisons.
+        adslab_atoms (Iterable[ase.atoms.Atoms]): A list of adslabs all generated from
+        the same adsorbate and surface to run predictions on. Should be ignored during
+        cache comparisons.
+        hash_adslab_atoms (str): A hash specific to `adslab_atoms` used for cache
+        comparisons.
+        hash_adslab_dict (str): A hash specific to `adslab_dict` used for cache
+        comparisons
+        graphs_dict (dict): A dictionary containing a key "adslab_graphs" that has a
+        value of a list of graphs corresponding to `adslab_atoms` for use by the ocp
+        model. Should be ignored during cache comparisons.
+        checkpoint_path (str): A path where the OCP model checkpoint can be found.
+        column_name (str): An arbitrary name used to define the model output field
+        names.
+        batch_size (int, optional): The number of adslabs loaded onto a gpu at a single
+        time during relaxations. Should be ignored during cache comparisons. Defaults
+        to 8.
+        gpu_mem_per_sample (float, optional): The approximate memory used by a single
+        adslab during relaxations, used to determine batch size. Defaults to None.
+        number_steps (int, optional): The number of steps used during relaxations.
+        Should be determined using `bin/optimize_frame.py`. Defaults to 200.
+
+    Returns:
+        dict: A dictionary based on `adslab_dict` containing new fields corresponding
+        to predicted adsorption energies, the minimum adsorption energy on each surface,
+        and relaxed structures if relaxations were run.
+    """
     adslab_results = copy.copy(adslab_dict)
 
     if "filter_reason" in adslab_dict:
