@@ -50,7 +50,8 @@ class GraphsListDataset(Dataset):
 
 class BatchOCPPredictor:
     """Variable used to store the model used during predictions. Specifications are
-    contained in the input config.
+    contained in the input config. This variable is globalized within a worker to
+    avoid duplicate model loading.
     """
 
     def __init__(self, checkpoint, number_steps, batch_size=8, cpu=False):
