@@ -41,7 +41,21 @@ from catlas.sankey.sankey_utils import Sankey
 
 # Load inputs and define global vars
 if __name__ == "__main__":
+    """Run predictions according to input config file
 
+    Usage (see examples in `.github/workflows/automated_screens`):
+        If cluster is not running, start it:
+            kubectl apply -f configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+            kubectl scale --replicas=4 daskworkergroup catlas-hybrid-cluster-default-worker-group
+            kubectl scale --replicas=1 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
+        python bin/predictions.py path/to/config.yml configs/dask_cluster/dask_operator/dask_connect.py
+
+    Args:
+        config (str): File path where a config is found. Example configs can be found in `configs/automated_screens` and `.github/workflows/automated_screens`
+        dask_connect_script (str): script defining how to connect to running dask cluster
+    Raises:
+        ValueError: The provided config is invalid.
+    """
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
