@@ -71,7 +71,6 @@ class BatchOCPPredictor:
             config["normalizer"] = config["dataset"]
 
         if "scale_file" in config["model_attributes"]:
-            catlas_dir = os.path.dirname(catlas.__file__)
             if config["model_attributes"]["scale_file"].startswith("config"):
                 config["model_attributes"]["scale_file"] = "%s/%s" % (
                     os.path.join(os.path.dirname(ocpmodels.__file__), os.pardir),
