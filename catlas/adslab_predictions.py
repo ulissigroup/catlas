@@ -226,7 +226,7 @@ def energy_prediction(
         adslab_results[column_name] = []
         adslab_results["min_" + column_name] = np.nan
         adslab_results["atoms_min_" + column_name + "_initial"] = None
-        if BOCPP.config["trainer"] == "forces":
+        if relaxation:
             adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
         return adslab_results
