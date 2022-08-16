@@ -49,6 +49,10 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
+    """Variable used to store the model used during predictions. Specifications are
+    contained in the input config.
+    """
+
     def __init__(self, checkpoint, number_steps, batch_size=8, cpu=False):
         self.number_steps = number_steps
         setup_imports()
