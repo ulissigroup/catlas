@@ -8,7 +8,11 @@ import time
 
 # Load inputs and define global vars
 if __name__ == "__main__":
+    """Get parity plots for a model.
 
+    Raises:
+        ValueError: The provided config is invalid.
+    """
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
