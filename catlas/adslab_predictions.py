@@ -207,16 +207,32 @@ def energy_prediction(
 
     adslab_results = copy.copy(adslab_dict)
 
+    global BOCPP_dict
+
+    cpu = torch.cuda.device_count() == 0
+
+    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
+        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
+            checkpoint=checkpoint_path,
+            batch_size=batch_size,
+            cpu=cpu,
+            number_steps=number_steps,
+        )
+
+    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+    relaxation = BOCPP.config["trainer"] == "forces"
+
     if "filter_reason" in adslab_dict:
         adslab_results[column_name] = []
         adslab_results["min_" + column_name] = np.nan
-        adslab_results["atoms_min_" + column_name] = None
+        adslab_results["atoms_min_" + column_name + "_initial"] = None
+        if relaxation:
+            adslab_results["atoms_min_" + column_name + "_relaxed"] = None
+
         return adslab_results
     else:
         adslab_atoms = copy.deepcopy(adslab_atoms)
         adslab_dict = copy.deepcopy(adslab_dict)
-
-        cpu = torch.cuda.device_count() == 0
 
         if not cpu and gpu_mem_per_sample is not None:
             batch_size = int(
@@ -225,19 +241,7 @@ def energy_prediction(
                 / 1024**3
             )
 
-        global BOCPP_dict
-
-        if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
-            BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
-                checkpoint=checkpoint_path,
-                batch_size=batch_size,
-                cpu=cpu,
-                number_steps=number_steps,
-            )
-
-        BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
-
-        if BOCPP.config["trainer"] == "forces":
+        if relaxation:
             energy_predictions, position_predictions = BOCPP.relaxation_prediction(
                 graphs_dict["adslab_graphs"],
             )
@@ -282,7 +286,7 @@ def energy_prediction(
             )
             adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
             # If relaxing, save the best relaxed configuration
-            if BOCPP.config["trainer"] == "forces":
+            if relaxation:
                 best_atoms_relaxed = adslab_atoms_copy[
                     np.argmin(energy_predictions)
                 ].copy()
@@ -301,6 +305,8 @@ def energy_prediction(
         else:
             adslab_results[column_name] = []
             adslab_results["min_" + column_name] = np.nan
-            adslab_results["atoms_min_" + column_name] = None
+            adslab_results["atoms_min_" + column_name + "_initial"] = None
+            if relaxation:
+                adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
         return adslab_results
