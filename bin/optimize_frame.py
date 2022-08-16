@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # warn that the first model will be used if there are more than one
     if len(config["adslab_prediction_steps"]) > 1:
         warnings.warn(
-            f"""Multiple models were specified, the first one ({model_id}) will be 
+            f"""Multiple models were specified, the first one ({model_id}) will be
                 optimised"""
         )
 
