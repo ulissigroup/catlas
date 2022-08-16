@@ -31,6 +31,12 @@ def pop_keys(adslab_dict, keys):
 
 
 class GraphsListDataset(Dataset):
+    """Make a list of graphs to feed into ocp dataloader object
+
+    Extends:
+        torch.utils.data.Dataset: a torch Dataset
+    """
+
     def __init__(self, graphs_list):
         self.graphs_list = graphs_list
 
