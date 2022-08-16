@@ -161,7 +161,7 @@ class BatchOCPPredictor:
             )  # `logging` defined by `setup_logging()`
 
     def direct_prediction(self, graphs_list):
-        """Run direct energy predictions on a graph. Predict the relaxed
+        """Run direct energy predictions on a list of graphs. Predict the relaxed
         energy without running ML relaxations.
 
         Args:
