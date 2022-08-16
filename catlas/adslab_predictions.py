@@ -138,7 +138,9 @@ class BatchOCPPredictor:
         try:
             self.trainer.load_checkpoint(checkpoint_path)
         except NotImplementedError:
-            logging.warning("Unable to load checkpoint!")
+            logging.warning(
+                "Unable to load checkpoint!"
+            )  # `logging` defined by `setup_logging()`
 
     def direct_prediction(self, graphs_list):
 
