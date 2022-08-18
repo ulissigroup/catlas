@@ -18,7 +18,7 @@ from pymatgen.core.surface import (
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
-def enumerate_surfaces_for_saving(bulk_structure, max_miller=2):
+def enumerate_surfaces_for_saving(bulk_structure, max_miller):
     """
     Enumerate all the symmetrically distinct surfaces of a bulk structure. It
     will not enumerate surfaces with Miller indices above the `max_miller`

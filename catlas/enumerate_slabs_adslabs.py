@@ -26,7 +26,7 @@ class CustomBulk(Bulk):
         self.bulk_atoms = AseAtomsAdaptor.get_atoms(bulk_structure)
 
 
-def enumerate_slabs(bulk_dict, max_miller=2):
+def enumerate_slabs(bulk_dict, max_miller=3):
 
     bulk_dict = copy.deepcopy(bulk_dict)
 
