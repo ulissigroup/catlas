@@ -318,8 +318,8 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
         conditions (list[dict]): A list of dictionaries specifying what conditions to
         evaluate the decomposition energy at. Each dictionary contains the following
         key-value pairs:
-            pH (float): the pH to evaluate a decomposition at.
-            V (float): the voltage to evaluate a voltage at.
+            pH (float): the pH to evaluate a decomposition energy at.
+            V (float): the voltage to evaluate a decomposition energy at.
 
     Returns:
         Iterable[bool]: A list corresponding to whether the input entry is stable under
