@@ -118,7 +118,7 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
 
 
 def pb_query_and_write(entry: dict, lmdb_path: str):
-    """Pull pourbaix info from MP and writes it to the lmdb"""
+    """Pull pourbaix info from MP and write it to the lmdb"""
     pourbaix_info = get_pourbaix_info(entry)
     write_pourbaix_info(pourbaix_info, lmdb_path)
 
