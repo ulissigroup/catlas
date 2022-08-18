@@ -1,16 +1,12 @@
-import copy
 import operator
 import pickle
 import uuid
 
-import cloudpickle
 import dask
 import numpy as np
-from dask import dataframe as dd
 from dask.bag import Bag
 from dask.bag.core import split
 from dask.base import tokenize
-from dask.dataframe.core import new_dd_object, split_evenly
 from dask.dataframe.io.io import sorted_division_locations
 from dask.highlevelgraph import HighLevelGraph
 from fsspec.core import open_files
@@ -18,7 +14,7 @@ from pympler.asizeof import asizeof
 
 
 # Register a better method to track the size of complex dictionaries and lists
-# (basically pickle and count the size). Needed to accurately track data in dask cluster.
+# (basically pickle and count size). Needed to accurately track data in dask cluster.
 @dask.sizeof.sizeof.register(dict)
 def sizeof_python_dict(d):
     return asizeof(d)
@@ -31,7 +27,6 @@ def sizeof_python_list(l):
 
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
-
     Assumes `ddf.index` is already sorted.
     """
     if not ddf.known_divisions:  # e.g. for read_parquet(..., infer_divisions=False)
@@ -87,6 +82,19 @@ def bag_split_individual_partitions(bag):
 
 
 def to_pickles(b, path, name_function=None, compute=True, **kwargs):
+    """Send a dask dataframe to a series of pickle files.
+
+    Args:
+        b (dask.dataframe.core.DataFrame): Dask dataframe to pickle.
+        path (str): folder location where pickles are written to.
+        name_function (function, optional): Function defining how pickle files are
+        named. Defaults to None.
+        compute (bool, optional): Whether to compute the dataframe before pickling.
+        Defaults to True.
+
+    Returns:
+        _type_: _description_
+    """
     files = open_files(
         path,
         mode="wb",
@@ -108,5 +116,6 @@ def to_pickles(b, path, name_function=None, compute=True, **kwargs):
 
 
 def _to_pickle(data, lazy_file):
+    """Write data to a pickle file."""
     with lazy_file as f:
         pickle.dump(data, f)
