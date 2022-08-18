@@ -307,7 +307,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     return list_of_bools
 
 
-def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
+def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
     """Evaluates decomposition energies at regular pH and voltage windows at specified pH and voltage points.
 
     Args:
