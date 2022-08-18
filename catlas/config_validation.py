@@ -17,6 +17,7 @@ valid_element_groups = [
 
 
 def validate_element(field, value, error):
+    """Validate that object is an element. Generate Cerberus-type error otherwise."""
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
         error(
@@ -27,6 +28,7 @@ def validate_element(field, value, error):
 
 
 def validate_path_exists(field, value, error):
+    """Validate that a file path exists. Generate Cerberus-type error otherwise."""
     if not os.path.exists(value):
         error(field, "file path does not exist: '%s'" % value)
 
