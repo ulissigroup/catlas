@@ -1,9 +1,5 @@
 import os
-from pathlib import Path
-
-import yaml
 from cerberus import Validator
-
 from pymatgen.core import Element
 
 
@@ -36,7 +32,8 @@ def validate_path_exists(field, value, error):
 
 
 def validate_folder_exists(field, value, error):
-    """A more permissive check to check if a file/folder can be created if it doesn't exist"""
+    """A more permissive check to check if a file/folder can be created if it doesn't
+    exist"""
     path_list = value.split("/")
     value = "/".join(path_list[:-1])
     if not os.path.exists(value):
@@ -192,7 +189,8 @@ config_schema = {
                         "checkpoint_path": {
                             "type": "string",
                             "check_with": validate_path_exists,
-                            "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+                            "regex": ".*.pt",  # cerberus doesn't understand re "$";
+                            # requires full match
                         },
                         "gpu": {"type": "boolean", "required": True},
                         "label": {
