@@ -5,7 +5,6 @@ import numpy as np
 import catlas.cache_utils
 import catlas.dask_utils
 from catlas.filter_utils import get_elements_in_groups, get_pourbaix_stability
-from pymatgen.core.periodic_table import Element
 
 
 def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
@@ -252,9 +251,13 @@ def predictions_filter(bag_partition, config, sankey):
     criteria specifed in an input config file.
 
     Args:
-        bag_partition (pandas.core.frame.DataFrame): a partition of a Dask DataFrame. Each partition should contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top", "adsorbate_smiles", "filter_reason", and a column whose name is the same as the value in the "filter_column" field of the input config.
+        bag_partition (pandas.core.frame.DataFrame): a partition of a Dask DataFrame.
+        Each partition should contain columns "bulk_id", "slab_millers", "slab_shift",
+        "slab_top", "adsorbate_smiles", "filter_reason", and a column whose name is the
+        same as the value in the "filter_column" field of the input config.
         config (dict): a dictionary specifying how to filter predictions
-        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object to update with prediction filters.
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object to update with
+        prediction filters.
 
     Returns:
         pandas.core.frame.DataFrame: an updated version of the input DataFrame
@@ -300,8 +303,8 @@ def predictions_filter(bag_partition, config, sankey):
                     if "filter_reason" not in row:
                         row[
                             "filter_reason"
-                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of 
-                        range [{min_value},{max_value}] eV'
+                        ] = f"""Filtered because {row["adsorbate_smiles"]} was outside
+                        of range [{min_value},{max_value}] eV"""
         elif config["step_type"] == "filter_by_adsorption_energy_target":
             target_value = config["target_value"]
             range_value = config.get("range_value", 0.5)
@@ -324,6 +327,7 @@ def predictions_filter(bag_partition, config, sankey):
                     if "filter_reason" not in row:
                         row[
                             "filter_reason"
-                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range {target_value}+/-{range_value} eV'
+                        ] = f"""Filtered because {row["adsorbate_smiles"]} was outside
+                        of range {target_value}+/-{range_value} eV"""
 
     return bag_partition

@@ -9,7 +9,8 @@ class Sankey:
         Initialize class to facilitate Sankey diagram construction.
 
         Args:
-        info_dict: a dictionary of values that will be used to populate the output sankey diagram
+        info_dict: a dictionary of values that will be used to populate the output
+        sankey diagram
         """
         self.info_dict = info_dict
 
@@ -85,7 +86,8 @@ class Sankey:
             )
             if node_num != inference_list[step]["counts"]:
                 self.update_dictionary(
-                    f"Adslabs filtered out ({node_num - inference_list[step]['counts']})",
+                    f"""Adslabs filtered out ({node_num - inference_list[step]
+                    ['counts']})""",
                     node_idx,
                     len(self.info_dict["label"]),
                     node_num - inference_list[step]["counts"],
@@ -107,7 +109,8 @@ class Sankey:
         """
         if num_adslabs is None:
             warnings.warn(
-                "Adslabs were not computed and therefore will not appear in the Sankey diagram"
+                """Adslabs were not computed and therefore will not appear in the
+                Sankey diagram"""
             )
             num_adslabs = 0
 
