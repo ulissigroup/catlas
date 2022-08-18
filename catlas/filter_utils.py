@@ -118,6 +118,7 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
 
 
 def pb_query_and_write(entry: dict, lmdb_path: str):
+    """Pull pourbaix info from MP and writes it to the lmdb"""
     pourbaix_info = get_pourbaix_info(entry)
     write_pourbaix_info(pourbaix_info, lmdb_path)
 
@@ -252,7 +253,27 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
 
 
 def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
-    """Evaluates the decomposition energies under the desired range of conditions"""
+    """Evaluates decomposition energies at regular pH and voltage windows within
+    specified intervals.
+
+    Args:
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
+        object containing information about the reference chemical system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+        specific to the material we want to calculate the decomposition entry of.
+        conditions (dict): A dictionary specifying what conditions to evaluate the
+        decomposition energy at. Contains the following key-value pairs:
+            pH_step (float): how far apart to evaluate consecutive pH points
+            pH_upper (float): the maximum pH to evaluate
+            pH_lower (float) the minimum pH to evaluate
+            V_step (float): how far apart to evaluate consecutive voltage points
+            V_upper (float): the maximum voltage to evaluate
+            V_lower (float) the minimum voltage to evaluate
+
+    Returns:
+        Iterable[bool]: A list corresponding to whether the input entry is stable under
+        each set of conditions.
+    """
     list_of_bools = []
 
     # Use default step if one is not specified
@@ -287,7 +308,23 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
 
 
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
-    """Evaluates the decomposition energies under the desired set of conditions"""
+    """Evaluates decomposition energies at regular pH and voltage windows at specified pH and voltage points.
+
+    Args:
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
+        object containing information about the reference chemical system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+        specific to the material we want to calculate the decomposition entry of.
+        conditions (list[dict]): A list of dictionaries specifying what conditions to
+        evaluate the decomposition energy at. Each dictionary contains the following
+        key-value pairs:
+            pH (float): the pH to evaluate a decomposition at.
+            V (float): the voltage to evaluate a voltage at.
+
+    Returns:
+        Iterable[bool]: A list corresponding to whether the input entry is stable under
+        each set of conditions.
+    """
     list_of_bools = []
     for condition in conditions["conditions_list"]:
         decomp_energy = pbx.get_decomposition_energy(
@@ -301,6 +338,7 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
 
 
 def get_first_type(x):
+    """Get the type of the input, unpacking lists first if necessary."""
     if type(x) == list and len(x) > 0:
         return type(x[0])
     else:
