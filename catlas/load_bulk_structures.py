@@ -16,7 +16,8 @@ required_fields = (
     "xc",
     "nelements",
     "elements",
-)  # These fields are expected to exist in every input file that doesn't allow them to be directly calculated
+)  # These fields are expected to exist in every input file that doesn't allow them to
+be directly calculated
 
 
 def load_bulks(bulk_path):
