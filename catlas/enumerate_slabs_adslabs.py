@@ -14,9 +14,9 @@ from ocpmodels.preprocessing import AtomsToGraphs
 class CustomAdsorbate(Adsorbate):
     """A custom adsorbate object for easy data transfer during predictions."""
 
-    def __init__(self, ads_atoms, bond_indicies, smiles):
+    def __init__(self, ads_atoms, bond_indices, smiles):
         self.atoms = ads_atoms
-        self.bond_indices = bond_indicies
+        self.bond_indices = bond_indices
         self.smiles = smiles
 
 
