@@ -2,13 +2,12 @@ import os
 import pickle
 import warnings
 
-import cerberus
 import lmdb
 import numpy as np
 from mp_api import MPRester
 
 import catlas
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -16,7 +15,8 @@ from pymatgen.io.ase import AseAtomsAdaptor
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
-    from Materials Project and constructs a pourbaix diagram for it. This currently only supports MP materials.
+    from Materials Project and constructs a pourbaix diagram for it. This currently
+    only supports MP materials.
 
     Args:
         entry: bulk structure entry as constructed by
@@ -30,7 +30,8 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Raise an error if non-MP materials used
     if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
-            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."
+            """Pourbaix filtering is only supported for Materials Project materials (bad
+            id: '%s')."""
             % mpid
         )
 
@@ -175,9 +176,9 @@ def get_elements_in_groups(groups: list) -> list:
 
 def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     """
-    Reads the relevant Pourbaix info from the lmdb and evaluates stability at the desired
-    points, returns a list of booleans capturing whether or not the material is stable
-    under given conditions.
+    Reads the relevant Pourbaix info from the lmdb and evaluates stability at the
+    desired points, returns a list of booleans capturing whether or not the material is
+    stable under given conditions.
 
     Args:
         entry: A dictionary containing the bulk entry which will be assessed
@@ -192,7 +193,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     )
 
     # Grab the entry of interest
-    ## Open lmdb
+    # Open lmdb
     env = lmdb.open(
         str(lmdb_path),
         subdir=False,
@@ -203,13 +204,13 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         max_readers=100,
     )
 
-    ## Begin read transaction (txn)
+    # Begin read transaction (txn)
     txn = env.begin()
 
-    ## Get entry and unpickle it
+    # Get entry and unpickle it
     entry_pickled = txn.get(bulk_id.encode("ascii"))
 
-    if entry_pickled != None:
+    if entry_pickled is not None:
         entry = pickle.loads(entry_pickled)
     else:
         print(f"querying {bulk_id} becuase it wasn't found in the lmdb path provided")
@@ -228,7 +229,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         entry_pickled = txn.get(bulk_id.encode("ascii"))
         entry = pickle.loads(entry_pickled)
 
-    ## Close lmdb
+    # Close lmdb
     env.close()
 
     # Handle exception where pourbaix query was unsuccessful
@@ -237,7 +238,8 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         return [False]
     # Determine electrochemical stability
     else:
-        # see what electrochemical conditions to consider and find the decomposition energies
+        # see what electrochemical conditions to consider and find the decomposition
+        # energies
         if "pH_lower" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_range(
                 entry["pbx"], entry["pbx_entry"], conditions
