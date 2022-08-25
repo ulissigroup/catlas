@@ -2,7 +2,6 @@ from ase.io.trajectory import Trajectory
 import numpy as np
 from numpy import load
 import pandas as pd
-from ase.io.trajectory import Trajectory
 from ocdata.flag_anomaly import DetectTrajAnomaly
 import re
 
@@ -43,7 +42,8 @@ class ProcessValNPZ:
 
     @staticmethod
     def _get_bulk_elements_and_num(stoichiometry):
-        """Get the unique bulk elements and number of unique bulk elements from stoichiometry"""
+        """Get the unique bulk elements and number of unique bulk elements from
+        stoichiometry"""
         return list(stoichiometry.keys()), len(list(stoichiometry.keys()))
 
     def process_data(self):
