@@ -6,7 +6,8 @@ if __name__ == "__main__":
 
     Args:
         npz_path (str): File path where model output npz files are found.
-        dft_df_path (str): File path where DFT data is found.
+        dft_df_path (str, optional): File path where DFT data is found. Defaults to
+        "catlas/parity/df_pkls/OC_20_val_data.pkl"
     """
     # Parse arguments:
     arg_parser = argparse.ArgumentParser()
