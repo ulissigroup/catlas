@@ -21,7 +21,7 @@ def get_pourbaix_info(entry: dict) -> dict:
     Args:
         entry: bulk structure entry as constructed by
                catlas.load_bulk_structures.load_bulks_from_db
-    
+
     Raises:
         ValueError: The bulk id provided in the entry is not a materials project id
     """
