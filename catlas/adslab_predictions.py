@@ -174,7 +174,7 @@ class BatchOCPPredictor:
             relaxed_batch = ml_relaxation.ml_relax(
                 batch=batch,
                 model=self,
-                steps=self.config["task"].get("relaxation_steps", self.number_steps),
+                steps=self.number_steps,
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
                 device=self.device,
