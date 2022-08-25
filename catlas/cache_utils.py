@@ -1,28 +1,24 @@
 import functools
-import gc
-import hashlib as hl
 import json
 import os
 import sqlite3
 import sys
-import time
 from contextlib import closing
 from pathlib import Path
 
 import backoff
 import cloudpickle
 import joblib.memory
-import lmdb
-import numpy as np
 from cloudpickle.compat import pickle
 from joblib.func_inspect import filter_args, get_func_code, get_func_name
 from joblib.hashing import hash
-from joblib.memory import JobLibCollisionWarning, extract_first_line
+from joblib.memory import extract_first_line
 
 
 def get_cached_func_location(func):
-    """Find the location inside of your <cache>/joblib/ folder where a cached function is stored.
-    Necessary because each function will have multiple subcaches for its codebase."""
+    """Find the location inside of your <cache>/joblib/ folder where a cached function
+    is stored. Necessary because each function will have multiple subcaches for its
+    codebase."""
     return joblib.memory._build_func_identifier(func.func)
 
 
@@ -64,7 +60,9 @@ def hash_func(func):
 
 
 def check_cache(cached_func):
-    """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
+    """checks if cached function is safe to call without overriding cache (adapted from
+    https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/
+    joblib/memory.py#L672)
 
     Inputs:
         cached_func -- cached function to check
@@ -104,7 +102,8 @@ def sqlitedict_memoize(
     shard_digits=2,
 ):
 
-    # Use a base name that includes the full function path and a hash on the function code itself
+    # Use a base name that includes the full function path and a hash on the function
+    # code itself
     base = better_build_func_identifier(func)
 
     @backoff.on_exception(
@@ -119,11 +118,14 @@ def sqlitedict_memoize(
             filter_args(func, ignore, args, kwargs), coerce_mmap=(mmap_mode is not None)
         ).encode("utf-8")
 
-        # Generate a base db location based on the full function path and a hash on the function code itself
+        # Generate a base db location based on the full function path and a hash on the
+        # function code itself
         db_loc = ".".join(base)
 
-        # Add a couple of shard digits so that actually we reference a subfolder (string is hex, so two shard digits is 16^2 shards)
-        # the numer of shards should be approximately equal to the number of expected simultaneous writers
+        # Add a couple of shard digits so that actually we reference a subfolder 
+        # (string is hex, so two shard digits is 16^2 shards)
+        # the numer of shards should be approximately equal to the number of expected 
+        # simultaneous writers
         if shard_digits > 0:
             db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + ".sqlite"
 
@@ -158,8 +160,10 @@ def sqlitedict_memoize(
 
 class SqliteSingleThreadDict(dict):
 
-    # This code was originally adapted from the excellect sqlitedict package (Apache2 license)
-    # It was almost entirely re-written as the use case here is much simpler than what sqlitedict provides
+    # This code was originally adapted from the excellect sqlitedict package (Apache2 
+    # license)
+    # It was almost entirely re-written as the use case here is much simpler than what 
+    # sqlitedict provides
 
     def __init__(
         self,
