@@ -1,15 +1,10 @@
-from numpy import load
 import numpy as np
-import pickle
 import pandas as pd
-import re
-from os.path import exists
 import warnings
 import os
 import matplotlib.pyplot as plt
 import time
 from scipy.stats import linregress
-from catlas.filter_utils import get_elements_in_groups
 from catlas.filters import bulk_filter
 import dask.dataframe as dd
 
