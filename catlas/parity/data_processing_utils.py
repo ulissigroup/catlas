@@ -115,6 +115,7 @@ class ProcessValTraj:
             return [np.nan] * len(traj)
 
     def get_result(self):
+        """Return the ML energy associated with a trajectory."""
         name = self.traj_path.split("/")[-1].split(".")[0]
         random_num = name.split("/")[-1]
         random_id = "random" + str(random_num)

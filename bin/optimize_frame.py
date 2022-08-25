@@ -21,8 +21,9 @@ def get_errors(row):
 
 # Load inputs and define global vars
 if __name__ == "__main__":
-    """The number of relaxation steps is set arbitrarily. This script determines the
-        optimal number of steps using OCP validation data.
+    """The number of relaxation steps is set arbitrarily during execution of
+    `predictions.py`. This script determines the optimal number of steps to use for a
+    given config using OCP validation data.
 
     Raises:
         ValueError: The provided config is invalid.
