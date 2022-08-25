@@ -247,7 +247,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
             )
         elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions, bulk_id
+                entry["pbx"], entry["pbx_entry"], conditions
             )
         return decomp_bools
 
