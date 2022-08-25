@@ -20,7 +20,8 @@ if __name__ == "__main__":
     """Process trajectories to summary validation pickle file.
     Args:
         folders (str): folders where ML trajectories are found.
-        dft_df_path (str): Location of dataframe containing reference DFT values.
+        dft_df_path (str, optional): Location of dataframe containing reference
+        DFT values. Defaults to "catlas/parity/df_pkls/OC_20_val_data.pkl"
         model_id (str): Arbitrary model name
         n_workers (int): Number of workers to use
     """
