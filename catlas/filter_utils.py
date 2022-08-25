@@ -308,7 +308,8 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
 
 
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
-    """Evaluates decomposition energies at regular pH and voltage windows at specified pH and voltage points.
+    """Evaluates decomposition energies at regular pH and voltage windows at specified
+    pH and voltage points.
 
     Args:
         pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
