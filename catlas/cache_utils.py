@@ -122,9 +122,9 @@ def sqlitedict_memoize(
         # function code itself
         db_loc = ".".join(base)
 
-        # Add a couple of shard digits so that actually we reference a subfolder 
+        # Add a couple of shard digits so that actually we reference a subfolder
         # (string is hex, so two shard digits is 16^2 shards)
-        # the numer of shards should be approximately equal to the number of expected 
+        # the numer of shards should be approximately equal to the number of expected
         # simultaneous writers
         if shard_digits > 0:
             db_loc = str(db_loc) + "/" + key.decode()[0:shard_digits] + ".sqlite"
@@ -140,7 +140,7 @@ def sqlitedict_memoize(
         try:
             cache.__enter__()
             result = cache[key]
-        except (pickle.PicklingError, sqlite3.OperationalError, KeyError) as e:
+        except (pickle.PicklingError, sqlite3.OperationalError, KeyError):
             # It's in the cache, but the pickle data is corrupted :(
             pass
 
@@ -160,9 +160,9 @@ def sqlitedict_memoize(
 
 class SqliteSingleThreadDict(dict):
 
-    # This code was originally adapted from the excellect sqlitedict package (Apache2 
+    # This code was originally adapted from the excellect sqlitedict package (Apache2
     # license)
-    # It was almost entirely re-written as the use case here is much simpler than what 
+    # It was almost entirely re-written as the use case here is much simpler than what
     # sqlitedict provides
 
     def __init__(
