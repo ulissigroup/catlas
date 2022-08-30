@@ -10,6 +10,7 @@ import yaml
 from dask import bag as db
 from dask.distributed import wait
 from jinja2 import Template
+import argparse
 
 import catlas.dask_utils
 from catlas.adslab_predictions import energy_prediction
@@ -36,11 +37,57 @@ from catlas.sankey.sankey_utils import Sankey
 
 
 def parse_inputs():
-    pass
+    """bin/predictions.py takes in two command-line inputs: a path to a config file
+    describing how predictions are run, and a path to a dask cluster script that
+    determines how to connect to a dask cluster that will execute computations. This
+    script validates the config file and runs the dask cluster script, returning the
+    config and dask cluster script for further use by the main script.
 
+    Returns:
+        dict: a config describing what adsorption predictions to run.
+    """
+    parser = argparse.ArgumentParser(description="Predict adsorption energies.")
+    parser.add_argument(
+        "config_path",
+        type=str,
+        help="""A path to a config yml file describing what adsorption predictions to
+        run.""",
+    )
+    parser.add_argument(
+        "dask_cluster_script_path",
+        type=str,
+        help="""A path to a script defining how to connect to a dask cluster that will
+        run calculations.""",
+    )
 
-def start_cluster():
-    pass
+    args = parser.parse_args()
+    config_path, dask_cluster_script_path = (
+        args.config_path,
+        args.dask_cluster_script_path,
+    )
+
+    template = Template(open(config_path).read())
+    config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
+    if config.get("validate", True) and not config_validator.validate(config):
+        raise ValueError(
+            f"""Config has the following errors:{os.linesep}{
+                os.linesep.join(
+                    [
+                        ": ".join([f'"{i}"' for i in item])
+                        for item in config_validator.errors.items()
+                    ]
+            )
+            }"""
+        )
+    else:
+        print("Config validated")
+
+    # Start the dask cluster
+    dask_cluster_script = Template(open(dask_cluster_script_path).read()).render(
+        **os.environ
+    )
+
+    return config, dask_cluster_script
 
 
 def load_bulks_and_filter():
@@ -87,22 +134,8 @@ if __name__ == "__main__":
         ValueError: The provided config is invalid.
     """
     # Load the config yaml
-    config_path = sys.argv[1]
-    template = Template(open(config_path).read())
-    config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
-    if config.get("validate", True) and not config_validator.validate(config):
-        raise ValueError(
-            f"""Config has the following errors:{os.linesep}{
-                os.linesep.join(
-                    [
-                        ": ".join([f'"{i}"' for i in item])
-                        for item in config_validator.errors.items()
-                    ]
-            )
-            }"""
-        )
-    else:
-        print("Config validated")
+    config, dask_cluster_script = parse_inputs()
+
     # Establish run information
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
@@ -121,8 +154,6 @@ if __name__ == "__main__":
                 ensure the model selected meets your needs."""
         )
 
-    # Start the dask cluster
-    dask_cluster_script = Template(open(sys.argv[2]).read()).render(**os.environ)
     exec(dask_cluster_script)
 
     # Load the bulks
