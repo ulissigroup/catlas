@@ -39,6 +39,34 @@ from catlas.parity.parity_utils import get_parity_upfront
 from catlas.sankey.sankey_utils import Sankey
 
 
+def parse_inputs():
+    pass
+
+
+def start_cluster():
+    pass
+
+
+def load_bulks_and_filter():
+    pass
+
+
+def load_adsorbates_and_filter():
+    pass
+
+
+def enumerate_surfaces_and_filter():
+    pass
+
+
+def enumerate_and_predict_adslabs():
+    pass
+
+
+def generate_outputs():
+    pass
+
+
 # Load inputs and define global vars
 if __name__ == "__main__":
 
