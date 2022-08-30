@@ -46,8 +46,9 @@ def parse_inputs():
 
     This function loads and validates the config, pulls the run_id from the config,
     generates the dask cluster script from the dask cluster script path, makes a folder
-    for the ouputs, generates parity plots if available for the model(s) used, and
-    writes "CATLAS" in large isometrically displayed ASCII letters.
+    for the ouputs, generates parity plots if available for the model(s) in use,
+    generates a Sankey dictionary for later use in the script, and writes "CATLAS" in
+    large isometrically displayed ASCII letters.
 
     Returns:
         dict: a config describing what adsorption predictions to run.
@@ -107,10 +108,21 @@ def parse_inputs():
                 ensure the model selected meets your needs."""
         )
 
+    sankey = Sankey(
+        {
+            "label": ["Adsorbates from db", "Bulks from db"],
+            "source": [],
+            "target": [],
+            "value": [],
+            "x": [0.001, 0.001],
+            "y": [0.001, 0.8],
+        }
+    )
+
     with open("catlas/catlas_ascii.txt", "r") as f:
         print(f.read())
 
-    return config, dask_cluster_script, run_id
+    return config, dask_cluster_script, run_id, sankey
 
 
 def load_bulks_and_filter():
@@ -156,8 +168,7 @@ if __name__ == "__main__":
     Raises:
         ValueError: The provided config is invalid.
     """
-    config, dask_cluster_script, run_id = parse_inputs()
-
+    config, dask_cluster_script, run_id, sankey = parse_inputs()
     exec(dask_cluster_script)
 
     # Load the bulks
@@ -178,18 +189,6 @@ if __name__ == "__main__":
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
             pbx_dicts = bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
-
-    # Instantiate Sankey dictionary
-    sankey = Sankey(
-        {
-            "label": ["Adsorbates from db", "Bulks from db"],
-            "source": [],
-            "target": [],
-            "value": [],
-            "x": [0.001, 0.001],
-            "y": [0.001, 0.8],
-        }
-    )
 
     # Filter the bulks
     initial_bulks = bulk_df.shape[0].compute()
