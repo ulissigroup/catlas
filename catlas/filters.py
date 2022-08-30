@@ -246,7 +246,7 @@ def adsorbate_filter(config, dask_df, sankey):
     return dask_df, sankey
 
 
-def predictions_filter(bag_partition, config, sankey):
+def predictions_filter(bag_partition, config):
     """Filter surfaces based on whether their predicted adsorption energies satisfy
     criteria specifed in an input config file.
 

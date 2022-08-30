@@ -12,7 +12,7 @@ from ocpmodels.preprocessing import AtomsToGraphs
 
 
 class CustomAdsorbate(Adsorbate):
-    """A custom adsorbate object for easy data transfer during predictions."""
+    """A custom adsorbate object for ocdata compatability."""
 
     def __init__(self, ads_atoms, bond_indices, smiles):
         self.atoms = ads_atoms
@@ -21,7 +21,7 @@ class CustomAdsorbate(Adsorbate):
 
 
 class CustomBulk(Bulk):
-    """A custom bulk object for easy data transfer during predictions."""
+    """A custom bulk object for ocdata compatability."""
 
     def __init__(self, bulk_atoms):
         self.bulk_atoms = bulk_atoms

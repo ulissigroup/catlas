@@ -8,7 +8,7 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def load_ocdata_adsorbates(adsorbate_path):
-    """Load in a list of commonly used adsorbates."""
+    """Load in a list of adsorbates."""
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         adsorbate_path,

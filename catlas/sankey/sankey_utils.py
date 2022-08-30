@@ -73,6 +73,16 @@ class Sankey:
     def _add_inference_step(
         self, inference_list: list, step: int, node_num: int, node_idx: int
     ):
+        """
+        Recursively iterates through all of the inference steps in the config
+        and adds them to the Sankey diagram.
+
+        Args:
+            inference_list: list of inference steps from the config yml
+            step: the number of the step in the list
+            node_num: the flow value at the node (i.e. number of adslabs predicted on)
+            node_idx: the index of the node that information is flowing to
+        """
         if step < len(inference_list):
             node_idx_next = len(self.info_dict["label"])
             node_num_next = inference_list[step]["counts"]
@@ -160,6 +170,8 @@ class Sankey:
 
         Args:
             run_id: unique id for the run to be used as a location for saving outputs
+            use_log (boolean, optional): if the sankey flow values should be scaled
+            logarithmically. Defaults to True.
 
         Returns:
             a pdf of the sankey diagram for the run

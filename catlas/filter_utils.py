@@ -22,6 +22,8 @@ def get_pourbaix_info(entry: dict) -> dict:
         entry: bulk structure entry as constructed by
                catlas.load_bulk_structures.load_bulks_from_db
 
+    Raises:
+        ValueError: The bulk id provided in the entry is not a materials project id
     """
     # Unpack mpid and define some presets
     pbx_entry = None
@@ -260,7 +262,7 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
         pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
         object containing information about the reference chemical system.
         pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
-        specific to the material we want to calculate the decomposition entry of.
+        specific to the material we want to calculate the decomposition energy of.
         conditions (dict): A dictionary specifying what conditions to evaluate the
         decomposition energy at. Contains the following key-value pairs:
             pH_step (float): how far apart to evaluate consecutive pH points
@@ -315,7 +317,7 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
         pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
         object containing information about the reference chemical system.
         pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
-        specific to the material we want to calculate the decomposition entry of.
+        specific to the material we want to calculate the decomposition energy of.
         conditions (list[dict]): A list of dictionaries specifying what conditions to
         evaluate the decomposition energy at. Each dictionary contains the following
         key-value pairs:
@@ -339,7 +341,12 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
 
 
 def get_first_type(x):
-    """Get the type of the input, unpacking lists first if necessary."""
+    """
+    Get the type of the input, unpacking lists first if necessary.
+    This is used to discard large objects from the output df of catlas if they are
+    specified as unnecessary in the config yaml by examining the type of objects in
+    a list where applicable.
+    """
     if type(x) == list and len(x) > 0:
         return type(x[0])
     else:

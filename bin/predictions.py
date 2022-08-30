@@ -192,7 +192,8 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             if "filter" in step["step_type"]:
                 results_bag = results_bag.map_partitions(
-                    predictions_filter, step, sankey
+                    predictions_filter,
+                    step,
                 )
             elif step["step_type"] == "inference" and step["gpu"]:
                 inference = True
