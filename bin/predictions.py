@@ -46,7 +46,8 @@ def parse_inputs():
 
     This function loads and validates the config, pulls the run_id from the config,
     generates the dask cluster script from the dask cluster script path, makes a folder
-    for the ouputs, and writes "CATLAS" in large isometrically displayed ASCII letters.
+    for the ouputs, generates parity plots if available for the model(s) used, and
+    writes "CATLAS" in large isometrically displayed ASCII letters.
 
     Returns:
         dict: a config describing what adsorption predictions to run.
@@ -96,6 +97,15 @@ def parse_inputs():
 
     run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
     os.makedirs(f"outputs/{run_id}/")
+
+    if ("make_parity_plots" in config["output_options"]) and (
+        config["output_options"]["make_parity_plots"]
+    ):
+        get_parity_upfront(config, run_id)
+        print(
+            """Parity plots are ready if data was available, please review them to
+                ensure the model selected meets your needs."""
+        )
 
     with open("catlas/catlas_ascii.txt", "r") as f:
         print(f.read())
@@ -147,16 +157,6 @@ if __name__ == "__main__":
         ValueError: The provided config is invalid.
     """
     config, dask_cluster_script, run_id = parse_inputs()
-
-    # Generate parity plots
-    if ("make_parity_plots" in config["output_options"]) and (
-        config["output_options"]["make_parity_plots"]
-    ):
-        get_parity_upfront(config, run_id)
-        print(
-            """Parity plots are ready if data was available, please review them to
-                ensure the model selected meets your needs."""
-        )
 
     exec(dask_cluster_script)
 
