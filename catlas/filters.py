@@ -251,7 +251,7 @@ def predictions_filter(bag_partition, config, sankey):
     criteria specifed in an input config file.
 
     Args:
-        bag_partition (pandas.core.frame.DataFrame): a partition of a Dask DataFrame.
+        bag_partition (Iterable[dict]): a partition of a Dask Bag.
         Each partition should contain columns "bulk_id", "slab_millers", "slab_shift",
         "slab_top", "adsorbate_smiles", "filter_reason", and a column whose name is the
         same as the value in the "filter_column" field of the input config.
@@ -260,7 +260,7 @@ def predictions_filter(bag_partition, config, sankey):
         prediction filters.
 
     Returns:
-        pandas.core.frame.DataFrame: an updated version of the input DataFrame
+        Iterable[dict]: an updated version of the input Bag partition
         containing an updated column "filter_reason" that has been modified to include
         rows filtered out according to the input config.
     """
