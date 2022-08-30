@@ -65,20 +65,41 @@ def generate_outputs():
 
 # Load inputs and define global vars
 if __name__ == "__main__":
+    """Run predictions according to input config file
 
+    Usage (see examples in `.github/workflows/automated_screens`):
+        If cluster is not running, start it:
+            kubectl apply -f \
+                configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+            kubectl scale --replicas=4 daskworkergroup \
+                catlas-hybrid-cluster-default-worker-group
+            kubectl scale --replicas=1 daskworkergroup \
+                catlas-hybrid-cluster-gpu-worker-group
+        python bin/predictions.py path/to/config.yml \
+            configs/dask_cluster/dask_operator/dask_connect.py
+
+    Args:
+        config (str): File path where a config is found. Example configs can be
+            found in `configs/automated_screens` and
+            `.github/workflows/automated_screens`
+        dask_connect_script (str): script to connect to running dask cluster
+    Raises:
+        ValueError: The provided config is invalid.
+    """
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
     config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
     if config.get("validate", True) and not config_validator.validate(config):
         raise ValueError(
-            "Config has the following errors:\n%s"
-            % "\n".join(
-                [
-                    ": ".join(['"%s"' % str(i) for i in item])
-                    for item in config_validator.errors.items()
-                ]
+            f"""Config has the following errors:{os.linesep}{
+                os.linesep.join(
+                    [
+                        ": ".join([f'"{i}"' for i in item])
+                        for item in config_validator.errors.items()
+                    ]
             )
+            }"""
         )
     else:
         print("Config validated")
@@ -96,7 +117,8 @@ if __name__ == "__main__":
     ):
         get_parity_upfront(config, run_id)
         print(
-            "Parity plots are ready if data was available, please review them to ensure the model selected meets your needs."
+            """Parity plots are ready if data was available, please review them to
+                ensure the model selected meets your needs."""
         )
 
     # Start the dask cluster
@@ -141,7 +163,7 @@ if __name__ == "__main__":
     # Force dask to distribute the bulk objects across all workers
     # Two rebalances were necessary for some reason.
     wait(bulk_df)
-    client.rebalance(bulk_df)
+    client.rebalance(bulk_df)  # `client` is defined during `exec(dask_cluster_script)`
     client.rebalance(bulk_df)
 
     # Filter the bulks
@@ -199,7 +221,8 @@ if __name__ == "__main__":
         for step in config["adslab_prediction_steps"]:
             if "filter" in step["step_type"]:
                 results_bag = results_bag.map_partitions(
-                    predictions_filter, step, sankey
+                    predictions_filter,
+                    step,
                 )
             elif step["step_type"] == "inference" and step["gpu"]:
                 inference = True

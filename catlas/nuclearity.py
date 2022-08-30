@@ -65,7 +65,8 @@ def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix
     """
     Function that counts the like surface neighbors for surface atoms
     Args:
-        surface_atoms_of_element: list of all surface atoms which are of a specific element
+        surface_atoms_of_element: list of all surface atoms which are of a specific
+        element
         connectivity_matrix: matrix memorializing which atoms in the slab are connected
 
     Returns:
@@ -112,7 +113,8 @@ def get_connectivity_matrix(slab_atoms):
         overall_connectivity_matrix
     """
     # For initial atoms
-    surface_indices = [idx for idx, tag in enumerate(slab_atoms.get_tags()) if tag == 1]
+    # surface_indices = [idx for idx, tag in enumerate(slab_atoms.get_tags()) if tag ==
+    # 1]
     cutOff = natural_cutoffs(slab_atoms)
     neighborList = neighborlist.NeighborList(
         cutOff, self_interaction=False, bothways=True

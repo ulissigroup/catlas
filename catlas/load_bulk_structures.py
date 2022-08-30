@@ -2,7 +2,6 @@
 import os.path
 
 import numpy as np
-import pandas as pd
 from ase.db import connect
 
 import catlas
@@ -16,17 +15,19 @@ required_fields = (
     "xc",
     "nelements",
     "elements",
-)  # These fields are expected to exist in every input file that doesn't allow them to be directly calculated
+)  # These fields are expected to exist in every input file that doesn't allow them to
+# be directly calculated
 
 
 def load_bulks(bulk_path):
-    """
-    Load bulks from an ase.db
+    """Load bulks from an ase.db
 
     Args:
-        bulk_path: a relative path (from the main catlas directory) to the ase.db
-    """
+        bulk_path (str): a relative path (from the main catlas directory) to the ase.db
 
+    Returns:
+        list[dict]: A list of dictionaries corresponding to bulk structures.
+    """
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         bulk_path,

@@ -2,13 +2,12 @@ import os
 import pickle
 import warnings
 
-import cerberus
 import lmdb
 import numpy as np
 from mp_api import MPRester
 
 import catlas
-from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixEntry
+from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -16,12 +15,15 @@ from pymatgen.io.ase import AseAtomsAdaptor
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Grabs the relevant pourbaix entries for a given mpid
-    from Materials Project and constructs a pourbaix diagram for it. This currently only supports MP materials.
+    from Materials Project and constructs a pourbaix diagram for it. This currently
+    only supports MP materials.
 
     Args:
         entry: bulk structure entry as constructed by
                catlas.load_bulk_structures.load_bulks_from_db
 
+    Raises:
+        ValueError: The bulk id provided in the entry is not a materials project id
     """
     # Unpack mpid and define some presets
     pbx_entry = None
@@ -30,7 +32,8 @@ def get_pourbaix_info(entry: dict) -> dict:
     # Raise an error if non-MP materials used
     if mpid.split("-")[0] != "mp" and mpid.split("-")[0] != "mvc":
         raise ValueError(
-            "Pourbaix filtering is only supported for Materials Project materials (bad id: '%s')."
+            """Pourbaix filtering is only supported for Materials Project materials (bad
+            id: '%s')."""
             % mpid
         )
 
@@ -117,6 +120,7 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
 
 
 def pb_query_and_write(entry: dict, lmdb_path: str):
+    """Pull pourbaix info from MP and write it to the lmdb"""
     pourbaix_info = get_pourbaix_info(entry)
     write_pourbaix_info(pourbaix_info, lmdb_path)
 
@@ -175,9 +179,9 @@ def get_elements_in_groups(groups: list) -> list:
 
 def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     """
-    Reads the relevant Pourbaix info from the lmdb and evaluates stability at the desired
-    points, returns a list of booleans capturing whether or not the material is stable
-    under given conditions.
+    Reads the relevant Pourbaix info from the lmdb and evaluates stability at the
+    desired points, returns a list of booleans capturing whether or not the material is
+    stable under given conditions.
 
     Args:
         entry: A dictionary containing the bulk entry which will be assessed
@@ -192,7 +196,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
     )
 
     # Grab the entry of interest
-    ## Open lmdb
+    # Open lmdb
     env = lmdb.open(
         str(lmdb_path),
         subdir=False,
@@ -203,13 +207,13 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         max_readers=100,
     )
 
-    ## Begin read transaction (txn)
+    # Begin read transaction (txn)
     txn = env.begin()
 
-    ## Get entry and unpickle it
+    # Get entry and unpickle it
     entry_pickled = txn.get(bulk_id.encode("ascii"))
 
-    if entry_pickled != None:
+    if entry_pickled is not None:
         entry = pickle.loads(entry_pickled)
     else:
         print(f"querying {bulk_id} becuase it wasn't found in the lmdb path provided")
@@ -228,7 +232,7 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         entry_pickled = txn.get(bulk_id.encode("ascii"))
         entry = pickle.loads(entry_pickled)
 
-    ## Close lmdb
+    # Close lmdb
     env.close()
 
     # Handle exception where pourbaix query was unsuccessful
@@ -237,20 +241,41 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
         return [False]
     # Determine electrochemical stability
     else:
-        # see what electrochemical conditions to consider and find the decomposition energies
+        # see what electrochemical conditions to consider and find the decomposition
+        # energies
         if "pH_lower" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_range(
                 entry["pbx"], entry["pbx_entry"], conditions
             )
         elif "conditions_list" in conditions.keys():
             decomp_bools = get_decomposition_bools_from_list(
-                entry["pbx"], entry["pbx_entry"], conditions, bulk_id
+                entry["pbx"], entry["pbx_entry"], conditions
             )
         return decomp_bools
 
 
 def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
-    """Evaluates the decomposition energies under the desired range of conditions"""
+    """Evaluates decomposition energies at regular pH and voltage windows within
+    specified intervals.
+
+    Args:
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
+        object containing information about the reference chemical system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+        specific to the material we want to calculate the decomposition energy of.
+        conditions (dict): A dictionary specifying what conditions to evaluate the
+        decomposition energy at. Contains the following key-value pairs:
+            pH_step (float): how far apart to evaluate consecutive pH points
+            pH_upper (float): the maximum pH to evaluate
+            pH_lower (float) the minimum pH to evaluate
+            V_step (float): how far apart to evaluate consecutive voltage points
+            V_upper (float): the maximum voltage to evaluate
+            V_lower (float) the minimum voltage to evaluate
+
+    Returns:
+        Iterable[bool]: A list corresponding to whether the input entry is stable under
+        each set of conditions.
+    """
     list_of_bools = []
 
     # Use default step if one is not specified
@@ -284,8 +309,25 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
     return list_of_bools
 
 
-def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
-    """Evaluates the decomposition energies under the desired set of conditions"""
+def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
+    """Evaluates decomposition energies at regular pH and voltage windows at specified
+    pH and voltage points.
+
+    Args:
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
+        object containing information about the reference chemical system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+        specific to the material we want to calculate the decomposition energy of.
+        conditions (list[dict]): A list of dictionaries specifying what conditions to
+        evaluate the decomposition energy at. Each dictionary contains the following
+        key-value pairs:
+            pH (float): the pH to evaluate a decomposition energy at.
+            V (float): the voltage to evaluate a decomposition energy at.
+
+    Returns:
+        Iterable[bool]: A list corresponding to whether the input entry is stable under
+        each set of conditions.
+    """
     list_of_bools = []
     for condition in conditions["conditions_list"]:
         decomp_energy = pbx.get_decomposition_energy(
@@ -299,6 +341,12 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions, bulk_id):
 
 
 def get_first_type(x):
+    """
+    Get the type of the input, unpacking lists first if necessary.
+    This is used to discard large objects from the output df of catlas if they are
+    specified as unnecessary in the config yaml by examining the type of objects in
+    a list where applicable.
+    """
     if type(x) == list and len(x) > 0:
         return type(x[0])
     else:

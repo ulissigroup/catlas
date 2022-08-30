@@ -9,7 +9,8 @@ class Sankey:
         Initialize class to facilitate Sankey diagram construction.
 
         Args:
-        info_dict: a dictionary of values that will be used to populate the output sankey diagram
+        info_dict: a dictionary of values that will be used to populate the output
+        sankey diagram
         """
         self.info_dict = info_dict
 
@@ -72,6 +73,16 @@ class Sankey:
     def _add_inference_step(
         self, inference_list: list, step: int, node_num: int, node_idx: int
     ):
+        """
+        Recursively iterates through all of the inference steps in the config
+        and adds them to the Sankey diagram.
+
+        Args:
+            inference_list: list of inference steps from the config yml
+            step: the number of the step in the list
+            node_num: the flow value at the node (i.e. number of adslabs predicted on)
+            node_idx: the index of the node that information is flowing to
+        """
         if step < len(inference_list):
             node_idx_next = len(self.info_dict["label"])
             node_num_next = inference_list[step]["counts"]
@@ -85,7 +96,8 @@ class Sankey:
             )
             if node_num != inference_list[step]["counts"]:
                 self.update_dictionary(
-                    f"Adslabs filtered out ({node_num - inference_list[step]['counts']})",
+                    f"""Adslabs filtered out ({node_num - inference_list[step]
+                    ['counts']})""",
                     node_idx,
                     len(self.info_dict["label"]),
                     node_num - inference_list[step]["counts"],
@@ -107,7 +119,8 @@ class Sankey:
         """
         if num_adslabs is None:
             warnings.warn(
-                "Adslabs were not computed and therefore will not appear in the Sankey diagram"
+                """Adslabs were not computed and therefore will not appear in the
+                Sankey diagram"""
             )
             num_adslabs = 0
 
@@ -157,6 +170,8 @@ class Sankey:
 
         Args:
             run_id: unique id for the run to be used as a location for saving outputs
+            use_log (boolean, optional): if the sankey flow values should be scaled
+            logarithmically. Defaults to True.
 
         Returns:
             a pdf of the sankey diagram for the run
