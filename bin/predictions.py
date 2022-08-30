@@ -313,11 +313,114 @@ def enumerate_and_predict_adslabs(
 
                 most_recent_step = "min_" + step["label"]
     results_bag = results_bag.persist(optimize_graph=False)
-    return results_bag
+    return results_bag, adslab_atoms_bag, inference, most_recent_step
 
 
-def generate_outputs():
-    pass
+def generate_outputs(
+    config,
+    results_bag,
+    run_id,
+    inference,
+):
+    # Handle results
+    verbose = (
+        "verbose" in config["output_options"] and config["output_options"]["verbose"]
+    )
+
+    num_adslabs = None
+    if config["output_options"]["pickle_intermediate_outputs"]:
+        os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
+        to_pickles(
+            results_bag,
+            f"outputs/{run_id}/intermediate_pkls/" + "/*.pkl",
+            optimize_graph=False,
+        )
+
+    if verbose or config["output_options"]["pickle_final_output"]:
+        results = results_bag.compute(optimize_graph=False)
+        df_results = pd.DataFrame(results)
+        if inference:
+            num_inferred = []
+            for step in config["adslab_prediction_steps"]:
+                if step["step_type"] == "inference":
+                    counts = sum(
+                        df_results[~df_results["min_" + step["label"]].isnull()][
+                            step["label"]
+                        ].apply(len)
+                    )
+                    label = step["label"]
+                    num_inferred.append({"counts": counts, "label": label})
+            num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
+        num_filtered_slabs = len(df_results)
+        if verbose and inference:
+
+            print(
+                df_results[
+                    [
+                        "bulk_elements",
+                        "bulk_id",
+                        "bulk_data_source",
+                        "slab_millers",
+                        "adsorbate_smiles",
+                        most_recent_step,
+                    ]
+                ]
+            )
+        elif verbose:
+            print(
+                df_results[
+                    [
+                        "bulk_elements",
+                        "bulk_id",
+                        "bulk_data_source",
+                        "slab_millers",
+                        "adsorbate_smiles",
+                    ]
+                ]
+            )
+
+    else:
+        # Important to use optimize_grap=False so that the information
+        # on only running GPU inference on GPUs is saved
+        results = results_bag.persist(optimize_graph=False)
+        wait(results)
+        num_filtered_slabs = results.count().compute()
+
+    if config["output_options"]["pickle_final_output"]:
+        pickle_path = f"outputs/{run_id}/results_df.pkl"
+
+        if (
+            "output_all_structures" in config["output_options"]
+            and config["output_options"]["output_all_structures"]
+        ):
+            adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
+            df_results["adslab_atoms"] = adslab_atoms
+            df_results.to_pickle(pickle_path)
+            if not inference:
+                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
+                num_filtered_slabs = len(df_results)
+                num_inferred = [0]
+        else:
+            # screen classes from custom packages
+            class_mask = (
+                df_results.columns.to_series()
+                .apply(
+                    lambda x: str(
+                        get_first_type(
+                            df_results[x].iloc[df_results[x].first_valid_index()]
+                        )
+                    )
+                    if type(df_results[x].first_valid_index()) == int
+                    else str(type(df_results[x].iloc[0]))
+                )
+                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            )
+            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
+
+    with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
+        yaml.dump(config, fhandle)
+
+    return num_adslabs, num_inferred, num_filtered_slabs
 
 
 # Load inputs and define global vars
@@ -369,111 +472,18 @@ if __name__ == "__main__":
         most_recent_step,
     ) = enumerate_and_predict_adslabs(config, surface_bag, adsorbate_bag)
 
-    # Handle results
-    verbose = (
-        "verbose" in config["output_options"] and config["output_options"]["verbose"]
+    num_adslabs, num_inferred, num_filtered_slabs = generate_outputs(
+        config, results_bag, run_id, inference
     )
-
-    if config["output_options"]["pickle_intermediate_outputs"]:
-        os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
-        to_pickles(
-            results_bag,
-            f"outputs/{run_id}/intermediate_pkls/" + "/*.pkl",
-            optimize_graph=False,
-        )
-
-    if verbose or config["output_options"]["pickle_final_output"]:
-        results = results_bag.compute(optimize_graph=False)
-        df_results = pd.DataFrame(results)
-        if inference:
-            num_inferred = []
-            for step in config["adslab_prediction_steps"]:
-                if step["step_type"] == "inference":
-                    counts = sum(
-                        df_results[~df_results["min_" + step["label"]].isnull()][
-                            step["label"]
-                        ].apply(len)
-                    )
-                    label = step["label"]
-                    num_inferred.append({"counts": counts, "label": label})
-            num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
-        filtered_slabs = len(df_results)
-        if verbose and inference:
-
-            print(
-                df_results[
-                    [
-                        "bulk_elements",
-                        "bulk_id",
-                        "bulk_data_source",
-                        "slab_millers",
-                        "adsorbate_smiles",
-                        most_recent_step,
-                    ]
-                ]
-            )
-        elif verbose:
-            print(
-                df_results[
-                    [
-                        "bulk_elements",
-                        "bulk_id",
-                        "bulk_data_source",
-                        "slab_millers",
-                        "adsorbate_smiles",
-                    ]
-                ]
-            )
-
-    else:
-        # Important to use optimize_grap=False so that the information
-        # on only running GPU inference on GPUs is saved
-        results = results_bag.persist(optimize_graph=False)
-        wait(results)
-        filtered_slabs = results.count().compute()
-
-    if config["output_options"]["pickle_final_output"]:
-        pickle_path = f"outputs/{run_id}/results_df.pkl"
-
-        if (
-            "output_all_structures" in config["output_options"]
-            and config["output_options"]["output_all_structures"]
-        ):
-            adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
-            df_results["adslab_atoms"] = adslab_atoms
-            df_results.to_pickle(pickle_path)
-            if not inference:
-                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
-                filtered_slabs = len(df_results)
-                num_inferred = [0]
-        else:
-            # screen classes from custom packages
-            class_mask = (
-                df_results.columns.to_series()
-                .apply(
-                    lambda x: str(
-                        get_first_type(
-                            df_results[x].iloc[df_results[x].first_valid_index()]
-                        )
-                    )
-                    if type(df_results[x].first_valid_index()) == int
-                    else str(type(df_results[x].iloc[0]))
-                )
-                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
-            )
-            df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
-
-    with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
-        yaml.dump(config, fhandle)
 
     # Make final updates to the sankey diagram and plot it
 
-    if "num_adslabs" not in vars():
+    if num_adslabs is None:
         num_adslabs = num_inferred = [0]
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )
-    sankey.add_slab_info(num_unfiltered_slabs, filtered_slabs)
+    sankey.add_slab_info(num_unfiltered_slabs, num_filtered_slabs)
 
     sankey.add_adslab_info(num_adslabs, num_inferred)
     sankey.get_sankey_diagram(run_id)
