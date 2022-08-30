@@ -200,11 +200,11 @@ def load_adsorbates_and_filter(config, sankey):
     adsorbate_df = db.from_delayed([adsorbate_delayed]).to_dataframe()
     filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
 
-    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
-    adsorbate_num = filtered_adsorbate_bag.count().compute()
+    adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
+    adsorbate_num = adsorbate_bag.count().compute()
     print("Number of filtered adsorbates: %d" % adsorbate_num)
 
-    return filtered_adsorbate_bag, sankey
+    return adsorbate_bag, sankey
 
 
 def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
@@ -228,58 +228,13 @@ def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
     return surface_bag, num_unfiltered_slabs
 
 
-def enumerate_and_predict_adslabs():
-    pass
-
-
-def generate_outputs():
-    pass
-
-
-# Load inputs and define global vars
-if __name__ == "__main__":
-    """Run predictions according to input config file
-
-    Usage (see examples in `.github/workflows/automated_screens`):
-        If cluster is not running, start it:
-            kubectl apply -f \
-                configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
-            kubectl scale --replicas=4 daskworkergroup \
-                catlas-hybrid-cluster-default-worker-group
-            kubectl scale --replicas=1 daskworkergroup \
-                catlas-hybrid-cluster-gpu-worker-group
-        python bin/predictions.py path/to/config.yml \
-            configs/dask_cluster/dask_operator/dask_connect.py
-
-    Args:
-        config (str): File path where a config is found. Example configs can be
-            found in `configs/automated_screens` and
-            `.github/workflows/automated_screens`
-        dask_connect_script (str): script to connect to running dask cluster
-    Raises:
-        ValueError: The provided config is invalid.
-    """
-    config, dask_cluster_script, run_id, sankey = parse_inputs()
-    exec(dask_cluster_script)
-
-    filtered_catalyst_bag, sankey, bulk_num = load_bulks_and_filter(
-        config,
-        client,  # this variable is created during `exec(dask_cluster_script)`
-        sankey,
-    )
-
-    # partition to 1 bulk per partition
-    filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
-
-    filtered_adsorbate_bag, sankey = load_adsorbates_and_filter(config, sankey)
-
-    (
-        surface_bag,
-        num_unfiltered_slabs,
-    ) = enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num)
-
+def enumerate_and_predict_adslabs(
+    config,
+    surface_bag,
+    adsorbate_bag,
+):
     # Enumerate slab - adsorbate combos
-    surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
+    surface_adsorbate_combo_bag = surface_bag.product(adsorbate_bag)
 
     # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
@@ -357,13 +312,67 @@ if __name__ == "__main__":
                 )
 
                 most_recent_step = "min_" + step["label"]
+    results_bag = results_bag.persist(optimize_graph=False)
+    return results_bag
+
+
+def generate_outputs():
+    pass
+
+
+# Load inputs and define global vars
+if __name__ == "__main__":
+    """Run predictions according to input config file
+
+    Usage (see examples in `.github/workflows/automated_screens`):
+        If cluster is not running, start it:
+            kubectl apply -f \
+                configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml
+            kubectl scale --replicas=4 daskworkergroup \
+                catlas-hybrid-cluster-default-worker-group
+            kubectl scale --replicas=1 daskworkergroup \
+                catlas-hybrid-cluster-gpu-worker-group
+        python bin/predictions.py path/to/config.yml \
+            configs/dask_cluster/dask_operator/dask_connect.py
+
+    Args:
+        config (str): File path where a config is found. Example configs can be
+            found in `configs/automated_screens` and
+            `.github/workflows/automated_screens`
+        dask_connect_script (str): script to connect to running dask cluster
+    Raises:
+        ValueError: The provided config is invalid.
+    """
+    config, dask_cluster_script, run_id, sankey = parse_inputs()
+    exec(dask_cluster_script)
+
+    filtered_catalyst_bag, sankey, bulk_num = load_bulks_and_filter(
+        config,
+        client,  # this variable is created during `exec(dask_cluster_script)`
+        sankey,
+    )
+
+    # partition to 1 bulk per partition
+    filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
+
+    adsorbate_bag, sankey = load_adsorbates_and_filter(config, sankey)
+
+    (
+        surface_bag,
+        num_unfiltered_slabs,
+    ) = enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num)
+
+    (
+        results_bag,
+        adslab_atoms_bag,
+        inference,
+        most_recent_step,
+    ) = enumerate_and_predict_adslabs(config, surface_bag, adsorbate_bag)
 
     # Handle results
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
-
-    results_bag = results_bag.persist(optimize_graph=False)
 
     if config["output_options"]["pickle_intermediate_outputs"]:
         os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
