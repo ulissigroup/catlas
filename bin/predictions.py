@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 import warnings
 import dask
@@ -37,14 +36,22 @@ from catlas.sankey.sankey_utils import Sankey
 
 
 def parse_inputs():
-    """bin/predictions.py takes in two command-line inputs: a path to a config file
-    describing how predictions are run, and a path to a dask cluster script that
-    determines how to connect to a dask cluster that will execute computations. This
-    script validates the config file and runs the dask cluster script, returning the
-    config and dask cluster script for further use by the main script.
+    """Parse and prepare inputs for use by the main script.
+
+    The main script takes in two command-line inputs:
+        `config_path` (str), a path to a config yml file describing what adsorption
+        calculations to run in the main script.
+        `dask_cluster_script_path` (str), a path to a script that connects to a dask
+        cluster that executes calculations run during the main script.
+
+    This function loads and validates the config, pulls the run_id from the config,
+    generates the dask cluster script from the dask cluster script path, makes a folder
+    for the ouputs, and writes "CATLAS" in large isometrically displayed ASCII letters.
 
     Returns:
         dict: a config describing what adsorption predictions to run.
+        str: the text of a python script that connects to a Dask cluster
+        str: a string including a timestamp that uniquely identifies this run.
     """
     parser = argparse.ArgumentParser(description="Predict adsorption energies.")
     parser.add_argument(
@@ -87,7 +94,13 @@ def parse_inputs():
         **os.environ
     )
 
-    return config, dask_cluster_script
+    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
+    os.makedirs(f"outputs/{run_id}/")
+
+    with open("catlas/catlas_ascii.txt", "r") as f:
+        print(f.read())
+
+    return config, dask_cluster_script, run_id
 
 
 def load_bulks_and_filter():
@@ -134,15 +147,11 @@ if __name__ == "__main__":
         ValueError: The provided config is invalid.
     """
     # Load the config yaml
-    config, dask_cluster_script = parse_inputs()
+    config, dask_cluster_script, run_id = parse_inputs()
 
     # Establish run information
-    run_id = time.strftime("%Y%m%d-%H%M%S") + "-" + config["output_options"]["run_name"]
-    os.makedirs(f"outputs/{run_id}/")
 
     # Print catlas to terminal
-    with open("catlas/catlas_ascii.txt", "r") as f:
-        print(f.read())
 
     # Generate parity plots
     if ("make_parity_plots" in config["output_options"]) and (
