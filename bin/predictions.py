@@ -207,8 +207,25 @@ def load_adsorbates_and_filter(config, sankey):
     return filtered_adsorbate_bag, sankey
 
 
-def enumerate_surfaces_and_filter():
-    pass
+def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
+    # Enumerate and filter surfaces
+    unfiltered_surface_bag = (
+        filtered_catalyst_bag.map(
+            catlas.cache_utils.sqlitedict_memoize(
+                config["memory_cache_location"], enumerate_slabs
+            )
+        )
+        .flatten()
+        .persist()
+    )
+    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
+    surface_bag = surface_bag.map(get_nuclearity)
+
+    npartitions = min(bulk_num * 10, 1000)
+
+    surface_bag = surface_bag.repartition(npartitions=npartitions)
+    num_unfiltered_slabs = unfiltered_surface_bag.count().compute()
+    return surface_bag, num_unfiltered_slabs
 
 
 def enumerate_and_predict_adslabs():
@@ -256,22 +273,10 @@ if __name__ == "__main__":
 
     filtered_adsorbate_bag, sankey = load_adsorbates_and_filter(config, sankey)
 
-    # Enumerate and filter surfaces
-    unfiltered_surface_bag = (
-        filtered_catalyst_bag.map(
-            catlas.cache_utils.sqlitedict_memoize(
-                config["memory_cache_location"], enumerate_slabs
-            )
-        )
-        .flatten()
-        .persist()
-    )
-    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
-    surface_bag = surface_bag.map(get_nuclearity)
-
-    # choose the number of partitions after to use after making adslab combos
-    npartitions = min(bulk_num * 10, 1000)
-    surface_bag = surface_bag.repartition(npartitions=npartitions)
+    (
+        surface_bag,
+        num_unfiltered_slabs,
+    ) = enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num)
 
     # Enumerate slab - adsorbate combos
     surface_adsorbate_combo_bag = surface_bag.product(filtered_adsorbate_bag)
@@ -453,14 +458,13 @@ if __name__ == "__main__":
         yaml.dump(config, fhandle)
 
     # Make final updates to the sankey diagram and plot it
-    unfiltered_slabs = unfiltered_surface_bag.count().compute()
 
     if "num_adslabs" not in vars():
         num_adslabs = num_inferred = [0]
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )
-    sankey.add_slab_info(unfiltered_slabs, filtered_slabs)
+    sankey.add_slab_info(num_unfiltered_slabs, filtered_slabs)
 
     sankey.add_adslab_info(num_adslabs, num_inferred)
     sankey.get_sankey_diagram(run_id)
