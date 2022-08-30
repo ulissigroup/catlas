@@ -48,13 +48,14 @@ if __name__ == "__main__":
     config = yaml.load(template.render(**os.environ), Loader=yaml.FullLoader)
     if config.get("validate", True) and not config_validator.validate(config):
         raise ValueError(
-            "Config has the following errors:\n%s"
-            % "\n".join(
-                [
-                    ": ".join(['"%s"' % str(i) for i in item])
-                    for item in config_validator.errors.items()
-                ]
+            f"""Config has the following errors:{os.linesep}{
+                os.linesep.join(
+                    [
+                        ": ".join([f'"{i}"' for i in item])
+                        for item in config_validator.errors.items()
+                    ]
             )
+            }"""
         )
     else:
         print("Config validated")
