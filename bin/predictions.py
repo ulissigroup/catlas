@@ -125,12 +125,86 @@ def parse_inputs():
     return config, dask_cluster_script, run_id, sankey
 
 
-def load_bulks_and_filter():
-    pass
+def load_bulks_and_filter(config, client, sankey):
+    """Load bulk materials from file and filter them according to the input config
+    file. Update sankey diagram based on bulk filtering.
+
+    Args:
+        config (dict): a config file specifying what adsorption calculations to run.
+        client (dask.distributed.Client): a Dask cluster that runs calculations during
+        execution of this program.
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object describing how
+        objects have been filtered so far.
+
+    Returns:
+        dict: a dictionary containing bulk materials that survived filtering
+        catlas.sankey.sankey_utils.Sankey: a Sankey object updated with bulk filtering.
+    """
+    # Load the bulks
+    bulks_delayed = dask.delayed(
+        catlas.cache_utils.sqlitedict_memoize(
+            config["memory_cache_location"], load_bulks
+        )
+    )(config["input_options"]["bulk_file"])
+    bulk_bag = db.from_delayed([bulks_delayed])
+    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=100).persist()
+
+    # Create pourbaix lmdb if it doesnt exist
+    if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
+        lmdb_path = config["bulk_filters"]["filter_by_pourbaix_stability"]["lmdb_path"]
+        if not os.path.isfile(lmdb_path):
+            warnings.warn(
+                "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
+            )
+            bulk_bag = bulk_bag.repartition(npartitions=200)
+            pbx_dicts = bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
+
+    # Filter the bulks
+    initial_bulks = bulk_df.shape[0].compute()
+    print(f"Number of initial bulks: {initial_bulks}")
+
+    # Force dask to distribute the bulk objects across all workers
+    # Two rebalances were necessary for some reason.
+    wait(bulk_df)
+    client.rebalance(bulk_df)  # `client` is defined during `exec(dask_cluster_script)`
+    client.rebalance(bulk_df)
+
+    # Filter the bulks
+    filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
+
+    filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+    bulk_num = filtered_catalyst_bag.count().compute()
+    print("Number of filtered bulks: %d" % bulk_num)
+
+    return filtered_catalyst_bag, sankey, bulk_num
 
 
-def load_adsorbates_and_filter():
-    pass
+def load_adsorbates_and_filter(config, sankey):
+    """Load adsorbates and filter them according to the input config. Update sankey
+    diagram based on adsorbate filtering.
+
+    Args:
+        config (dict): a config file specifying what adsorption calculations to run.
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object describing how
+        objects have been filtered so far.
+
+    Returns:
+        dict: a dictionary containing adsorbates that survived filtering.
+        catlas.sankey.sankey_utils.Sankey: a Sankey object updated with bulk filtering.
+        int: the number of bulk materials that survived filtering.
+    """
+    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
+        config["input_options"]["adsorbate_file"]
+    )
+
+    adsorbate_df = db.from_delayed([adsorbate_delayed]).to_dataframe()
+    filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
+
+    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
+    adsorbate_num = filtered_adsorbate_bag.count().compute()
+    print("Number of filtered adsorbates: %d" % adsorbate_num)
+
+    return filtered_adsorbate_bag, sankey
 
 
 def enumerate_surfaces_and_filter():
@@ -171,53 +245,16 @@ if __name__ == "__main__":
     config, dask_cluster_script, run_id, sankey = parse_inputs()
     exec(dask_cluster_script)
 
-    # Load the bulks
-    bulks_delayed = dask.delayed(
-        catlas.cache_utils.sqlitedict_memoize(
-            config["memory_cache_location"], load_bulks
-        )
-    )(config["input_options"]["bulk_file"])
-    bulk_bag = db.from_delayed([bulks_delayed])
-    bulk_df = bulk_bag.to_dataframe().repartition(npartitions=100).persist()
-
-    # Create pourbaix lmdb if it doesnt exist
-    if "filter_by_pourbaix_stability" in list(config["bulk_filters"].keys()):
-        lmdb_path = config["bulk_filters"]["filter_by_pourbaix_stability"]["lmdb_path"]
-        if not os.path.isfile(lmdb_path):
-            warnings.warn(
-                "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
-            )
-            bulk_bag = bulk_bag.repartition(npartitions=200)
-            pbx_dicts = bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
-
-    # Filter the bulks
-    initial_bulks = bulk_df.shape[0].compute()
-    print(f"Number of initial bulks: {initial_bulks}")
-
-    # Force dask to distribute the bulk objects across all workers
-    # Two rebalances were necessary for some reason.
-    wait(bulk_df)
-    client.rebalance(bulk_df)  # `client` is defined during `exec(dask_cluster_script)`
-    client.rebalance(bulk_df)
-
-    # Filter the bulks
-    filtered_catalyst_df, sankey = bulk_filter(config, bulk_df, sankey, initial_bulks)
-    bulk_num = filtered_catalyst_df.shape[0].compute()
-    print("Number of filtered bulks: %d" % bulk_num)
-    filtered_catalyst_bag = filtered_catalyst_df.to_bag(format="dict").persist()
+    filtered_catalyst_bag, sankey, bulk_num = load_bulks_and_filter(
+        config,
+        client,  # this variable is created during `exec(dask_cluster_script)`
+        sankey,
+    )
 
     # partition to 1 bulk per partition
     filtered_catalyst_bag = bag_split_individual_partitions(filtered_catalyst_bag)
 
-    # Load and filter the adsorbates
-    adsorbate_delayed = dask.delayed(load_ocdata_adsorbates)(
-        config["input_options"]["adsorbate_file"]
-    )
-    adsorbate_df = db.from_delayed([adsorbate_delayed]).to_dataframe()
-    filtered_adsorbate_df, sankey = adsorbate_filter(config, adsorbate_df, sankey)
-    adsorbate_num = filtered_adsorbate_df.shape[0].compute()
-    filtered_adsorbate_bag = filtered_adsorbate_df.to_bag(format="dict")
-    print("Number of filtered adsorbates: %d" % adsorbate_num)
+    filtered_adsorbate_bag, sankey = load_adsorbates_and_filter(config, sankey)
 
     # Enumerate and filter surfaces
     unfiltered_surface_bag = (
