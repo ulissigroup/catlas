@@ -146,12 +146,7 @@ if __name__ == "__main__":
     Raises:
         ValueError: The provided config is invalid.
     """
-    # Load the config yaml
     config, dask_cluster_script, run_id = parse_inputs()
-
-    # Establish run information
-
-    # Print catlas to terminal
 
     # Generate parity plots
     if ("make_parity_plots" in config["output_options"]) and (
