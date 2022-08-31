@@ -5,7 +5,7 @@ on:
     paths:
       - 'Dockerfile'
     branches:
-      - 'main'
+      - 'moving-dockerfile'
 
 jobs:
   docker:
