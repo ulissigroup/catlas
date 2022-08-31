@@ -1,7 +1,7 @@
 name: ci
 
 on:
-  push:
+  workflow_dispatch:
     paths:
       - 'Dockerfile'
     branches:
@@ -28,4 +28,4 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: ulissigroup/catlas:latest
+          tags: ulissigroup/catlas:predictions
