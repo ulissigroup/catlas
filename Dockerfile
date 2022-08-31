@@ -1,5 +1,5 @@
 # Use kubeflow:jovyan_base, which is the base docker-stack image built on nvhpc image
-FROM ulissigroup/kubeflow:extras-notebook
+FROM ulissigroup/kubeflow:base-notebook
 
 # Add channels for pytorch geometric requirements, pytorch, etc
 RUN conda config --add channels pytorch
