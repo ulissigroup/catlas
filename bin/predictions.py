@@ -6,6 +6,7 @@ from catlas.prediction_steps import (
     enumerate_surfaces_and_filter,
     enumerate_and_predict_adslabs,
     generate_outputs,
+    finish_sankey_diagram,
 )
 from catlas.dask_utils import bag_split_individual_partitions
 
@@ -69,7 +70,7 @@ if __name__ == "__main__":
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )
-    sankey.add_slab_info(num_unfiltered_slabs, num_filtered_slabs)
 
-    sankey.add_adslab_info(num_adslabs, num_inferred)
-    sankey.get_sankey_diagram(run_id)
+    sankey = finish_sankey_diagram(
+        sankey, num_unfiltered_slabs, num_adslabs, num_inferred, run_id
+    )
