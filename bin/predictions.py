@@ -208,6 +208,17 @@ def load_adsorbates_and_filter(config, sankey):
 
 
 def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
+    """Enumerate surfaces from an input bulk bag according to the input config.
+
+    Args:
+        config (dict): A config file specifying what surfaces to filter.
+        filtered_catalyst_bag (dask.bag.Bag): A dask Bag object containing a set of bulk materials to enumerate surfaces for.
+        bulk_num (int): The number of bulk materials in the input bag.
+
+    Returns:
+        dask.bag.Bag: A dask Bag containing filtered surfaces
+        int: The number of slabs enumerated from filtered bulks before slab filtering.
+    """
     # Enumerate and filter surfaces
     unfiltered_surface_bag = (
         filtered_catalyst_bag.map(
@@ -233,10 +244,27 @@ def enumerate_and_predict_adslabs(
     surface_bag,
     adsorbate_bag,
 ):
-    # Enumerate slab - adsorbate combos
+    """Generate adslabs from all filtered surfaces and adsorbates, then run predictions
+    on them and filter them according to the input config file.
+
+    Args:
+        config (dict): A config file specifying what surfaces to filter.
+        surface_bag (dask.bag.Bag): A dask Bag object containing a set of surfaces
+        that have been filtered according to the config.
+        adsorbate_bag (dask.bag.Bag): A dask Bag object containing a set of adsorbates
+        that have been filtered according to the config.
+
+    Returns:
+        dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption
+        energies according to models specified in the config file.
+        dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
+        bool: True if a model was used to predict adsorption energies of the inputs.
+        str: the name of the column corresponding to the minimum adsorption energy
+        on each surface according to the model that was run last during predictions.
+    """
+
     surface_adsorbate_combo_bag = surface_bag.product(adsorbate_bag)
 
-    # Enumerate the adslab configs and the graphs on any worker
     adslab_atoms_bag = surface_adsorbate_combo_bag.map(
         catlas.cache_utils.sqlitedict_memoize(
             config["memory_cache_location"], enumerate_adslabs, shard_digits=4
@@ -246,7 +274,6 @@ def enumerate_and_predict_adslabs(
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
     hash_adslab_atoms_bag = adslab_atoms_bag.map(joblib.hash)
 
-    # Run adslab predictions
     inference = False
     if "adslab_prediction_steps" in config:
         for step in config["adslab_prediction_steps"]:
@@ -322,7 +349,21 @@ def generate_outputs(
     run_id,
     inference,
 ):
-    # Handle results
+    """_summary_
+
+    Args:
+        config (dict): A config file specifying what surfaces to filter.
+        results_bag (dask.bag.Bag): A dask Bag object of adslabs and their predicted
+        adsorption energies.
+        run_id (str): A string with a timestamp uniquely identifying the run.
+        inference (bool): Whether a model was used to predict adsorption energies
+        during the execution of this script.
+
+    Returns:
+        int: the number of adslabs immediately after adslab enumeration
+        int: the number of adslabs that inference was run on
+        int: the number of adslabs remaining after all inference
+    """
     verbose = (
         "verbose" in config["output_options"] and config["output_options"]["verbose"]
     )
