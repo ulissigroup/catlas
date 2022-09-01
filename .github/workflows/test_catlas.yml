@@ -12,7 +12,7 @@ jobs:
     runs-on: [self-hosted, linux]
 
     container:
-      image: docker://ulissigroup/kubeflow:predictions
+      image: docker://ulissigroup/catlas:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
@@ -32,7 +32,7 @@ jobs:
     runs-on: [self-hosted, linux]
 
     container:
-      image: docker://ulissigroup/kubeflow:predictions
+      image: docker://ulissigroup/catlas:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
@@ -56,7 +56,7 @@ jobs:
     runs-on: [self-hosted, linux, shared-scratch]
 
     container:
-      image: docker://ulissigroup/kubeflow:predictions
+      image: docker://ulissigroup/catlas:predictions
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
     steps:
