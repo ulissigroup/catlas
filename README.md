@@ -1,8 +1,8 @@
 # catlas
-![catlas overview](https://github.com/ulissigroup/catlas/blob/main/catlas_logo.png?raw=True)
+![catlas overview](https://github.com/ulissigroup/catlas/blob/main/documentation/catlas_logo.png?raw=True)
 
 ## Repo graphical overview
-![catlas overview](https://github.com/ulissigroup/catlas/blob/main/catlas_overview.png?raw=true)
+![catlas overview](https://github.com/ulissigroup/catlas/blob/main/documentation/catlas_overview.png?raw=true)
 
 ## Installation
  - Install ocp:
