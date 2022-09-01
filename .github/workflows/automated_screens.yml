@@ -13,7 +13,7 @@ jobs:
     runs-on: [self-hosted, linux, shared-scratch]
 
     container:
-      image: docker://ulissigroup/catlas:predictions
+      image: docker://ulissigroup/catlas:latest
       volumes:
         - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
 
