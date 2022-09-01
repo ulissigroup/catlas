@@ -4,7 +4,7 @@
 #SBATCH -q debug
 #SBATCH -t 0:10:00
 #SBATCH -N 1
-#SBATCH --image=docker:ulissigroup/kubeflow:predictions
+#SBATCH --image=docker:ulissigroup/catlas:latest
 
 
 export SHIFTER_IMAGETYPE=docker

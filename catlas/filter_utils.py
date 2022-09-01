@@ -4,7 +4,7 @@ import warnings
 
 import lmdb
 import numpy as np
-from mp_api import MPRester
+from mp_api.client import MPRester
 
 import catlas
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
