@@ -79,7 +79,7 @@ RUN pip install --no-deps git+https://github.com/superstar54/x3dase.git
 RUN pip install --no-deps git+https://github.com/ulissigroup/CatKit.git
 RUN pip install --no-deps git+https://github.com/brookwander/Open-Catalyst-Dataset.git
 RUN pip install --no-deps git+https://github.com/lab-cosmo/chemiscope.git
-RUN pip install --no-build-isolation mp-api 
+RUN pip install mp-api 
 
 
 # Add OCP
