@@ -2,7 +2,7 @@ kind: Pod
 spec:
   restartPolicy: Never
   containers:
-  - image: ulissigroup/kubeflow:predictions
+  - image: ulissigroup/catlas:latest
     imagePullPolicy: Always
     args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'20 GiB',--death-timeout, '600',--resources,"GPU=1"]
     name: dask-worker
