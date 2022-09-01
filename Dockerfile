@@ -6,6 +6,8 @@ RUN conda config --add channels pytorch
 RUN conda config --add channels pyg
 RUN conda config --add channels nvidia
 
+USER $NB_UID
+
 # Install requirements needed to use OCP requirements
 RUN mamba install --quiet --yes \
     'conda-merge' \
@@ -84,5 +86,5 @@ RUN pip install --no-build-isolation mp-api
 WORKDIR /home/jovyan
 RUN git clone https://github.com/Open-Catalyst-Project/ocp.git && \
     python ocp/setup.py develop
-
+CMD ["sh","-c", "jupyter notebook --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
 ENV PYTHONPATH=/home/jovyan/ocp/
