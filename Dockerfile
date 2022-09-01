@@ -1,5 +1,5 @@
 # Use kubeflow:jovyan_base, which is the base docker-stack image built on nvhpc image
-FROM ulissigroup/kubeflow:base-notebook
+FROM ulissigroup/kubeflow:extras-notebook
 
 # Add channels for pytorch geometric requirements, pytorch, etc
 RUN conda config --add channels pytorch
@@ -77,7 +77,7 @@ RUN pip install --no-deps git+https://github.com/superstar54/x3dase.git
 RUN pip install --no-deps git+https://github.com/ulissigroup/CatKit.git
 RUN pip install --no-deps git+https://github.com/brookwander/Open-Catalyst-Dataset.git
 RUN pip install --no-deps git+https://github.com/lab-cosmo/chemiscope.git
-# RUN pip install --default-timeout=100 --trusted-host=pypi.org --trusted-host=files.pythonhosted.org mp-api 
+RUN pip install --no-build-isolation mp-api 
 
 
 # Add OCP
