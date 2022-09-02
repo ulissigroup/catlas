@@ -21,7 +21,9 @@ jobs:
     # Build the book
     - name: Build the book
       run: |
+        pip install sphynx
         pip install jupyter-book
+        pip install markupsafe==2.0.0
         jupyter-book build documentation
 
     # Deploy the book's HTML to gh-pages branch
