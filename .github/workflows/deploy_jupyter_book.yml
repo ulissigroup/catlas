@@ -2,11 +2,11 @@ name: deploy_jupyter_book
 
 on:
   # Trigger the workflow on push to main branch
+  workflow_dispatch:
   push:
-    branches:
-      - main
     paths:
       - 'documentation/*'
+      - '.github/workflows/deploy_jupyter_book.yml'
 
 # This job installs dependencies, build the book, and pushes it to `gh-pages`
 jobs:
