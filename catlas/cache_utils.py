@@ -18,19 +18,42 @@ from joblib.memory import extract_first_line
 def get_cached_func_location(func):
     """Find the location inside of your <cache>/joblib/ folder where a cached function
     is stored. Necessary because each function will have multiple subcaches for its
-    codebase."""
+    codebase.
+
+    Args:
+        func (Callable): a function that has been cached
+
+    Returns:
+        str: the path where the input function is stored
+    """
     return joblib.memory._build_func_identifier(func.func)
 
 
 def naive_func_identifier(func):
-    """Build simple identifier based on function name"""
+    """Build simple identifier based on function name
+
+    Args:
+        func (Callable): a function to cache
+
+    Returns:
+        str: a string identifying the input function based on its location in the
+        import hierarchy
+    """
     modules, funcname = get_func_name(func)
     modules.append(funcname)
     return modules
 
 
 def better_build_func_identifier(func):
-    """Build a roughly unique identifier for the cached function."""
+    """Build a roughly unique identifier for the cached function.
+
+    Args:
+        func (Callable): a function to cache
+
+    Returns:
+        tuple[str]: a list of components identifying a function based on its code and
+        location in the import hierarchy
+    """
     parts = []
     parts.extend(naive_func_identifier(func))
     func_id, h_func_id, h_code = hash_func(func)
@@ -41,8 +64,13 @@ def better_build_func_identifier(func):
 
 
 def token(config) -> str:
-    """Generates a hex token that identifies a config.
-    taken from stackoverflow 45674572
+    """Generates a hex token that identifies a config. Taken from stackoverflow 45674572
+
+    Args:
+        config (dict): a config file used by bin/predictions.py
+
+    Returns:
+        str: a hash uniquely identifying the config.
     """
     # `sign_mask` is used to make `hash` return unsigned values
     sign_mask = (1 << sys.hash_info.width) - 1
@@ -53,7 +81,14 @@ def token(config) -> str:
 
 
 def hash_func(func):
-    """Hash the function id, its file location, and the function code"""
+    """Hash the function id, its file location, and the function code.
+
+    Args:
+        func (Callable): a function to hash
+
+    Returns:
+        str: a string uniquely identifying the function
+    """
     func_code, _, first_line = get_func_code(func)
     func_code_h = hash([func_code, first_line])
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
@@ -65,10 +100,10 @@ def check_cache(cached_func):
     joblib/memory.py#L672)
 
     Inputs:
-        cached_func -- cached function to check
+        cached_func (Callable): cached function to check
 
     Returns:
-        True if cached function is safe to call, else False
+        bool: True if cached function is safe to call
 
     """
 
@@ -98,10 +133,24 @@ def sqlitedict_memoize(
     folder,
     func,
     ignore=(),
-    mmap_mode=None,
+    coerce_mmap=False,
     shard_digits=2,
 ):
+    """cache functions in a way that splits cached functions between many folders.
 
+    Args:
+        folder (str): file location where cache shoud be created
+        func (Callable): function to cache
+        ignore (tuple[str], optional): List of arguments that will be ignored when
+        determining whether to start a new cache. Defaults to ().
+        coerce_mmap (bool, optional): if True, don't distinguish between numpy ndarrays
+        and numpy memmaps
+        shard_digits (int, optional): Generate 16^(shard digits) different folders to
+        store functions in. Defaults to 2.
+
+    Returns:
+        _type_: _description_
+    """
     # Use a base name that includes the full function path and a hash on the function
     # code itself
     base = better_build_func_identifier(func)
@@ -115,7 +164,7 @@ def sqlitedict_memoize(
 
         # Get the key for the arguments
         key = hash(
-            filter_args(func, ignore, args, kwargs), coerce_mmap=(mmap_mode is not None)
+            filter_args(func, ignore, args, kwargs), coerce_mmap=coerce_mmap
         ).encode("utf-8")
 
         # Generate a base db location based on the full function path and a hash on the
