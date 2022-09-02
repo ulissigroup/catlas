@@ -247,8 +247,8 @@ class SqliteSingleThreadDict(dict):
         used to either check if data exists, or retrive cached data
 
         Returns:
-            Connection: a read-only connection to a file 
-        """        
+            Connection: a read-only connection to a file
+        """
         # This function opens a read-only (ro) connection to the database
         # which is used to either check if data exists, or retrive cached data
         try:
@@ -277,7 +277,7 @@ class SqliteSingleThreadDict(dict):
 
         Returns:
             Connection: a read-write connection to a file
-        """        
+        """
         try:
             conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
         except sqlite3.OperationalError:
@@ -309,8 +309,7 @@ class SqliteSingleThreadDict(dict):
         self.close()
 
     def close(self):
-        """Close read-only connection
-        """        
+        """Close read-only connection"""
         if hasattr(self, "readonlyo_conn") and self.readonly_conn is not None:
             self.readonly_conn.close()
             self.readonly_conn = None
@@ -323,13 +322,23 @@ class SqliteSingleThreadDict(dict):
 
         Returns:
             bool: True if key is in the sqlite dictionary.
-        """        
+        """
         HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
         with self.readonly_conn as conn:
             return len(conn.execute(HAS_ITEM, (key,)).fetchall()) > 0
 
     def __getitem__(self, key):
-        # Read an item from the cache given a key
+        """Read an item from the cache given a key
+
+        Args:
+            key (str): key to read
+
+        Raises:
+            KeyError: key not found
+
+        Returns:
+            Any: value accessed at key
+        """
         with self.readonly_conn as readonly_conn:
             GET_ITEM = 'SELECT value FROM "%s" WHERE key = ?' % self.tablename
             item = readonly_conn.execute(GET_ITEM, (key,)).fetchall()
