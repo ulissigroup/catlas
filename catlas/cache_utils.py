@@ -160,7 +160,13 @@ def sqlitedict_memoize(
     )
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        """Wrapper for callable to cache arguments and return values."""
+        """Wrapper for callable to cache arguments and return values. If the function
+        has been called with these inputs already, pull the result from cache; 
+        otherwise, compute it and store the result.
+
+        Returns:
+            Any: the result of the function call.
+        """ """"""
 
         # Get the key for the arguments
         key = hash(
@@ -208,6 +214,14 @@ def sqlitedict_memoize(
 
 
 class SqliteSingleThreadDict(dict):
+    """A sqlite dictionary that extends `dict` with functionality that handles
+    database logic. Acts like a dictionary, but is actually a file that opens
+    file connections when items are accessed or set.
+
+    Raises:
+        KeyError: an accessed key didn't exist in the dictionary.
+
+    """
 
     # This code was originally adapted from the excellect sqlitedict package (Apache2
     # license)
@@ -229,6 +243,12 @@ class SqliteSingleThreadDict(dict):
         self.tablename = tablename
 
     def _new_readonly_conn(self):
+        """This function opens a read-only (ro) connection to the database which is
+        used to either check if data exists, or retrive cached data
+
+        Returns:
+            Connection: a read-only connection to a file 
+        """        
         # This function opens a read-only (ro) connection to the database
         # which is used to either check if data exists, or retrive cached data
         try:
@@ -252,8 +272,12 @@ class SqliteSingleThreadDict(dict):
         return conn
 
     def _new_readwrite_conn(self):
-        # Opens a read/write connection, which we need to insert data
-        # into the cache
+        """Opens a read/write connection, which we need to insert data
+        into the cache
+
+        Returns:
+            Connection: a read-write connection to a file
+        """        
         try:
             conn = sqlite3.connect(self.filename, check_same_thread=True, timeout=30)
         except sqlite3.OperationalError:
@@ -285,12 +309,21 @@ class SqliteSingleThreadDict(dict):
         self.close()
 
     def close(self):
-        # Tidy up by closing the read-only connection
+        """Close read-only connection
+        """        
         if hasattr(self, "readonlyo_conn") and self.readonly_conn is not None:
             self.readonly_conn.close()
             self.readonly_conn = None
 
     def __contains__(self, key):
+        """Check if item is in sqlite dictionary already
+
+        Args:
+            key (str): a key to check
+
+        Returns:
+            bool: True if key is in the sqlite dictionary.
+        """        
         HAS_ITEM = 'SELECT 1 FROM "%s" WHERE key = ?' % self.tablename
         with self.readonly_conn as conn:
             return len(conn.execute(HAS_ITEM, (key,)).fetchall()) > 0
