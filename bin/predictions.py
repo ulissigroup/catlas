@@ -65,12 +65,6 @@ if __name__ == "__main__":
 
     # Make final updates to the sankey diagram and plot it
 
-    if num_adslabs is None:
-        num_adslabs = num_inferred = [0]
-        warnings.warn(
-            "Adslabs were enumerated but will not be counted for the Sankey diagram."
-        )
-
     sankey = finish_sankey_diagram(
         sankey, num_unfiltered_slabs, num_adslabs, num_inferred, run_id
     )

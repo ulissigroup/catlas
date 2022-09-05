@@ -467,6 +467,12 @@ def generate_outputs(
 def finish_sankey_diagram(
     sankey, num_unfiltered_slabs, num_filtered_slabs, num_adslabs, num_inferred, run_id
 ) -> Sankey:
+
+    if num_adslabs is None:
+        num_adslabs = num_inferred = [0]
+        warnings.warn(
+            "Adslabs were enumerated but will not be counted for the Sankey diagram."
+        )
     sankey.add_slab_info(num_unfiltered_slabs, num_filtered_slabs)
     sankey.add_adslab_info(num_adslabs, num_inferred)
     sankey.get_sankey_diagram(run_id)
