@@ -56,7 +56,7 @@ def split_balance_df_partitions(df, npartitions):
         npartitions (int): a number of partitions to use. Set to -1 to infer.
 
     Returns:
-        _type_: _description_
+        dask.core.frame.DataFrame: rebalanced dataframe
     """
     if npartitions == -1:
         npartitions = df.shape[0].compute()
@@ -65,6 +65,14 @@ def split_balance_df_partitions(df, npartitions):
 
 
 def bag_split_individual_partitions(bag):
+    """Split a
+
+    Args:
+        bag (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     new_name = "repartition-%s" % (tokenize(bag))
 
     def get_len(partition):
