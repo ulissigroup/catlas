@@ -66,5 +66,10 @@ if __name__ == "__main__":
     # Make final updates to the sankey diagram and plot it
 
     sankey = finish_sankey_diagram(
-        sankey, num_unfiltered_slabs, num_adslabs, num_inferred, run_id
+        sankey,
+        num_unfiltered_slabs,
+        num_filtered_slabs,
+        num_adslabs,
+        num_inferred,
+        run_id,
     )
