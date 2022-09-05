@@ -348,6 +348,7 @@ def generate_outputs(
     results_bag,
     run_id,
     inference,
+    most_recent_step,
 ):
     """_summary_
 
