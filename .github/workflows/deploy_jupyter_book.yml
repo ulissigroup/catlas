@@ -26,6 +26,7 @@ jobs:
         pip install pygments -U
         pip install sphinxcontrib-bibtex -U
         pip install -U Jinja2
+        pip install sphinx_external_toc -U
         jupyter-book build documentation
 
     # Deploy the book's HTML to gh-pages branch
