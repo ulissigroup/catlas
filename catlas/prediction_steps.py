@@ -311,6 +311,7 @@ def enumerate_and_predict_adslabs(
                         gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                         number_steps=number_steps,
                     )
+                most_recent_step = "min_" + step["label"]
             elif step["step_type"] == "inference" and not step["gpu"]:
                 inference = True
                 number_steps = step["number_steps"] if "number_steps" in step else 200
@@ -348,6 +349,7 @@ def generate_outputs(
     results_bag,
     run_id,
     inference,
+    most_recent_step,
 ):
     """_summary_
 
@@ -467,6 +469,12 @@ def generate_outputs(
 def finish_sankey_diagram(
     sankey, num_unfiltered_slabs, num_filtered_slabs, num_adslabs, num_inferred, run_id
 ) -> Sankey:
+
+    if num_adslabs is None:
+        num_adslabs = num_inferred = [0]
+        warnings.warn(
+            "Adslabs were enumerated but will not be counted for the Sankey diagram."
+        )
     sankey.add_slab_info(num_unfiltered_slabs, num_filtered_slabs)
     sankey.add_adslab_info(num_adslabs, num_inferred)
     sankey.get_sankey_diagram(run_id)

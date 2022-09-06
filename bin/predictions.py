@@ -60,17 +60,16 @@ if __name__ == "__main__":
     ) = enumerate_and_predict_adslabs(config, surface_bag, adsorbate_bag)
 
     num_adslabs, num_inferred, num_filtered_slabs = generate_outputs(
-        config, results_bag, run_id, inference
+        config, results_bag, run_id, inference, most_recent_step
     )
 
     # Make final updates to the sankey diagram and plot it
 
-    if num_adslabs is None:
-        num_adslabs = num_inferred = [0]
-        warnings.warn(
-            "Adslabs were enumerated but will not be counted for the Sankey diagram."
-        )
-
     sankey = finish_sankey_diagram(
-        sankey, num_unfiltered_slabs, num_adslabs, num_inferred, run_id
+        sankey,
+        num_unfiltered_slabs,
+        num_filtered_slabs,
+        num_adslabs,
+        num_inferred,
+        run_id,
     )
