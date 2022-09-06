@@ -25,6 +25,7 @@ jobs:
         pip install markupsafe==2.0.0
         pip install pygments -U
         pip install sphinxcontrib-bibtex -U
+        pip install -U Jinja2
         jupyter-book build documentation
 
     # Deploy the book's HTML to gh-pages branch
