@@ -3,7 +3,14 @@ name: Test catlas with simple screening
 env:
   OMP_NUM_THREADS: '1'
 
-on: [push, workflow_dispatch]
+on: 
+  push:
+    paths-ignore:
+      - '**.md'
+      - '.github/workflows/build_docker.yml'
+      - '.github/workflows/deploy_jupyter_book.yml'
+      - 'documentation/**'
+  workflow_dispatch:
 
 jobs:
   test_local_scheduler:
