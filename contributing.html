@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; Catlas</title>
+    <title>Contributing &#8212; Catlas</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,7 +52,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="running_catlas.html" />
+    <link rel="prev" title="Running Catlas" href="running_catlas.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -108,11 +108,38 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    <no title>
+                    Introduction
                 </a>
             </li>
         </ul>
-        
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation_and_setup.html">
+   Installation and setup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="making_a_config.html">
+   Making a config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="running_catlas.html">
+   Running Catlas
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Contributing
+  </a>
+ </li>
+</ul>
+
     </div>
 </nav></div>
         <div class="bd-sidebar__bottom">
@@ -287,7 +314,12 @@ title="Print to PDF"
         <i class="fas fa-list"></i> Contents
     </div>
     <nav id="bd-toc-nav" aria-label="Page">
-        <ul class="simple visible nav section-nav flex-column">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#coding-guidelines">
+   Coding Guidelines
+  </a>
+ </li>
 </ul>
 
     </nav>
@@ -297,7 +329,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1><no title></h1>
+                <h1>Contributing</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -306,7 +338,12 @@ title="Print to PDF"
                             <h2> Contents </h2>
                         </div>
                         <nav aria-label="Page">
-                            <ul class="simple visible nav section-nav flex-column">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#coding-guidelines">
+   Coding Guidelines
+  </a>
+ </li>
 </ul>
 
                         </nav>
@@ -317,7 +354,20 @@ title="Print to PDF"
                 
               <div>
                 
-  
+  <section class="tex2jax_ignore mathjax_ignore" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">#</a></h1>
+<p>If you would like to add a feature to Catlas, you are awesome! Please fork the repo, make the changes you would like to your forked repo and open a PR. You can request Brook or Kirby as a reviewer.</p>
+<section id="coding-guidelines">
+<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">#</a></h2>
+<ol class="simple">
+<li><p>Develop using the available docker environment so things are consistent with the repo.</p></li>
+<li><p>Ensure your changes follow <a class="reference external" href="https://github.com/psf/black">black</a> code format. We have a test for this but still good to do upfront.</p></li>
+<li><p>Try to use <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">google style docstrings</a>, so people can easily interpret your awesome work.</p></li>
+<li><p>We don’t have any other strict requirements but try to do you best to make your code intuitive by choosing good variable/function/class/file names, use comments where things are opaque, write things modularly when possible etc.</p></li>
+</ol>
+</section>
+</section>
+
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
@@ -349,7 +399,7 @@ title="Print to PDF"
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">&lt;no title&gt;</p>
+            <p class="prev-next-title">Running Catlas</p>
         </div>
     </a>
 </div>

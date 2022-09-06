@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; Catlas</title>
+    <title>Running Catlas &#8212; Catlas</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="contributing.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="making_a_config.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Making a config" href="making_a_config.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -109,11 +109,38 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    <no title>
+                    Introduction
                 </a>
             </li>
         </ul>
-        
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation_and_setup.html">
+   Installation and setup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="making_a_config.html">
+   Making a config
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Running Catlas
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+</ul>
+
     </div>
 </nav></div>
         <div class="bd-sidebar__bottom">
@@ -288,7 +315,78 @@ title="Print to PDF"
         <i class="fas fa-list"></i> Contents
     </div>
     <nav id="bd-toc-nav" aria-label="Page">
-        <ul class="simple visible nav section-nav flex-column">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#performing-an-inference-run">
+   Performing an inference run
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-run-locally-or-on-a-cluster">
+     Executing a run locally or on a cluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-run-on-a-slurm-managed-hpc-cluster">
+     Executing a run on a slurm managed HPC cluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#monitoring">
+     Monitoring
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-using-the-dask-operator-on-a-kubecluster">
+     Setup using the dask operator on a kubecluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#shutdown-using-the-dask-operator-on-a-kubecluster">
+     Shutdown using the dask operator on a kubecluster
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generating-parity-plots">
+   Generating parity plots
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-parity-run">
+     Executing a parity run
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#outputs">
+     Outputs
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#processing-data-for-parity-generation">
+   Processing data for parity generation
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#processing-npz-files">
+     Processing npz files
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Processing npz files
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#selecting-number-of-relaxation-steps">
+   Selecting number of relaxation steps
+  </a>
+ </li>
 </ul>
 
     </nav>
@@ -298,7 +396,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1><no title></h1>
+                <h1>Running Catlas</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -307,7 +405,78 @@ title="Print to PDF"
                             <h2> Contents </h2>
                         </div>
                         <nav aria-label="Page">
-                            <ul class="simple visible nav section-nav flex-column">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#performing-an-inference-run">
+   Performing an inference run
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-run-locally-or-on-a-cluster">
+     Executing a run locally or on a cluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-run-on-a-slurm-managed-hpc-cluster">
+     Executing a run on a slurm managed HPC cluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#monitoring">
+     Monitoring
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#setup-using-the-dask-operator-on-a-kubecluster">
+     Setup using the dask operator on a kubecluster
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#shutdown-using-the-dask-operator-on-a-kubecluster">
+     Shutdown using the dask operator on a kubecluster
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#generating-parity-plots">
+   Generating parity plots
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#executing-a-parity-run">
+     Executing a parity run
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#outputs">
+     Outputs
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#processing-data-for-parity-generation">
+   Processing data for parity generation
+  </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#processing-npz-files">
+     Processing npz files
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#id1">
+     Processing npz files
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#selecting-number-of-relaxation-steps">
+   Selecting number of relaxation steps
+  </a>
+ </li>
 </ul>
 
                         </nav>
@@ -318,7 +487,116 @@ title="Print to PDF"
                 
               <div>
                 
-  
+  <section class="tex2jax_ignore mathjax_ignore" id="running-catlas">
+<h1>Running Catlas<a class="headerlink" href="#running-catlas" title="Permalink to this headline">#</a></h1>
+<section id="performing-an-inference-run">
+<h2>Performing an inference run<a class="headerlink" href="#performing-an-inference-run" title="Permalink to this headline">#</a></h2>
+<section id="executing-a-run-locally-or-on-a-cluster">
+<h3>Executing a run locally or on a cluster<a class="headerlink" href="#executing-a-run-locally-or-on-a-cluster" title="Permalink to this headline">#</a></h3>
+<p>From the catlas base directory</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bin/predictions.py configs/path/to/inputs.yml configs/path/to/cluster.py
+</pre></div>
+</div>
+</section>
+<section id="executing-a-run-on-a-slurm-managed-hpc-cluster">
+<h3>Executing a run on a slurm managed HPC cluster<a class="headerlink" href="#executing-a-run-on-a-slurm-managed-hpc-cluster" title="Permalink to this headline">#</a></h3>
+<p>We have an example for use on Perlmutter
+<code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">sbatch</span> <span class="pre">configs/dask_cluster/perlmutter/catlas_run.sh</span></code>
+For additional options see <a class="reference external" href="https://docs.nersc.gov/jobs/">NERSC documentation</a></p>
+<p>We highly recommend trying catlas on your local machine for a trivial test case before trying on slurm.</p>
+</section>
+<section id="monitoring">
+<h3>Monitoring<a class="headerlink" href="#monitoring" title="Permalink to this headline">#</a></h3>
+<p>You can monitor your run using the dask dashboard. For a local run this shoulf be hosted on port 8787 unless otherwise specified in the terminal.</p>
+</section>
+<section id="setup-using-the-dask-operator-on-a-kubecluster">
+<h3>Setup using the dask operator on a kubecluster<a class="headerlink" href="#setup-using-the-dask-operator-on-a-kubecluster" title="Permalink to this headline">#</a></h3>
+<ol class="simple">
+<li><p>Starting a segementation of the cluster
+<code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">kubectl</span> <span class="pre">apply</span> <span class="pre">-f</span> <span class="pre">path/to/cluster_spec.yml</span></code></p></li>
+</ol>
+<p>An example has been provided in the repo. Its path is <code class="docutils literal notranslate"><span class="pre">catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml</span></code> By default, this spins up 2 cpu workers. You can edit the file to change this, or you can scale up and down resources using the commands below.</p>
+<ol class="simple">
+<li><p>Scaling resources up and down</p></li>
+</ol>
+<p>For cpu workers:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">kubectl</span> <span class="pre">scale</span> <span class="pre">--replicas=8</span> <span class="pre">daskworkergroup</span> <span class="pre">catlas-hybrid-cluster-default-worker-group</span></code></p>
+<p>For gpu workers:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">kubectl</span> <span class="pre">scale</span> <span class="pre">--replicas=0</span> <span class="pre">daskworkergroup</span> <span class="pre">catlas-hybrid-cluster-gpu-worker-group</span></code></p>
+<p>Note: <code class="docutils literal notranslate"><span class="pre">--replicas</span></code> sets the total number of workers of that type. So if you start with 2 cpu workers and run the first command above, you will have 8. Likewise, if you start with 2 gpu workers and run the second command you will have no gpu workers!</p>
+</section>
+<section id="shutdown-using-the-dask-operator-on-a-kubecluster">
+<h3>Shutdown using the dask operator on a kubecluster<a class="headerlink" href="#shutdown-using-the-dask-operator-on-a-kubecluster" title="Permalink to this headline">#</a></h3>
+<p>At the end of a run you should delete, or scale down your resources. To scale down, see above. To delete:</p>
+<p><code class="docutils literal notranslate"><span class="pre">$</span> <span class="pre">kubectl</span> <span class="pre">delete</span> <span class="pre">daskcluster</span> <span class="pre">catlas-hybrid-cluster</span></code></p>
+</section>
+</section>
+<section id="generating-parity-plots">
+<h2>Generating parity plots<a class="headerlink" href="#generating-parity-plots" title="Permalink to this headline">#</a></h2>
+<section id="executing-a-parity-run">
+<h3>Executing a parity run<a class="headerlink" href="#executing-a-parity-run" title="Permalink to this headline">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bin/get_parities.py configs/path/to/inputs.yml
+</pre></div>
+</div>
+<p>The input yaml here should be of the same format as one that would be used for an inference run. Adsorbates specified will have specific plots make for each of them. The bulk filters will be applied in the same ways. We recommend not filtering by desired mpid as this can be unnecessarily narrow. For example if you have <code class="docutils literal notranslate"><span class="pre">filter_by_bulk_ids:</span> <span class="pre">[&quot;mp-30&quot;]</span></code> try filtering by the following instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bulk_filters</span><span class="p">:</span>
+  <span class="n">filter_by_num_elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">filter_by_element_groups</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;transition metal&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>There are other examples of this so be tactful!</p>
+</section>
+<section id="outputs">
+<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">#</a></h3>
+<p>Using the run name specified in the inputs yaml file, executing the script will make a folder inside of the outputs folder containing various useful parity plots which are all appropriately named. The plot with general appended to the file name contains data for all adsorbates. The others will have the adsorbate SMILES string appended and will be specific to that adsorbate. For each file there are a number of subplots which show the different data splits.</p>
+<ol class="simple">
+<li><p>overall = all data splits</p></li>
+<li><p>id = in domain</p></li>
+<li><p>ood_ads = out of domain adsorbate (i.e. the adsorbate did not appear in the training set)</p></li>
+<li><p>ood_cat = out of domain material (i.e. systems derived from that specific bulk structure did not appear in the training set)</p></li>
+<li><p>ood_both = both the adsorbate and material were out of domain</p></li>
+</ol>
+<p>The number of datapoints displayed and the mean absolute error (MAE) for that data subset are also shown. A parity line is drawn for ease of use, and a linear regression is performed and plotted to further and understanding of deviance from parity.</p>
+</section>
+</section>
+<section id="processing-data-for-parity-generation">
+<h2>Processing data for parity generation<a class="headerlink" href="#processing-data-for-parity-generation" title="Permalink to this headline">#</a></h2>
+<p>To make parity plots, we need inference for the same adsorbate-surface configurations which will included in the OC20 validation dataset. Running this inference is currently not supported in catlas because it can easily be done using the OCP infrastructure which has prewritten lmdb files containing the structures of interest. For more information about how to run inference in ocp, see (???). If the model is an s2ef model, it will output trajectory files in a folder specified in your model config. If the model is an IS2RE direct model it will output inferred energies to an npz file. Catlas has 2 files which each treat one of these cases to process the data so it is usable for parity generation.</p>
+<section id="processing-npz-files">
+<h3>Processing npz files<a class="headerlink" href="#processing-npz-files" title="Permalink to this headline">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bin/process_npz_for_validation.py --npz_path path/to/npz/file.npz
+</pre></div>
+</div>
+<p>This will make a pickle file of a dataframe which contains all the information that will be needed to make parity plots for the model desired. By default, this will be called whatever the npz was called and be saved to <code class="docutils literal notranslate"><span class="pre">catlas/catlas/parity/df_pkls/</span></code>.</p>
+<p><em>Advanced</em></p>
+<p>You may optionally include an additional argument <code class="docutils literal notranslate"><span class="pre">--dft_df_path</span> <span class="pre">path/to/dft/df.pkl</span></code> if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced use</p>
+</section>
+<section id="id1">
+<h3>Processing npz files<a class="headerlink" href="#id1" title="Permalink to this headline">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bin/process_trajectories_for_validation.py --folders path/to/folder1_w_trajs/ path/to/folder2_w_trajs/ --model_id model_name
+</pre></div>
+</div>
+<p>This will make a pickle file of a dataframe which contains all the information that will be needed to make parity plots for the model desired. This will be called by what is specified as <code class="docutils literal notranslate"><span class="pre">model_name</span></code>. It must match the name of the checkpoint for things to work. The output will be saved to <code class="docutils literal notranslate"><span class="pre">catlas/catlas/parity/df_pkls/</span></code>.</p>
+<p><em>Advanced</em></p>
+<p>You may optionally include an additional argument <code class="docutils literal notranslate"><span class="pre">--dft_df_path</span> <span class="pre">path/to/dft/df.pkl</span></code> if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced Use</p>
+</section>
+</section>
+<section id="selecting-number-of-relaxation-steps">
+<h2>Selecting number of relaxation steps<a class="headerlink" href="#selecting-number-of-relaxation-steps" title="Permalink to this headline">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>$ python bin/optimize_frame.py path/to/inputs.yml
+</pre></div>
+</div>
+<p>This should be used to select the appropriate number of relaxation steps for S2EF models. It required a preprocessed pkl file containing parity data for that model. It filters that dataframe using the criteria specified in the input yaml file. As with parity, recommend not filtering by desired mpid as this can be unnecessarily narrow. For example if you have <code class="docutils literal notranslate"><span class="pre">filter_by_bulk_ids:</span> <span class="pre">[&quot;mp-30&quot;]</span></code> try filtering by the following instead:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bulk_filters</span><span class="p">:</span>
+  <span class="n">filter_by_num_elements</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="n">filter_by_element_groups</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;transition metal&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>There are other examples of this so be tactful!</p>
+<p>Once filtered, it outputs the frame number which minimizes the MAE for each adsorbate of interest. It also makes plots for the MAE and ME as a function of step number for each adsorbate so a better understanding may be developed. All of this is output into a subdirectory in the outputs folder using the run name specified in the inputs yaml file.</p>
+</section>
+</section>
+
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
@@ -350,13 +628,13 @@ title="Print to PDF"
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">&lt;no title&gt;</p>
+            <p class="prev-next-title">Making a config</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="contributing.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">&lt;no title&gt;</p>
+        <p class="prev-next-title">Contributing</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

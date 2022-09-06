@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; Catlas</title>
+    <title>Introduction &#8212; Catlas</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,7 +52,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="installation_and_setup.html" />
+    <link rel="next" title="Installation and setup" href="installation_and_setup.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -108,11 +108,38 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1 current active">
                 <a class="reference internal" href="#">
-                    <no title>
+                    Introduction
                 </a>
             </li>
         </ul>
-        
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="installation_and_setup.html">
+   Installation and setup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="making_a_config.html">
+   Making a config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="running_catlas.html">
+   Running Catlas
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+</ul>
+
     </div>
 </nav></div>
         <div class="bd-sidebar__bottom">
@@ -266,23 +293,90 @@ title="Print to PDF"
     </ul>
   </div>
 </div>
+<label for="__page-toc"
+  class="headerbtn headerbtn-page-toc"
+  
+>
+  
+
+<span class="headerbtn__icon-container">
+  <i class="fas fa-list"></i>
+  </span>
+
+</label>
 
     </div>
 </div>
 
 <!-- Table of contents -->
 <div class="col-md-3 bd-toc show noprint">
+    <div class="tocsection onthispage pt-5 pb-3">
+        <i class="fas fa-list"></i> Contents
+    </div>
+    <nav id="bd-toc-nav" aria-label="Page">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#what-is-catlas">
+   What is Catlas?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#graphical-overview">
+   Graphical Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#ancillary-functionality">
+   Ancillary functionality
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license">
+   License
+  </a>
+ </li>
+</ul>
+
+    </nav>
 </div>
     </div>
     <div class="article row">
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1><no title></h1>
+                <h1>Introduction</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
                         
+                        <div>
+                            <h2> Contents </h2>
+                        </div>
+                        <nav aria-label="Page">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#what-is-catlas">
+   What is Catlas?
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#graphical-overview">
+   Graphical Overview
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#ancillary-functionality">
+   Ancillary functionality
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#license">
+   License
+  </a>
+ </li>
+</ul>
+
+                        </nav>
                     </div>
                 </div>
             </div>
@@ -290,8 +384,51 @@ title="Print to PDF"
                 
               <div>
                 
-  <div class="toctree-wrapper compound">
+  <section class="tex2jax_ignore mathjax_ignore" id="introduction">
+<h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">#</a></h1>
+<section id="what-is-catlas">
+<h2>What is Catlas?<a class="headerlink" href="#what-is-catlas" title="Permalink to this headline">#</a></h2>
+<p>Catlas is an automated framework for mass inference of adsorption energies.</p>
+<p>It relies on the <a class="reference external" href="https://github.com/Open-Catalyst-Project/Open-Catalyst-Dataset">infrastructure</a> that was built out for the OC20 dataset\cite{OC20} to enumerate adsorbate-surface configurations. The workflow starts from relaxed bulk structures. The bulk structures which were included in OC20 are included in the repo in the <code class="docutils literal notranslate"><span class="pre">catlas/bulk_structures</span></code> folder. This set of bulks was originally taken from the Materials Project Database\cite{MP} and then relaxed with RPBE. Optionally you can add your own bulk file. For more info, see advanced use. Slabs are cut from the bulk structures using pymatgen\cite{pymatgen}. From there, adsorbates are placed on the slabs using CatKit\cite{catkit}. Adsorbates from OC20 are included here in the <code class="docutils literal notranslate"><span class="pre">catlas/adsorbate_structures</span></code> folder. Optionally you can add your own adsorbate file. For more info, see advanced use. Finally, ML inference is performed using the <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp">infrastructure</a> for OCP models. To expedite this process, catlas parallelizes enumeration and inference over many CPUs and GPUs using dask\cite{dask}. Pretrained model checkpoint files may be downloaded <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md">here</a>, but have been ommited from this repo because of their file size.</p>
+</section>
+<section id="graphical-overview">
+<h2>Graphical Overview<a class="headerlink" href="#graphical-overview" title="Permalink to this headline">#</a></h2>
+<p><img alt="catlas overview" src="_images/catlas_overview.png" />
+Catlas takes as input 2 files: (1) inputs yaml file (2) cluster python file. The cluster python file may be selected from those included in <code class="docutils literal notranslate"><span class="pre">configs/dask_cluster</span></code> and tweaked to your liking. It handles the specifics work distribution. There are examples for running locally, on a distributed kubernetes cluster, or on a slurm managed HPC cluster. The inputs yaml handles everything else about your run. It selects what adsorbates are of interest, where to save outputs, what materials are of interest, what model to use etc. Some examples have been included in <code class="docutils literal notranslate"><span class="pre">configs/automated_screens</span></code> and <code class="docutils literal notranslate"><span class="pre">configs/tests</span></code>.</p>
+</section>
+<section id="ancillary-functionality">
+<h2>Ancillary functionality<a class="headerlink" href="#ancillary-functionality" title="Permalink to this headline">#</a></h2>
+<p>Catlas has a few additional bits of functionality to help inform model use.</p>
+<ol class="simple">
+<li><p>Make parity plots on specific material domain and adsorbate for improved information of model performance (<code class="docutils literal notranslate"><span class="pre">bin/get_parities.py</span></code>)</p></li>
+<li><p>Process data for parity generation (<code class="docutils literal notranslate"><span class="pre">bin/process_npz_for_validation.py</span></code> and <code class="docutils literal notranslate"><span class="pre">bin/process_npz_for_validation.py</span></code>)</p></li>
+<li><p>Select an appropriate number of relaxation steps when using S2EF models (<code class="docutils literal notranslate"><span class="pre">bin/optimize_frame.py</span></code>)</p></li>
+</ol>
+<p>For detailed information, see Use</p>
+</section>
+<section id="license">
+<h2>License<a class="headerlink" href="#license" title="Permalink to this headline">#</a></h2>
+<p>MIT License</p>
+<p>Copyright (c) 2021 Ulissi Group</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</p>
+</section>
+<div class="toctree-wrapper compound">
 </div>
+</section>
 
     <script type="text/x-thebe-config">
     {
@@ -323,7 +460,7 @@ title="Print to PDF"
     <a class='right-next' id="next-link" href="installation_and_setup.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">&lt;no title&gt;</p>
+        <p class="prev-next-title">Installation and setup</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

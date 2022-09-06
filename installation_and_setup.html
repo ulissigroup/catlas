@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>&lt;no title&gt; &#8212; Catlas</title>
+    <title>Installation and setup &#8212; Catlas</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="making_a_config.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="intro.html" />
+    <link rel="next" title="Making a config" href="making_a_config.html" />
+    <link rel="prev" title="Introduction" href="intro.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -109,11 +109,38 @@ const thebe_selector_output = ".output, .cell_output"
         <ul class="nav bd-sidenav bd-sidenav__home-link">
             <li class="toctree-l1">
                 <a class="reference internal" href="intro.html">
-                    <no title>
+                    Introduction
                 </a>
             </li>
         </ul>
-        
+        <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Use
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Installation and setup
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="making_a_config.html">
+   Making a config
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="running_catlas.html">
+   Running Catlas
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
+   Contributing
+  </a>
+ </li>
+</ul>
+
     </div>
 </nav></div>
         <div class="bd-sidebar__bottom">
@@ -288,7 +315,17 @@ title="Print to PDF"
         <i class="fas fa-list"></i> Contents
     </div>
     <nav id="bd-toc-nav" aria-label="Page">
-        <ul class="simple visible nav section-nav flex-column">
+        <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adding-parity-data">
+   Adding parity data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#advanced-options">
+   Advanced options
+  </a>
+ </li>
 </ul>
 
     </nav>
@@ -298,7 +335,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1><no title></h1>
+                <h1>Installation and setup</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -307,7 +344,17 @@ title="Print to PDF"
                             <h2> Contents </h2>
                         </div>
                         <nav aria-label="Page">
-                            <ul class="simple visible nav section-nav flex-column">
+                            <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#adding-parity-data">
+   Adding parity data
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#advanced-options">
+   Advanced options
+  </a>
+ </li>
 </ul>
 
                         </nav>
@@ -318,7 +365,40 @@ title="Print to PDF"
                 
               <div>
                 
-  
+  <section class="tex2jax_ignore mathjax_ignore" id="installation-and-setup">
+<h1>Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permalink to this headline">#</a></h1>
+<ol class="simple">
+<li><p>Clone the catlas repo</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ulissigroup</span><span class="o">/</span><span class="n">catlas</span><span class="o">.</span><span class="n">git</span>
+<span class="n">OR</span>
+<span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">ulissigroup</span><span class="o">/</span><span class="n">catlas</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Install catlas locally</p></li>
+</ol>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">catlas</span> <span class="o">&amp;&amp;</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">develop</span>
+</pre></div>
+</div>
+<ol class="simple">
+<li><p>Add <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md">model checkpoints</a> to a folder in the base directory called <code class="docutils literal notranslate"><span class="pre">ocp_checkpoints</span></code></p></li>
+</ol>
+<section id="adding-parity-data">
+<h2>Adding parity data<a class="headerlink" href="#adding-parity-data" title="Permalink to this headline">#</a></h2>
+<p>The parity data files have been omitted from the repo because they are large. We will have them as downloadable links. If you need them now. Please email bwander&#64;andrew.cmu.edu. They should be put in <code class="docutils literal notranslate"><span class="pre">catlas/catlas/parity/df_pkls/</span></code> and should be named to match the model checkpoint name.</p>
+</section>
+<section id="advanced-options">
+<h2>Advanced options<a class="headerlink" href="#advanced-options" title="Permalink to this headline">#</a></h2>
+<p>If you plan to use custom model architectures, they must be compatible with the OCP infra. This is currently supported. To do this you have to</p>
+<ol class="simple">
+<li><p>clone the <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp">ocp repo</a></p></li>
+<li><p>install it locally <code class="docutils literal notranslate"><span class="pre">cd</span> <span class="pre">~/ocp</span> <span class="pre">&amp;&amp;</span> <span class="pre">python</span> <span class="pre">setup.py</span> <span class="pre">develop</span></code></p></li>
+<li><p>make your changes &amp; train your model. Then just use the checkpoint as you would for any other catlas run</p></li>
+</ol>
+</section>
+</section>
+
     <script type="text/x-thebe-config">
     {
         requestKernel: true,
@@ -350,13 +430,13 @@ title="Print to PDF"
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">&lt;no title&gt;</p>
+            <p class="prev-next-title">Introduction</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="making_a_config.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">&lt;no title&gt;</p>
+        <p class="prev-next-title">Making a config</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
