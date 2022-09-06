@@ -4,9 +4,6 @@
 format: jb-book
 root: intro
 parts:
-- caption: Introduction
-  chapters:
-  - file: catlas_description
 - caption: Use
   chapters:
   - file: installation_and_setup
