@@ -311,6 +311,7 @@ def enumerate_and_predict_adslabs(
                         gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                         number_steps=number_steps,
                     )
+                most_recent_step = "min_" + step["label"]
             elif step["step_type"] == "inference" and not step["gpu"]:
                 inference = True
                 number_steps = step["number_steps"] if "number_steps" in step else 200
