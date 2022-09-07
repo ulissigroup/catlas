@@ -11,3 +11,6 @@ parts:
   - file: running_catlas
   - file: contributing
   - file: advanced_use
+- caption: docstrings
+  chapters:
+  - file: modules/filter_utils
