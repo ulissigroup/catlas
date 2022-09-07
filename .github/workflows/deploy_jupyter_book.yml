@@ -10,14 +10,17 @@ on:
 
 # This job installs dependencies, build the book, and pushes it to `gh-pages`
 jobs:
-  build-and-deploy-book:
-    runs-on: ubuntu-latest
-  
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        lfs: true
+  test_local_scheduler:
+    name: Test catlas with local scheduler
 
+    runs-on: [self-hosted, linux]
+
+    container:
+      image: docker://ulissigroup/catlas:latest
+      volumes:
+        - /home/jovyan/shared-scratch:/home/jovyan/shared-scratch
+
+    steps:
     # Build the book
     - name: Build the book
       run: |
