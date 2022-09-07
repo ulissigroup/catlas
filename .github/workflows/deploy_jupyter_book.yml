@@ -23,6 +23,7 @@ jobs:
     steps:
     # Build the book
     - name: Build the book
+      uses: actions/checkout@v3
       run: |
         python setup.py develop
         pip install jupyter-book
