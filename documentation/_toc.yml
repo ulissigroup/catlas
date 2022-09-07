@@ -13,4 +13,4 @@ parts:
   - file: advanced_use
 - caption: docstrings
   chapters:
-  - file: modules/filter_utils
+  - glob: modules/*
