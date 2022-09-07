@@ -12,10 +12,6 @@ on:
 jobs:
   build-and-deploy-book:
     runs-on: ubuntu-latest
-    
-    # Use a custom dockerfile for build
-    container:
-      image: docker://ulissigroup/catlas:latest
   
     steps:
     - uses: actions/checkout@v3
