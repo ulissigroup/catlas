@@ -27,7 +27,7 @@ def sizeof_python_list(l):
 
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
-    Assumes `ddf.index` is already sorted.
+        Assumes `ddf.index` is already sorted.
 
     Args:
         ddf (dask.core.frame.DataFrame): a dask DataFrame to repartition
@@ -65,17 +65,26 @@ def split_balance_df_partitions(df, npartitions):
 
 
 def bag_split_individual_partitions(bag):
-    """Split a
+    """Split a bag into as many partitions as possible.
 
     Args:
-        bag (_type_): _description_
+        bag (dask.bag.Bag): a dask Bag
 
     Returns:
-        _type_: _description_
+        dask.bag.Bag: the input bag, split into more partitions.
     """
     new_name = "repartition-%s" % (tokenize(bag))
 
     def get_len(partition):
+        """Get the length of a partition.
+            If the bag is the result of bag.filter(), each partition is actually a `filter` object, which has no __len__. In that case, convert to a `list` first.
+
+        Args:
+            partition (Iterable[dict]): a partition of a dask Bag
+
+        Returns:
+            int: The length of the partition; i.e., the number of objects in it.
+        """
         # If the bag is the result of bag.filter(),
         # then each partition is actually a 'filter' object,
         # which has no __len__.
@@ -108,8 +117,8 @@ def to_pickles(b, path, name_function=None, compute=True, **kwargs):
     """Send a dask dataframe to a series of pickle files.
 
     Args:
-        b (dask.dataframe.core.DataFrame): Dask dataframe to pickle.
-        path (str): folder location where pickles are written to.
+        b (dask.dataframe.core.DataFrame): Dataframe to pickle.
+        path (str): Folder location where pickles are written to.
         name_function (function, optional): Function defining how pickle files are
         named. Defaults to None.
         compute (bool, optional): Whether to compute the dataframe before pickling.
@@ -139,6 +148,11 @@ def to_pickles(b, path, name_function=None, compute=True, **kwargs):
 
 
 def _to_pickle(data, lazy_file):
-    """Write data to a pickle file."""
+    """Write data to a pickle file.
+
+    Args:
+        data (Any): Object to pickle. Must be pickleable.
+        lazy_file (open file-like): file IO stream to write to
+    """
     with lazy_file as f:
         pickle.dump(data, f)
