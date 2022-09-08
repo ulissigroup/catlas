@@ -64,7 +64,6 @@ def better_build_func_identifier(func):
 
 
 def token(config) -> str:
-<<<<<<< HEAD
     """Generates a unique config identifier. Taken from stackoverflow 45674572.
 
     Args:
@@ -72,15 +71,6 @@ def token(config) -> str:
 
     Returns:
         str: A hex token identifying the config.
-=======
-    """Generates a hex token that identifies a config. Taken from stackoverflow 45674572
-
-    Args:
-        config (dict): a config file used by bin/predictions.py
-
-    Returns:
-        str: a hash uniquely identifying the config.
->>>>>>> documentation_update_2
     """
     # `sign_mask` is used to make `hash` return unsigned values
     sign_mask = (1 << sys.hash_info.width) - 1
@@ -94,17 +84,10 @@ def hash_func(func):
     """Hash the function id, its file location, and the function code.
 
     Args:
-<<<<<<< HEAD
         func (Callable): a function to cache
 
     Returns:
         str: a hash uniquely identifying the function
-=======
-        func (Callable): a function to hash
-
-    Returns:
-        str: a string uniquely identifying the function
->>>>>>> documentation_update_2
     """
     func_code, _, first_line = get_func_code(func)
     func_code_h = hash([func_code, first_line])
@@ -115,17 +98,10 @@ def check_cache(cached_func):
     """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
     Inputs:
-<<<<<<< HEAD
         cached_func (Callable): Function to check cache for
 
     Returns:
         bool: True if cached function is safe to call, else False
-=======
-        cached_func (Callable): cached function to check
-
-    Returns:
-        bool: True if cached function is safe to call
->>>>>>> documentation_update_2
 
     """
 
@@ -182,9 +158,7 @@ def sqlitedict_memoize(
     )
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        """Wrapper for callable to cache arguments and return values. If the function
-        has been called with these inputs already, pull the result from cache; 
-        otherwise, compute it and store the result.
+        """Wrapper for callable to cache arguments and return values. If the function has been called with these inputs already, pull the result from cache; otherwise, compute it and store the result.
 
         Returns:
             Any: the result of the function call.
@@ -236,9 +210,8 @@ def sqlitedict_memoize(
 
 
 class SqliteSingleThreadDict(dict):
-    """A sqlite dictionary that extends `dict` with functionality that handles
-    database logic. Acts like a dictionary, but is actually a file that opens
-    file connections when items are accessed or set.
+    """A dictionary connected to a sqlite database.
+        Acts like a dictionary, but is actually a file that opens file connections when items are accessed or set.
 
     Raises:
         KeyError: an accessed key didn't exist in the dictionary.
@@ -265,8 +238,8 @@ class SqliteSingleThreadDict(dict):
         self.tablename = tablename
 
     def _new_readonly_conn(self):
-        """This function opens a read-only (ro) connection to the database which is
-        used to either check if data exists, or retrive cached data
+        """Open a read-only (ro) connection to the database.
+            This is used to either check if data exists, or retrive cached data
 
         Returns:
             Connection: a read-only connection to a file
@@ -294,8 +267,8 @@ class SqliteSingleThreadDict(dict):
         return conn
 
     def _new_readwrite_conn(self):
-        """Opens a read/write connection, which we need to insert data
-        into the cache
+        """Open a read/write connection.
+            This is necessary to insert data into the cache
 
         Returns:
             Connection: a read-write connection to a file
@@ -337,7 +310,7 @@ class SqliteSingleThreadDict(dict):
             self.readonly_conn = None
 
     def __contains__(self, key):
-        """Check if item is in sqlite dictionary already
+        """Check if item is in sqlite dictionary already.
 
         Args:
             key (str): a key to check
@@ -350,7 +323,7 @@ class SqliteSingleThreadDict(dict):
             return len(conn.execute(HAS_ITEM, (key,)).fetchall()) > 0
 
     def __getitem__(self, key):
-        """Read an item from the cache given a key
+        """Read an item from the cache given a key.
 
         Args:
             key (str): key to read
@@ -370,7 +343,12 @@ class SqliteSingleThreadDict(dict):
         return self.decode(value)
 
     def __setitem__(self, key, value):
-        # Set an item in the cache given a key/value pair
+        """Set an item in the cache given a key/value pair
+
+        Args:
+            key (str): key to set
+            value (Any): object to store
+        """
         with closing(self._new_readwrite_conn()) as readwrite_conn:
             ADD_ITEM = 'REPLACE INTO "%s" (key, value) VALUES (?,?)' % self.tablename
             readwrite_conn.execute(ADD_ITEM, (key, self.encode(value)))
