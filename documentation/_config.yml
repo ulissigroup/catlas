@@ -46,3 +46,4 @@ parse:
 sphinx:
   extra_extensions:
   - 'sphinx.ext.autodoc'
+  - 'sphinx.ext.napoleon'
