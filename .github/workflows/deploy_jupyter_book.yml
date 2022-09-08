@@ -10,17 +10,18 @@ on:
 
 # This job installs dependencies, build the book, and pushes it to `gh-pages`
 jobs:
-  build-and-deploy-book:
+  build_and_deploy_book:
     runs-on: ubuntu-latest
-   
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        lfs: true
 
+    container:
+      image: docker://ulissigroup/catlas:latest
+
+    steps:
     # Build the book
     - name: Build the book
-      run: |
+      uses: actions/checkout@v3
+    - run: |
+        python setup.py develop
         pip install jupyter-book
         pip install markupsafe==2.0.0
         pip install pygments -U
