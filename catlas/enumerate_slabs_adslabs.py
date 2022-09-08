@@ -178,11 +178,14 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
-    """
-    Generates a two-element list containing one dictionary corresponding to a
-    surface and another corresponding to an adsorbate for further use during adslab
-    enumeration.
-    """
+    """Combines a surface dict and an adsorbate dict.
+
+    Args:
+        surface_adsorbate_combo (Iterable[dict, dict]): a surface and an adsorbate.
+
+    Returns:
+        dict: a single dictionary containing a surface and an adsorbate.
+    """    
     surface_dict, ads_dict = copy.deepcopy(surface_adsorbate_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts
