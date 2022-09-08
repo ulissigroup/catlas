@@ -18,16 +18,10 @@ jobs:
 
     steps:
     # Build the book
+    - uses: actions/checkout@v3
     - name: Build the book
-      uses: actions/checkout@v3
     - run: |
-        python setup.py develop
         pip install jupyter-book
-        pip install markupsafe==2.0.0
-        pip install pygments -U
-        pip install sphinxcontrib-bibtex -U
-        pip install -U Jinja2
-        pip install sphinx_external_toc -U
         jupyter-book build documentation
 
     # Deploy the book's HTML to gh-pages branch
