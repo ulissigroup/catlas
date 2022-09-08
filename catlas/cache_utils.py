@@ -41,8 +41,13 @@ def better_build_func_identifier(func):
 
 
 def token(config) -> str:
-    """Generates a hex token that identifies a config.
-    taken from stackoverflow 45674572
+    """Generates a unique config identifier. Taken from stackoverflow 45674572.
+
+    Args:
+        config (dict): a catlas input config
+
+    Returns:
+        str: A hex token identifying the config.
     """
     # `sign_mask` is used to make `hash` return unsigned values
     sign_mask = (1 << sys.hash_info.width) - 1
@@ -53,28 +58,33 @@ def token(config) -> str:
 
 
 def hash_func(func):
-    """Hash the function id, its file location, and the function code"""
+    """Hash the function id, its file location, and the function code.
+
+    Args:
+        func (Callable): a function to cache
+
+    Returns:
+        str: a hash uniquely identifying the function
+    """
     func_code, _, first_line = get_func_code(func)
     func_code_h = hash([func_code, first_line])
     return id(func), hash(os.path.join(*naive_func_identifier(func))), func_code_h
 
 
 def check_cache(cached_func):
-    """checks if cached function is safe to call without overriding cache (adapted from
-    https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/
-    joblib/memory.py#L672)
+    """checks if cached function is safe to call without overriding cache (adapted from https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
     Inputs:
-        cached_func -- cached function to check
+        cached_func (Callable): Function to check cache for
 
     Returns:
-        True if cached function is safe to call, else False
+        bool: True if cached function is safe to call, else False
 
     """
 
-    # Here, we go through some effort to be robust to dynamically
-    # changing code and collision. We cannot inspect.getsource
-    # because it is not reliable when using IPython's magic "%run".
+    """Here, we go through some effort to be robust to dynamically
+    changing code and collision. We cannot inspect.getsource
+    because it is not reliable when using IPython's magic "%run"."""
     func_code, source_file, first_line = cached_func.func_code_info
     func_id = joblib.memory._build_func_identifier(cached_func.func)
 
