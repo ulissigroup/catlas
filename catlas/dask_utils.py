@@ -28,6 +28,12 @@ def sizeof_python_list(l):
 def _rebalance_ddf(ddf):
     """Repartition dask dataframe to ensure that partitions are roughly equal size.
     Assumes `ddf.index` is already sorted.
+
+    Args:
+        ddf (dask.core.frame.DataFrame): a dask DataFrame to repartition
+
+    Returns:
+        dask.core.frame.DataFrame: a repartitioned version of the input dask DataFrame
     """
     if not ddf.known_divisions:  # e.g. for read_parquet(..., infer_divisions=False)
         # ddf = ddf.reset_index().set_index(ddf.index.name, sorted=True)
@@ -43,6 +49,15 @@ def _rebalance_ddf(ddf):
 
 
 def split_balance_df_partitions(df, npartitions):
+    """repartition a dask dataframe.
+
+    Args:
+        df (dask.core.frame.DataFrame): a dask DataFrame to repartition.
+        npartitions (int): a number of partitions to use. Set to -1 to infer.
+
+    Returns:
+        dask.core.frame.DataFrame: rebalanced dataframe
+    """
     if npartitions == -1:
         npartitions = df.shape[0].compute()
     df = df.repartition(npartitions=npartitions)
@@ -50,6 +65,14 @@ def split_balance_df_partitions(df, npartitions):
 
 
 def bag_split_individual_partitions(bag):
+    """Split a
+
+    Args:
+        bag (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     new_name = "repartition-%s" % (tokenize(bag))
 
     def get_len(partition):
