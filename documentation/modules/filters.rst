@@ -1,5 +1,5 @@
 filters
 =======
 
-.. automodule:: catlas.catlas.filters
+.. automodule:: catlas.filters
     :members:
