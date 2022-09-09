@@ -400,27 +400,55 @@ title="Print to PDF"
 <dl class="py class">
 <dt class="sig sig-object py" id="catlas.cache_utils.SqliteSingleThreadDict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">SqliteSingleThreadDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablename='unnamed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">journal_mode='PERSIST'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode=&lt;function</span> <span class="pre">dumps&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode=&lt;built-in</span> <span class="pre">function</span> <span class="pre">loads&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.SqliteSingleThreadDict" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><dl class="simple">
+<dt>A dictionary connected to a sqlite database.</dt><dd><p>Acts like a dictionary, but is actually a file that opens file connections when items are accessed or set.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>KeyError</strong> – an accessed key didn’t exist in the dictionary.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.cache_utils.SqliteSingleThreadDict.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.SqliteSingleThreadDict.close" title="Permalink to this definition">#</a></dt>
+<dd><p>Close read-only connection</p>
+</dd></dl>
+
+</dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.better_build_func_identifier">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">better_build_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.better_build_func_identifier" title="Permalink to this definition">#</a></dt>
 <dd><p>Build a roughly unique identifier for the cached function.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – a function to cache</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of components identifying a function based on its code and
+location in the import hierarchy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple[str]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.check_cache">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">check_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cached_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.check_cache" title="Permalink to this definition">#</a></dt>
-<dd><p>checks if cached function is safe to call without overriding cache (adapted from
-<a class="reference external" href="https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/">https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/</a>
-joblib/memory.py#L672)</p>
+<dd><p>checks if cached function is safe to call without overriding cache (adapted from <a class="reference external" href="https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672">https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672</a>)</p>
 <dl class="simple">
-<dt>Inputs:</dt><dd><p>cached_func – cached function to check</p>
+<dt>Inputs:</dt><dd><p>cached_func (Callable): Function to check cache for</p>
 </dd>
 </dl>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>True if cached function is safe to call, else False</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
 </dd>
 </dl>
 </dd></dl>
@@ -431,25 +459,95 @@ joblib/memory.py#L672)</p>
 <dd><p>Find the location inside of your &lt;cache&gt;/joblib/ folder where a cached function
 is stored. Necessary because each function will have multiple subcaches for its
 codebase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – a function that has been cached</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the path where the input function is stored</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.hash_func">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">hash_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.hash_func" title="Permalink to this definition">#</a></dt>
-<dd><p>Hash the function id, its file location, and the function code</p>
+<dd><p>Hash the function id, its file location, and the function code.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – a function to cache</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a hash uniquely identifying the function</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.naive_func_identifier">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">naive_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.naive_func_identifier" title="Permalink to this definition">#</a></dt>
 <dd><p>Build simple identifier based on function name</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – a function to cache</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a string identifying the input function based on its location in the
+import hierarchy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.sqlitedict_memoize">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">sqlitedict_memoize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coerce_mmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.sqlitedict_memoize" title="Permalink to this definition">#</a></dt>
+<dd><p>cache functions in a way that splits cached functions between many folders.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>folder</strong> (<em>str</em>) – file location where cache shoud be created</p></li>
+<li><p><strong>func</strong> (<em>Callable</em>) – function to cache</p></li>
+<li><p><strong>ignore</strong> (<em>tuple</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of arguments that will be ignored when</p></li>
+<li><p><strong>(</strong><strong>)</strong><strong>.</strong> (<em>determining whether to start a new cache. Defaults to</em>) – </p></li>
+<li><p><strong>coerce_mmap</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True, don’t distinguish between numpy ndarrays</p></li>
+<li><p><strong>memmaps</strong> (<em>and numpy</em>) – </p></li>
+<li><p><strong>shard_digits</strong> (<em>int</em><em>, </em><em>optional</em>) – Generate 16^(shard digits) different folders to</p></li>
+<li><p><strong>2.</strong> (<em>store functions in. Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.token">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#catlas.cache_utils.token" title="Permalink to this definition">#</a></dt>
-<dd><p>Generates a hex token that identifies a config.
-taken from stackoverflow 45674572</p>
+<dd><p>Generates a unique config identifier. Taken from stackoverflow 45674572.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>config</strong> (<em>dict</em>) – a catlas input config</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A hex token identifying the config.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

@@ -405,19 +405,14 @@ pH and voltage points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – a pourbaix diagram</p></li>
-<li><p><strong>system.</strong> (<em>object containing information about the reference chemical</em>) – </p></li>
-<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry</p></li>
-<li><p><strong>of.</strong> (<em>specific to the material we want to calculate the decomposition energy</em>) – </p></li>
-<li><p><strong>conditions</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – A list of dictionaries specifying what conditions to</p></li>
-<li><p><strong>following</strong> (<em>evaluate the decomposition energy at. Each dictionary contains the</em>) – </p></li>
-<li><p><strong>pairs</strong> (<em>key-value</em>) – pH (float): the pH to evaluate a decomposition energy at.
-V (float): the voltage to evaluate a decomposition energy at.</p></li>
+<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – an electrochemical stability diagram for the reference system.</p></li>
+<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry specific to the material we want to calculate the decomposition energy of.</p></li>
+<li><p><strong>conditions</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – Conditions to evaluate the decomposition energy at.
+Each dictionary contains a pH and a voltage, both expressed as floats.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list corresponding to whether the input entry is stable under
-each set of conditions.</p>
+<dd class="field-even"><p>Whether the input entry is stable under each set of conditions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Iterable[bool]</p>
@@ -433,22 +428,13 @@ specified intervals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – a pourbaix diagram</p></li>
-<li><p><strong>system.</strong> (<em>object containing information about the reference chemical</em>) – </p></li>
-<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry</p></li>
-<li><p><strong>of.</strong> (<em>specific to the material we want to calculate the decomposition energy</em>) – </p></li>
-<li><p><strong>conditions</strong> (<em>dict</em>) – A dictionary specifying what conditions to evaluate the</p></li>
-<li><p><strong>pairs</strong> (<em>decomposition energy at. Contains the following key-value</em>) – pH_step (float): how far apart to evaluate consecutive pH points
-pH_upper (float): the maximum pH to evaluate
-pH_lower (float) the minimum pH to evaluate
-V_step (float): how far apart to evaluate consecutive voltage points
-V_upper (float): the maximum voltage to evaluate
-V_lower (float) the minimum voltage to evaluate</p></li>
+<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – a pourbaix diagram object containing information about the reference chemical system.</p></li>
+<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry specific to the material we want to calculate the decomposition energy of.</p></li>
+<li><p><strong>conditions</strong> (<em>dict</em>) – A dictionary specifying what condition or sets of conditions to evaluate the decomposition energy at.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list corresponding to whether the input entry is stable under
-each set of conditions.</p>
+<dd class="field-even"><p>A list corresponding to whether the input entry is stable under each set of conditions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Iterable[bool]</p>
@@ -460,27 +446,50 @@ each set of conditions.</p>
 <dt class="sig sig-object py" id="catlas.filter_utils.get_elements_in_groups">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_elements_in_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_elements_in_groups" title="Permalink to this definition">#</a></dt>
 <dd><p>Grabs the element symbols of all elements in the specified groups</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>groups</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Names of groups to include in the output.
+Any element in any group will be included. Valid groups are listed in the <cite>implemented_groups</cite> variable.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Elements included in the input groups.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_first_type">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_first_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_first_type" title="Permalink to this definition">#</a></dt>
-<dd><p>Get the type of the input, unpacking lists first if necessary.
-This is used to discard large objects from the output df of catlas if they are
-specified as unnecessary in the config yaml by examining the type of objects in
-a list where applicable.</p>
+<dd><dl class="simple">
+<dt>Get the type of the input, unpacking lists first if necessary.</dt><dd><p>This is used to discard large objects from the output df of catlas if they are specified as unnecessary in the config yaml by examining the type of objects in a list where applicable.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>x</strong> (<em>Any</em>) – An object to get the type of</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The type of the input</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>type</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_pourbaix_info">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_pourbaix_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_pourbaix_info" title="Permalink to this definition">#</a></dt>
-<dd><p>Grabs the relevant pourbaix entries for a given mpid
-from Materials Project and constructs a pourbaix diagram for it. This currently
-only supports MP materials.</p>
+<dd><dl class="simple">
+<dt>Construct a Pourbaix diagram for a material.</dt><dd><p>This currently only supports MP inputs.</p>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>entry</strong> – bulk structure entry as constructed by
-catlas.load_bulk_structures.load_bulks_from_db</p>
+<dd class="field-odd"><p><strong>entry</strong> – bulk structure entry as constructed by catlas.load_bulk_structures.load_bulks_from_db</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – The bulk id provided in the entry is not a materials project id</p>
@@ -491,15 +500,19 @@ catlas.load_bulk_structures.load_bulks_from_db</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_pourbaix_stability">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_pourbaix_stability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_pourbaix_stability" title="Permalink to this definition">#</a></dt>
-<dd><p>Reads the relevant Pourbaix info from the lmdb and evaluates stability at the
-desired points, returns a list of booleans capturing whether or not the material is
-stable under given conditions.</p>
+<dd><p>Evaluate whether a material will be stable under various electrochemical conditions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entry</strong> – A dictionary containing the bulk entry which will be assessed</p></li>
 <li><p><strong>conditions</strong> – The dictionary of Pourbaix settings set in the config yaml</p></li>
 </ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if the material is stable for each input condition</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[bool]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -508,18 +521,25 @@ stable under given conditions.</p>
 <dt class="sig sig-object py" id="catlas.filter_utils.pb_query_and_write">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">pb_query_and_write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmdb_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.pb_query_and_write" title="Permalink to this definition">#</a></dt>
 <dd><p>Pull pourbaix info from MP and write it to the lmdb</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entry</strong> (<em>dict</em>) – entry to query</p></li>
+<li><p><strong>lmdb_path</strong> (<em>str</em>) – path of lmdb to write to</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.write_pourbaix_info">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">write_pourbaix_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pbx_entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmdb_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.write_pourbaix_info" title="Permalink to this definition">#</a></dt>
-<dd><p>Writes the pourbaix query info to lmdb for future use.</p>
+<dd><p>Write the pourbaix query info to lmdb for future use.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pbx_entry</strong> – dictionary containing the important pourbaix query
-info info for a single mpid</p></li>
-<li><p><strong>lmdb_path</strong> – Location where the lmdb will be written (including fname)</p></li>
+<li><p><strong>pbx_entry</strong> (<em>dict</em>) – Relevant pourbaix query info for a single mpid.</p></li>
+<li><p><strong>lmdb_path</strong> (<em>str</em>) – Location where the lmdb will be written, including file name.</p></li>
 </ul>
 </dd>
 </dl>

@@ -400,25 +400,20 @@ title="Print to PDF"
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.prediction_steps.enumerate_and_predict_adslabs">
 <span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">enumerate_and_predict_adslabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adsorbate_bag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.enumerate_and_predict_adslabs" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate adslabs from all filtered surfaces and adsorbates, then run predictions
-on them and filter them according to the input config file.</p>
+<dd><p>Generate adslabs from all filtered surfaces and adsorbates, then run predictions on them and filter them according to the input config file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<em>dict</em>) – A config file specifying what surfaces to filter.</p></li>
-<li><p><strong>surface_bag</strong> (<em>dask.bag.Bag</em>) – A dask Bag object containing a set of surfaces</p></li>
-<li><p><strong>config.</strong> (<em>that have been filtered according to the</em>) – </p></li>
-<li><p><strong>adsorbate_bag</strong> (<em>dask.bag.Bag</em>) – A dask Bag object containing a set of adsorbates</p></li>
-<li><p><strong>config.</strong> – </p></li>
+<li><p><strong>surface_bag</strong> (<em>dask.bag.Bag</em>) – surfaces to enumerate</p></li>
+<li><p><strong>adsorbate_bag</strong> (<em>dask.bag.Bag</em>) – adsorbates to enumerate</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a dask Bag containing adslabs and their predicted adsorption
-energies according to models specified in the config file.
+<dd class="field-even"><p>a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
 dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
 bool: True if a model was used to predict adsorption energies of the inputs.
-str: the name of the column corresponding to the minimum adsorption energy
-on each surface according to the model that was run last during predictions.</p>
+str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dask.bag.Bag</p>
@@ -434,7 +429,7 @@ on each surface according to the model that was run last during predictions.</p>
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<em>dict</em>) – A config file specifying what surfaces to filter.</p></li>
-<li><p><strong>filtered_catalyst_bag</strong> (<em>dask.bag.Bag</em>) – A dask Bag object containing a set of bulk materials to enumerate surfaces for.</p></li>
+<li><p><strong>filtered_catalyst_bag</strong> (<em>dask.bag.Bag</em>) – Bulk materials to enumerate surfaces for.</p></li>
 <li><p><strong>bulk_num</strong> (<em>int</em>) – The number of bulk materials in the input bag.</p></li>
 </ul>
 </dd>
@@ -449,6 +444,30 @@ int: The number of slabs enumerated from filtered bulks before slab filtering.</
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="catlas.prediction_steps.finish_sankey_diagram">
+<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">finish_sankey_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sankey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_unfiltered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filtered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_adslabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inferred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><span class="pre">catlas.sankey.sankey_utils.Sankey</span></a></span></span><a class="headerlink" href="#catlas.prediction_steps.finish_sankey_diagram" title="Permalink to this definition">#</a></dt>
+<dd><p>Make sankey diagram for predictions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sankey</strong> (<a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><em>catlas.sankey.sankey_utils.Sankey</em></a>) – Sankey object from predictions run</p></li>
+<li><p><strong>num_unfiltered_slabs</strong> (<em>int</em>) – the number of slabs before filtering</p></li>
+<li><p><strong>num_filtered_slabs</strong> (<em>int</em>) – the number of slabs after filtering</p></li>
+<li><p><strong>num_adslabs</strong> (<em>int</em>) – the number of adslabs enumerated</p></li>
+<li><p><strong>num_inferred</strong> (<em>int</em>) – the number of adslabs that inference was run on</p></li>
+<li><p><strong>run_id</strong> (<em>str</em>) – an arbitrary string identifying the run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>finished Sankey diagram</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey">catlas.sankey.sankey_utils.Sankey</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="catlas.prediction_steps.generate_outputs">
 <span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">generate_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">most_recent_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.generate_outputs" title="Permalink to this definition">#</a></dt>
 <dd><p>_summary_</p>
@@ -456,8 +475,7 @@ int: The number of slabs enumerated from filtered bulks before slab filtering.</
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>config</strong> (<em>dict</em>) – A config file specifying what surfaces to filter.</p></li>
-<li><p><strong>results_bag</strong> (<em>dask.bag.Bag</em>) – A dask Bag object of adslabs and their predicted</p></li>
-<li><p><strong>energies.</strong> (<em>adsorption</em>) – </p></li>
+<li><p><strong>results_bag</strong> (<em>dask.bag.Bag</em>) – A dask Bag object of adslabs and their predicted adsorption energies.</p></li>
 <li><p><strong>run_id</strong> (<em>str</em>) – A string with a timestamp uniquely identifying the run.</p></li>
 <li><p><strong>inference</strong> (<em>bool</em>) – Whether a model was used to predict adsorption energies</p></li>
 <li><p><strong>script.</strong> (<em>during the execution of this</em>) – </p></li>
@@ -477,8 +495,7 @@ int: the number of adslabs remaining after all inference</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.prediction_steps.load_adsorbates_and_filter">
 <span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">load_adsorbates_and_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sankey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.load_adsorbates_and_filter" title="Permalink to this definition">#</a></dt>
-<dd><p>Load adsorbates and filter them according to the input config. Update sankey
-diagram based on adsorbate filtering.</p>
+<dd><p>Load adsorbates and filter them according to the input config. Update sankey diagram based on adsorbate filtering.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -506,11 +523,9 @@ file. Update sankey diagram based on bulk filtering.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<em>dict</em>) – a config file specifying what adsorption calculations to run.</p></li>
-<li><p><strong>client</strong> (<em>dask.distributed.Client</em>) – a Dask cluster that runs calculations during</p></li>
-<li><p><strong>program.</strong> (<em>execution of this</em>) – </p></li>
-<li><p><strong>sankey</strong> (<a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><em>catlas.sankey.sankey_utils.Sankey</em></a>) – a Sankey object describing how</p></li>
-<li><p><strong>far.</strong> (<em>objects have been filtered so</em>) – </p></li>
+<li><p><strong>config</strong> (<em>dict</em>) – a dictionary specifying what adsorption calculations to run.</p></li>
+<li><p><strong>client</strong> (<em>dask.distributed.Client</em>) – a Dask cluster that runs calculations during execution of this program.</p></li>
+<li><p><strong>sankey</strong> (<a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><em>catlas.sankey.sankey_utils.Sankey</em></a>) – a Sankey object describing how objects have been filtered so far.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
@@ -527,18 +542,15 @@ catlas.sankey.sankey_utils.Sankey: a Sankey object updated with bulk filtering.<
 <dt class="sig sig-object py" id="catlas.prediction_steps.parse_inputs">
 <span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">parse_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.parse_inputs" title="Permalink to this definition">#</a></dt>
 <dd><p>Parse and prepare inputs for use by the main script.</p>
-<dl class="simple">
-<dt>The main script takes in two command-line inputs:</dt><dd><p><cite>config_path</cite> (str), a path to a config yml file describing what adsorption
-calculations to run in the main script.
-<cite>dask_cluster_script_path</cite> (str), a path to a script that connects to a dask
-cluster that executes calculations run during the main script.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_path</strong> (<em>str</em>) – a path to a config yml file describing what adsorption calculations to run in the main script.</p></li>
+<li><p><strong>dask_cluster_script_path</strong> (<em>str</em>) – a path to a script that connects to a dask  cluster that executes calculations run during the main script.</p></li>
+</ul>
 </dd>
 </dl>
-<p>This function loads and validates the config, pulls the run_id from the config,
-generates the dask cluster script from the dask cluster script path, makes a folder
-for the ouputs, generates parity plots if available for the model(s) in use,
-generates a Sankey dictionary for later use in the script, and writes “CATLAS” in
-large isometrically displayed ASCII letters.</p>
+<p>This function loads and validates the config, pulls the run_id from the config,generates the dask cluster script from the dask cluster script path, makes a folder for the ouputs, generates parity plots if available for the model(s) in use, generates a Sankey dictionary for later use in the script, and writes “CATLAS” in large isometrically displayed ASCII letters.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
 <dd class="field-odd"><p>a config describing what adsorption predictions to run.
