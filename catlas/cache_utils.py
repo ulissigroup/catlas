@@ -139,15 +139,12 @@ def sqlitedict_memoize(
     Args:
         folder (str): file location where cache shoud be created
         func (Callable): function to cache
-        ignore (tuple[str], optional): List of arguments that will be ignored when
-        determining whether to start a new cache. Defaults to ().
-        coerce_mmap (bool, optional): if True, don't distinguish between numpy ndarrays
-        and numpy memmaps
-        shard_digits (int, optional): Generate 16^(shard digits) different folders to
-        store functions in. Defaults to 2.
+        ignore (tuple[str], optional): List of arguments that will be ignored when determining whether to start a new cache. Defaults to ().
+        coerce_mmap (bool, optional): if True, don't distinguish between numpy ndarrays and numpy memmaps. Defaults to False.
+        shard_digits (int, optional): Generate 16^(shard digits) different folders to store functions in. Defaults to 2.
 
     Returns:
-        _type_: _description_
+        Callable: cached function
     """
     # Use a base name that includes the full function path and a hash on the function
     # code itself
