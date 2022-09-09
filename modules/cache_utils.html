@@ -516,19 +516,16 @@ import hierarchy</p>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>str</em>) – file location where cache shoud be created</p></li>
 <li><p><strong>func</strong> (<em>Callable</em>) – function to cache</p></li>
-<li><p><strong>ignore</strong> (<em>tuple</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of arguments that will be ignored when</p></li>
-<li><p><strong>(</strong><strong>)</strong><strong>.</strong> (<em>determining whether to start a new cache. Defaults to</em>) – </p></li>
-<li><p><strong>coerce_mmap</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True, don’t distinguish between numpy ndarrays</p></li>
-<li><p><strong>memmaps</strong> (<em>and numpy</em>) – </p></li>
-<li><p><strong>shard_digits</strong> (<em>int</em><em>, </em><em>optional</em>) – Generate 16^(shard digits) different folders to</p></li>
-<li><p><strong>2.</strong> (<em>store functions in. Defaults to</em>) – </p></li>
+<li><p><strong>ignore</strong> (<em>tuple</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of arguments that will be ignored when determining whether to start a new cache. Defaults to ().</p></li>
+<li><p><strong>coerce_mmap</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True, don’t distinguish between numpy ndarrays and numpy memmaps. Defaults to False.</p></li>
+<li><p><strong>shard_digits</strong> (<em>int</em><em>, </em><em>optional</em>) – Generate 16^(shard digits) different folders to store functions in. Defaults to 2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>_description_</p>
+<dd class="field-even"><p>cached function</p>
 </dd>
 <dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>_type_</p>
+<dd class="field-odd"><p>Callable</p>
 </dd>
 </dl>
 </dd></dl>
