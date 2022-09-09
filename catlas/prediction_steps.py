@@ -465,7 +465,7 @@ def finish_sankey_diagram(
         run_id (str): an arbitrary string identifying the run
 
     Returns:
-        Sankey: _description_
+        catlas.sankey.sankey_utils.Sankey: finished Sankey diagram
     """
     if num_adslabs is None:
         num_adslabs = num_inferred = [0]
