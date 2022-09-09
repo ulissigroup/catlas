@@ -155,7 +155,8 @@ def sqlitedict_memoize(
     )
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        """Wrapper for callable to cache arguments and return values. If the function has been called with these inputs already, pull the result from cache; otherwise, compute it and store the result.
+        """Cache a function and its arguments when called, storing the return value.
+            If the function has been called with these inputs already, pull the result from cache; otherwise, compute it and store the result.
 
         Returns:
             Any: the result of the function call.
