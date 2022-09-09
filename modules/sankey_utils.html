@@ -396,6 +396,84 @@ title="Print to PDF"
                 
   <section id="sankey-utils">
 <h1>sankey_utils<a class="headerlink" href="#sankey-utils" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.sankey.sankey_utils.</span></span><span class="sig-name descname"><span class="pre">Sankey</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey" title="Permalink to this definition">#</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey.add_adslab_info">
+<span class="sig-name descname"><span class="pre">add_adslab_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_adslabs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inference</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey.add_adslab_info" title="Permalink to this definition">#</a></dt>
+<dd><p>Updates the Sankey dictionary with adslab information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_adslabs</strong> – the number of adslabs</p></li>
+<li><p><strong>num_inference</strong> – the number of inference calculations</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey.add_slab_info">
+<span class="sig-name descname"><span class="pre">add_slab_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_unfiltered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filtered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey.add_slab_info" title="Permalink to this definition">#</a></dt>
+<dd><p>Updates the Sankey dictionary with slab information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_unfiltered</strong> – the number of slabs prior to filtering</p></li>
+<li><p><strong>num_filtered</strong> – the number of slabs after filtering</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey.get_sankey_diagram">
+<span class="sig-name descname"><span class="pre">get_sankey_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">run_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_log</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey.get_sankey_diagram" title="Permalink to this definition">#</a></dt>
+<dd><p>A function to create a pdf of the Sankey diagram.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>run_id</strong> – unique id for the run to be used as a location for saving outputs</p></li>
+<li><p><strong>use_log</strong> (<em>boolean</em><em>, </em><em>optional</em>) – if the sankey flow values should be scaled</p></li>
+<li><p><strong>True.</strong> (<em>logarithmically. Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a pdf of the sankey diagram for the run</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey.update_dictionary">
+<span class="sig-name descname"><span class="pre">update_dictionary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey.update_dictionary" title="Permalink to this definition">#</a></dt>
+<dd><p>Updates the Sankey dictionary with a new edge (flow of content).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>label</strong> – a new label to add to the labels</p></li>
+<li><p><strong>source</strong> – the node from which the flow comes</p></li>
+<li><p><strong>target</strong> – the node to which the flow goes</p></li>
+<li><p><strong>value</strong> – the magnitude of the flow</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.sankey.sankey_utils.Sankey.update_y_positions">
+<span class="sig-name descname"><span class="pre">update_y_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">use_log</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.sankey.sankey_utils.Sankey.update_y_positions" title="Permalink to this definition">#</a></dt>
+<dd><p>Update the y positions for all nodes at x = 1 so they are well spread out.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>use_log</strong> – boolean value determining if the values will be log(values)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

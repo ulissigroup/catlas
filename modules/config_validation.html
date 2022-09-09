@@ -395,8 +395,27 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="config-validation">
-<h1>config_validation<a class="headerlink" href="#config-validation" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.config_validation">
+<span id="config-validation"></span><h1>config_validation<a class="headerlink" href="#module-catlas.config_validation" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.config_validation.validate_element">
+<span class="sig-prename descclassname"><span class="pre">catlas.config_validation.</span></span><span class="sig-name descname"><span class="pre">validate_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.config_validation.validate_element" title="Permalink to this definition">#</a></dt>
+<dd><p>Validate that object is an element. Generate Cerberus-type error otherwise.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.config_validation.validate_folder_exists">
+<span class="sig-prename descclassname"><span class="pre">catlas.config_validation.</span></span><span class="sig-name descname"><span class="pre">validate_folder_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.config_validation.validate_folder_exists" title="Permalink to this definition">#</a></dt>
+<dd><p>A more permissive check to check if a file/folder can be created if it doesn’t
+exist</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.config_validation.validate_path_exists">
+<span class="sig-prename descclassname"><span class="pre">catlas.config_validation.</span></span><span class="sig-name descname"><span class="pre">validate_path_exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.config_validation.validate_path_exists" title="Permalink to this definition">#</a></dt>
+<dd><p>Validate that a file path exists. Generate Cerberus-type error otherwise.</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

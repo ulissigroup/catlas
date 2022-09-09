@@ -395,8 +395,29 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="dask-kube-utils">
-<h1>dask_kube_utils<a class="headerlink" href="#dask-kube-utils" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.dask_kube_utils">
+<span id="dask-kube-utils"></span><h1>dask_kube_utils<a class="headerlink" href="#module-catlas.dask_kube_utils" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_kube_utils.get_namespace">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_kube_utils.</span></span><span class="sig-name descname"><span class="pre">get_namespace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_kube_utils.get_namespace" title="Permalink to this definition">#</a></dt>
+<dd><p>Return the Kubernetes namespace this code is run in.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_kube_utils.kube_cluster_new_worker">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_kube_utils.</span></span><span class="sig-name descname"><span class="pre">kube_cluster_new_worker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_kube_utils.kube_cluster_new_worker" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate a new kubernetes worker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cluster</strong> (<em>dask.distributed.client.Client</em>) – a dask cluster to run code on.</p></li>
+<li><p><strong>config_path</strong> (<em>str</em>) – a file path containing a config yml file defining the</p></li>
+<li><p><strong>worker</strong> (<em>specifications of the new</em>) – </p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

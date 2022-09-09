@@ -395,8 +395,63 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="cache-utils">
-<h1>cache_utils<a class="headerlink" href="#cache-utils" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.cache_utils">
+<span id="cache-utils"></span><h1>cache_utils<a class="headerlink" href="#module-catlas.cache_utils" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.cache_utils.SqliteSingleThreadDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">SqliteSingleThreadDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablename='unnamed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">journal_mode='PERSIST'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode=&lt;function</span> <span class="pre">dumps&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode=&lt;built-in</span> <span class="pre">function</span> <span class="pre">loads&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.SqliteSingleThreadDict" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.better_build_func_identifier">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">better_build_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.better_build_func_identifier" title="Permalink to this definition">#</a></dt>
+<dd><p>Build a roughly unique identifier for the cached function.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.check_cache">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">check_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cached_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.check_cache" title="Permalink to this definition">#</a></dt>
+<dd><p>checks if cached function is safe to call without overriding cache (adapted from
+<a class="reference external" href="https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/">https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/</a>
+joblib/memory.py#L672)</p>
+<dl class="simple">
+<dt>Inputs:</dt><dd><p>cached_func – cached function to check</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>True if cached function is safe to call, else False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.get_cached_func_location">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">get_cached_func_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.get_cached_func_location" title="Permalink to this definition">#</a></dt>
+<dd><p>Find the location inside of your &lt;cache&gt;/joblib/ folder where a cached function
+is stored. Necessary because each function will have multiple subcaches for its
+codebase.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.hash_func">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">hash_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.hash_func" title="Permalink to this definition">#</a></dt>
+<dd><p>Hash the function id, its file location, and the function code</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.naive_func_identifier">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">naive_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.naive_func_identifier" title="Permalink to this definition">#</a></dt>
+<dd><p>Build simple identifier based on function name</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.cache_utils.token">
+<span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#catlas.cache_utils.token" title="Permalink to this definition">#</a></dt>
+<dd><p>Generates a hex token that identifies a config.
+taken from stackoverflow 45674572</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

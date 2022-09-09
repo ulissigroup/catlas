@@ -395,8 +395,32 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="dask-utils">
-<h1>dask_utils<a class="headerlink" href="#dask-utils" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.dask_utils">
+<span id="dask-utils"></span><h1>dask_utils<a class="headerlink" href="#module-catlas.dask_utils" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.dask_utils.to_pickles">
+<span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">to_pickles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name_function</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_utils.to_pickles" title="Permalink to this definition">#</a></dt>
+<dd><p>Send a dask dataframe to a series of pickle files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> (<em>dask.dataframe.core.DataFrame</em>) – Dask dataframe to pickle.</p></li>
+<li><p><strong>path</strong> (<em>str</em>) – folder location where pickles are written to.</p></li>
+<li><p><strong>name_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function defining how pickle files are</p></li>
+<li><p><strong>None.</strong> (<em>named. Defaults to</em>) – </p></li>
+<li><p><strong>compute</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the dataframe before pickling.</p></li>
+<li><p><strong>True.</strong> (<em>Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>_description_</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>_type_</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

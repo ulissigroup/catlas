@@ -395,8 +395,144 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="adslab-predictions">
-<h1>adslab_predictions<a class="headerlink" href="#adslab-predictions" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.adslab_predictions">
+<span id="adslab-predictions"></span><h1>adslab_predictions<a class="headerlink" href="#module-catlas.adslab_predictions" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">BatchOCPPredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor" title="Permalink to this definition">#</a></dt>
+<dd><p>Variable used to store the model used during predictions. Specifications are
+contained in the input config. This variable is globalized within a worker to
+avoid duplicate model loading.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor.direct_prediction">
+<span class="sig-name descname"><span class="pre">direct_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor.direct_prediction" title="Permalink to this definition">#</a></dt>
+<dd><p>Run direct energy predictions on a list of graphs. Predict the relaxed
+energy without running ML relaxations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – a list of</p></li>
+<li><p><strong>on.</strong> (<em>graphs to perform inference</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the predicted energies of the input graphs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor.load_checkpoint">
+<span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor.load_checkpoint" title="Permalink to this definition">#</a></dt>
+<dd><p>Load existing trained model
+:param checkpoint_path: string</p>
+<blockquote>
+<div><p>Path to trained model</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor.make_dataloader">
+<span class="sig-name descname"><span class="pre">make_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor.make_dataloader" title="Permalink to this definition">#</a></dt>
+<dd><p>Make the dataloader used to feed graphs into the OCP model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – a list of graphs</p></li>
+<li><p><strong>on.</strong> (<em>to run predictions</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dataloader object that can be used by OCP models.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>data_loader</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor.relaxation_prediction">
+<span class="sig-name descname"><span class="pre">relaxation_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor.relaxation_prediction" title="Permalink to this definition">#</a></dt>
+<dd><p>Run relaxation energy predictions on a list of graphs. Relax each graph,
+then predict the energy of the final structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – a list of graphs to</p></li>
+<li><p><strong>on</strong> (<em>perform relaxations</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the predicted energies of the
+input graphs
+relaxation_positions (Iterable[torch_geometric.data.Data]): the final
+relaxed positions of the input graphs.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>relaxation_predictions (Iterable[float])</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.GraphsListDataset">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">GraphsListDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.GraphsListDataset" title="Permalink to this definition">#</a></dt>
+<dd><p>Make a list of graphs to feed into ocp dataloader object</p>
+<dl class="simple">
+<dt>Extends:</dt><dd><p>torch.utils.data.Dataset: a torch Dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.energy_prediction">
+<span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">energy_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adslab_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adslab_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_adslab_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_adslab_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graphs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_mem_per_sample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.energy_prediction" title="Permalink to this definition">#</a></dt>
+<dd><p>Predict the energies of a list of adslabs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adslab_dict</strong> (<em>dict</em>) – A dictionary corresponding to <cite>adslab_atoms</cite> used to store</p></li>
+<li><p><strong>comparisons.</strong> (<em>model. Should be ignored during cache</em>) – </p></li>
+<li><p><strong>adslab_atoms</strong> (<em>Iterable</em><em>[</em><em>ase.atoms.Atoms</em><em>]</em>) – A list of adslabs all generated from</p></li>
+<li><p><strong>during</strong> (<em>the same adsorbate and surface to run predictions on. Should be ignored</em>) – </p></li>
+<li><p><strong>comparisons.</strong> – </p></li>
+<li><p><strong>hash_adslab_atoms</strong> (<em>str</em>) – A hash specific to <cite>adslab_atoms</cite> used for cache</p></li>
+<li><p><strong>comparisons.</strong> – </p></li>
+<li><p><strong>hash_adslab_dict</strong> (<em>str</em>) – A hash specific to <cite>adslab_dict</cite> used for cache</p></li>
+<li><p><strong>comparisons</strong> – </p></li>
+<li><p><strong>graphs_dict</strong> (<em>dict</em>) – A dictionary containing a key “adslab_graphs” that has a</p></li>
+<li><p><strong>ocp</strong> (<em>value of a list of graphs corresponding to adslab_atoms for use by the</em>) – </p></li>
+<li><p><strong>comparisons.</strong> – </p></li>
+<li><p><strong>checkpoint_path</strong> (<em>str</em>) – A path where the OCP model checkpoint can be found.</p></li>
+<li><p><strong>column_name</strong> (<em>str</em>) – An arbitrary name used to define the model output field</p></li>
+<li><p><strong>names.</strong> – </p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of adslabs loaded onto a gpu at a single</p></li>
+<li><p><strong>Defaults</strong> (<em>time during relaxations. Should be ignored during cache comparisons.</em>) – </p></li>
+<li><p><strong>8.</strong> (<em>to</em>) – </p></li>
+<li><p><strong>gpu_mem_per_sample</strong> (<em>float</em><em>, </em><em>optional</em>) – The approximate memory used by a single</p></li>
+<li><p><strong>relaxations</strong> (<em>adslab during</em>) – </p></li>
+<li><p><strong>None.</strong> (<em>used to determine batch size. Defaults to</em>) – </p></li>
+<li><p><strong>number_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of steps used during relaxations.</p></li>
+<li><p><strong>200.</strong> (<em>Should be determined using bin/optimize_frame.py. Defaults to</em>) – </p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A dictionary based on <cite>adslab_dict</cite> containing new fields corresponding
+to predicted adsorption energies, the minimum adsorption energy on each surface,
+and relaxed structures if relaxations were run.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

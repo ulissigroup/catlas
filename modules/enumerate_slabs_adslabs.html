@@ -395,8 +395,124 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="enumerate-slabs-adslabs">
-<h1>enumerate_slabs_adslabs<a class="headerlink" href="#enumerate-slabs-adslabs" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.enumerate_slabs_adslabs">
+<span id="enumerate-slabs-adslabs"></span><h1>enumerate_slabs_adslabs<a class="headerlink" href="#module-catlas.enumerate_slabs_adslabs" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.CustomAdsorbate">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">CustomAdsorbate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ads_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bond_indices</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smiles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.CustomAdsorbate" title="Permalink to this definition">#</a></dt>
+<dd><p>A custom adsorbate object for ocdata compatability.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.CustomBulk">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">CustomBulk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bulk_atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.CustomBulk" title="Permalink to this definition">#</a></dt>
+<dd><p>A custom bulk object for ocdata compatability.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.convert_adslabs_to_graphs">
+<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">convert_adslabs_to_graphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adslab_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_neighbors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.convert_adslabs_to_graphs" title="Permalink to this definition">#</a></dt>
+<dd><p>Turn ase.Atoms adslabs into graphs compatible with ocp models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>adslab_result</strong> (<em>ase.Atoms</em>) – an ase.Atoms object containing an adsorbate
+positioned on top of a surface.</p></li>
+<li><p><strong>max_neighbors</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest number of neighbors to be considered
+in a graph. If a node ends up with more than this many neighbors, the furthest
+neighbors will be ignored. Defaults to 50.</p></li>
+<li><p><strong>cutoff</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum distance in Angstroms to look for
+neighbors. Defaults to 6.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing a single key “adslab_graphs” which</dt><dd><p>contains a list of torch_geometric.data.Data objects that can be used by OCP
+models.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>graph_dict (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.enumerate_adslabs">
+<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">enumerate_adslabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_ads_combo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.enumerate_adslabs" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate adslabs from two dictionaries specifying a surface and an adsorbate.
+The only difference between these adslabs is the surface site where the adsorbate
+binds, allowing every adslab to be a shallow copy of the same object with updated
+positions. Because of this, be careful about updating adslab properties!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>surface_ads_combo</strong> (<em>Iterable</em><em>[</em><em>dict</em><em>]</em>) – <p>a list of two dictionaries:
+surface_dict (dict): a dictionary defining the surface with a key</p>
+<blockquote>
+<div><p>”slab_surface_object” that contains a ocdata.surfaces.Surface object.</p>
+</div></blockquote>
+<p>ads_dict (dict): a dictionary defining the adsorbate with the following
+key-value pairs:</p>
+<blockquote>
+<div><p>adsorbate_atoms (ase.Atoms): the Atoms object of the adsorbate.
+adsorbate_bond_indices (int): the index corresponding to the Atoms
+object Atom that binds to the surface. Multidentate ligands not
+supported :(.</p>
+</div></blockquote>
+</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of Atoms objects of the adslab systems with constraints</dt><dd><p>applied.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[ase.Atoms]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.enumerate_slabs">
+<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">enumerate_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bulk_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_miller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.enumerate_slabs" title="Permalink to this definition">#</a></dt>
+<dd><p>Given a dictionary defining a material bulk, use pymatgen’s SlabGenerator object
+to enumerate all the slabs associated with the bulk object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bulk_dict</strong> (<em>dict</em>) – A dictionary containing a key “bulk_atoms” that has a value
+of an ase.Atoms object corresponding to a bulk material.</p></li>
+<li><p><strong>max_miller</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest miller index to enumerate up to.
+Defaults to 2.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>A list of dictionaries corresponding to the surfaces enumerated
+from the input bulk. Each dictionary has the following key-value pairs:
+- slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
+- slab_millers (tuple[int]): the miller index of the surface.
+- slab_max_miller_index (int): the highest miller index of the surface.
+- slab_shift (float): the shift of the termination of the surface.
+- slab_top (bool): whether the termination is the top of the slab.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.merge_surface_adsorbate_combo">
+<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">merge_surface_adsorbate_combo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_adsorbate_combo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.merge_surface_adsorbate_combo" title="Permalink to this definition">#</a></dt>
+<dd><p>Generates a two-element list containing one dictionary corresponding to a
+surface and another corresponding to an adsorbate for further use during adslab
+enumeration.</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">
