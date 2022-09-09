@@ -185,7 +185,7 @@ def merge_surface_adsorbate_combo(surface_adsorbate_combo):
 
     Returns:
         dict: a single dictionary containing a surface and an adsorbate.
-    """    
+    """
     surface_dict, ads_dict = copy.deepcopy(surface_adsorbate_combo)
 
     # Prep the new adslab result from the adsorbate and surface info dicts

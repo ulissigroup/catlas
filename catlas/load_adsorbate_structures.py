@@ -15,7 +15,7 @@ def load_ocdata_adsorbates(adsorbate_path):
 
     Returns:
         list[dict]: adsorbates and associated metadata
-    """    
+    """
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         adsorbate_path,
