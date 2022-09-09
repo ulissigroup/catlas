@@ -30,7 +30,11 @@ def kube_cluster_new_worker(cluster, config_path):
 
 
 def get_namespace():
-    """Return the Kubernetes namespace this code is run in."""
+    """Return the Kubernetes namespace this code is run in.
+
+    Returns:
+        str: the Kubernetes namespace this code is running in.
+    """
     ns_str = subprocess.run(
         "kubectl describe sa default | grep Namespace",
         shell=True,

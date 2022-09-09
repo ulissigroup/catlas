@@ -1,4 +1,3 @@
-"""Function to load bulks from an ase.db."""
 import os.path
 
 import numpy as np
