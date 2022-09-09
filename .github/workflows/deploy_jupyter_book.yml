@@ -11,7 +11,7 @@ on:
 # This job installs dependencies, build the book, and pushes it to `gh-pages`
 jobs:
   build_and_deploy_book:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux]
 
     container:
       image: docker://ulissigroup/catlas:latest
@@ -21,7 +21,6 @@ jobs:
     - name: Build the book
       uses: actions/checkout@v3
     - run: |
-        pip install jupyter-book
         jupyter-book build documentation
 
     # Deploy the book's HTML to gh-pages branch
