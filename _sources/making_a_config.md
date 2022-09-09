@@ -9,34 +9,34 @@ ex.
 ```memory_cache_location: '/home/jovyan/test_cache'```
 
 ## Output options
-#### Run name
+### Run name
 This will be used to make a folder in `outputs` which will house all outputs from your run. Name it something helpful to help future you track down old results.
 
 
 ex.
 ```run_name: "OH_on_binary_intermetallics"```
 
-#### Pickle final outputs
+### Pickle final outputs
 This boolean specifies whether or not to pickle a final dataframe of your results into the outputs folder. If you are running something so large it can not fit in local memory, you may want to set this to `False`.
 
 
 ex. 
 ```pickle_final_output: True```
 
-#### Pickle intermediate outputs
+### Pickle intermediate outputs
 This is useful for edge cases. If set to `True`, it will pickle each work partition processed by a worker. This means that many (O(100)-O(1000)) pickle files will populate a subfolder in your outputs folder as they finish up.
 
 
 ex.
 ```pickle_intermediate_outputs: False```
 
-#### Make parity plots
+### Make parity plots
 If `True`, this will perform the same functionality as `bin/get_parities.py` at the beginning of the inference run. If data is available for the model you selected, parity plots will be generated and saved in the outputs folder.
 
 ex.
 ```make_parity_plots: True```
 
-#### Verbose
+### Verbose
 If `True` this will print the summary dataframe to the terminal at the conclusion of a run. This (as well as pickle final outputs) pushes all results to local memory. If you are running something so large it can not fit in local memory, you may want to set this to `False`.
 
 
@@ -67,45 +67,45 @@ This is where you specify how you would like to downselect the material design s
 12. `filter_fraction`
 
 
-#### 1. Bulk ids to include: 
+### 1. Bulk ids to include: 
 a list of bulk ids to include
 ```filter_by_bulk_ids: ['mp-126','mp-30', 'mp-81', 'mp-13', 'mp-79']```
-#### 2. Acceptable elements:
+### 2. Acceptable elements:
 a list of element symbols to include. If you say "Au" and "Ag", and materials containing only Au and Ag will be included.
 ```filter_by_acceptable_elements: ["Au", "Ag"]```
-#### 3. Bulk ids to ignore:
+### 3. Bulk ids to ignore:
 a list of bulk ids to exclude
 ```filter_ignore_bulk_ids: ['mp-126','mp-30', 'mp-81', 'mp-13', 'mp-79']```
-#### 4. Number of elements:
+### 4. Number of elements:
 a list of the numbers which are acceptable i.e. `[2, 3]` gives you binary and ternary materials
 ```filter_by_num_elements: [2, 3]```
-#### 5. Required elements:
+### 5. Required elements:
 a list of elements which must be in each material. If you say "Cu", then all copper alloys will be considered.
 ```filter_by_required_elements: ["Cu"]```
-#### 6. Number of atoms:
+### 6. Number of atoms:
 this is useful to avoid very large structures which are costly to compute. It filters out all unit cell structures with more atoms than the number specified.
 ```filter_by_object_size: 60```
-#### 7. Active-host paradigm:
+### 7. Active-host paradigm:
 allows you to find materials containing elements you are interested in where at least one element is coming from one list of materials and the other element coming from another list. The example here would give Zinc alloys with Pd, Ag, and/ or Cu.
 ```
 filter_by_elements_active_host:
   active: ["Pd", "Ag", "Cu"]
   host: ["Zn"]
 ```
-#### 8. Filter by element groups:
+### 8. Filter by element groups:
 A list of periodic table groups which are of interest. The groups should be specified as a list of any of the following: `["transition metal", "post-transition metal", "metalloid", "rare earth metal", "alkali", "alkaline", "alkali earth", "chalcogen", "halogen"]`
 ```filter_by_element_groups: ["transition metal"]```
-#### 9. Energy above hull:
+### 9. Energy above hull:
 a float of the maximum energy above hull you would like to consider
 ```filter_by_bulk_e_above_hull: 0.05```
-#### 10. Band gap:
+### 10. Band gap:
 This requires one or both of the minimum and maximum band gap you would like to be considered to be specified. If both are, then materials in the range will be filtered for. If only the maximum is, then anything with a band gap less than the value given will be filtered for. If only the minimum is, then anything with a band gap greater than the value given will be filtered for.
 ```
 filter_by_bulk_band_gap:
   min_gap: 0.1
   max_gap:0.3
 ```
-#### 11. Pourbaix stability:
+### 11. Pourbaix stability:
 This is only supported for Materials Project materials as of now. It selects the Pourbaix stable materials under the conditions you specify. Conditions may be specified as a range or as a list of specific values. You may also specify a maximum decoposition energy.  Step size is the increment that will be used for the interval. If the material is stable at any of the conditions considered, it will not be filtered out. A path to an lmdb file containing Pourbaix info for your materials is required. If the file path doesnt exist, the Pourbaix info will be queried from MP as a part of the run. This does take a bit of time. Be careful of having to many workers querying to avoid being black listed.
 ```
 filter_by_pourbaix_stability: 
@@ -128,7 +128,7 @@ OR
       - pH: 14
         V: 1.2
 ```
-#### 12. Randomly sample:
+### 12. Randomly sample:
 specify the fraction of materials you would like to randomly select. The example here randomly selects 5% of materials.
 ```filter_fraction: 0.05```
 

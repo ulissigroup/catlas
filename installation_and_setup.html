@@ -394,26 +394,6 @@ title="Print to PDF"
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#clone-the-catlas-repo">
-   1. Clone the catlas repo
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#install-catlas-locally">
-   2. Install catlas locally
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#add-model-checkpoints-to-a-folder-in-the-base-directory-called-ocp-checkpoints">
-   3. Add model checkpoints to a folder in the base directory called
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ocp_checkpoints
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#adding-parity-data">
    Adding parity data
   </a>
@@ -443,26 +423,6 @@ title="Print to PDF"
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
  <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#clone-the-catlas-repo">
-   1. Clone the catlas repo
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#install-catlas-locally">
-   2. Install catlas locally
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#add-model-checkpoints-to-a-folder-in-the-base-directory-called-ocp-checkpoints">
-   3. Add model checkpoints to a folder in the base directory called
-   <code class="docutils literal notranslate">
-    <span class="pre">
-     ocp_checkpoints
-    </span>
-   </code>
-  </a>
- </li>
- <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#adding-parity-data">
    Adding parity data
   </a>
@@ -484,23 +444,21 @@ title="Print to PDF"
                 
   <section class="tex2jax_ignore mathjax_ignore" id="installation-and-setup">
 <h1>Installation and setup<a class="headerlink" href="#installation-and-setup" title="Permalink to this headline">#</a></h1>
-<section id="clone-the-catlas-repo">
-<h2>1. Clone the catlas repo<a class="headerlink" href="#clone-the-catlas-repo" title="Permalink to this headline">#</a></h2>
+<ol>
+<li><p>Clone the catlas repo</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">ulissigroup</span><span class="o">/</span><span class="n">catlas</span><span class="o">.</span><span class="n">git</span>
 <span class="n">OR</span>
 <span class="n">git</span> <span class="n">clone</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">ulissigroup</span><span class="o">/</span><span class="n">catlas</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
-</section>
-<section id="install-catlas-locally">
-<h2>2. Install catlas locally<a class="headerlink" href="#install-catlas-locally" title="Permalink to this headline">#</a></h2>
+</li>
+<li><p>Install catlas locally</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">~/</span><span class="n">catlas</span> <span class="o">&amp;&amp;</span> <span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">develop</span>
 </pre></div>
 </div>
-</section>
-<section id="add-model-checkpoints-to-a-folder-in-the-base-directory-called-ocp-checkpoints">
-<h2>3. Add <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md">model checkpoints</a> to a folder in the base directory called <code class="docutils literal notranslate"><span class="pre">ocp_checkpoints</span></code><a class="headerlink" href="#add-model-checkpoints-to-a-folder-in-the-base-directory-called-ocp-checkpoints" title="Permalink to this headline">#</a></h2>
-</section>
+</li>
+<li><p>Add <a class="reference external" href="https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md">model checkpoints</a> to a folder in the base directory called <code class="docutils literal notranslate"><span class="pre">ocp_checkpoints</span></code></p></li>
+</ol>
 <section id="adding-parity-data">
 <h2>Adding parity data<a class="headerlink" href="#adding-parity-data" title="Permalink to this headline">#</a></h2>
 <p>The parity data files have been omitted from the repo because they are large. We will have them as downloadable links. If you need them now. Please email bwander&#64;andrew.cmu.edu. They should be put in <code class="docutils literal notranslate"><span class="pre">catlas/catlas/parity/df_pkls/</span></code> and should be named to match the model checkpoint name.</p>
