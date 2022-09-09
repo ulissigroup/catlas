@@ -18,9 +18,9 @@ jobs:
 
     steps:
     # Build the book
-    - uses: actions/checkout@v3
     - name: Build the book
-      run: |
+      uses: actions/checkout@v3
+    - run: |
         pip install jupyter-book
         jupyter-book build documentation
 
