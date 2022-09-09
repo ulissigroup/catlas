@@ -57,7 +57,8 @@ RUN mamba install --quiet --yes \
     'black' \
     'pyyaml' \
     'pre-commit' \
-    'tensorboard' \ 
+    'tensorboard' \
+    'jupyter-book' \
     'tqdm' \
     'wandb' \
     'pillow' \
