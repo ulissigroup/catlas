@@ -439,6 +439,68 @@ title="Print to PDF"
   <a class="reference internal nav-link" href="#bulk-filters">
    Bulk Filters
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-ids-to-include">
+     1. Bulk ids to include:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#acceptable-elements">
+     2. Acceptable elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-ids-to-ignore">
+     3. Bulk ids to ignore:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#number-of-elements">
+     4. Number of elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#required-elements">
+     5. Required elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#number-of-atoms">
+     6. Number of atoms:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#active-host-paradigm">
+     7. Active-host paradigm:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#filter-by-element-groups">
+     8. Filter by element groups:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#energy-above-hull">
+     9. Energy above hull:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#band-gap">
+     10. Band gap:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pourbaix-stability">
+     11. Pourbaix stability:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#randomly-sample">
+     12. Randomly sample:
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#adsorbate-filters">
@@ -520,6 +582,68 @@ title="Print to PDF"
   <a class="reference internal nav-link" href="#bulk-filters">
    Bulk Filters
   </a>
+  <ul class="nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-ids-to-include">
+     1. Bulk ids to include:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#acceptable-elements">
+     2. Acceptable elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#bulk-ids-to-ignore">
+     3. Bulk ids to ignore:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#number-of-elements">
+     4. Number of elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#required-elements">
+     5. Required elements:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#number-of-atoms">
+     6. Number of atoms:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#active-host-paradigm">
+     7. Active-host paradigm:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#filter-by-element-groups">
+     8. Filter by element groups:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#energy-above-hull">
+     9. Energy above hull:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#band-gap">
+     10. Band gap:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#pourbaix-stability">
+     11. Pourbaix stability:
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#randomly-sample">
+     12. Randomly sample:
+    </a>
+   </li>
+  </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
   <a class="reference internal nav-link" href="#adsorbate-filters">
@@ -598,42 +722,82 @@ title="Print to PDF"
 </section>
 <section id="bulk-filters">
 <h2>Bulk Filters<a class="headerlink" href="#bulk-filters" title="Permalink to this headline">#</a></h2>
-<p>This is where you specify how you would like to downselect the material design space. There are several options:</p>
+<p>This is where you specify how you would like to downselect the material design space. There are several options which are listed here and detailed below:</p>
 <ol class="simple">
-<li><p>Bulk ids to include: a list of bulk ids to include
-<code class="docutils literal notranslate"><span class="pre">filter_by_bulk_ids:</span> <span class="pre">['mp-126','mp-30',</span> <span class="pre">'mp-81',</span> <span class="pre">'mp-13',</span> <span class="pre">'mp-79']</span></code></p></li>
-<li><p>Acceptable elements: a list of element symbols to include. If you say “Au” and “Ag”, and materials containing only Au and Ag will be included.
-<code class="docutils literal notranslate"><span class="pre">filter_by_acceptable_elements:</span> <span class="pre">[&quot;Au&quot;,</span> <span class="pre">&quot;Ag&quot;]</span></code></p></li>
-<li><p>Bulk ids to ignore: a list of bulk ids to exclude
-<code class="docutils literal notranslate"><span class="pre">filter_ignore_bulk_ids:</span> <span class="pre">['mp-126','mp-30',</span> <span class="pre">'mp-81',</span> <span class="pre">'mp-13',</span> <span class="pre">'mp-79']</span></code></p></li>
-<li><p>Number of elements: a list of the numbers which are acceptable i.e. <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">3]</span></code> gives you binary and ternary materials
-<code class="docutils literal notranslate"><span class="pre">filter_by_num_elements:</span> <span class="pre">[2,</span> <span class="pre">3]</span></code></p></li>
-<li><p>Required elements: a list of elements which must be in each material. If you say “Cu”, then all copper alloys will be considered.
-<code class="docutils literal notranslate"><span class="pre">filter_by_required_elements:</span> <span class="pre">[&quot;Cu&quot;]</span></code></p></li>
-<li><p>Number of atoms: this is useful to avoid very large structures which are costly to compute. It filters out all unit cell structures with more atoms than the number specified.
-<code class="docutils literal notranslate"><span class="pre">filter_by_object_size:</span> <span class="pre">60</span></code></p></li>
-<li><p>Active-host paradigm: allows you to find materials containing elements you are interested in where at least one element is coming from one list of materials and the other element coming from another list. The example here would give Zinc alloys with Pd, Ag, and/ or Cu.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_bulk_ids</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_acceptable_elements</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_ignore_bulk_ids</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_num_elements</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_required_elements</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_object_size</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_elements_active_host</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_element_groups</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_bulk_e_above_hull</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_bulk_band_gap</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_by_pourbaix_stability</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">filter_fraction</span></code></p></li>
 </ol>
+<section id="bulk-ids-to-include">
+<h3>1. Bulk ids to include:<a class="headerlink" href="#bulk-ids-to-include" title="Permalink to this headline">#</a></h3>
+<p>a list of bulk ids to include
+<code class="docutils literal notranslate"><span class="pre">filter_by_bulk_ids:</span> <span class="pre">['mp-126','mp-30',</span> <span class="pre">'mp-81',</span> <span class="pre">'mp-13',</span> <span class="pre">'mp-79']</span></code></p>
+</section>
+<section id="acceptable-elements">
+<h3>2. Acceptable elements:<a class="headerlink" href="#acceptable-elements" title="Permalink to this headline">#</a></h3>
+<p>a list of element symbols to include. If you say “Au” and “Ag”, and materials containing only Au and Ag will be included.
+<code class="docutils literal notranslate"><span class="pre">filter_by_acceptable_elements:</span> <span class="pre">[&quot;Au&quot;,</span> <span class="pre">&quot;Ag&quot;]</span></code></p>
+</section>
+<section id="bulk-ids-to-ignore">
+<h3>3. Bulk ids to ignore:<a class="headerlink" href="#bulk-ids-to-ignore" title="Permalink to this headline">#</a></h3>
+<p>a list of bulk ids to exclude
+<code class="docutils literal notranslate"><span class="pre">filter_ignore_bulk_ids:</span> <span class="pre">['mp-126','mp-30',</span> <span class="pre">'mp-81',</span> <span class="pre">'mp-13',</span> <span class="pre">'mp-79']</span></code></p>
+</section>
+<section id="number-of-elements">
+<h3>4. Number of elements:<a class="headerlink" href="#number-of-elements" title="Permalink to this headline">#</a></h3>
+<p>a list of the numbers which are acceptable i.e. <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">3]</span></code> gives you binary and ternary materials
+<code class="docutils literal notranslate"><span class="pre">filter_by_num_elements:</span> <span class="pre">[2,</span> <span class="pre">3]</span></code></p>
+</section>
+<section id="required-elements">
+<h3>5. Required elements:<a class="headerlink" href="#required-elements" title="Permalink to this headline">#</a></h3>
+<p>a list of elements which must be in each material. If you say “Cu”, then all copper alloys will be considered.
+<code class="docutils literal notranslate"><span class="pre">filter_by_required_elements:</span> <span class="pre">[&quot;Cu&quot;]</span></code></p>
+</section>
+<section id="number-of-atoms">
+<h3>6. Number of atoms:<a class="headerlink" href="#number-of-atoms" title="Permalink to this headline">#</a></h3>
+<p>this is useful to avoid very large structures which are costly to compute. It filters out all unit cell structures with more atoms than the number specified.
+<code class="docutils literal notranslate"><span class="pre">filter_by_object_size:</span> <span class="pre">60</span></code></p>
+</section>
+<section id="active-host-paradigm">
+<h3>7. Active-host paradigm:<a class="headerlink" href="#active-host-paradigm" title="Permalink to this headline">#</a></h3>
+<p>allows you to find materials containing elements you are interested in where at least one element is coming from one list of materials and the other element coming from another list. The example here would give Zinc alloys with Pd, Ag, and/ or Cu.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filter_by_elements_active_host</span><span class="p">:</span>
   <span class="n">active</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Pd&quot;</span><span class="p">,</span> <span class="s2">&quot;Ag&quot;</span><span class="p">,</span> <span class="s2">&quot;Cu&quot;</span><span class="p">]</span>
   <span class="n">host</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Zn&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
-<ol class="simple">
-<li><p>Filter by element groups: A list of periodic table groups which are of interest. The groups should be specified as a list of any of the following: <code class="docutils literal notranslate"><span class="pre">[&quot;transition</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;post-transition</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;metalloid&quot;,</span> <span class="pre">&quot;rare</span> <span class="pre">earth</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;alkali&quot;,</span> <span class="pre">&quot;alkaline&quot;,</span> <span class="pre">&quot;alkali</span> <span class="pre">earth&quot;,</span> <span class="pre">&quot;chalcogen&quot;,</span> <span class="pre">&quot;halogen&quot;]</span></code>
-<code class="docutils literal notranslate"><span class="pre">filter_by_element_groups:</span> <span class="pre">[&quot;transition</span> <span class="pre">metal&quot;]</span></code></p></li>
-<li><p>Energy above hull: a float of the maximum energy above hull you would like to consider
-<code class="docutils literal notranslate"><span class="pre">filter_by_bulk_e_above_hull:</span> <span class="pre">0.05</span></code></p></li>
-<li><p>Band gap: This requires one or both of the minimum and maximum band gap you would like to be considered to be specified. If both are, then materials in the range will be filtered for. If only the maximum is, then anything with a band gap less than the value given will be filtered for. If only the minimum is, then anything with a band gap greater than the value given will be filtered for.</p></li>
-</ol>
+</section>
+<section id="filter-by-element-groups">
+<h3>8. Filter by element groups:<a class="headerlink" href="#filter-by-element-groups" title="Permalink to this headline">#</a></h3>
+<p>A list of periodic table groups which are of interest. The groups should be specified as a list of any of the following: <code class="docutils literal notranslate"><span class="pre">[&quot;transition</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;post-transition</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;metalloid&quot;,</span> <span class="pre">&quot;rare</span> <span class="pre">earth</span> <span class="pre">metal&quot;,</span> <span class="pre">&quot;alkali&quot;,</span> <span class="pre">&quot;alkaline&quot;,</span> <span class="pre">&quot;alkali</span> <span class="pre">earth&quot;,</span> <span class="pre">&quot;chalcogen&quot;,</span> <span class="pre">&quot;halogen&quot;]</span></code>
+<code class="docutils literal notranslate"><span class="pre">filter_by_element_groups:</span> <span class="pre">[&quot;transition</span> <span class="pre">metal&quot;]</span></code></p>
+</section>
+<section id="energy-above-hull">
+<h3>9. Energy above hull:<a class="headerlink" href="#energy-above-hull" title="Permalink to this headline">#</a></h3>
+<p>a float of the maximum energy above hull you would like to consider
+<code class="docutils literal notranslate"><span class="pre">filter_by_bulk_e_above_hull:</span> <span class="pre">0.05</span></code></p>
+</section>
+<section id="band-gap">
+<h3>10. Band gap:<a class="headerlink" href="#band-gap" title="Permalink to this headline">#</a></h3>
+<p>This requires one or both of the minimum and maximum band gap you would like to be considered to be specified. If both are, then materials in the range will be filtered for. If only the maximum is, then anything with a band gap less than the value given will be filtered for. If only the minimum is, then anything with a band gap greater than the value given will be filtered for.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filter_by_bulk_band_gap</span><span class="p">:</span>
   <span class="n">min_gap</span><span class="p">:</span> <span class="mf">0.1</span>
   <span class="n">max_gap</span><span class="p">:</span><span class="mf">0.3</span>
 </pre></div>
 </div>
-<ol class="simple">
-<li><p>Pourbaix stability: This is only supported for Materials Project materials as of now. It selects the Pourbaix stable materials under the conditions you specify. Conditions may be specified as a range or as a list of specific values. You may also specify a maximum decoposition energy.  Step size is the increment that will be used for the interval. If the material is stable at any of the conditions considered, it will not be filtered out. A path to an lmdb file containing Pourbaix info for your materials is required. If the file path doesnt exist, the Pourbaix info will be queried from MP as a part of the run. This does take a bit of time. Be careful of having to many workers querying to avoid being black listed.</p></li>
-</ol>
+</section>
+<section id="pourbaix-stability">
+<h3>11. Pourbaix stability:<a class="headerlink" href="#pourbaix-stability" title="Permalink to this headline">#</a></h3>
+<p>This is only supported for Materials Project materials as of now. It selects the Pourbaix stable materials under the conditions you specify. Conditions may be specified as a range or as a list of specific values. You may also specify a maximum decoposition energy.  Step size is the increment that will be used for the interval. If the material is stable at any of the conditions considered, it will not be filtered out. A path to an lmdb file containing Pourbaix info for your materials is required. If the file path doesnt exist, the Pourbaix info will be queried from MP as a part of the run. This does take a bit of time. Be careful of having to many workers querying to avoid being black listed.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filter_by_pourbaix_stability</span><span class="p">:</span> 
   <span class="n">max_decomposition_energy</span><span class="p">:</span> <span class="mf">0.05</span>
   <span class="n">lmdb_path</span><span class="p">:</span> <span class="s2">&quot;catlas/pourbaix_diagrams/20220222_query.lmdb&quot;</span>
@@ -655,17 +819,30 @@ title="Print to PDF"
         <span class="n">V</span><span class="p">:</span> <span class="mf">1.2</span>
 </pre></div>
 </div>
-<ol class="simple">
-<li><p>Randomly sample: specify the fraction of materials you would like to randomly select. The example here randomly selects 5% of materials.
-<code class="docutils literal notranslate"><span class="pre">filter_fraction:</span> <span class="pre">0.05</span></code></p></li>
-</ol>
+</section>
+<section id="randomly-sample">
+<h3>12. Randomly sample:<a class="headerlink" href="#randomly-sample" title="Permalink to this headline">#</a></h3>
+<p>specify the fraction of materials you would like to randomly select. The example here randomly selects 5% of materials.
+<code class="docutils literal notranslate"><span class="pre">filter_fraction:</span> <span class="pre">0.05</span></code></p>
+</section>
 </section>
 <section id="adsorbate-filters">
 <h2>Adsorbate filters<a class="headerlink" href="#adsorbate-filters" title="Permalink to this headline">#</a></h2>
 <p>There is only one option for adsorbate filters which is to filter by their SMILES string. Provide a list of the SMILES strings for adsorbates you would like to consider. An exhaustive list of those in OC20 is included here in our example.</p>
 <p>ex.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adsorbate_filters</span><span class="p">:</span>
-    <span class="n">filter_by_smiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;*C&#39;</span><span class="p">,</span> <span class="s1">&#39;*C*C&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH*CH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH*COH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2*O&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2CH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH4&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHO*CHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CN&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCH2O&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*COH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*H&#39;</span><span class="p">,</span> <span class="s1">&#39;*N&#39;</span><span class="p">,</span> <span class="s1">&#39;*N*NH&#39;</span><span class="p">,</span> <span class="s1">&#39;*N*NO&#39;</span><span class="p">,</span> <span class="s1">&#39;*N2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH2N(CH3)2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*NHNH&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO2NO2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO3&#39;</span><span class="p">,</span> <span class="s1">&#39;*NONH&#39;</span><span class="p">,</span> <span class="s1">&#39;*O&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCH2CH3&#39;</span><span class="p">,</span><span class="s1">&#39;*OCH2CHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*OH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHCH2CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHNH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHNNCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONH&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONN(CH3)2&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONNH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONOH&#39;</span><span class="p">,</span> <span class="s1">&#39;CH2*CO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2*CH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH2, &#39;</span><span class="o">*</span><span class="n">NHN2</span><span class="s1">&#39;, &#39;</span><span class="o">*</span><span class="n">NNCH3</span><span class="s1">&#39;, &#39;</span><span class="o">*</span><span class="n">OCHCH2</span><span class="s1">&#39;, &#39;</span><span class="o">*</span><span class="n">ONNO2</span><span class="s1">&#39;]</span>
+    <span class="n">filter_by_smiles</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;*C&#39;</span><span class="p">,</span> <span class="s1">&#39;*C*C&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCH3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*CCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CCO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH*CH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH*COH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2*O&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*CH2CH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH4&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCH2OH&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*CHCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHCO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHO*CHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOCHOH&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*CHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*CHOHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*CN&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*COCH2O&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*COCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*COH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH2OH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH3&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*COHCHO&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*H&#39;</span><span class="p">,</span> <span class="s1">&#39;*N&#39;</span><span class="p">,</span> <span class="s1">&#39;*N*NH&#39;</span><span class="p">,</span> <span class="s1">&#39;*N*NO&#39;</span><span class="p">,</span> <span class="s1">&#39;*N2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*NH&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH2N(CH3)2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*NHNH&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO2&#39;</span><span class="p">,</span> <span class="s1">&#39;*NO2NO2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*NO3&#39;</span><span class="p">,</span> <span class="s1">&#39;*NONH&#39;</span><span class="p">,</span> <span class="s1">&#39;*O&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCH2CH3&#39;</span><span class="p">,</span><span class="s1">&#39;*OCH2CHOH&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OH&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*OH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHCH2CH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHNH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*OHNNCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONH&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONN(CH3)2&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;*ONNH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONOH&#39;</span><span class="p">,</span> <span class="s1">&#39;CH2*CO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CO&#39;</span><span class="p">,</span> <span class="s1">&#39;*CH2*CH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*COHCH2, &#39;</span><span class="o">*</span><span class="n">NHN2</span><span class="s1">&#39;,</span>
+    <span class="s1">&#39;*NNCH3&#39;</span><span class="p">,</span> <span class="s1">&#39;*OCHCH2&#39;</span><span class="p">,</span> <span class="s1">&#39;*ONNO2&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>

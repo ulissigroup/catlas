@@ -395,8 +395,112 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="filters">
-<h1>filters<a class="headerlink" href="#filters" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.filters">
+<span id="filters"></span><h1>filters<a class="headerlink" href="#module-catlas.filters" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filters.adsorbate_filter">
+<span class="sig-prename descclassname"><span class="pre">catlas.filters.</span></span><span class="sig-name descname"><span class="pre">adsorbate_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dask_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sankey</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filters.adsorbate_filter" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters adsorbate structures according to rules specified in a config
+:param config: dictionary specifying what criteria to filter on
+:type config: dict
+:param dask_df: a dataframe of adsorbate inputs
+:type dask_df: dask.dataframe.core.DataFrame
+:param sankey: a sankey object to update as
+:type sankey: catlas.sankey.sankey_utils.Sankey
+:param adsorbates are filtered:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a dataframe of filtered adsorbates
+sankey (catlas.sankey.sankey_utils.Sankey): the input sankey object with added
+information</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask_df (dask.dataframe.core.DataFrame)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filters.bulk_filter">
+<span class="sig-prename descclassname"><span class="pre">catlas.filters.</span></span><span class="sig-name descname"><span class="pre">bulk_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dask_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sankey</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_bulks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filters.bulk_filter" title="Permalink to this definition">#</a></dt>
+<dd><p>Filters a dask dataframe <cite>dask_df</cite> of bulk structures according to rules specified
+in a config yml <cite>config</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – dictionary of the config yaml</p></li>
+<li><p><strong>dask_df</strong> – the working dataframe of bulk inputs</p></li>
+<li><p><strong>sankey</strong> – a the sankey object to update as objects are filtered</p></li>
+<li><p><strong>initial_bulks</strong> – the initial number of bulks</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the working dataframe of bulk values post-filtering
+sankey: the sankey object with added info</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dask_df</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filters.predictions_filter">
+<span class="sig-prename descclassname"><span class="pre">catlas.filters.</span></span><span class="sig-name descname"><span class="pre">predictions_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bag_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filters.predictions_filter" title="Permalink to this definition">#</a></dt>
+<dd><p>Filter surfaces based on whether their predicted adsorption energies satisfy
+criteria specifed in an input config file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bag_partition</strong> (<em>Iterable</em><em>[</em><em>dict</em><em>]</em>) – a partition of a Dask Bag.</p></li>
+<li><p><strong>&quot;bulk_id&quot;</strong> (<em>Each partition should contain columns</em>) – </p></li>
+<li><p><strong>&quot;slab_millers&quot;</strong> – </p></li>
+<li><p><strong>&quot;slab_shift&quot;</strong> – </p></li>
+</ul>
+</dd>
+</dl>
+<p>:param :
+:param “slab_top”:
+:param “adsorbate_smiles”:
+:param “filter_reason”:
+:param and a column whose name is the:
+:param same as the value in the “filter_column” field of the input config.:
+:param config: a dictionary specifying how to filter predictions
+:type config: dict
+:param sankey: a Sankey object to update with
+:type sankey: catlas.sankey.sankey_utils.Sankey
+:param prediction filters.:</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>an updated version of the input Bag partition
+containing an updated column “filter_reason” that has been modified to include
+rows filtered out according to the input config.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>Iterable[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filters.slab_filter">
+<span class="sig-prename descclassname"><span class="pre">catlas.filters.</span></span><span class="sig-name descname"><span class="pre">slab_filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dask_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filters.slab_filter" title="Permalink to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Filters a slab according to rules specified in a config</dt><dd><p>Args:
+config (dict): a config file specifying what criteria to filter on.
+dask_dict (dict): a dictionary describing a slab to filter.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>retain slab</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

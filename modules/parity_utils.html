@@ -395,8 +395,55 @@ title="Print to PDF"
                 
               <div>
                 
-  <section id="parity-utils">
-<h1>parity_utils<a class="headerlink" href="#parity-utils" title="Permalink to this headline">#</a></h1>
+  <section id="module-catlas.parity.parity_utils">
+<span id="parity-utils"></span><h1>parity_utils<a class="headerlink" href="#module-catlas.parity.parity_utils" title="Permalink to this headline">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.get_general_plot">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">get_general_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DFT_energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ML_energy'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.parity.parity_utils.get_general_plot" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates the pdf parity plot for all smiles and returns a dictionary summarizing
+plot results</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.get_model_id">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">get_model_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#catlas.parity.parity_utils.get_model_id" title="Permalink to this definition">#</a></dt>
+<dd><p>get the npz path for a specific checkpoint file</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.get_parity_upfront">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">get_parity_upfront</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.parity.parity_utils.get_parity_upfront" title="Permalink to this definition">#</a></dt>
+<dd><p>Get parity plot to cover intended scope of work in catlas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> – a dictionary loaded from a catlas input yaml</p></li>
+<li><p><strong>run_id</strong> – name of the output folder</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.get_specific_smile_plot">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">get_specific_smile_plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.core.frame.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'DFT_energy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ML_energy'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.parity.parity_utils.get_specific_smile_plot" title="Permalink to this definition">#</a></dt>
+<dd><p>Creates the pdf parity plot for a given smile and returns a dictionary
+summarizing plot results</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.make_subplot">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">make_subplot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subplot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_key2</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.parity.parity_utils.make_subplot" title="Permalink to this definition">#</a></dt>
+<dd><p>Helper function for larger plot generation. Processes each subplot.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.parity.parity_utils.update_info">
+<span class="sig-prename descclassname"><span class="pre">catlas.parity.parity_utils.</span></span><span class="sig-name descname"><span class="pre">update_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">info_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info_to_add</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.parity.parity_utils.update_info" title="Permalink to this definition">#</a></dt>
+<dd><p>Helper function for summary dictionary generation. Updates the dictionary for
+each split.</p>
+</dd></dl>
+
 </section>
 
     <script type="text/x-thebe-config">

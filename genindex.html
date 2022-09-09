@@ -361,11 +361,13 @@ title="Open an issue"
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
  | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="A">A</h2>
@@ -376,6 +378,8 @@ title="Open an issue"
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/sankey_utils.html#catlas.sankey.sankey_utils.Sankey.add_slab_info">add_slab_info() (catlas.sankey.sankey_utils.Sankey method)</a>
+</li>
+      <li><a href="modules/filters.html#catlas.filters.adsorbate_filter">adsorbate_filter() (in module catlas.filters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -388,6 +392,8 @@ title="Open an issue"
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/cache_utils.html#catlas.cache_utils.better_build_func_identifier">better_build_func_identifier() (in module catlas.cache_utils)</a>
+</li>
+      <li><a href="modules/filters.html#catlas.filters.bulk_filter">bulk_filter() (in module catlas.filters)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -430,13 +436,27 @@ title="Open an issue"
         <li><a href="modules/dask_utils.html#module-catlas.dask_utils">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     catlas.enumerate_slabs_adslabs
 
       <ul>
         <li><a href="modules/enumerate_slabs_adslabs.html#module-catlas.enumerate_slabs_adslabs">module</a>
+</li>
+      </ul></li>
+      <li>
+    catlas.filter_utils
+
+      <ul>
+        <li><a href="modules/filter_utils.html#module-catlas.filter_utils">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    catlas.filters
+
+      <ul>
+        <li><a href="modules/filters.html#module-catlas.filters">module</a>
 </li>
       </ul></li>
       <li>
@@ -447,10 +467,17 @@ title="Open an issue"
 </li>
       </ul></li>
       <li>
-    catlas.parity.data_processing_utils
+    catlas.parity.parity_utils
 
       <ul>
-        <li><a href="modules/data_processing_utils.html#module-catlas.parity.data_processing_utils">module</a>
+        <li><a href="modules/parity_utils.html#module-catlas.parity.parity_utils">module</a>
+</li>
+      </ul></li>
+      <li>
+    catlas.prediction_steps
+
+      <ul>
+        <li><a href="modules/prediction_steps.html#module-catlas.prediction_steps">module</a>
 </li>
       </ul></li>
       <li><a href="modules/cache_utils.html#catlas.cache_utils.check_cache">check_cache() (in module catlas.cache_utils)</a>
@@ -479,9 +506,13 @@ title="Open an issue"
 </li>
       <li><a href="modules/enumerate_slabs_adslabs.html#catlas.enumerate_slabs_adslabs.enumerate_adslabs">enumerate_adslabs() (in module catlas.enumerate_slabs_adslabs)</a>
 </li>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.enumerate_and_predict_adslabs">enumerate_and_predict_adslabs() (in module catlas.prediction_steps)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/enumerate_slabs_adslabs.html#catlas.enumerate_slabs_adslabs.enumerate_slabs">enumerate_slabs() (in module catlas.enumerate_slabs_adslabs)</a>
+</li>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.enumerate_surfaces_and_filter">enumerate_surfaces_and_filter() (in module catlas.prediction_steps)</a>
 </li>
       <li><a href="modules/nuclearity.html#catlas.nuclearity.evaluate_infiniteness">evaluate_infiniteness() (in module catlas.nuclearity)</a>
 </li>
@@ -491,19 +522,43 @@ title="Open an issue"
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.generate_outputs">generate_outputs() (in module catlas.prediction_steps)</a>
+</li>
       <li><a href="modules/cache_utils.html#catlas.cache_utils.get_cached_func_location">get_cached_func_location() (in module catlas.cache_utils)</a>
 </li>
       <li><a href="modules/nuclearity.html#catlas.nuclearity.get_connectivity_matrix">get_connectivity_matrix() (in module catlas.nuclearity)</a>
 </li>
-      <li><a href="modules/dask_kube_utils.html#catlas.dask_kube_utils.get_namespace">get_namespace() (in module catlas.dask_kube_utils)</a>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_decomposition_bools_from_list">get_decomposition_bools_from_list() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_decomposition_bools_from_range">get_decomposition_bools_from_range() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_elements_in_groups">get_elements_in_groups() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_first_type">get_first_type() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.get_general_plot">get_general_plot() (in module catlas.parity.parity_utils)</a>
+</li>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.get_model_id">get_model_id() (in module catlas.parity.parity_utils)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/dask_kube_utils.html#catlas.dask_kube_utils.get_namespace">get_namespace() (in module catlas.dask_kube_utils)</a>
+</li>
       <li><a href="modules/nuclearity.html#catlas.nuclearity.get_nuclearity">get_nuclearity() (in module catlas.nuclearity)</a>
 </li>
       <li><a href="modules/nuclearity.html#catlas.nuclearity.get_nuclearity_neighbor_counts">get_nuclearity_neighbor_counts() (in module catlas.nuclearity)</a>
 </li>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.get_parity_upfront">get_parity_upfront() (in module catlas.parity.parity_utils)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_pourbaix_info">get_pourbaix_info() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.get_pourbaix_stability">get_pourbaix_stability() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/data_processing_utils.html#catlas.parity.data_processing_utils.ProcessValTraj.get_result">get_result() (catlas.parity.data_processing_utils.ProcessValTraj method)</a>
+</li>
       <li><a href="modules/sankey_utils.html#catlas.sankey.sankey_utils.Sankey.get_sankey_diagram">get_sankey_diagram() (catlas.sankey.sankey_utils.Sankey method)</a>
+</li>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.get_specific_smile_plot">get_specific_smile_plot() (in module catlas.parity.parity_utils)</a>
 </li>
       <li><a href="modules/adslab_predictions.html#catlas.adslab_predictions.GraphsListDataset">GraphsListDataset (class in catlas.adslab_predictions)</a>
 </li>
@@ -529,6 +584,12 @@ title="Open an issue"
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.load_adsorbates_and_filter">load_adsorbates_and_filter() (in module catlas.prediction_steps)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.load_bulks_and_filter">load_bulks_and_filter() (in module catlas.prediction_steps)</a>
+</li>
       <li><a href="modules/adslab_predictions.html#catlas.adslab_predictions.BatchOCPPredictor.load_checkpoint">load_checkpoint() (catlas.adslab_predictions.BatchOCPPredictor method)</a>
 </li>
   </ul></td>
@@ -538,6 +599,8 @@ title="Open an issue"
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/adslab_predictions.html#catlas.adslab_predictions.BatchOCPPredictor.make_dataloader">make_dataloader() (catlas.adslab_predictions.BatchOCPPredictor method)</a>
+</li>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.make_subplot">make_subplot() (in module catlas.parity.parity_utils)</a>
 </li>
       <li><a href="modules/enumerate_slabs_adslabs.html#catlas.enumerate_slabs_adslabs.merge_surface_adsorbate_combo">merge_surface_adsorbate_combo() (in module catlas.enumerate_slabs_adslabs)</a>
 </li>
@@ -557,9 +620,15 @@ title="Open an issue"
 </li>
         <li><a href="modules/enumerate_slabs_adslabs.html#module-catlas.enumerate_slabs_adslabs">catlas.enumerate_slabs_adslabs</a>
 </li>
+        <li><a href="modules/filter_utils.html#module-catlas.filter_utils">catlas.filter_utils</a>
+</li>
+        <li><a href="modules/filters.html#module-catlas.filters">catlas.filters</a>
+</li>
         <li><a href="modules/nuclearity.html#module-catlas.nuclearity">catlas.nuclearity</a>
 </li>
-        <li><a href="modules/data_processing_utils.html#module-catlas.parity.data_processing_utils">catlas.parity.data_processing_utils</a>
+        <li><a href="modules/parity_utils.html#module-catlas.parity.parity_utils">catlas.parity.parity_utils</a>
+</li>
+        <li><a href="modules/prediction_steps.html#module-catlas.prediction_steps">catlas.prediction_steps</a>
 </li>
       </ul></li>
   </ul></td>
@@ -569,6 +638,26 @@ title="Open an issue"
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="modules/cache_utils.html#catlas.cache_utils.naive_func_identifier">naive_func_identifier() (in module catlas.cache_utils)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/prediction_steps.html#catlas.prediction_steps.parse_inputs">parse_inputs() (in module catlas.prediction_steps)</a>
+</li>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.pb_query_and_write">pb_query_and_write() (in module catlas.filter_utils)</a>
+</li>
+      <li><a href="modules/filters.html#catlas.filters.predictions_filter">predictions_filter() (in module catlas.filters)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/data_processing_utils.html#catlas.parity.data_processing_utils.ProcessValNPZ.process_data">process_data() (catlas.parity.data_processing_utils.ProcessValNPZ method)</a>
+</li>
+      <li><a href="modules/data_processing_utils.html#catlas.parity.data_processing_utils.ProcessValNPZ">ProcessValNPZ (class in catlas.parity.data_processing_utils)</a>
+</li>
+      <li><a href="modules/data_processing_utils.html#catlas.parity.data_processing_utils.ProcessValTraj">ProcessValTraj (class in catlas.parity.data_processing_utils)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -588,6 +677,8 @@ title="Open an issue"
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/filters.html#catlas.filters.slab_filter">slab_filter() (in module catlas.filters)</a>
+</li>
       <li><a href="modules/cache_utils.html#catlas.cache_utils.SqliteSingleThreadDict">SqliteSingleThreadDict (class in catlas.cache_utils)</a>
 </li>
   </ul></td>
@@ -612,6 +703,8 @@ title="Open an issue"
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/parity_utils.html#catlas.parity.parity_utils.update_info">update_info() (in module catlas.parity.parity_utils)</a>
+</li>
       <li><a href="modules/sankey_utils.html#catlas.sankey.sankey_utils.Sankey.update_y_positions">update_y_positions() (catlas.sankey.sankey_utils.Sankey method)</a>
 </li>
   </ul></td>
@@ -627,6 +720,14 @@ title="Open an issue"
       <li><a href="modules/config_validation.html#catlas.config_validation.validate_folder_exists">validate_folder_exists() (in module catlas.config_validation)</a>
 </li>
       <li><a href="modules/config_validation.html#catlas.config_validation.validate_path_exists">validate_path_exists() (in module catlas.config_validation)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="modules/filter_utils.html#catlas.filter_utils.write_pourbaix_info">write_pourbaix_info() (in module catlas.filter_utils)</a>
 </li>
   </ul></td>
 </tr></table>
