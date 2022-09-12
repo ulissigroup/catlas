@@ -4,6 +4,8 @@ on:
   # Trigger the workflow on push to main branch
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - 'documentation/*'
       - '.github/workflows/deploy_jupyter_book.yml'
