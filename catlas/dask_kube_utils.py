@@ -13,8 +13,7 @@ def kube_cluster_new_worker(cluster, config_path):
 
     Args:
         cluster (dask.distributed.client.Client): a dask cluster to run code on.
-        config_path (str): a file path containing a config yml file defining the
-        specifications of the new worker
+        config_path (str): a file path containing a config yml file defining the specifications of the new worker
     """
     with open(config_path) as f:
         worker_pod_template = make_pod_from_dict(

@@ -165,7 +165,7 @@ class BatchOCPPredictor:
 
         Args:
             graphs_list (Iterable[torch_geometric.data.Data]): structures to run
-            inference on.
+                inference on.
 
         Returns:
             Iterable[float]: predicted energies of the input structures.
@@ -243,15 +243,10 @@ def energy_prediction(
         hash_adslab_dict (str): A hash specific to `adslab_dict` used for cache comparisons
         graphs_dict (dict): A view of the adslabs to predict that will be used to predict energies. Should be ignored during cache comparisons.
         checkpoint_path (str): The path where the OCP model checkpoint can be found.
-        column_name (str): An arbitrary name used to define the model output field
-        names.
-        batch_size (int, optional): The number of adslabs loaded onto a gpu at a single
-        time during relaxations. Should be ignored during cache comparisons. Defaults
-        to 8.
-        gpu_mem_per_sample (float, optional): The approximate memory used by a single
-        adslab during relaxations, used to determine batch size. Defaults to None.
-        number_steps (int, optional): The number of steps used during relaxations.
-        Should be determined using `bin/optimize_frame.py`. Defaults to 200.
+        column_name (str): An arbitrary name used to define the model output field names.
+        batch_size (int, optional): The number of adslabs loaded onto a gpu at a single time during relaxations. Should be ignored during cache comparisons. Defaults to 8.
+        gpu_mem_per_sample (float, optional): The approximate memory used by a single adslab during relaxations, used to determine batch size. Defaults to None.
+        number_steps (int, optional): The number of steps used during relaxations. Should be determined using `bin/optimize_frame.py`. Defaults to 200.
 
     Returns:
         dict: Energy predictions and metadata including associated structures and minimum predicted energy per surface.
