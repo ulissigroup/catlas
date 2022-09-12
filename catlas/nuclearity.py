@@ -65,7 +65,7 @@ def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix
     """
     Function that counts the like surface neighbors for surface atoms
     Args:
-        surface_atoms_of_element (ase.Atoms): list of all surface atoms which are of a specific element
+        surface_atoms_of_element (list[bool]): list of all surface atoms which are of a specific element
         connectivity_matrix (numpy.ndarray[int8]): which atoms in the slab are connected
 
     Returns:
