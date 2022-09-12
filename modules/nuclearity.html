@@ -135,6 +135,11 @@ const thebe_selector_output = ".output, .cell_output"
   </a>
  </li>
  <li class="toctree-l1">
+  <a class="reference internal" href="../outputs.html">
+   Prediction runs (predictions.py)
+  </a>
+ </li>
+ <li class="toctree-l1">
   <a class="reference internal" href="../contributing.html">
    Contributing
   </a>
@@ -455,7 +460,7 @@ Original author: Unnatti Sharma</p>
 <span class="sig-prename descclassname"><span class="pre">catlas.nuclearity.</span></span><span class="sig-name descname"><span class="pre">get_nuclearity_neighbor_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_atoms_of_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.nuclearity.get_nuclearity_neighbor_counts" title="Permalink to this definition">#</a></dt>
 <dd><p>Function that counts the like surface neighbors for surface atoms
 :param surface_atoms_of_element: list of all surface atoms which are of a specific element
-:type surface_atoms_of_element: ase.Atoms
+:type surface_atoms_of_element: list[bool]
 :param connectivity_matrix: which atoms in the slab are connected
 :type connectivity_matrix: numpy.ndarray[int8]</p>
 <dl class="field-list simple">

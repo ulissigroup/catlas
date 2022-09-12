@@ -80,7 +80,7 @@ a list of bulk ids to exclude
 a list of the numbers which are acceptable i.e. `[2, 3]` gives you binary and ternary materials
 ```filter_by_num_elements: [2, 3]```
 ### 5. Required elements:
-a list of elements which must be in each material. If you say "Cu", then all copper alloys will be considered.
+a list of elements which must be in each material. If you say "Cu", then only copper alloys will be considered.
 ```filter_by_required_elements: ["Cu"]```
 ### 6. Number of atoms:
 this is useful to avoid very large structures which are costly to compute. It filters out all unit cell structures with more atoms than the number specified.
@@ -96,17 +96,17 @@ filter_by_elements_active_host:
 A list of periodic table groups which are of interest. The groups should be specified as a list of any of the following: `["transition metal", "post-transition metal", "metalloid", "rare earth metal", "alkali", "alkaline", "alkali earth", "chalcogen", "halogen"]`
 ```filter_by_element_groups: ["transition metal"]```
 ### 9. Energy above hull:
-a float of the maximum energy above hull you would like to consider
+a float of the maximum energy above hull you would like to consider in eV/atom
 ```filter_by_bulk_e_above_hull: 0.05```
 ### 10. Band gap:
-This requires one or both of the minimum and maximum band gap you would like to be considered to be specified. If both are, then materials in the range will be filtered for. If only the maximum is, then anything with a band gap less than the value given will be filtered for. If only the minimum is, then anything with a band gap greater than the value given will be filtered for.
+This requires one or both of the minimum and maximum band gap (in eV) you would like to be considered to be specified. If both are, then materials in the range will be filtered for. If only the maximum is, then anything with a band gap less than the value given will be filtered for. If only the minimum is, then anything with a band gap greater than the value given will be filtered for. 
 ```
 filter_by_bulk_band_gap:
   min_gap: 0.1
   max_gap:0.3
 ```
 ### 11. Pourbaix stability:
-This is only supported for Materials Project materials as of now. It selects the Pourbaix stable materials under the conditions you specify. Conditions may be specified as a range or as a list of specific values. You may also specify a maximum decoposition energy.  Step size is the increment that will be used for the interval. If the material is stable at any of the conditions considered, it will not be filtered out. A path to an lmdb file containing Pourbaix info for your materials is required. If the file path doesnt exist, the Pourbaix info will be queried from MP as a part of the run. This does take a bit of time. Be careful of having to many workers querying to avoid being black listed.
+This is only supported for Materials Project materials as of now. It selects the Pourbaix stable materials under the conditions you specify. Conditions may be specified as a list of specific values, or a range with an interval. You may also specify a maximum decoposition energy in eV/atom.  Step size is the increment that will be used for the interval. If the material is stable at any of the conditions considered, it will not be filtered out. A path to an lmdb file containing Pourbaix info for your materials is required. If the file path doesnt exist, the Pourbaix info will be queried from MP as a part of the run. This does take a bit of time. Be careful of having to many workers querying.
 ```
 filter_by_pourbaix_stability: 
   max_decomposition_energy: 0.05

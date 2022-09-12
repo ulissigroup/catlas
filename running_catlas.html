@@ -52,7 +52,7 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="next" title="Prediction runs (predictions.py)" href="outputs.html" />
     <link rel="prev" title="Making a config" href="making_a_config.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
@@ -132,6 +132,11 @@ const thebe_selector_output = ".output, .cell_output"
  <li class="toctree-l1 current active">
   <a class="current reference internal" href="#">
    Running Catlas
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="outputs.html">
+   Prediction runs (predictions.py)
   </a>
  </li>
  <li class="toctree-l1">
@@ -447,11 +452,6 @@ title="Print to PDF"
      Executing a parity run
     </a>
    </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#outputs">
-     Outputs
-    </a>
-   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -547,11 +547,6 @@ title="Print to PDF"
    <li class="toc-h3 nav-item toc-entry">
     <a class="reference internal nav-link" href="#executing-a-parity-run">
      Executing a parity run
-    </a>
-   </li>
-   <li class="toc-h3 nav-item toc-entry">
-    <a class="reference internal nav-link" href="#outputs">
-     Outputs
     </a>
    </li>
   </ul>
@@ -657,18 +652,6 @@ title="Print to PDF"
 </div>
 <p>There are other examples of this so be tactful!</p>
 </section>
-<section id="outputs">
-<h3>Outputs<a class="headerlink" href="#outputs" title="Permalink to this headline">#</a></h3>
-<p>Using the run name specified in the inputs yaml file, executing the script will make a folder inside of the outputs folder containing various useful parity plots which are all appropriately named. The plot with general appended to the file name contains data for all adsorbates. The others will have the adsorbate SMILES string appended and will be specific to that adsorbate. For each file there are a number of subplots which show the different data splits.</p>
-<ol class="simple">
-<li><p><strong>overall</strong> = all data splits</p></li>
-<li><p><strong>id</strong> = in domain</p></li>
-<li><p><strong>ood_ads</strong> = out of domain adsorbate (i.e. the adsorbate did not appear in the training set)</p></li>
-<li><p><strong>ood_cat</strong> = out of domain material (i.e. systems derived from that specific bulk structure did not appear in the training set)</p></li>
-<li><p><strong>ood_both</strong> = both the adsorbate and material were out of domain</p></li>
-</ol>
-<p>The number of datapoints displayed and the mean absolute error (MAE) for that data subset are also shown. A parity line is drawn for ease of use, and a linear regression is performed and plotted to further and understanding of deviance from parity.</p>
-</section>
 </section>
 <section id="processing-data-for-parity-generation">
 <h2>Processing data for parity generation<a class="headerlink" href="#processing-data-for-parity-generation" title="Permalink to this headline">#</a></h2>
@@ -740,10 +723,10 @@ title="Print to PDF"
             <p class="prev-next-title">Making a config</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="contributing.html" title="next page">
+    <a class='right-next' id="next-link" href="outputs.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Contributing</p>
+        <p class="prev-next-title">Prediction runs (predictions.py)</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>

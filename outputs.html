@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Contributing &#8212; Catlas</title>
+    <title>Prediction runs (predictions.py) &#8212; Catlas</title>
     
   <!-- Loaded before other Sphinx assets -->
   <link href="_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
@@ -52,8 +52,8 @@ const thebe_selector_output = ".output, .cell_output"
     <script async="async" src="_static/sphinx-thebe.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Advanced Use" href="advanced_use.html" />
-    <link rel="prev" title="Prediction runs (predictions.py)" href="outputs.html" />
+    <link rel="next" title="Contributing" href="contributing.html" />
+    <link rel="prev" title="Running Catlas" href="running_catlas.html" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="docsearch:language" content="None">
     
@@ -134,13 +134,13 @@ const thebe_selector_output = ".output, .cell_output"
    Running Catlas
   </a>
  </li>
- <li class="toctree-l1">
-  <a class="reference internal" href="outputs.html">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
    Prediction runs (predictions.py)
   </a>
  </li>
- <li class="toctree-l1 current active">
-  <a class="current reference internal" href="#">
+ <li class="toctree-l1">
+  <a class="reference internal" href="contributing.html">
    Contributing
   </a>
  </li>
@@ -311,7 +311,7 @@ title="Source repository"
       </li>
       
       <li>
-        <a href="https://github.com/ulissigroup/catlas/issues/new?title=Issue%20on%20page%20%2Fcontributing.html&body=Your%20issue%20content%20here."
+        <a href="https://github.com/ulissigroup/catlas/issues/new?title=Issue%20on%20page%20%2Foutputs.html&body=Your%20issue%20content%20here."
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -339,7 +339,7 @@ title="Open an issue"
   <div class="menu-dropdown__content">
     <ul>
       <li>
-        <a href="_sources/contributing.md"
+        <a href="_sources/outputs.md"
    class="headerbtn"
    data-toggle="tooltip"
 data-placement="left"
@@ -398,9 +398,53 @@ title="Print to PDF"
     </div>
     <nav id="bd-toc-nav" aria-label="Page">
         <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#coding-guidelines">
-   Coding Guidelines
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Prediction runs (predictions.py)
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#dataframe-of-results-results-df-pkl">
+     Dataframe of results (results_df.pkl)
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sankey-diagram">
+     Sankey Diagram
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#parity-plots">
+     Parity Plots
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#itermediate-pickles">
+     Itermediate pickles
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-number-optimization-optimize-frame-py">
+   Step Number Optimization (optimize_frame.py)
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#summary-of-results-summary-pkl">
+     Summary of results (summary.pkl)
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#plot-of-me-and-mae-v-frame-number">
+     Plot of ME and MAE v. frame number
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#parity-plot-generation-get-parities-py">
+   Parity Plot Generation (get_parities.py)
   </a>
  </li>
 </ul>
@@ -412,7 +456,7 @@ title="Print to PDF"
         <div class="col pl-md-3 pl-lg-5 content-container">
             <!-- Table of contents that is only displayed when printing the page -->
             <div id="jb-print-docs-body" class="onlyprint">
-                <h1>Contributing</h1>
+                <h1>Prediction runs (predictions.py)</h1>
                 <!-- Table of contents -->
                 <div id="print-main-content">
                     <div id="jb-print-toc">
@@ -422,9 +466,53 @@ title="Print to PDF"
                         </div>
                         <nav aria-label="Page">
                             <ul class="visible nav section-nav flex-column">
- <li class="toc-h2 nav-item toc-entry">
-  <a class="reference internal nav-link" href="#coding-guidelines">
-   Coding Guidelines
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#">
+   Prediction runs (predictions.py)
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#dataframe-of-results-results-df-pkl">
+     Dataframe of results (results_df.pkl)
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#sankey-diagram">
+     Sankey Diagram
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#parity-plots">
+     Parity Plots
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#itermediate-pickles">
+     Itermediate pickles
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#step-number-optimization-optimize-frame-py">
+   Step Number Optimization (optimize_frame.py)
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#summary-of-results-summary-pkl">
+     Summary of results (summary.pkl)
+    </a>
+   </li>
+   <li class="toc-h2 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#plot-of-me-and-mae-v-frame-number">
+     Plot of ME and MAE v. frame number
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h1 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#parity-plot-generation-get-parities-py">
+   Parity Plot Generation (get_parities.py)
   </a>
  </li>
 </ul>
@@ -437,18 +525,62 @@ title="Print to PDF"
                 
               <div>
                 
-  <section class="tex2jax_ignore mathjax_ignore" id="contributing">
-<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">#</a></h1>
-<p>If you would like to add a feature to Catlas, you are awesome! Please fork the repo, make the changes you would like to your forked repo and open a PR. You can request Brook or Kirby as a reviewer.</p>
-<section id="coding-guidelines">
-<h2>Coding Guidelines<a class="headerlink" href="#coding-guidelines" title="Permalink to this headline">#</a></h2>
-<ol class="simple">
-<li><p>Develop using the available docker environment so things are consistent with the repo.</p></li>
-<li><p>Ensure your changes follow <a class="reference external" href="https://github.com/psf/black">black</a> code format. We have a test for this but still good to do upfront.</p></li>
-<li><p>Try to use <a class="reference external" href="https://google.github.io/styleguide/pyguide.html">google style docstrings</a>, so people can easily interpret your awesome work.</p></li>
-<li><p>We don’t have any other strict requirements but try to do you best to make your code intuitive by choosing good variable/function/class/file names, use comments where things are opaque, write things modularly when possible etc.</p></li>
-</ol>
+  <section class="tex2jax_ignore mathjax_ignore" id="prediction-runs-predictions-py">
+<h1>Prediction runs (predictions.py)<a class="headerlink" href="#prediction-runs-predictions-py" title="Permalink to this headline">#</a></h1>
+<section id="dataframe-of-results-results-df-pkl">
+<h2>Dataframe of results (results_df.pkl)<a class="headerlink" href="#dataframe-of-results-results-df-pkl" title="Permalink to this headline">#</a></h2>
+<p>All information from a run can be found in the <code class="docutils literal notranslate"><span class="pre">results_df.pkl</span></code> file. There is information that memorializes the conditions of the run and the results. Here is a samle of the columns in the dataframe, which have been appropriately named.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;bulk_id&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_data_source&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_natoms&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_xc&#39;</span><span class="p">,</span>
+<span class="s1">&#39;bulk_nelements&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_elements&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_e_above_hull&#39;</span><span class="p">,</span> <span class="s1">&#39;bulk_band_gap&#39;</span><span class="p">,</span>
+<span class="s1">&#39;bulk_structure&#39;</span><span class="p">,</span> <span class="s1">&#39;slab_surface_object&#39;</span><span class="p">,</span> <span class="s1">&#39;surface_structure&#39;</span><span class="p">,</span>
+<span class="s1">&#39;slab_millers&#39;</span><span class="p">,</span> <span class="s1">&#39;slab_max_miller_index&#39;</span><span class="p">,</span> <span class="s1">&#39;slab_shift&#39;</span><span class="p">,</span> <span class="s1">&#39;slab_top&#39;</span><span class="p">,</span>
+<span class="s1">&#39;slab_natoms&#39;</span><span class="p">,</span> <span class="s1">&#39;nuclearity_info&#39;</span><span class="p">,</span> <span class="s1">&#39;adsorbate_atoms&#39;</span><span class="p">,</span> <span class="s1">&#39;adsorbate_smiles&#39;</span><span class="p">,</span>
+<span class="s1">&#39;adsorbate_bond_indices&#39;</span><span class="p">,</span> <span class="s1">&#39;adsorbate_data_source&#39;</span><span class="p">,</span>
+<span class="s1">&#39;dE_</span><span class="si">{model_id}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;min_dE_</span><span class="si">{model_id}</span><span class="s1">&#39;</span><span class="p">,</span>
+<span class="s1">&#39;atoms_min_dE_</span><span class="si">{model_id}</span><span class="s1">_initial&#39;</span><span class="p">,</span> <span class="s1">&#39;adslab_atoms&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
 </section>
+<section id="sankey-diagram">
+<h2>Sankey Diagram<a class="headerlink" href="#sankey-diagram" title="Permalink to this headline">#</a></h2>
+<p>The Sankey diagram allows users to easily visualize the enumeration and filtering steps to see how many objects are enumerated and how many are filtered out. For this simple example where 6 unary materials were considered, over 1200 inference calculations were performed!
+<img alt="sankey example" src="outputs/sankey.png" /></p>
+</section>
+<section id="parity-plots">
+<h2>Parity Plots<a class="headerlink" href="#parity-plots" title="Permalink to this headline">#</a></h2>
+<p>See Parity Plot Generation</p>
+</section>
+<section id="itermediate-pickles">
+<h2>Itermediate pickles<a class="headerlink" href="#itermediate-pickles" title="Permalink to this headline">#</a></h2>
+<p>These are pickle files of each of the dask paritions as they finish up. They are generated in a folder named <code class="docutils literal notranslate"><span class="pre">intermediate_pkls</span></code> and individually named the number of the partition.</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="step-number-optimization-optimize-frame-py">
+<h1>Step Number Optimization (optimize_frame.py)<a class="headerlink" href="#step-number-optimization-optimize-frame-py" title="Permalink to this headline">#</a></h1>
+<section id="summary-of-results-summary-pkl">
+<h2>Summary of results (summary.pkl)<a class="headerlink" href="#summary-of-results-summary-pkl" title="Permalink to this headline">#</a></h2>
+<p>A dataframe memorializing the optimization: including the MAE, optimal frame number, and the per frame MAE and ME.
+<img alt="frame summary" src="outputs/summary_frame_opt.png" /></p>
+</section>
+<section id="plot-of-me-and-mae-v-frame-number">
+<h2>Plot of ME and MAE v. frame number<a class="headerlink" href="#plot-of-me-and-mae-v-frame-number" title="Permalink to this headline">#</a></h2>
+<p>To provide more inside, the ME and MAE is plotted v. frame number.</p>
+<p><img alt="mae me plot" src="outputs/mae_v_frame.pdf" /></p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="parity-plot-generation-get-parities-py">
+<h1>Parity Plot Generation (get_parities.py)<a class="headerlink" href="#parity-plot-generation-get-parities-py" title="Permalink to this headline">#</a></h1>
+<p>A plot file is made for each of the adsorbates specified in the input yaml file. One additional plot is made which is general for all adsorbats. Some examples are shown below:</p>
+<p><img alt="H only" src="outputs/H_parity.pdf" /></p>
+<p><img alt="general" src="outputs/general_parity.pdf" /></p>
+<ol class="simple">
+<li><p><strong>overall</strong> = all data splits</p></li>
+<li><p><strong>id</strong> = in domain</p></li>
+<li><p><strong>ood_ads</strong> = out of domain adsorbate (i.e. the adsorbate did not appear in the training set)</p></li>
+<li><p><strong>ood_cat</strong> = out of domain material (i.e. systems derived from that specific bulk structure did not appear in the training set)</p></li>
+<li><p><strong>ood_both</strong> = both the adsorbate and material were out of domain</p></li>
+</ol>
+<p>The number of datapoints displayed and the mean absolute error (MAE) for that data subset are also shown. A parity line is drawn for ease of use, and a linear regression is performed and plotted to further and understanding of deviance from parity.</p>
 </section>
 
     <script type="text/x-thebe-config">
@@ -478,17 +610,17 @@ title="Print to PDF"
                 
     <!-- Previous / next buttons -->
 <div class='prev-next-area'>
-    <a class='left-prev' id="prev-link" href="outputs.html" title="previous page">
+    <a class='left-prev' id="prev-link" href="running_catlas.html" title="previous page">
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">Prediction runs (predictions.py)</p>
+            <p class="prev-next-title">Running Catlas</p>
         </div>
     </a>
-    <a class='right-next' id="next-link" href="advanced_use.html" title="next page">
+    <a class='right-next' id="next-link" href="contributing.html" title="next page">
     <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Advanced Use</p>
+        <p class="prev-next-title">Contributing</p>
     </div>
     <i class="fas fa-angle-right"></i>
     </a>
