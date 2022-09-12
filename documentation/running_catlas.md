@@ -70,16 +70,6 @@ bulk_filters:
 ```
 There are other examples of this so be tactful!
 
-### Outputs
-Using the run name specified in the inputs yaml file, executing the script will make a folder inside of the outputs folder containing various useful parity plots which are all appropriately named. The plot with general appended to the file name contains data for all adsorbates. The others will have the adsorbate SMILES string appended and will be specific to that adsorbate. For each file there are a number of subplots which show the different data splits.
-1. **overall** = all data splits 
-2. **id** = in domain
-3. **ood_ads** = out of domain adsorbate (i.e. the adsorbate did not appear in the training set)
-4. **ood_cat** = out of domain material (i.e. systems derived from that specific bulk structure did not appear in the training set)
-4. **ood_both** = both the adsorbate and material were out of domain
-
-The number of datapoints displayed and the mean absolute error (MAE) for that data subset are also shown. A parity line is drawn for ease of use, and a linear regression is performed and plotted to further and understanding of deviance from parity.
-
 ## Processing data for parity generation
 To make parity plots, we need inference for the same adsorbate-surface configurations which will included in the OC20 validation dataset. Running this inference is currently not supported in catlas because it can easily be done using the OCP infrastructure which has prewritten lmdb files containing the structures of interest. For more information about how to run inference in ocp, see [OCP documentation](https://github.com/Open-Catalyst-Project/ocp/blob/main/TRAIN.md). If the model is an s2ef model, it will output trajectory files in a folder specified in your model config. If the model is an IS2RE direct model it will output inferred energies to an npz file. Catlas has 2 files which each treat one of these cases to process the data so it is usable for parity generation.
 
