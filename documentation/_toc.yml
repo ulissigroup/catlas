@@ -9,5 +9,9 @@ parts:
   - file: installation_and_setup
   - file: making_a_config
   - file: running_catlas
+  - file: outputs
   - file: contributing
   - file: advanced_use
+- caption: docstrings
+  chapters:
+  - glob: modules/*

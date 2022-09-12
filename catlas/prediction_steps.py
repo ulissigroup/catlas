@@ -38,17 +38,11 @@ from catlas.sankey.sankey_utils import Sankey
 def parse_inputs():
     """Parse and prepare inputs for use by the main script.
 
-    The main script takes in two command-line inputs:
-        `config_path` (str), a path to a config yml file describing what adsorption
-        calculations to run in the main script.
-        `dask_cluster_script_path` (str), a path to a script that connects to a dask
-        cluster that executes calculations run during the main script.
+    Args:
+        config_path (str): a path to a config yml file describing what adsorption calculations to run in the main script.
+        dask_cluster_script_path (str): a path to a script that connects to a dask  cluster that executes calculations run during the main script.
 
-    This function loads and validates the config, pulls the run_id from the config,
-    generates the dask cluster script from the dask cluster script path, makes a folder
-    for the ouputs, generates parity plots if available for the model(s) in use,
-    generates a Sankey dictionary for later use in the script, and writes "CATLAS" in
-    large isometrically displayed ASCII letters.
+    This function loads and validates the config, pulls the run_id from the config,generates the dask cluster script from the dask cluster script path, makes a folder for the ouputs, generates parity plots if available for the model(s) in use, generates a Sankey dictionary for later use in the script, and writes "CATLAS" in large isometrically displayed ASCII letters.
 
     Returns:
         dict: a config describing what adsorption predictions to run.
@@ -130,11 +124,9 @@ def load_bulks_and_filter(config, client, sankey):
     file. Update sankey diagram based on bulk filtering.
 
     Args:
-        config (dict): a config file specifying what adsorption calculations to run.
-        client (dask.distributed.Client): a Dask cluster that runs calculations during
-        execution of this program.
-        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object describing how
-        objects have been filtered so far.
+        config (dict): a dictionary specifying what adsorption calculations to run.
+        client (dask.distributed.Client): a Dask cluster that runs calculations during execution of this program.
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object describing how objects have been filtered so far.
 
     Returns:
         dict: a dictionary containing bulk materials that survived filtering
@@ -180,8 +172,7 @@ def load_bulks_and_filter(config, client, sankey):
 
 
 def load_adsorbates_and_filter(config, sankey):
-    """Load adsorbates and filter them according to the input config. Update sankey
-    diagram based on adsorbate filtering.
+    """Load adsorbates and filter them according to the input config. Update sankey diagram based on adsorbate filtering.
 
     Args:
         config (dict): a config file specifying what adsorption calculations to run.
@@ -212,7 +203,7 @@ def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
 
     Args:
         config (dict): A config file specifying what surfaces to filter.
-        filtered_catalyst_bag (dask.bag.Bag): A dask Bag object containing a set of bulk materials to enumerate surfaces for.
+        filtered_catalyst_bag (dask.bag.Bag): Bulk materials to enumerate surfaces for.
         bulk_num (int): The number of bulk materials in the input bag.
 
     Returns:
@@ -244,23 +235,18 @@ def enumerate_and_predict_adslabs(
     surface_bag,
     adsorbate_bag,
 ):
-    """Generate adslabs from all filtered surfaces and adsorbates, then run predictions
-    on them and filter them according to the input config file.
+    """Generate adslabs from all filtered surfaces and adsorbates, then run predictions on them and filter them according to the input config file.
 
     Args:
         config (dict): A config file specifying what surfaces to filter.
-        surface_bag (dask.bag.Bag): A dask Bag object containing a set of surfaces
-        that have been filtered according to the config.
-        adsorbate_bag (dask.bag.Bag): A dask Bag object containing a set of adsorbates
-        that have been filtered according to the config.
+        surface_bag (dask.bag.Bag): surfaces to enumerate
+        adsorbate_bag (dask.bag.Bag): adsorbates to enumerate
 
     Returns:
-        dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption
-        energies according to models specified in the config file.
+        dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
         dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
         bool: True if a model was used to predict adsorption energies of the inputs.
-        str: the name of the column corresponding to the minimum adsorption energy
-        on each surface according to the model that was run last during predictions.
+        str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.
     """
 
     surface_adsorbate_combo_bag = surface_bag.product(adsorbate_bag)
@@ -355,8 +341,7 @@ def generate_outputs(
 
     Args:
         config (dict): A config file specifying what surfaces to filter.
-        results_bag (dask.bag.Bag): A dask Bag object of adslabs and their predicted
-        adsorption energies.
+        results_bag (dask.bag.Bag): A dask Bag object of adslabs and their predicted adsorption energies.
         run_id (str): A string with a timestamp uniquely identifying the run.
         inference (bool): Whether a model was used to predict adsorption energies
         during the execution of this script.
@@ -469,7 +454,19 @@ def generate_outputs(
 def finish_sankey_diagram(
     sankey, num_unfiltered_slabs, num_filtered_slabs, num_adslabs, num_inferred, run_id
 ) -> Sankey:
+    """Make sankey diagram for predictions
 
+    Args:
+        sankey (catlas.sankey.sankey_utils.Sankey): Sankey object from predictions run
+        num_unfiltered_slabs (int): the number of slabs before filtering
+        num_filtered_slabs (int): the number of slabs after filtering
+        num_adslabs (int): the number of adslabs enumerated
+        num_inferred (int): the number of adslabs that inference was run on
+        run_id (str): an arbitrary string identifying the run
+
+    Returns:
+        catlas.sankey.sankey_utils.Sankey: finished Sankey diagram
+    """
     if num_adslabs is None:
         num_adslabs = num_inferred = [0]
         warnings.warn(

@@ -8,8 +8,12 @@ on:
     paths-ignore:
       - '**.md'
       - '.github/workflows/build_docker.yml'
+      - '.github/workflows/black.yml'
+      - '.github/workflows/codeql.yml'
+      - '.github/workflows/automated_screens.yml'
       - '.github/workflows/deploy_jupyter_book.yml'
       - 'documentation/**'
+      - 'configs/automated_screens/*'
   workflow_dispatch:
 
 jobs:

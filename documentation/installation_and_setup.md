@@ -1,15 +1,15 @@
 # Installation and setup
 
 1. Clone the catlas repo 
-```
-git clone https://github.com/ulissigroup/catlas.git
-OR
-git clone git@github.com:ulissigroup/catlas.git
-```
+    ```
+    git clone https://github.com/ulissigroup/catlas.git
+    OR
+    git clone git@github.com:ulissigroup/catlas.git
+    ```
 2. Install catlas locally
-```
-cd ~/catlas && python setup.py develop
-```
+    ```
+    cd ~/catlas && python setup.py develop
+    ```
 3. Add [model checkpoints](https://github.com/Open-Catalyst-Project/ocp/blob/main/MODELS.md) to a folder in the base directory called `ocp_checkpoints`
 
 ## Adding parity data
