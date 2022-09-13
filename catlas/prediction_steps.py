@@ -385,21 +385,7 @@ def generate_outputs(
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
-<<<<<<< HEAD
             num_inferred, num_adslabs = count_steps(config, df_results)
-=======
-            inference_list = []
-            for step in config["adslab_prediction_steps"]:
-                if step["step_type"] == "inference":
-                    counts = sum(
-                        df_results[~df_results["min_" + step["label"]].isnull()][
-                            step["label"]
-                        ].apply(len)
-                    )
-                    label = step["label"]
-                    inference_list.append({"counts": counts, "label": label})
-            num_adslabs = sum(df_results[inference_list[0]["label"]].apply(len))
->>>>>>> origin/main
         num_filtered_slabs = len(df_results)
         if verbose:
             print(
