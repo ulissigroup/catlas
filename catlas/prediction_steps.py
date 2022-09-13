@@ -352,9 +352,7 @@ def generate_outputs(
         int: the number of adslabs that inference was run on
         int: the number of adslabs remaining after all inference
     """
-    verbose = (
-        "verbose" in config["output_options"] and config["output_options"]["verbose"]
-    )
+    verbose = config["output_options"]["verbose"]
 
     num_adslabs = None
     if config["output_options"]["pickle_intermediate_outputs"]:

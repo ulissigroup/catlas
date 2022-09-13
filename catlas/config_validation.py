@@ -195,7 +195,7 @@ config_schema = {
             "output_all_structures": {"type": "boolean"},
             "pickle_intermediate_outputs": {"type": "boolean"},
             "pickle_final_output": {"type": "boolean"},
-            "verbose": {"type": "boolean"},
+            "verbose": {"required": True, "type": "boolean"},
             "run_name": {"required": True, "type": "string"},
         },
     },
