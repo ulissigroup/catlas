@@ -69,13 +69,8 @@ if __name__ == "__main__":
         inference = False
         most_recent_step = None
 
-<<<<<<< HEAD
-    num_adslabs, num_inferred, num_filtered_slabs = generate_outputs(
-        config, adslab_atoms_bag, results_bag, run_id, inference, most_recent_step,
-=======
     num_adslabs, inference_list, num_filtered_slabs = generate_outputs(
         config, adslab_atoms_bag, results_bag, run_id, inference, most_recent_step
->>>>>>> origin/main
     )
 
     # Make final updates to the sankey diagram and plot it
