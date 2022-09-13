@@ -552,7 +552,7 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
     # Hash all entries by the desired columns
     hash_dict = {}
     for row in bag_partition:
-        key = tuple(row[hash_column[0]], (row[hash_column[1]]))
+        key = tuple([row[hash_column[0]], row[hash_column[1]]])
         if key in hash_dict:
             hash_dict[key].append(row)
         else:
