@@ -403,25 +403,22 @@ title="Print to PDF"
   <section id="module-catlas.prediction_steps">
 <span id="prediction-steps"></span><h1>prediction_steps<a class="headerlink" href="#module-catlas.prediction_steps" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="catlas.prediction_steps.enumerate_and_predict_adslabs">
-<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">enumerate_and_predict_adslabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adsorbate_bag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.enumerate_and_predict_adslabs" title="Permalink to this definition">#</a></dt>
-<dd><p>Generate adslabs from all filtered surfaces and adsorbates, then run predictions on them and filter them according to the input config file.</p>
+<dt class="sig sig-object py" id="catlas.prediction_steps.enumerate_adslabs_wrapper">
+<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">enumerate_adslabs_wrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">surface_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adsorbate_bag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.enumerate_adslabs_wrapper" title="Permalink to this definition">#</a></dt>
+<dd><p>Generate adslabs from all filtered surfaces and adsorbates.
+:param config: A config file specifying what surfaces to filter.
+:type config: dict
+:param surface_bag: surfaces to enumerate
+:type surface_bag: dask.bag.Bag
+:param adsorbate_bag: adsorbates to enumerate
+:type adsorbate_bag: dask.bag.Bag</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>config</strong> (<em>dict</em>) – A config file specifying what surfaces to filter.</p></li>
-<li><p><strong>surface_bag</strong> (<em>dask.bag.Bag</em>) – surfaces to enumerate</p></li>
-<li><p><strong>adsorbate_bag</strong> (<em>dask.bag.Bag</em>) – adsorbates to enumerate</p></li>
-</ul>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a bag of metadata for the adslabs
+dask.bag.Bag: a bag of enumerated adslabs</p>
 </dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
-dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
-bool: True if a model was used to predict adsorption energies of the inputs.
-str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dask.bag.Bag</p>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.bag.Bag</p>
 </dd>
 </dl>
 </dd></dl>
@@ -450,7 +447,7 @@ int: The number of slabs enumerated from filtered bulks before slab filtering.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.prediction_steps.finish_sankey_diagram">
-<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">finish_sankey_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sankey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_unfiltered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filtered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_adslabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_inferred</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><span class="pre">catlas.sankey.sankey_utils.Sankey</span></a></span></span><a class="headerlink" href="#catlas.prediction_steps.finish_sankey_diagram" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">finish_sankey_diagram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sankey</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_unfiltered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_filtered_slabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_adslabs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="sankey_utils.html#catlas.sankey.sankey_utils.Sankey" title="catlas.sankey.sankey_utils.Sankey"><span class="pre">catlas.sankey.sankey_utils.Sankey</span></a></span></span><a class="headerlink" href="#catlas.prediction_steps.finish_sankey_diagram" title="Permalink to this definition">#</a></dt>
 <dd><p>Make sankey diagram for predictions</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -474,7 +471,7 @@ int: The number of slabs enumerated from filtered bulks before slab filtering.</
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.prediction_steps.generate_outputs">
-<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">generate_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">most_recent_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.generate_outputs" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">generate_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adslab_atoms_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inference</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">most_recent_step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.generate_outputs" title="Permalink to this definition">#</a></dt>
 <dd><p>_summary_</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -539,6 +536,29 @@ catlas.sankey.sankey_utils.Sankey: a Sankey object updated with bulk filtering.<
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.prediction_steps.make_predictions">
+<span class="sig-prename descclassname"><span class="pre">catlas.prediction_steps.</span></span><span class="sig-name descname"><span class="pre">make_predictions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adslab_atoms_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_bag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.prediction_steps.make_predictions" title="Permalink to this definition">#</a></dt>
+<dd><p>Make predictions on enumerated adslabs. This may include a single inference step or multiple with optional intermediate filtering.
+:param config: A config file specifying what surfaces to filter.
+:type config: dict
+:param results_bag: a bag of metadata for the adslabs
+:type results_bag: dask.bag.Bag
+:param adslab_atoms_bag: a bag of enumerated adslabs
+:type adslab_atoms_bag: dask.bag.Bag</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
+dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
+bool: True if a model was used to predict adsorption energies of the inputs.
+str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dask.bag.Bag</p>
 </dd>
 </dl>
 </dd></dl>

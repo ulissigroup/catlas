@@ -433,6 +433,11 @@ title="Print to PDF"
      Verbose
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#get-all-structures">
+     Get all structures
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -576,6 +581,11 @@ title="Print to PDF"
      Verbose
     </a>
    </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#get-all-structures">
+     Get all structures
+    </a>
+   </li>
   </ul>
  </li>
  <li class="toc-h2 nav-item toc-entry">
@@ -713,6 +723,12 @@ title="Print to PDF"
 <section id="verbose">
 <h3>Verbose<a class="headerlink" href="#verbose" title="Permalink to this headline">#</a></h3>
 <p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> this will print the summary dataframe to the terminal at the conclusion of a run. This (as well as pickle final outputs) pushes all results to local memory. If you are running something so large it can not fit in local memory, you may want to set this to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</section>
+<section id="get-all-structures">
+<h3>Get all structures<a class="headerlink" href="#get-all-structures" title="Permalink to this headline">#</a></h3>
+<p>If <code class="docutils literal notranslate"><span class="pre">True</span></code> this will include all adslab and slab objects. Sometimes it is advantageous to set this to <code class="docutils literal notranslate"><span class="pre">False</span></code> for large runs because it adslabs are memory intensive.</p>
+<p>ex.
+<code class="docutils literal notranslate"><span class="pre">output_all_structures:</span> <span class="pre">True</span></code></p>
 </section>
 </section>
 <section id="input-options">
