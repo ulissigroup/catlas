@@ -4,7 +4,8 @@ from catlas.prediction_steps import (
     load_bulks_and_filter,
     load_adsorbates_and_filter,
     enumerate_surfaces_and_filter,
-    enumerate_and_predict_adslabs,
+    enumerate_adslabs_wrapper,
+    make_predictions,
     generate_outputs,
     finish_sankey_diagram,
 )
@@ -53,14 +54,23 @@ if __name__ == "__main__":
     ) = enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num)
 
     (
-        results_bag,
         adslab_atoms_bag,
-        inference,
-        most_recent_step,
-    ) = enumerate_and_predict_adslabs(config, surface_bag, adsorbate_bag)
+        results_bag,
+    ) = enumerate_adslabs_wrapper(config, surface_bag, adsorbate_bag)
 
-    num_adslabs, num_inferred, num_filtered_slabs = generate_outputs(
-        config, results_bag, run_id, inference, most_recent_step
+    if "adslab_prediction_steps" in config:
+        (
+            adslab_atoms_bag,
+            results_bag,
+            inference,
+            most_recent_step,
+        ) = make_predictions(config, adslab_atoms_bag, results_bag)
+    else:
+        inference = False
+        most_recent_step = None
+
+    num_adslabs, inference_list, num_filtered_slabs = generate_outputs(
+        config, adslab_atoms_bag, results_bag, run_id, inference, most_recent_step
     )
 
     # Make final updates to the sankey diagram and plot it
@@ -70,6 +80,6 @@ if __name__ == "__main__":
         num_unfiltered_slabs,
         num_filtered_slabs,
         num_adslabs,
-        num_inferred,
+        inference_list,
         run_id,
     )
