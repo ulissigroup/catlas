@@ -54,14 +54,14 @@ if __name__ == "__main__":
     ) = enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num)
 
     (
-        results_bag,
         adslab_atoms_bag,
+        results_bag,
     ) = enumerate_adslabs_wrapper(config, surface_bag, adsorbate_bag)
     
     if "adslab_prediction_steps" in config:
         (
-            results_bag,
             adslab_atoms_bag,
+            results_bag,
             inference,
             most_recent_step,
         ) = make_predictions(config, adslab_atoms_bag, results_bag)

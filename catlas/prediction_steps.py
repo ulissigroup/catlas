@@ -342,7 +342,7 @@ def make_predictions(
             )
 
             most_recent_step = "min_" + step["label"]
-    return results_bag, adslab_atoms_bag, inference, most_recent_step
+    return adslab_atoms_bag, results_bag, inference, most_recent_step
 
 
 def generate_outputs(
