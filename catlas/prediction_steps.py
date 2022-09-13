@@ -255,7 +255,7 @@ def enumerate_adslabs_wrapper(
     )
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
     return adslab_atoms_bag, results_bag
-    
+
 
 def make_predictions(
     config,
@@ -443,7 +443,7 @@ def generate_outputs(
             if not inference:
                 num_adslabs = sum(df_results["adslab_atoms"].apply(len))
                 num_filtered_slabs = len(df_results)
-                inference_list = [{"label": "no inference","counts": 0}]
+                inference_list = [{"label": "no inference", "counts": 0}]
         else:
             # screen classes from custom packages
             class_mask = (
@@ -468,7 +468,12 @@ def generate_outputs(
 
 
 def finish_sankey_diagram(
-    sankey, num_unfiltered_slabs, num_filtered_slabs, num_adslabs, inference_list, run_id
+    sankey,
+    num_unfiltered_slabs,
+    num_filtered_slabs,
+    num_adslabs,
+    inference_list,
+    run_id,
 ) -> Sankey:
     """Make sankey diagram for predictions
 
@@ -485,7 +490,7 @@ def finish_sankey_diagram(
     """
     if num_adslabs is None:
         num_adslabs = 0
-        inference_list = [{"label": "no inference","counts": 0}]
+        inference_list = [{"label": "no inference", "counts": 0}]
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )
