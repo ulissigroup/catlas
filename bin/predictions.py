@@ -57,7 +57,7 @@ if __name__ == "__main__":
         adslab_atoms_bag,
         results_bag,
     ) = enumerate_adslabs_wrapper(config, surface_bag, adsorbate_bag)
-    
+
     if "adslab_prediction_steps" in config:
         (
             adslab_atoms_bag,
