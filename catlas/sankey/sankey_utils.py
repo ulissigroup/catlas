@@ -108,7 +108,7 @@ class Sankey:
                 inference_list, step + 1, node_num_next, node_idx_next
             )
 
-    def add_adslab_info(self, num_adslabs: int, num_inference: list):
+    def add_adslab_info(self, num_adslabs: int, inference_list: list):
         """
         Updates the Sankey dictionary with adslab information.
 
@@ -126,7 +126,7 @@ class Sankey:
 
         adslab_idx = self.info_dict["label"].index("Adslabs")
         self.info_dict["label"][adslab_idx] = f"Adslabs ({num_adslabs})"
-        self._add_inference_step(num_inference, 0, num_adslabs, adslab_idx)
+        self._add_inference_step(inference_list, 0, num_adslabs, adslab_idx)
 
     def update_y_positions(self, use_log):
         """

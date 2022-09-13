@@ -40,6 +40,12 @@ ex.
 If `True` this will print the summary dataframe to the terminal at the conclusion of a run. This (as well as pickle final outputs) pushes all results to local memory. If you are running something so large it can not fit in local memory, you may want to set this to `False`.
 
 
+### Get all structures
+If `True` this will include all adslab and slab objects. Sometimes it is advantageous to set this to `False` for large runs because it adslabs are memory intensive.
+
+ex.
+```output_all_structures: True```
+
 ## Input Options
 This is where you specify the file paths to the bulk and adsorbate input files. This is required.
 

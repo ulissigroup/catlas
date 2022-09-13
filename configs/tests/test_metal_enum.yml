@@ -1,0 +1,26 @@
+memory_cache_location: '/home/jovyan/test_cache'
+
+output_options:
+  run_name: "test_metals"
+  pickle_final_output: True
+  pickle_intermediate_outputs: False
+  output_all_structures: True
+  make_parity_plots: False
+  verbose: False
+
+input_options:
+  bulk_file: 'catlas/bulk_structures/ocp_bulks_w_properties.db'
+  adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
+
+bulk_filters:
+    filter_by_bulk_ids: ['mp-30']
+
+adsorbate_filters:
+    filter_by_smiles: ['*CO']
+
+slab_filters:
+    filter_by_object_size: 100
+    filter_by_max_miller_index: 1
+
+
+

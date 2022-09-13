@@ -149,7 +149,7 @@ def load_bulks_and_filter(config, client, sankey):
                 "No lmdb was found here:" + lmdb_path + ". Making the lmdb instead."
             )
             bulk_bag = bulk_bag.repartition(npartitions=200)
-            pbx_dicts = bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
+            bulk_bag.map(pb_query_and_write, lmdb_path=lmdb_path).compute()
 
     # Filter the bulks
     initial_bulks = bulk_df.shape[0].compute()
@@ -230,23 +230,20 @@ def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
     return surface_bag, num_unfiltered_slabs
 
 
-def enumerate_and_predict_adslabs(
+def enumerate_adslabs_wrapper(
     config,
     surface_bag,
     adsorbate_bag,
 ):
-    """Generate adslabs from all filtered surfaces and adsorbates, then run predictions on them and filter them according to the input config file.
-
+    """Generate adslabs from all filtered surfaces and adsorbates.
     Args:
         config (dict): A config file specifying what surfaces to filter.
         surface_bag (dask.bag.Bag): surfaces to enumerate
         adsorbate_bag (dask.bag.Bag): adsorbates to enumerate
-
     Returns:
-        dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
-        dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
-        bool: True if a model was used to predict adsorption energies of the inputs.
-        str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.
+        dask.bag.Bag: a bag of metadata for the adslabs
+        dask.bag.Bag: a bag of enumerated adslabs
+
     """
 
     surface_adsorbate_combo_bag = surface_bag.product(adsorbate_bag)
@@ -256,59 +253,50 @@ def enumerate_and_predict_adslabs(
             config["memory_cache_location"], enumerate_adslabs, shard_digits=4
         )
     )
-    graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     results_bag = surface_adsorbate_combo_bag.map(merge_surface_adsorbate_combo)
+    return adslab_atoms_bag, results_bag
+
+
+def make_predictions(
+    config,
+    adslab_atoms_bag,
+    results_bag,
+):
+    """
+    Make predictions on enumerated adslabs. This may include a single inference step or multiple with optional intermediate filtering.
+    Args:
+        config (dict): A config file specifying what surfaces to filter.
+        results_bag (dask.bag.Bag): a bag of metadata for the adslabs
+        adslab_atoms_bag (dask.bag.Bag): a bag of enumerated adslabs
+    Returns:
+        dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption energies according to models specified in the config file.
+        dask.bag.Bag: a dask Bag containing adslabs before any predictions were run.
+        bool: True if a model was used to predict adsorption energies of the inputs.
+        str: the name of the column corresponding to the minimum adsorption energy on each surface according to the model that was run last during predictions.
+    """
+    graphs_bag = adslab_atoms_bag.map(convert_adslabs_to_graphs)
     hash_adslab_atoms_bag = adslab_atoms_bag.map(joblib.hash)
-
     inference = False
-    if "adslab_prediction_steps" in config:
-        for step in config["adslab_prediction_steps"]:
-            if "filter" in step["step_type"]:
-                results_bag = results_bag.map_partitions(
-                    predictions_filter,
-                    step,
-                )
-            elif step["step_type"] == "inference" and step["gpu"]:
-                inference = True
-                number_steps = step["number_steps"] if "number_steps" in step else 200
-                hash_results_bag = results_bag.map(joblib.hash)
 
-                with dask.annotate(resources={"GPU": 1}, priority=10000000):
-                    results_bag = results_bag.map(
-                        catlas.cache_utils.sqlitedict_memoize(
-                            config["memory_cache_location"],
-                            energy_prediction,
-                            ignore=[
-                                "batch_size",
-                                "gpu_mem_per_sample",
-                                "graphs_dict",
-                                "adslab_atoms",
-                                "adslab_dict",
-                            ],
-                            shard_digits=4,
-                        ),
-                        adslab_atoms=adslab_atoms_bag,
-                        hash_adslab_atoms=hash_adslab_atoms_bag,
-                        hash_adslab_dict=hash_results_bag,
-                        graphs_dict=graphs_bag,
-                        checkpoint_path=step["checkpoint_path"],
-                        column_name=step["label"],
-                        batch_size=step["batch_size"],
-                        gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
-                        number_steps=number_steps,
-                    )
-                most_recent_step = "min_" + step["label"]
-            elif step["step_type"] == "inference" and not step["gpu"]:
-                inference = True
-                number_steps = step["number_steps"] if "number_steps" in step else 200
-                hash_results_bag = results_bag.map(joblib.hash)
+    for step in config["adslab_prediction_steps"]:
+        if "filter" in step["step_type"]:
+            results_bag = results_bag.map_partitions(
+                predictions_filter,
+                step,
+            )
+        elif step["step_type"] == "inference" and step["gpu"]:
+            inference = True
+            number_steps = step["number_steps"] if "number_steps" in step else 200
+            hash_results_bag = results_bag.map(joblib.hash)
 
+            with dask.annotate(resources={"GPU": 1}, priority=10000000):
                 results_bag = results_bag.map(
                     catlas.cache_utils.sqlitedict_memoize(
                         config["memory_cache_location"],
                         energy_prediction,
                         ignore=[
                             "batch_size",
+                            "gpu_mem_per_sample",
                             "graphs_dict",
                             "adslab_atoms",
                             "adslab_dict",
@@ -322,12 +310,39 @@ def enumerate_and_predict_adslabs(
                     checkpoint_path=step["checkpoint_path"],
                     column_name=step["label"],
                     batch_size=step["batch_size"],
+                    gpu_mem_per_sample=step.get("gpu_mem_per_sample", None),
                     number_steps=number_steps,
                 )
+            most_recent_step = "min_" + step["label"]
+        elif step["step_type"] == "inference" and not step["gpu"]:
+            inference = True
+            number_steps = step["number_steps"] if "number_steps" in step else 200
+            hash_results_bag = results_bag.map(joblib.hash)
 
-                most_recent_step = "min_" + step["label"]
-    results_bag = results_bag.persist(optimize_graph=False)
-    return results_bag, adslab_atoms_bag, inference, most_recent_step
+            results_bag = results_bag.map(
+                catlas.cache_utils.sqlitedict_memoize(
+                    config["memory_cache_location"],
+                    energy_prediction,
+                    ignore=[
+                        "batch_size",
+                        "graphs_dict",
+                        "adslab_atoms",
+                        "adslab_dict",
+                    ],
+                    shard_digits=4,
+                ),
+                adslab_atoms=adslab_atoms_bag,
+                hash_adslab_atoms=hash_adslab_atoms_bag,
+                hash_adslab_dict=hash_results_bag,
+                graphs_dict=graphs_bag,
+                checkpoint_path=step["checkpoint_path"],
+                column_name=step["label"],
+                batch_size=step["batch_size"],
+                number_steps=number_steps,
+            )
+
+            most_recent_step = "min_" + step["label"]
+    return adslab_atoms_bag, results_bag, inference, most_recent_step
 
 
 def generate_outputs(
@@ -370,7 +385,21 @@ def generate_outputs(
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
+<<<<<<< HEAD
             num_inferred, num_adslabs = count_steps(config, df_results)
+=======
+            inference_list = []
+            for step in config["adslab_prediction_steps"]:
+                if step["step_type"] == "inference":
+                    counts = sum(
+                        df_results[~df_results["min_" + step["label"]].isnull()][
+                            step["label"]
+                        ].apply(len)
+                    )
+                    label = step["label"]
+                    inference_list.append({"counts": counts, "label": label})
+            num_adslabs = sum(df_results[inference_list[0]["label"]].apply(len))
+>>>>>>> origin/main
         num_filtered_slabs = len(df_results)
         if verbose:
             print(
@@ -406,7 +435,7 @@ def generate_outputs(
             if not inference:
                 num_adslabs = sum(df_results["adslab_atoms"].apply(len))
                 num_filtered_slabs = len(df_results)
-                num_inferred = [0]
+                inference_list = [{"label": "no inference", "counts": 0}]
         else:
             # screen classes from custom packages
             class_mask = (
@@ -427,11 +456,16 @@ def generate_outputs(
     with open(f"outputs/{run_id}/inputs_config.yml", "w") as fhandle:
         yaml.dump(config, fhandle)
 
-    return num_adslabs, num_inferred, num_filtered_slabs
+    return num_adslabs, inference_list, num_filtered_slabs
 
 
 def finish_sankey_diagram(
-    sankey, num_unfiltered_slabs, num_filtered_slabs, num_adslabs, num_inferred, run_id
+    sankey,
+    num_unfiltered_slabs,
+    num_filtered_slabs,
+    num_adslabs,
+    inference_list,
+    run_id,
 ) -> Sankey:
     """Make sankey diagram for predictions
 
@@ -447,11 +481,12 @@ def finish_sankey_diagram(
         catlas.sankey.sankey_utils.Sankey: finished Sankey diagram
     """
     if num_adslabs is None:
-        num_adslabs = num_inferred = [0]
+        num_adslabs = 0
+        inference_list = [{"label": "no inference", "counts": 0}]
         warnings.warn(
             "Adslabs were enumerated but will not be counted for the Sankey diagram."
         )
     sankey.add_slab_info(num_unfiltered_slabs, num_filtered_slabs)
-    sankey.add_adslab_info(num_adslabs, num_inferred)
+    sankey.add_adslab_info(num_adslabs, inference_list)
     sankey.get_sankey_diagram(run_id)
     return sankey
