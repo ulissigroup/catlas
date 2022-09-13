@@ -332,6 +332,7 @@ def enumerate_and_predict_adslabs(
 
 def generate_outputs(
     config,
+    adslab_atoms_bag,
     results_bag,
     run_id,
     inference,
@@ -341,10 +342,10 @@ def generate_outputs(
 
     Args:
         config (dict): A config file specifying what surfaces to filter.
+        adslab_atoms_bag (dict): A dictionary of adslab Atoms objects in their initial configurations and associated metadata.
         results_bag (dask.bag.Bag): A dask Bag object of adslabs and their predicted adsorption energies.
         run_id (str): A string with a timestamp uniquely identifying the run.
-        inference (bool): Whether a model was used to predict adsorption energies
-        during the execution of this script.
+        inference (bool): Whether a model was used to predict adsorption energies during the execution of this script.
 
     Returns:
         int: the number of adslabs immediately after adslab enumeration

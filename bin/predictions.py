@@ -60,7 +60,12 @@ if __name__ == "__main__":
     ) = enumerate_and_predict_adslabs(config, surface_bag, adsorbate_bag)
 
     num_adslabs, num_inferred, num_filtered_slabs = generate_outputs(
-        config, results_bag, run_id, inference, most_recent_step
+        adslab_atoms_bag,
+        config,
+        results_bag,
+        run_id,
+        inference,
+        most_recent_step,
     )
 
     # Make final updates to the sankey diagram and plot it
