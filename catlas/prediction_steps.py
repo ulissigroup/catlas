@@ -353,6 +353,7 @@ def generate_outputs(
         int: the number of adslabs remaining after all inference
     """
     verbose = config["output_options"]["verbose"]
+    compute = verbose or config["output_options"]["pickle_final_output"]
 
     num_adslabs = None
     if config["output_options"]["pickle_intermediate_outputs"]:
@@ -363,9 +364,11 @@ def generate_outputs(
             optimize_graph=False,
         )
 
-    if verbose or config["output_options"]["pickle_final_output"]:
-        results = results_bag.compute(optimize_graph=False)
-        df_results = pd.DataFrame(results)
+    if compute:
+        df_results = results_bag.compute(optimize_graph=False).to_dataframe(
+            optimize_graph=False
+        )
+        # df_results = pd.DataFrame(results)
         if inference:
             num_inferred = []
             for step in config["adslab_prediction_steps"]:
@@ -379,8 +382,7 @@ def generate_outputs(
                     num_inferred.append({"counts": counts, "label": label})
             num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
         num_filtered_slabs = len(df_results)
-        if verbose and inference:
-
+        if verbose:
             print(
                 df_results[
                     [
@@ -389,19 +391,7 @@ def generate_outputs(
                         "bulk_data_source",
                         "slab_millers",
                         "adsorbate_smiles",
-                        most_recent_step,
-                    ]
-                ]
-            )
-        elif verbose:
-            print(
-                df_results[
-                    [
-                        "bulk_elements",
-                        "bulk_id",
-                        "bulk_data_source",
-                        "slab_millers",
-                        "adsorbate_smiles",
+                        *[c for c in df_results.columns if c == most_recent_step],
                     ]
                 ]
             )
