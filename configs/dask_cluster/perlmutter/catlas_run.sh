@@ -8,7 +8,7 @@
 
 
 export SHIFTER_IMAGETYPE=docker
-export SHIFTER_IMAGE=ulissigroup/kubeflow:predictions
+export SHIFTER_IMAGE=ulissigroup/catlas:latest
 
 export SLURM_CPU_BIND="cores"
 
