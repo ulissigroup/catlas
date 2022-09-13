@@ -385,7 +385,7 @@ def generate_outputs(
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
-            num_inferred, num_adslabs = count_steps(config, df_results)
+            inference_list, num_adslabs = count_steps(config, df_results)
         num_filtered_slabs = len(df_results)
         if verbose:
             print(

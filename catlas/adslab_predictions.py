@@ -359,7 +359,7 @@ def energy_prediction(
 
 
 def count_steps(config, df_results):
-    num_inferred = []
+    inference_list = []
     for step in config["adslab_prediction_steps"]:
         if step["step_type"] == "inference":
             counts = sum(
@@ -368,6 +368,6 @@ def count_steps(config, df_results):
                 ].apply(len)
             )
             label = step["label"]
-            num_inferred.append({"counts": counts, "label": label})
-    num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
-    return num_inferred, num_adslabs
+            inference_list.append({"counts": counts, "label": label})
+    num_adslabs: int = sum(df_results[inference_list[0]["label"]].apply(len))
+    return inference_list, num_adslabs
