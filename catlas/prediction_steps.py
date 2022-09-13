@@ -12,7 +12,7 @@ from jinja2 import Template
 import argparse
 
 import catlas.dask_utils
-from catlas.adslab_predictions import energy_prediction
+from catlas.adslab_predictions import energy_prediction, count_steps
 from catlas.config_validation import config_validator
 from catlas.dask_utils import to_pickles
 from catlas.enumerate_slabs_adslabs import (
@@ -354,6 +354,8 @@ def generate_outputs(
     """
     verbose = config["output_options"]["verbose"]
     compute = verbose or config["output_options"]["pickle_final_output"]
+    if not inference:
+        num_inferred = 0
 
     num_adslabs = None
     if config["output_options"]["pickle_intermediate_outputs"]:
@@ -365,22 +367,10 @@ def generate_outputs(
         )
 
     if compute:
-        df_results = results_bag.compute(optimize_graph=False).to_dataframe(
-            optimize_graph=False
-        )
-        # df_results = pd.DataFrame(results)
+        results = results_bag.compute(optimize_graph=False)
+        df_results = pd.DataFrame(results)
         if inference:
-            num_inferred = []
-            for step in config["adslab_prediction_steps"]:
-                if step["step_type"] == "inference":
-                    counts = sum(
-                        df_results[~df_results["min_" + step["label"]].isnull()][
-                            step["label"]
-                        ].apply(len)
-                    )
-                    label = step["label"]
-                    num_inferred.append({"counts": counts, "label": label})
-            num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
+            num_inferred, num_adslabs = count_steps(config, df_results)
         num_filtered_slabs = len(df_results)
         if verbose:
             print(
@@ -397,7 +387,7 @@ def generate_outputs(
             )
 
     else:
-        # Important to use optimize_grap=False so that the information
+        # Important to use optimize_graph=False so that the information
         # on only running GPU inference on GPUs is saved
         results = results_bag.persist(optimize_graph=False)
         wait(results)

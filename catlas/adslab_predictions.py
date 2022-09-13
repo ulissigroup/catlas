@@ -356,3 +356,18 @@ def energy_prediction(
                 adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
         return adslab_results
+
+
+def count_steps(config, df_results):
+    num_inferred = []
+    for step in config["adslab_prediction_steps"]:
+        if step["step_type"] == "inference":
+            counts = sum(
+                df_results[~df_results["min_" + step["label"]].isnull()][
+                    step["label"]
+                ].apply(len)
+            )
+            label = step["label"]
+            num_inferred.append({"counts": counts, "label": label})
+    num_adslabs = sum(df_results[num_inferred[0]["label"]].apply(len))
+    return num_inferred, num_adslabs
