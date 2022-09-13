@@ -9,43 +9,53 @@ $ python bin/predictions.py configs/path/to/inputs.yml configs/path/to/cluster.p
 
 ### Executing a run on a slurm managed HPC cluster
 We have an example for use on Perlmutter
-```$ sbatch configs/dask_cluster/perlmutter/catlas_run.sh```
+```
+$ sbatch configs/dask_cluster/perlmutter/catlas_run.sh
+```
 For additional options see [NERSC documentation](https://docs.nersc.gov/jobs/)
 
 We highly recommend trying catlas on your local machine for a trivial test case before trying on slurm.
 
 ### Monitoring
-You can monitor your run using the dask dashboard. For a local run this shoulf be hosted on port 8787 unless otherwise specified in the terminal.
+You can monitor your run using the dask dashboard. For a local run this should be hosted on port 8787 unless otherwise specified in the terminal.
 
 
 ### Setup using the dask operator on a kubecluster
-1. Starting a segementation of the cluster
-```$ kubectl apply -f path/to/cluster_spec.yml```
+#### 1. Starting a segementation of the cluster
+```
+$ kubectl apply -f path/to/cluster_spec.yml
+```
 
 An example has been provided in the repo. Its path is `catlas/configs/dask_cluster/dask_operator/catlas-hybrid-cluster.yml` By default, this spins up 2 cpu workers. You can edit the file to change this, or you can scale up and down resources using the commands below.
 
 
-2. Scaling resources up and down
+#### 2. Scaling resources up and down
 
 For cpu workers:
 
 
-```$ kubectl scale --replicas=8 daskworkergroup catlas-hybrid-cluster-default-worker-group```
+```
+$ kubectl scale --replicas=8 daskworkergroup catlas-hybrid-cluster-default-worker-group
+```
 
 
 
 For gpu workers:
 
-```$ kubectl scale --replicas=0 daskworkergroup catlas-hybrid-cluster-gpu-worker-group```
+```
+$ kubectl scale --replicas=0 daskworkergroup catlas-hybrid-cluster-gpu-worker-group
+```
 
-Note: `--replicas` sets the total number of workers of that type. So if you start with 2 cpu workers and run the first command above, you will have 8. Likewise, if you start with 2 gpu workers and run the second command you will have no gpu workers!
+**Note:** `--replicas` sets the *total* number of workers of that type. So if you start with 2 cpu workers and run the first command above, you will have 8. Likewise, if you start with 2 gpu workers and run the second command you will have no gpu workers!
 
 
 
 ### Shutdown using the dask operator on a kubecluster
 At the end of a run you should delete, or scale down your resources. To scale down, see above. To delete:
 
-```$ kubectl delete daskcluster catlas-hybrid-cluster```
+```
+$ kubectl delete daskcluster catlas-hybrid-cluster
+```
 
 ## Generating parity plots
 ### Executing a parity run
@@ -60,18 +70,8 @@ bulk_filters:
 ```
 There are other examples of this so be tactful!
 
-### Outputs
-Using the run name specified in the inputs yaml file, executing the script will make a folder inside of the outputs folder containing various useful parity plots which are all appropriately named. The plot with general appended to the file name contains data for all adsorbates. The others will have the adsorbate SMILES string appended and will be specific to that adsorbate. For each file there are a number of subplots which show the different data splits.
-1. overall = all data splits 
-2. id = in domain
-3. ood_ads = out of domain adsorbate (i.e. the adsorbate did not appear in the training set)
-4. ood_cat = out of domain material (i.e. systems derived from that specific bulk structure did not appear in the training set)
-4. ood_both = both the adsorbate and material were out of domain
-
-The number of datapoints displayed and the mean absolute error (MAE) for that data subset are also shown. A parity line is drawn for ease of use, and a linear regression is performed and plotted to further and understanding of deviance from parity.
-
 ## Processing data for parity generation
-To make parity plots, we need inference for the same adsorbate-surface configurations which will included in the OC20 validation dataset. Running this inference is currently not supported in catlas because it can easily be done using the OCP infrastructure which has prewritten lmdb files containing the structures of interest. For more information about how to run inference in ocp, see (???). If the model is an s2ef model, it will output trajectory files in a folder specified in your model config. If the model is an IS2RE direct model it will output inferred energies to an npz file. Catlas has 2 files which each treat one of these cases to process the data so it is usable for parity generation.
+To make parity plots, we need inference for the same adsorbate-surface configurations which will included in the OC20 validation dataset. Running this inference is currently not supported in catlas because it can easily be done using the OCP infrastructure which has prewritten lmdb files containing the structures of interest. For more information about how to run inference in ocp, see [OCP documentation](https://github.com/Open-Catalyst-Project/ocp/blob/main/TRAIN.md). If the model is an s2ef model, it will output trajectory files in a folder specified in your model config. If the model is an IS2RE direct model it will output inferred energies to an npz file. Catlas has 2 files which each treat one of these cases to process the data so it is usable for parity generation.
 
 ### Processing npz files
 ```
@@ -81,9 +81,7 @@ $ python bin/process_npz_for_validation.py --npz_path path/to/npz/file.npz
 This will make a pickle file of a dataframe which contains all the information that will be needed to make parity plots for the model desired. By default, this will be called whatever the npz was called and be saved to `catlas/catlas/parity/df_pkls/`.
 
 
-*Advanced*
-
-You may optionally include an additional argument `--dft_df_path path/to/dft/df.pkl` if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced use
+**Advanced**: You may optionally include an additional argument `--dft_df_path path/to/dft/df.pkl` if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced use.
 
 ### Processing npz files
 ```
@@ -93,9 +91,7 @@ $ python bin/process_trajectories_for_validation.py --folders path/to/folder1_w_
 This will make a pickle file of a dataframe which contains all the information that will be needed to make parity plots for the model desired. This will be called by what is specified as `model_name`. It must match the name of the checkpoint for things to work. The output will be saved to `catlas/catlas/parity/df_pkls/`.
 
 
-*Advanced*
-
-You may optionally include an additional argument `--dft_df_path path/to/dft/df.pkl` if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced Use
+**Advanced**: You may optionally include an additional argument `--dft_df_path path/to/dft/df.pkl` if you would like to use custom dft data. This defaults to the OC20 val set. For more information see Advanced Use
 
 ## Selecting number of relaxation steps
 ```

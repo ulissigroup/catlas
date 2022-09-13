@@ -1,5 +1,5 @@
 nuclearity
 ==========
 
-.. automodule:: catlas.catlas.nuclearity
+.. automodule:: catlas.nuclearity
     :members:

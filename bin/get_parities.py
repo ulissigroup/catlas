@@ -9,7 +9,8 @@ import time
 # Load inputs and define global vars
 if __name__ == "__main__":
     """Get parity plots for a model.
-
+    Args:
+        config_path (str): the path where the input config is located
     Raises:
         ValueError: The provided config is invalid.
     """

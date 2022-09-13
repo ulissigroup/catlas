@@ -57,7 +57,8 @@ RUN mamba install --quiet --yes \
     'black' \
     'pyyaml' \
     'pre-commit' \
-    'tensorboard' \ 
+    'tensorboard' \
+    'jupyter-book' \
     'tqdm' \
     'wandb' \
     'pillow' \
@@ -79,7 +80,8 @@ RUN pip install --no-deps git+https://github.com/superstar54/x3dase.git
 RUN pip install --no-deps git+https://github.com/ulissigroup/CatKit.git
 RUN pip install --no-deps git+https://github.com/brookwander/Open-Catalyst-Dataset.git
 RUN pip install --no-deps git+https://github.com/lab-cosmo/chemiscope.git
-RUN pip install mp-api 
+RUN pip install mp-api
+RUN pip install pymatgen-analysis-alloys
 
 
 # Add OCP
@@ -87,4 +89,4 @@ WORKDIR /home/jovyan
 RUN git clone https://github.com/Open-Catalyst-Project/ocp.git && \
     python ocp/setup.py develop
 CMD ["sh","-c", "jupyter notebook --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
-ENV PYTHONPATH=/home/jovyan/ocp/
+ENV PYTHONPATH=/home/jovyan/ocp/:/home/jovyan/catlas/

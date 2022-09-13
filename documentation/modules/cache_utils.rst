@@ -1,5 +1,5 @@
 cache_utils
 ===========
 
-.. automodule:: catlas.catlas.cache_utils
+.. automodule:: catlas.cache_utils
     :members:

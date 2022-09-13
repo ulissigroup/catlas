@@ -17,7 +17,13 @@ valid_element_groups = [
 
 
 def validate_element(field, value, error):
-    """Validate that object is an element. Generate Cerberus-type error otherwise."""
+    """Check if the input in a given field is an element according to Pymatgen.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): an element to check
+        error (Callable): the Cerberus-type error raised if the input is not an element.
+    """
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
         error(
@@ -29,14 +35,26 @@ def validate_element(field, value, error):
 
 
 def validate_path_exists(field, value, error):
-    """Validate that a file path exists. Generate Cerberus-type error otherwise."""
+    """Check if the filepath in a given field exists.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): a file path to check
+        error (Callable): the Cerberus-type error raised if the folder does not exist.
+    """
     if not os.path.exists(value):
         error(field, f"file path does not exist: '{value}'")
 
 
 def validate_folder_exists(field, value, error):
-    """A more permissive check to check if a file/folder can be created if it doesn't
-    exist"""
+    """Check if the filepath in a given field has a valid enclosing folder, regardless
+    of whether the file exists.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): a file path to check
+        error (Callable): the Cerberus-type error raised if the folder does not exist.
+    """
     path_list = value.split("/")
     value = "/".join(path_list[:-1])
     if not os.path.exists(value):
