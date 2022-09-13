@@ -4,26 +4,19 @@ import os
 import numpy as np
 import ocpmodels
 import torch
-import yaml
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.optimize import LBFGS
-from ocdata.combined import Combined
 from ocdata.flag_anomaly import DetectTrajAnomaly
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from tqdm import tqdm
 
 import catlas.cache_utils
 import catlas.dask_utils
 from ocpmodels.common.registry import registry
 from ocpmodels.common.relaxation import ml_relaxation
-from ocpmodels.common.relaxation.ase_utils import OCPCalculator
 from ocpmodels.common.utils import (
-    radius_graph_pbc,
     setup_imports,
     setup_logging,
 )
-from ocpmodels.datasets import data_list_collater
-from ocpmodels.preprocessing import AtomsToGraphs
 
 
 BOCPP_dict = {}
@@ -38,6 +31,12 @@ def pop_keys(adslab_dict, keys):
 
 
 class GraphsListDataset(Dataset):
+    """Make a list of graphs to feed into ocp dataloader object
+
+    Extends:
+        torch.utils.data.Dataset: a torch Dataset
+    """
+
     def __init__(self, graphs_list):
         self.graphs_list = graphs_list
 
@@ -50,14 +49,18 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
+    """Variable used to store the model used during predictions. Specifications are
+    contained in the input config. This variable is globalized within a worker to
+    avoid duplicate model loading.
+    """
+
     def __init__(self, checkpoint, number_steps, batch_size=8, cpu=False):
         self.number_steps = number_steps
         setup_imports()
         setup_logging()
 
-        checkpoint = "%s/%s" % (
-            os.path.join(os.path.dirname(catlas.__file__), os.pardir),
-            checkpoint,
+        checkpoint = os.path.join(
+            os.path.dirname(catlas.__file__), os.pardir, checkpoint
         )
 
         config = torch.load(checkpoint, map_location=torch.device("cpu"))["config"]
@@ -78,14 +81,15 @@ class BatchOCPPredictor:
             config["normalizer"] = config["dataset"]
 
         if "scale_file" in config["model_attributes"]:
-            catlas_dir = os.path.dirname(catlas.__file__)
             if config["model_attributes"]["scale_file"].startswith("config"):
-                config["model_attributes"]["scale_file"] = "%s/%s" % (
-                    os.path.join(os.path.dirname(ocpmodels.__file__), os.pardir),
+                config["model_attributes"]["scale_file"] = os.path.join(
+                    os.path.dirname(ocpmodels.__file__),
+                    os.pardir,
                     config["model_attributes"]["scale_file"],
                 )
+
             else:
-                config["model_attributes"]["scale_file"] = "%s/%s" % (
+                config["model_attributes"]["scale_file"] = os.path.join(
                     os.path.dirname(checkpoint),
                     config["model_attributes"]["scale_file"],
                 )
@@ -121,7 +125,14 @@ class BatchOCPPredictor:
             self.load_checkpoint(checkpoint)
 
     def make_dataloader(self, graphs_list):
+        """Make the dataloader used to feed graphs into the OCP model.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): structures to run predictions on.
+
+        Returns:
+            torch.utils.data.DataLoader: an object that feeds data into pytorch models.
+        """
         # Make a dataset
         graphs_list_dataset = GraphsListDataset(graphs_list)
 
@@ -139,16 +150,26 @@ class BatchOCPPredictor:
         """
         Load existing trained model
         Args:
-            checkpoint_path: string
-                Path to trained model
+            checkpoint_path (str): Path to trained model
         """
         try:
             self.trainer.load_checkpoint(checkpoint_path)
         except NotImplementedError:
-            logging.warning("Unable to load checkpoint!")
+            logging.warning(
+                "Unable to load checkpoint!"
+            )  # `logging` defined by `setup_logging()`
 
     def direct_prediction(self, graphs_list):
+        """Run direct energy predictions on a list of graphs. Predict the relaxed
+        energy without running ML relaxations.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): structures to run
+                inference on.
+
+        Returns:
+            Iterable[float]: predicted energies of the input structures.
+        """
         data_loader = self.make_dataloader(graphs_list)
 
         # Batch inference
@@ -159,7 +180,16 @@ class BatchOCPPredictor:
         return predictions["energy"]
 
     def relaxation_prediction(self, graphs_list):
+        """Relax structures, then predict their energies.
 
+        Args:
+            graphs_list (Iterable[torch_geometric.data.Data]): structures to
+            run predictions on.
+
+        Returns:
+            Iterable[float]: predicted energies
+            Iterable[torch_geometric.data.Data): relaxed structures
+        """
         if self.device == "cpu":
             torch.set_num_threads(int(os.environ["OMP_NUM_THREADS"]))
 
@@ -174,7 +204,7 @@ class BatchOCPPredictor:
             relaxed_batch = ml_relaxation.ml_relax(
                 batch=batch,
                 model=self,
-                steps=self.config["task"].get("relaxation_steps", self.number_steps),
+                steps=self.number_steps,
                 fmax=self.config["task"].get("relaxation_fmax", 0.0),
                 relax_opt={"memory": 100},
                 device=self.device,
@@ -204,19 +234,51 @@ def energy_prediction(
     gpu_mem_per_sample=None,
     number_steps=200,
 ):
+    """Predict the energies of adslabs.
 
+    Args:
+        adslab_dict (dict): A view of the adslabs to predict that will be used to store results. Should be ignored during cache comparisons.
+        adslab_atoms (Iterable[ase.atoms.Atoms]): Adslabs containing the same adsorbate placed on different sites on the same surface. Should be ignored during cache comparisons.
+        hash_adslab_atoms (str): A hash specific to `adslab_atoms` used for cache comparisons.
+        hash_adslab_dict (str): A hash specific to `adslab_dict` used for cache comparisons
+        graphs_dict (dict): A view of the adslabs to predict that will be used to predict energies. Should be ignored during cache comparisons.
+        checkpoint_path (str): The path where the OCP model checkpoint can be found.
+        column_name (str): An arbitrary name used to define the model output field names.
+        batch_size (int, optional): The number of adslabs loaded onto a gpu at a single time during relaxations. Should be ignored during cache comparisons. Defaults to 8.
+        gpu_mem_per_sample (float, optional): The approximate memory used by a single adslab during relaxations, used to determine batch size. Defaults to None.
+        number_steps (int, optional): The number of steps used during relaxations. Should be determined using `bin/optimize_frame.py`. Defaults to 200.
+
+    Returns:
+        dict: Energy predictions and metadata including associated structures and minimum predicted energy per surface.
+    """
     adslab_results = copy.copy(adslab_dict)
+
+    global BOCPP_dict
+
+    cpu = torch.cuda.device_count() == 0
+
+    if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
+        BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
+            checkpoint=checkpoint_path,
+            batch_size=batch_size,
+            cpu=cpu,
+            number_steps=number_steps,
+        )
+
+    BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
+    relaxation = BOCPP.config["trainer"] == "forces"
 
     if "filter_reason" in adslab_dict:
         adslab_results[column_name] = []
         adslab_results["min_" + column_name] = np.nan
-        adslab_results["atoms_min_" + column_name] = None
+        adslab_results["atoms_min_" + column_name + "_initial"] = None
+        if relaxation:
+            adslab_results["atoms_min_" + column_name + "_relaxed"] = None
+
         return adslab_results
     else:
         adslab_atoms = copy.deepcopy(adslab_atoms)
         adslab_dict = copy.deepcopy(adslab_dict)
-
-        cpu = torch.cuda.device_count() == 0
 
         if not cpu and gpu_mem_per_sample is not None:
             batch_size = int(
@@ -225,19 +287,7 @@ def energy_prediction(
                 / 1024**3
             )
 
-        global BOCPP_dict
-
-        if (checkpoint_path, batch_size, cpu) not in BOCPP_dict:
-            BOCPP_dict[checkpoint_path, batch_size, cpu] = BatchOCPPredictor(
-                checkpoint=checkpoint_path,
-                batch_size=batch_size,
-                cpu=cpu,
-                number_steps=number_steps,
-            )
-
-        BOCPP = BOCPP_dict[checkpoint_path, batch_size, cpu]
-
-        if BOCPP.config["trainer"] == "forces":
+        if relaxation:
             energy_predictions, position_predictions = BOCPP.relaxation_prediction(
                 graphs_dict["adslab_graphs"],
             )
@@ -282,7 +332,7 @@ def energy_prediction(
             )
             adslab_results["atoms_min_" + column_name + "_initial"] = best_atoms_initial
             # If relaxing, save the best relaxed configuration
-            if BOCPP.config["trainer"] == "forces":
+            if relaxation:
                 best_atoms_relaxed = adslab_atoms_copy[
                     np.argmin(energy_predictions)
                 ].copy()
@@ -301,6 +351,8 @@ def energy_prediction(
         else:
             adslab_results[column_name] = []
             adslab_results["min_" + column_name] = np.nan
-            adslab_results["atoms_min_" + column_name] = None
+            adslab_results["atoms_min_" + column_name + "_initial"] = None
+            if relaxation:
+                adslab_results["atoms_min_" + column_name + "_relaxed"] = None
 
         return adslab_results

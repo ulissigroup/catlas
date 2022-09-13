@@ -1,15 +1,10 @@
-from numpy import load
 import numpy as np
-import pickle
 import pandas as pd
-import re
-from os.path import exists
 import warnings
 import os
 import matplotlib.pyplot as plt
 import time
 from scipy.stats import linregress
-from catlas.filter_utils import get_elements_in_groups
 from catlas.filters import bulk_filter
 import dask.dataframe as dd
 
@@ -29,7 +24,8 @@ def get_specific_smile_plot(
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
-    """Creates the pdf parity plot for a given smile and returns a dictionary summarizing plot results"""
+    """Creates the pdf parity plot for a given smile and returns a dictionary
+    summarizing plot results"""
     # Create the plot
     time_now = time.strftime("%Y%m%d-%H%M%S")
     plot_file_path = output_path + "/" + time_now + smile + ".pdf"
@@ -111,7 +107,8 @@ def get_general_plot(
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
-    """Creates the pdf parity plot for all smiles and returns a dictionary summarizing plot results"""
+    """Creates the pdf parity plot for all smiles and returns a dictionary summarizing
+    plot results"""
     # Check to make sure some data exists
     if df.empty:
         warnings.warn("No matching validation data was found")
@@ -243,7 +240,8 @@ def make_subplot(subplot, df, name, number_steps, energy_key1, energy_key2) -> d
 
 
 def update_info(info_dict: dict, name: str, info_to_add: dict) -> dict:
-    """Helper function for summary dictionary generation. Updates the dictionary for each split."""
+    """Helper function for summary dictionary generation. Updates the dictionary for
+    each split."""
     info_dict[name + "_N"] = info_to_add["N"]
     info_dict[name + "_MAE"] = info_to_add["MAE"]
     info_dict[name + "_slope"] = info_to_add["slope"]
@@ -263,28 +261,28 @@ def get_parity_upfront(config, run_id):
 
     if "adslab_prediction_steps" in config:
 
-        ## Create an output folder
+        # Create an output folder
         if not os.path.exists(f"outputs/{run_id}/parity/"):
             os.makedirs(f"outputs/{run_id}/parity/")
 
-        ## Iterate over steps
+        # Iterate over steps
         inference_steps = [
             step
             for step in config["adslab_prediction_steps"]
             if step["step_type"] == "inference"
         ]
         for step in inference_steps:
-            ### Load the data
+            # Load the data
             model_id = get_model_id(step["checkpoint_path"])
             if os.path.exists("catlas/parity/df_pkls/" + model_id + ".pkl"):
                 number_steps = step["number_steps"] if "number_steps" in step else 200
 
-                ### Apply filters
+                # Apply filters
                 df = pd.read_pickle("catlas/parity/df_pkls/" + model_id + ".pkl")
                 ddf = dd.from_pandas(df, npartitions=2)
                 df_filtered = bulk_filter(config, ddf).compute()
 
-                ### Generate a folder for each model to be considered
+                # Generate a folder for each model to be considered
                 folder_now = f"outputs/{run_id}/parity/" + step["label"]
                 if not os.path.exists(folder_now):
                     os.makedirs(folder_now)
@@ -293,7 +291,8 @@ def get_parity_upfront(config, run_id):
             else:
                 warnings.warn(
                     model_id
-                    + " validation pkl has not been found and therefore parity plots cannot be generated"
+                    + """ validation pkl has not been found and therefore parity plots
+                    cannot be generated"""
                 )
 
 
@@ -301,7 +300,7 @@ def make_parity_plots(df_filtered, config, output_path, number_steps_all):
     list_of_parity_info = []
     # Generate adsorbate specific plots
     for smile in config["adsorbate_filters"]["filter_by_smiles"]:
-        ## Parse specific step numbers where applicable
+        # Parse specific step numbers where applicable
         if type(number_steps_all) == dict:
             number_steps = number_steps_all[smile]
         else:

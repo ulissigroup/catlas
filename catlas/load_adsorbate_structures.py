@@ -8,6 +8,14 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def load_ocdata_adsorbates(adsorbate_path):
+    """Load in a list of adsorbates.
+
+    Args:
+        adsorbate_path (str): file path to adsorbate pickle file
+
+    Returns:
+        list[dict]: adsorbates and associated metadata
+    """
     path = "%s/%s" % (
         os.path.join(os.path.dirname(catlas.__file__), os.pardir),
         adsorbate_path,

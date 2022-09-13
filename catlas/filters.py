@@ -10,22 +10,23 @@ from catlas.filter_utils import (
     filter_by_surface_property,
     filter_best_facet_by_surface_property,
 )
-from pymatgen.core.periodic_table import Element
+
 
 
 def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
     """
-    Filters a dask dataframe `dask_df` of bulk structures according to rules specified in a config yml `config`.
+    Filters a dask dataframe of bulk structures according to rules specified
+    in a config yml.
 
     Args:
-        config: dictionary of the config yaml
-        dask_df: the working dataframe of bulk inputs
-        sankey: the sankey object
-        initial_bulks: the initial number of bulks
+        config (dict): dict describing what bulks to filter
+        dask_df (dask.core.frame.DataFrame): bulk materials to select from
+        sankey (catlas.sankey.sankey_utils.Sankey): object that records the number of bulks and filtered bulks
+        initial_bulks (int): the initial number of bulks
 
     Returns:
-        dask_df: the working dataframe of bulk values post-filtering
-        sankey: the sankey object with added info
+        dask.core.frame.DataFrame: filtered bulk materials
+        catlas.sankey.sankey_utils.Sankey: the input Sankey object with added info
     """
     bulk_filters = config["bulk_filters"]
     columns = dask_df.columns
@@ -180,13 +181,13 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
 
 def slab_filter(bag_partition, config):
     """
-    Filters a dask bag `dask_dict` of slabs according to rules specified in config yml `config`
+    Filters a slab according to rules specified in a config
         Args:
-        config: dictionary of the config yaml
-        dask_dict: a dictionary containing slab info
+        config (dict): dict containing slab filtering criteria
+        dask_dict (dict): a slab to filter
 
     Returns:
-        boolean value (True -> retain slab, False -> reject slab)
+        bool: True if slab passes filters
     """
     slab_filters = config["slab_filters"]
     for name, val in slab_filters.items():
@@ -220,16 +221,15 @@ def slab_filter(bag_partition, config):
 
 def adsorbate_filter(config, dask_df, sankey):
     """
-    Filters a dask dataframe `dask_df` of adsorbate structures according to rules specified in config yml `config`.
+    Filters adsorbate structures according to rules specified in a config
     Args:
-        config: dictionary of the config yaml
-        dask_df: the working dataframe of adsorbate inputs
-        sankey: the sankey object
-        initial_bulks: the initial number of bulks
+        config (dict): dictionary specifying what criteria to filter on
+        dask_df (dask.dataframe.core.DataFrame): adsorbates to filter
+        sankey (catlas.sankey.sankey_utils.Sankey): a sankey object to update as adsorbates are filtered
 
     Returns:
-        dask_df: the working dataframe of adsorbate values post-filtering
-        sankey: the sankey object with added information
+        dask.dataframe.core.DataFrame: a dataframe of filtered adsorbates
+        catlas.sankey.sankey_utils.Sankey: the input sankey object with added information
     """
     adsorbate_filters = config["adsorbate_filters"]
     initial_adsorbate = len(dask_df)
@@ -265,8 +265,19 @@ def adsorbate_filter(config, dask_df, sankey):
     return dask_df, sankey
 
 
-def predictions_filter(bag_partition, config, sankey):
+def predictions_filter(bag_partition, config):
+    """Filter surfaces based on their predicted adsorption energies
 
+    Args:
+        bag_partition (Iterable[dict]): a partition of a Dask Bag.
+            Each partition should contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top", "adsorbate_smiles", "filter_reason", and a column whose name is the same as the value in the "filter_column" field of the input config.
+        config (dict): a dictionary specifying how to filter predictions
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object to update with prediction filters.
+
+    Returns:
+        Iterable[dict]: an updated version of the input Bag partition.
+            Contains an updated column "filter_reason" that has been modified to include rows filtered out according to the input config.
+    """
     # Use either the provided hashes, or default to the surface atoms object
     hash_columns = config.get(
         "hash_columns", ["bulk_id", "slab_millers", "slab_shift", "slab_top"]
@@ -306,7 +317,8 @@ def predictions_filter(bag_partition, config, sankey):
                     if "filter_reason" not in row:
                         row[
                             "filter_reason"
-                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range [{min_value},{max_value}] eV'
+                        ] = f"""Filtered because {row["adsorbate_smiles"]} was outside
+                        of range [{min_value},{max_value}] eV"""
         elif config["step_type"] == "filter_by_adsorption_energy_target":
             target_value = config["target_value"]
             range_value = config.get("range_value", 0.5)
@@ -329,6 +341,7 @@ def predictions_filter(bag_partition, config, sankey):
                     if "filter_reason" not in row:
                         row[
                             "filter_reason"
-                        ] = f'Filtered because {row["adsorbate_smiles"]} was outside of range {target_value}+/-{range_value} eV'
+                        ] = f"""Filtered because {row["adsorbate_smiles"]} was outside
+                        of range {target_value}+/-{range_value} eV"""
 
     return bag_partition

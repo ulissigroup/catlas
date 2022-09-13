@@ -9,6 +9,12 @@ from dask_kubernetes.common.objects import (
 
 
 def kube_cluster_new_worker(cluster, config_path):
+    """Generate a new kubernetes worker.
+
+    Args:
+        cluster (dask.distributed.client.Client): a dask cluster to run code on.
+        config_path (str): a file path containing a config yml file defining the specifications of the new worker
+    """
     with open(config_path) as f:
         worker_pod_template = make_pod_from_dict(
             dask.config.expand_environment_variables(yaml.safe_load(f))
@@ -23,6 +29,11 @@ def kube_cluster_new_worker(cluster, config_path):
 
 
 def get_namespace():
+    """Return the Kubernetes namespace this code is run in.
+
+    Returns:
+        str: the Kubernetes namespace this code is running in.
+    """
     ns_str = subprocess.run(
         "kubectl describe sa default | grep Namespace",
         shell=True,

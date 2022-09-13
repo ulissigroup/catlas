@@ -7,6 +7,7 @@ outputs/
 ocp_checkpoints
 catlas/pourbaix_diagrams
 catlas/parity/df_pkls
+catlas/parity/npz-files
 
 # VSCode
 *.vscode*

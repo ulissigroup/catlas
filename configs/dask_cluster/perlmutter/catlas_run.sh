@@ -4,11 +4,11 @@
 #SBATCH -q debug
 #SBATCH -t 0:10:00
 #SBATCH -N 1
-#SBATCH --image=docker:ulissigroup/kubeflow:predictions
+#SBATCH --image=docker:ulissigroup/catlas:latest
 
 
 export SHIFTER_IMAGETYPE=docker
-export SHIFTER_IMAGE=ulissigroup/kubeflow:predictions
+export SHIFTER_IMAGE=ulissigroup/catlas:latest
 
 export SLURM_CPU_BIND="cores"
 

@@ -1,4 +1,3 @@
-"""Process trajectories to summary validation pickle file."""
 from catlas.parity.data_processing_utils import ProcessValTraj
 from dask.distributed import Client, LocalCluster
 import dask.bag as db
@@ -8,6 +7,7 @@ import pandas as pd
 
 
 def process_traj_wrapper(traj_path):
+    """A wrapper for ProcessValTraj so dask can map it"""
     return ProcessValTraj(traj_path).get_result()
 
 
@@ -17,6 +17,14 @@ def get_bulk_elements_and_num(stoichiometry):
 
 
 if __name__ == "__main__":
+    """Process trajectories to summary validation pickle file.
+    Args:
+        folders (str): folders where ML trajectories are found.
+        dft_df_path (str, optional): Location of dataframe containing reference
+        DFT values. Defaults to "catlas/parity/df_pkls/OC_20_val_data.pkl"
+        model_id (str): Arbitrary model name
+        n_workers (int): Number of workers to use
+    """
     # Set things up to parse the arguments
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument("--folders", nargs="*", type=str)
