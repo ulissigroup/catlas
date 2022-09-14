@@ -359,6 +359,16 @@ def energy_prediction(
 
 
 def count_steps(config, df_results):
+    """Count the number of adslabs remaining at each filtering step.
+
+    Args:
+        config (dict): a catlas config
+        df_results (pd.core.frame.DataFrame): the output of a catlas run
+
+    Returns:
+        list[dict]: a list of steps and the number of adslabs remaining at that step
+        int: the original number of adslabs before filtering
+    """
     inference_list = []
     for step in config["adslab_prediction_steps"]:
         if step["step_type"] == "inference":

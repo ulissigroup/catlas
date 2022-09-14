@@ -21,7 +21,7 @@ from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
     merge_surface_adsorbate_combo,
 )
-from catlas.filter_utils import pb_query_and_write, get_first_type
+from catlas.filter_utils import pb_query_and_write, filter_columns_by_type
 from catlas.filters import (
     adsorbate_filter,
     bulk_filter,
@@ -369,10 +369,13 @@ def generate_outputs(
     """
     verbose = config["output_options"]["verbose"]
     compute = verbose or config["output_options"]["pickle_final_output"]
-    if not inference:
-        num_inferred = 0
-
     num_adslabs = None
+
+    if not inference:
+        inference_list = [{"label": "no inference", "counts": 0}]
+        num_adslabs = results_bag["adslab_atoms"].map(len).sum().compute()
+        num_filtered_slabs = results_bag.count().compute()
+
     if config["output_options"]["pickle_intermediate_outputs"]:
         os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
         to_pickles(
@@ -406,7 +409,6 @@ def generate_outputs(
         # on only running GPU inference on GPUs is saved
         results = results_bag.persist(optimize_graph=False)
         wait(results)
-        num_filtered_slabs = results.count().compute()
 
     if config["output_options"]["pickle_final_output"]:
         pickle_path = f"outputs/{run_id}/results_df.pkl"
@@ -418,24 +420,11 @@ def generate_outputs(
             adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
             df_results["adslab_atoms"] = adslab_atoms
             df_results.to_pickle(pickle_path)
-            if not inference:
-                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
-                num_filtered_slabs = len(df_results)
-                inference_list = [{"label": "no inference", "counts": 0}]
+
         else:
             # screen classes from custom packages
-            class_mask = (
-                df_results.columns.to_series()
-                .apply(
-                    lambda x: str(
-                        get_first_type(
-                            df_results[x].iloc[df_results[x].first_valid_index()]
-                        )
-                    )
-                    if type(df_results[x].first_valid_index()) == int
-                    else str(type(df_results[x].iloc[0]))
-                )
-                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            class_mask = filter_columns_by_type(
+                df_results, type_kws=["catkit", "ocp", "ocdata"]
             )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 

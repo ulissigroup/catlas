@@ -348,3 +348,30 @@ def get_first_type(x):
         return type(x[0])
     else:
         return type(x)
+
+
+def filter_columns_by_type(
+    df,
+    type_kws,
+):
+    """Filter columns of a dataframe based on what datatype they contain.
+        If any element of the provided list is present in the string representation of the `type` of the first non-None element of the column, that column name will be included in the list of returned columns.
+
+        Example: if type_kws=['ocp', 'ocdata'], you will filter out any column whose first valid element is an `ocp.ocpmodels.preprocessing.atoms_to_graphs.AtomsToGraphs` object, or an `ocdata.surfaces.Surface` object, or a `pydocparser.Parser` object.
+
+    Args:
+        df (pd.core.frame.DataFrame): a pandas DataFrame
+        column_kws (list[str]): If any element of this list is present in the `type` of
+
+    Returns:
+        pd.core.series.Series[bool]: the index corresponds to the column name, the value is True if the column contains a type corresponding to the filtering criteria.
+    """
+    return (
+        df.columns.to_series()
+        .apply(
+            lambda x: str(get_first_type(df[x].iloc[df[x].first_valid_index()]))
+            if type(df[x].first_valid_index()) == int
+            else str(type(df[x].iloc[0]))
+        )
+        .apply(lambda col_name: any([kw in col_name for kw in type_kws]))
+    )
