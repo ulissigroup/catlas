@@ -422,7 +422,6 @@ def generate_outputs(
             df_results.to_pickle(pickle_path)
 
         else:
-            # screen classes from custom packages
             class_mask = filter_columns_by_type(
                 df_results, type_kws=["catkit", "ocp", "ocdata"]
             )
