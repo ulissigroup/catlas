@@ -18,7 +18,7 @@ on:
 
 jobs:
   test_enumeration:
-    name: Test catlas with local scheduler
+    name: Test catlas enumeration with local scheduler
 
     runs-on: [self-hosted, linux]
 

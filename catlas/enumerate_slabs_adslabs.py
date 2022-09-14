@@ -49,9 +49,7 @@ def enumerate_slabs(bulk_dict, max_miller=2):
 
     bulk_obj = CustomBulk(bulk_dict["bulk_atoms"])
 
-    surfaces = compute.enumerate_surfaces_for_saving(
-        bulk_dict["bulk_atoms"], max_miller=2
-    )
+    surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_atoms"], max_miller)
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface

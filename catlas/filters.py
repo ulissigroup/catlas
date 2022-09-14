@@ -12,7 +12,6 @@ from catlas.filter_utils import (
 )
 
 
-
 def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
     """
     Filters a dask dataframe of bulk structures according to rules specified

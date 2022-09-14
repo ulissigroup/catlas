@@ -37,12 +37,13 @@ def enumerate_surfaces_for_saving(bulk_structure, max_miller):
                         objects for surfaces we have enumerated, the Miller
                         indices, floats for the shifts, and Booleans for "top".
     """
-    bulk_struct = standardize_bulk(bulk_structure)
 
     all_slabs_info = []
-    for millers in get_symmetrically_distinct_miller_indices(bulk_struct, max_miller):
+    for millers in get_symmetrically_distinct_miller_indices(
+        bulk_structure, max_miller
+    ):
         slab_gen = SlabGenerator(
-            initial_structure=bulk_struct,
+            initial_structure=bulk_structure,
             miller_index=millers,
             min_slab_size=7.0,
             min_vacuum_size=20.0,
@@ -67,24 +68,6 @@ def enumerate_surfaces_for_saving(bulk_structure, max_miller):
         slabs_info = [(slab, millers, slab.shift, True) for slab in slabs]
         all_slabs_info.extend(slabs_info + flipped_slabs_info)
     return all_slabs_info
-
-
-def standardize_bulk(struct):
-    """
-    There are many ways to define a bulk unit cell. If you change the unit cell
-    itself but also change the locations of the atoms within the unit cell, you
-    can get effectively the same bulk structure. To address this, there is a
-    standardization method used to reduce the degrees of freedom such that each
-    unit cell only has one "true" configuration. This function will align a
-    unit cell you give it to fit within this standardization.
-    Arg:
-        atoms   `ase.Atoms` object of the bulk you want to standardize
-    Returns:
-        standardized_struct     `pymatgen.Structure` of the standardized bulk
-    """
-    sga = SpacegroupAnalyzer(struct, symprec=0.1)
-    standardized_struct = sga.get_conventional_standard_structure()
-    return standardized_struct
 
 
 def is_structure_invertible(structure):
@@ -119,13 +102,12 @@ def flip_struct(struct):
     """
     Flips an atoms object upside down. Normally used to flip surfaces.
     Arg:
-        atoms   `pymatgen.Structure` object
+        struct   `pymatgen.Structure` object
     Returns:
-        flipped_struct  The same `ase.Atoms` object that was fed as an
+        flipped_struct  The same structure object that was fed as an
                         argument, but flipped upside down.
     """
     atoms = AseAtomsAdaptor.get_atoms(struct)
-
     # This is black magic wizardry to me. Good look figuring it out.
     atoms.wrap()
     atoms.rotate(180, "x", rotate_cell=True, center="COM")
@@ -136,4 +118,8 @@ def flip_struct(struct):
     atoms.wrap()
 
     flipped_struct = AseAtomsAdaptor.get_structure(atoms)
+
+    # Add the wyckoff positions back
+    wyckoffs = [site.full_wyckoff for site in struct]
+    flipped_struct.add_site_property("full_wyckoff", wyckoffs)
     return flipped_struct
