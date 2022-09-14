@@ -518,7 +518,7 @@ def get_surface_density(row: dict, neighbor_factor: float) -> float:
     slab = row["slab_structure"]
     ucell = row["bulk_structure"]
     a = surface_area(slab)
-    cns = get_total_nn(ucell, slab , neighbor_factor)
+    cns = get_total_nn(ucell, slab, neighbor_factor)
     return cns * (1 / (2 * a))
 
 
@@ -638,10 +638,10 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
 def get_center_of_mass(pmg_struct):
     """
     Calculates the center of mass of a pmg structure.
-    
+
     Args:
         pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be considered.
-        
+
     Returns:
         numpy.ndarray: the center of mass
     """

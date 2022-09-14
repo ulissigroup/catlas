@@ -184,7 +184,7 @@ def slab_filter(bag_partition, config):
     Args:
         bag_partition (Iterable[dict]): unfiltered bag partition of enumerated slabs
         config (dict): dict containing slab filtering criteria
-        
+
     Returns:
         Iterable[dict]: filtered bag partition
     """
