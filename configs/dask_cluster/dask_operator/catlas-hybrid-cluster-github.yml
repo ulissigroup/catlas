@@ -14,8 +14,6 @@ spec:
             env: 
             - name: OMP_NUM_THREADS
               value: "1"
-            - name: MP_API_KEY
-              value: "your_api_key"
             - name: PYTHONPATH
               value: "/home/jovyan/ocp:/home/jovyan/catlas"
             - name: NVIDIA_VISIBLE_DEVICES
@@ -127,8 +125,6 @@ spec:
           value: "/home/jovyan/ocp:/home/jovyan/catlas"
         - name: MALLOC_TRIM_THRESHOLD_
           value: "0"
-        - name: MP_API_KEY
-          value: "your_api_key"
         resources:
           limits:
             cpu: "2"

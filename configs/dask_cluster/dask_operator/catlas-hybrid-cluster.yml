@@ -14,8 +14,8 @@ spec:
             env: 
             - name: OMP_NUM_THREADS
               value: "1"
-            - name: MP_API_KEY
-              value: "your_api_key"
+            # - name: MP_API_KEY
+            #   value: 'your_api_key'
             - name: PYTHONPATH
               value: "/home/jovyan/ocp:/home/jovyan/catlas"
             - name: NVIDIA_VISIBLE_DEVICES
@@ -41,6 +41,9 @@ spec:
             - mountPath: /home/jovyan/dask-worker-space
               name: shared-scratch
               subPath: catlas/dask-worker-space
+            - mountPath: /home/jovyan/.pmgrc.yaml
+              name: workspace-inference
+              subPath: .pmgrc.yaml
         volumes:
           - name: shared-scratch
             persistentVolumeClaim:
@@ -130,8 +133,8 @@ spec:
           value: "/home/jovyan/ocp:/home/jovyan/catlas"
         - name: MALLOC_TRIM_THRESHOLD_
           value: "0"
-        - name: MP_API_KEY
-          value: "your_api_key"
+        # - name: MP_API_KEY
+        #   value: 'your_api_key'
         resources:
           limits:
             cpu: "2"
@@ -153,6 +156,9 @@ spec:
         - mountPath: /home/jovyan/dask-worker-space
           name: shared-scratch
           subPath: catlas/dask-worker-space
+        - mountPath: /home/jovyan/.pmgrc.yaml
+          name: workspace-inference
+          subPath: .pmgrc.yaml
       volumes:
       - name: shared-scratch
         persistentVolumeClaim:
