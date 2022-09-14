@@ -28,12 +28,12 @@ class CustomBulk(Bulk):
         self.bulk_atoms = bulk_atoms
 
 
-def enumerate_slabs(bulk_dict, max_miller=2):
+def enumerate_slabs(bulk_dict, max_miller):
     """Given a dictionary defining a material bulk, use pymatgen's SlabGenerator object
     to enumerate all the slabs associated with the bulk object.
     Args:
-        bulk_dict (dict): A dictionary containing a key "bulk_atoms" containing an ase.Atoms object corresponding to a bulk material.
-        max_miller (int, optional): The highest miller index to enumerate up to. Defaults to 2.
+        bulk_dict (dict): A dictionary containing a key "bulk_structure" containing an pymatgen structure object corresponding to a bulk material.
+        max_miller (int, optional): The highest miller index to enumerate up to.
     Returns:
         list[dict]: A list of dictionaries corresponding to the surfaces enumerated from the input bulk. Each dictionary has the following key-value pairs:
         - slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
@@ -47,9 +47,9 @@ def enumerate_slabs(bulk_dict, max_miller=2):
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
-    bulk_obj = CustomBulk(bulk_dict["bulk_atoms"])
+    bulk_obj = CustomBulk(AseAtomsAdaptor.get_atoms(bulk_dict["bulk_structure"]))
 
-    surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_atoms"], max_miller)
+    surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_structure"], max_miller)
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface
@@ -65,6 +65,7 @@ def enumerate_slabs(bulk_dict, max_miller=2):
                 "slab_shift": shift,
                 "slab_top": top,
                 "slab_natoms": len(surface_object.surface_atoms),
+                "slab_structure": surface_struct,
             }
         )
         surface_list.append(surface_result)

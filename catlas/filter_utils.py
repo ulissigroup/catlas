@@ -433,8 +433,9 @@ def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
     tot_bb = 0
+    center_of_mass = get_center_of_mass(slab)
     for site in slab:
-        if site.frac_coords[2] < slab.center_of_mass[2]:
+        if site.frac_coords[2] < center_of_mass[2]:
             # analyze the top surface only
             continue
         neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
@@ -464,8 +465,9 @@ def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
     bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
     bind_length_dict = get_bond_length(ucell, neighbor_factor)
     tot_nn = 0
+    center_of_mass = get_center_of_mass(slab)
     for site in slab:
-        if site.frac_coords[2] < slab.center_of_mass[2]:
+        if site.frac_coords[2] < center_of_mass[2]:
             # analyze the top surface only
             continue
         neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
@@ -493,7 +495,7 @@ def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Rough estimate of surface energy
     """
-    slab = row["surface_structure"]
+    slab = row["slab_structure"]
     ucell = row["bulk_structure"]
     a = surface_area(slab)
     cns = get_total_bb(ucell, slab, neighbor_factor)
@@ -514,10 +516,10 @@ def get_surface_density(row: dict, neighbor_factor: float) -> float:
     Returns:
         (float): Rough estimate of cohesive energy x surface density
     """
-    slab = row["surface_structure"]
+    slab = row["slab_structure"]
     ucell = row["bulk_structure"]
     a = surface_area(slab)
-    cns = get_total_nn(dask_dict, neighbor_factor)
+    cns = get_total_nn(ucell, slab , neighbor_factor)
     return cns * (1 / (2 * a))
 
 
@@ -580,12 +582,11 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
     by the broken bond model or the surface density model
 
     Args:
-        bag_partition: a partition of a dask bag containing enumerated surfaces
-        name: filter name to be applied (comes from the main catlas config)
+        bag_partition (Iterable[dict]): a partition of a dask bag containing enumerated surfaces
+        name (str): filter name to be applied (comes from the main catlas config)
         val: values associated with name from the config yaml file, which futher
             specify how the filter shoulf be applied
     """
-    # Use either the provided hashes, or default to the surface atoms object
     hash_column = ["bulk_id", "slab_millers"]
 
     neighbor_factor = val["neighbor_factor"] if "neighbor_factor" in val else 1.1
@@ -621,11 +622,26 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
         for idx in sorted_indices:
             if (
                 surface_model_values[idx] - best_surface
-            ) <= distance_threshold * best_surface:
+            ) <= difference_threshold * best_surface:
                 selected_indices.append(idx)
             else:
                 break
         filtered_bag_partition.extend(
-            [row for idx, row in enumerate(value) if idx in select_indices]
+            [row for idx, row in enumerate(value) if idx in selected_indices]
         )
     return filtered_bag_partition
+
+
+def get_center_of_mass(pmg_struct):
+    """
+    Calculates the center of mass of a pmg structure.
+    
+    Args:
+        pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be considered.
+        
+    Returns:
+        (numpy.ndarray): the center of mass
+    """
+    weights = [s.species.weight for s in pmg_struct]
+    center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)
+    return center_of_mass

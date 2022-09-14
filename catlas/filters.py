@@ -195,12 +195,6 @@ def slab_filter(bag_partition, config):
                 bag_partition = [
                     row for row in bag_partition if row["slab_natoms"] <= val
                 ]
-            elif name == "filter_by_max_miller_index":
-                bag_partition = [
-                    row
-                    for row in bag_partition
-                    if np.abs(row["slab_max_miller_index"]) <= val
-                ]
             elif name == "filter_by_broken_bonds":
                 bag_partition = filter_by_surface_property(bag_partition, name, val)
             elif name == "filter_by_surface_density":

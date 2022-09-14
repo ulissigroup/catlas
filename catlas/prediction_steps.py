@@ -211,16 +211,17 @@ def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
         int: The number of slabs enumerated from filtered bulks before slab filtering.
     """
     # Enumerate and filter surfaces
+    max_miller = config["slab_filters"]["filter_by_max_miller_index"] if "filter_by_max_miller_index" in config["slab_filters"] else 2
     unfiltered_surface_bag = (
         filtered_catalyst_bag.map(
             catlas.cache_utils.sqlitedict_memoize(
-                config["memory_cache_location"], enumerate_slabs
-            )
+                config["memory_cache_location"], enumerate_slabs),
+            max_miller=max_miller
         )
         .flatten()
         .persist()
     )
-    surface_bag = unfiltered_surface_bag.filter(lambda x: slab_filter(config, x))
+    surface_bag = unfiltered_surface_bag.map_partitions(slab_filter, config)
     surface_bag = surface_bag.map(get_nuclearity)
 
     npartitions = min(bulk_num * 10, 1000)
