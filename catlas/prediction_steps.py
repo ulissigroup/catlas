@@ -353,7 +353,7 @@ def generate_outputs(
     inference,
     most_recent_step,
 ):
-    """_summary_
+    """Generate outputs from catlas as determined by the config file.
 
     Args:
         config (dict): A config file specifying what surfaces to filter.
