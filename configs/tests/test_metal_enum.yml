@@ -13,14 +13,16 @@ input_options:
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
-    filter_by_bulk_ids: ['mp-30']
+    filter_by_bulk_ids: ['mp-2728']
 
 adsorbate_filters:
     filter_by_smiles: ['*CO']
 
 slab_filters:
     filter_by_object_size: 100
-    filter_by_max_miller_index: 1
+    filter_by_max_miller_index: 2
+    filter_best_shift_by_broken_bonds:
+      difference_threshold: 0.05
 
 
 
