@@ -367,8 +367,9 @@ def generate_outputs(
         int: the number of adslabs that inference was run on
         int: the number of adslabs remaining after all inference
     """
-    verbose = config["output_options"]["verbose"]
-    compute = verbose or config["output_options"]["pickle_final_output"]
+    output_options = config["output_options"]
+    verbose = output_options["verbose"]
+    compute = verbose or output_options["pickle_final_output"]
     num_adslabs = None
 
     if not inference:
@@ -376,7 +377,7 @@ def generate_outputs(
         num_adslabs = results_bag["adslab_atoms"].map(len).sum().compute()
         num_filtered_slabs = results_bag.count().compute()
 
-    if config["output_options"]["pickle_intermediate_outputs"]:
+    if output_options["pickle_intermediate_outputs"]:
         os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
         to_pickles(
             results_bag,
@@ -410,12 +411,12 @@ def generate_outputs(
         results = results_bag.persist(optimize_graph=False)
         wait(results)
 
-    if config["output_options"]["pickle_final_output"]:
+    if output_options["pickle_final_output"]:
         pickle_path = f"outputs/{run_id}/results_df.pkl"
 
         if (
-            "output_all_structures" in config["output_options"]
-            and config["output_options"]["output_all_structures"]
+            "output_all_structures" in output_options
+            and output_options["output_all_structures"]
         ):
             adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
             df_results["adslab_atoms"] = adslab_atoms
