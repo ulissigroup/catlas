@@ -567,7 +567,7 @@ def filter_by_surface_property(bag_partition, name: str, val: dict):
             ]
 
         elif "top_proportion" in val:
-            k = np.ceil(val["top_proportion"] * len(surface_model_values))
+            k = int(np.ceil(val["top_proportion"] * len(surface_model_values)))
             select_indices = np.argpartition(surface_model_values, k)[:k]
 
         filtered_bag_partition.extend(

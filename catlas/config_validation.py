@@ -201,7 +201,7 @@ config_schema = {
                     "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
-            "filter_by_broken_bonds": {
+            "filter_by_surface_density": {
                 "type": "dict",
                 "schema": {
                     "top_k": {
@@ -214,6 +214,7 @@ config_schema = {
                         "required": True,
                         "excludes": "top_k",
                     },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
             "filter_best_shift_by_broken_bonds": {
@@ -224,7 +225,8 @@ config_schema = {
                         "required": False,
                         "min": 0,
                         "max": 0.5,
-                    }
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
             "filter_best_shift_by_surface_density": {
@@ -235,7 +237,8 @@ config_schema = {
                         "required": False,
                         "min": 0,
                         "max": 0.5,
-                    }
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
         },
