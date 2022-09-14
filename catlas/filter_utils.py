@@ -356,7 +356,7 @@ def surface_area(slab):
     """
     Gets cross section surface area of the slab
     Args:
-        slab (Slab): PMG Structure representation of a Slab.
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab.
 
     Returns:
         (float): surface area
@@ -529,10 +529,12 @@ def filter_by_surface_property(bag_partition, name: str, val: dict):
     by the broken bond model or the surface density model
 
     Args:
-        bag_partition: a partition of a dask bag containing enumerated surfaces
+        bag_partition (Iterable[dict]: a partition of a dask bag containing enumerated surfaces
         name: filter name to be applied (comes from the main catlas config)
         val: values associated with name from the config yaml file, which futher
             specify how the filter shoulf be applied
+    Returns:
+        Iterable[dict]: the bag partition with undesired slabs filtered out
     """
     # Use either the provided hashes, or default to the surface atoms object
     hash_column = "bulk_id"
@@ -586,6 +588,8 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
         name (str): filter name to be applied (comes from the main catlas config)
         val: values associated with name from the config yaml file, which futher
             specify how the filter shoulf be applied
+    Returns:
+        Iterable[dict]: the bag partition with undesired slabs filtered out
     """
     hash_column = ["bulk_id", "slab_millers"]
 
@@ -640,7 +644,7 @@ def get_center_of_mass(pmg_struct):
         pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be considered.
         
     Returns:
-        (numpy.ndarray): the center of mass
+        numpy.ndarray: the center of mass
     """
     weights = [s.species.weight for s in pmg_struct]
     center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)

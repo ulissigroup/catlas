@@ -180,13 +180,13 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
 
 def slab_filter(bag_partition, config):
     """
-    Filters a slab according to rules specified in a config
-        Args:
+    Filters a slab according to rules specified in a config.
+    Args:
+        bag_partition (Iterable[dict]): unfiltered bag partition of enumerated slabs
         config (dict): dict containing slab filtering criteria
-        dask_dict (dict): a slab to filter
-
+        
     Returns:
-        bool: True if slab passes filters
+        Iterable[dict]: filtered bag partition
     """
     slab_filters = config["slab_filters"]
     for name, val in slab_filters.items():
