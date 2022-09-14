@@ -504,8 +504,7 @@ def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
 
 def get_surface_density(row: dict, neighbor_factor: float) -> float:
     """
-    Estimates surface density multiplied by cohesive
-        energy, not really sure what this would represent
+    Estimates surface density multiplied by cohesive energy
     Args:
         ucell (Structure): PMG Structure representation of a bulk unit cell.
         slab (Slab): PMG Structure representation of a Slab cell.
