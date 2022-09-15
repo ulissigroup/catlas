@@ -7,7 +7,7 @@ spec:
     replicas: 2
     spec:
         containers:
-          - image: ulissigroup/kubeflow:predictions
+          - image: ulissigroup/catlas:latest
             imagePullPolicy: Always
             args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
             name: dask-worker
@@ -68,7 +68,7 @@ spec:
                 - 10gb
       containers:
       - name: scheduler
-        image: ulissigroup/kubeflow:predictions
+        image: ulissigroup/catlas:latest
         imagePullPolicy: Always
         args:
           - dask-scheduler
@@ -119,7 +119,7 @@ spec:
     replicas: 0
     spec:
       containers:
-      - image: ulissigroup/kubeflow:predictions
+      - image: ulissigroup/catlas:latest
         imagePullPolicy: Always
         args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
         name: dask-worker

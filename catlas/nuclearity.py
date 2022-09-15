@@ -13,12 +13,13 @@ from graph_tool import topology
 
 def get_nuclearity(entry):
     """
-    Function to get the nuclearity for each element in a surface
+    Function to get the nuclearity for each element in a surface.
+
     Args:
-        entry: a catlas-like entry object
+        entry (dict): a catlas-like entry object
 
     Returns:
-        entry: a catlas-like entry object with nuclearity info added
+        dict: a catlas-like entry object with nuclearity info added
     """
     elements = entry["bulk_elements"]
     slab_atoms = entry["slab_surface_object"].surface_atoms
@@ -63,13 +64,15 @@ def get_nuclearity(entry):
 
 def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix):
     """
-    Function that counts the like surface neighbors for surface atoms
+    Function that counts the like surface neighbors for surface atoms.
+
     Args:
-        surface_atoms_of_element: list of all surface atoms which are of a specific element
-        connectivity_matrix: matrix memorializing which atoms in the slab are connected
+        surface_atoms_of_element (list[bool]): list of all surface atoms which
+            are of a specific element
+        connectivity_matrix (numpy.ndarray[int8]): which atoms in the slab are connected
 
     Returns:
-        hist: counts of neighbor groups
+        numpy.ndarray[int]: counts of neighbor groups
     """
     connectivity_matrix = connectivity_matrix[surface_atoms_of_element, :]
     connectivity_matrix = connectivity_matrix[:, surface_atoms_of_element]
@@ -82,15 +85,15 @@ def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix
 
 def evaluate_infiniteness(hist, hist_rep):
     """
-    Function that compares the connected counts between the minimal slab
-    and a repeated slab to classify the type of infiniteness.
+    Function that compares the connected counts between the minimal slab and a
+    repeated slab to classify the type of infiniteness.
+
     Args:
-        hist: list of nuclearities observed in minimal slab
-        hist_rep: list of nuclearities observed in replicated slab
+        hist (list[int]): list of nuclearities observed in minimal slab
+        hist_rep (list[int]): list of nuclearities observed in replicated slab
 
     Returns:
-        nuclearity dict: the max nuclearity and all nuclearities for the
-        element on that surface
+        nuclearity dict (dict): the max nuclearity and all nuclearities for the element on that surface
     """
     if max(hist) == max(hist_rep):
         return {"nuclearity": max(hist), "nuclearities": hist}
@@ -104,15 +107,14 @@ def evaluate_infiniteness(hist, hist_rep):
 
 def get_connectivity_matrix(slab_atoms):
     """
-    Function that gets a connectivity matrix by looking at nearest neighbors.
+    Get connectivity matrix by looking at nearest neighbors.
+
     Args:
-        slab_atoms: atoms object of the slab
+        slab_atoms (ase.Atoms): a slab object
 
     Returns:
-        overall_connectivity_matrix
+        numpy.ndarray[int8]: an array describing what atoms are connected
     """
-    # For initial atoms
-    surface_indices = [idx for idx, tag in enumerate(slab_atoms.get_tags()) if tag == 1]
     cutOff = natural_cutoffs(slab_atoms)
     neighborList = neighborlist.NeighborList(
         cutOff, self_interaction=False, bothways=True

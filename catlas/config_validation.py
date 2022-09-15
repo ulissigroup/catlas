@@ -1,9 +1,5 @@
 import os
-from pathlib import Path
-
-import yaml
 from cerberus import Validator
-
 from pymatgen.core import Element
 
 
@@ -21,26 +17,51 @@ valid_element_groups = [
 
 
 def validate_element(field, value, error):
+    """
+    Check if the input in a given field is an element according to Pymatgen.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): an element to check
+        error (Callable): the Cerberus-type error raised if the input is not an element.
+    """
     invalid_elements = [e for e in value if not Element.is_valid_symbol(e)]
     if len(invalid_elements) > 0:
         error(
             field,
-            "invalid elements: [%s]"
-            % ", ".join(['"%s"' % e for e in invalid_elements]),
+            f"""invalid elements: [{
+                ", ".join([f'"{e}"' for e in invalid_elements])
+            }]""",
         )
 
 
 def validate_path_exists(field, value, error):
+    """
+    Check if the filepath in a given field exists.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): a file path to check
+        error (Callable): the Cerberus-type error raised if the folder does not exist.
+    """
     if not os.path.exists(value):
-        error(field, "file path does not exist: '%s'" % value)
+        error(field, f"file path does not exist: '{value}'")
 
 
 def validate_folder_exists(field, value, error):
-    """A more permissive check to check if a file/folder can be created if it doesn't exist"""
+    """
+    Check if the filepath in a given field has a valid enclosing folder, regardless
+    of whether the file exists.
+
+    Args:
+        field (tuple): a Cerberus field
+        value (str): a file path to check
+        error (Callable): the Cerberus-type error raised if the folder does not exist.
+    """
     path_list = value.split("/")
     value = "/".join(path_list[:-1])
     if not os.path.exists(value):
-        error(field, "file path's enclosing folder does not exist: '%s'" % value)
+        error(field, f"file path's enclosing folder does not exist: '{value}'")
 
 
 config_schema = {
@@ -183,7 +204,7 @@ config_schema = {
                     "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
-            "filter_by_broken_bonds": {
+            "filter_by_surface_density": {
                 "type": "dict",
                 "schema": {
                     "top_k": {
@@ -196,6 +217,7 @@ config_schema = {
                         "required": True,
                         "excludes": "top_k",
                     },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
             "filter_best_shift_by_broken_bonds": {
@@ -206,7 +228,8 @@ config_schema = {
                         "required": False,
                         "min": 0,
                         "max": 0.5,
-                    }
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
             "filter_best_shift_by_surface_density": {
@@ -217,7 +240,8 @@ config_schema = {
                         "required": False,
                         "min": 0,
                         "max": 0.5,
-                    }
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
                 },
             },
         },
@@ -245,7 +269,8 @@ config_schema = {
                         "checkpoint_path": {
                             "type": "string",
                             "check_with": validate_path_exists,
-                            "regex": ".*.pt",  # cerberus doesn't understand re "$"; requires full match
+                            "regex": ".*.pt",  # cerberus doesn't understand re "$";
+                            # requires full match
                         },
                         "gpu": {"type": "boolean", "required": True},
                         "label": {

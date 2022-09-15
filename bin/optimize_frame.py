@@ -21,7 +21,15 @@ def get_errors(row):
 
 # Load inputs and define global vars
 if __name__ == "__main__":
+    """The number of relaxation steps is set arbitrarily during execution of
+    `predictions.py`. This script determines the optimal number of steps to use for a
+    given config using OCP validation data.
 
+    Raises:
+        ValueError: The provided config is invalid.
+        ValueError: The model does not appear to run relaxations, so no frame
+            optimization is necessary.
+    """
     # Load the config yaml
     config_path = sys.argv[1]
     template = Template(open(config_path).read())
@@ -58,7 +66,8 @@ if __name__ == "__main__":
     # warn that the first model will be used if there are more than one
     if len(config["adslab_prediction_steps"]) > 1:
         warnings.warn(
-            f"Multiple models were specified, the first one ({model_id}) will be optimised"
+            f"""Multiple models were specified, the first one ({model_id}) will be
+                optimised"""
         )
 
     frame_output = []
