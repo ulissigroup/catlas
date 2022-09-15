@@ -210,7 +210,8 @@ def slab_filter(bag_partition, config):
                     bag_partition, name, val
                 )
             else:
-                warnings.warn("Slab filter is not implemented: " + name)
+                if name != "filter_by_max_miller_index":
+                    warnings.warn("Slab filter is not implemented: " + name)
     return bag_partition
 
 
