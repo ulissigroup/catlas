@@ -17,7 +17,8 @@ valid_element_groups = [
 
 
 def validate_element(field, value, error):
-    """Check if the input in a given field is an element according to Pymatgen.
+    """
+    Check if the input in a given field is an element according to Pymatgen.
 
     Args:
         field (tuple): a Cerberus field
@@ -35,7 +36,8 @@ def validate_element(field, value, error):
 
 
 def validate_path_exists(field, value, error):
-    """Check if the filepath in a given field exists.
+    """
+    Check if the filepath in a given field exists.
 
     Args:
         field (tuple): a Cerberus field
@@ -47,7 +49,8 @@ def validate_path_exists(field, value, error):
 
 
 def validate_folder_exists(field, value, error):
-    """Check if the filepath in a given field has a valid enclosing folder, regardless
+    """
+    Check if the filepath in a given field has a valid enclosing folder, regardless
     of whether the file exists.
 
     Args:

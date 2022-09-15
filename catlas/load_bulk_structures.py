@@ -16,7 +16,8 @@ required_fields = (
 
 
 def load_bulks(bulk_path):
-    """Load bulks from an ase.db
+    """
+    Load bulks from an ase.db
 
     Args:
         bulk_path (str): a relative path (from the main catlas directory) to the ase.db

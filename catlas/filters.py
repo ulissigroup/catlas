@@ -20,7 +20,8 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
     Args:
         config (dict): dict describing what bulks to filter
         dask_df (dask.core.frame.DataFrame): bulk materials to select from
-        sankey (catlas.sankey.sankey_utils.Sankey): object that records the number of bulks and filtered bulks
+        sankey (catlas.sankey.sankey_utils.Sankey): object that records the number
+            of bulks and filtered bulks
         initial_bulks (int): the initial number of bulks
 
     Returns:
@@ -181,6 +182,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
 def slab_filter(bag_partition, config):
     """
     Filters a slab according to rules specified in a config.
+    
     Args:
         bag_partition (Iterable[dict]): unfiltered bag partition of enumerated slabs
         config (dict): dict containing slab filtering criteria
@@ -214,11 +216,13 @@ def slab_filter(bag_partition, config):
 
 def adsorbate_filter(config, dask_df, sankey):
     """
-    Filters adsorbate structures according to rules specified in a config
+    Filters adsorbate structures according to rules specified in a config.
+    
     Args:
         config (dict): dictionary specifying what criteria to filter on
         dask_df (dask.dataframe.core.DataFrame): adsorbates to filter
-        sankey (catlas.sankey.sankey_utils.Sankey): a sankey object to update as adsorbates are filtered
+        sankey (catlas.sankey.sankey_utils.Sankey): a sankey object to update as
+            adsorbates are filtered
 
     Returns:
         dask.dataframe.core.DataFrame: a dataframe of filtered adsorbates
@@ -259,17 +263,22 @@ def adsorbate_filter(config, dask_df, sankey):
 
 
 def predictions_filter(bag_partition, config):
-    """Filter surfaces based on their predicted adsorption energies
+    """
+    Filter surfaces based on their predicted adsorption energies.
 
     Args:
-        bag_partition (Iterable[dict]): a partition of a Dask Bag.
-            Each partition should contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top", "adsorbate_smiles", "filter_reason", and a column whose name is the same as the value in the "filter_column" field of the input config.
+        bag_partition (Iterable[dict]): a partition of a Dask Bag. Each partition should
+            contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top", 
+            "adsorbate_smiles", "filter_reason", and a column whose name is the same as
+            the value in the "filter_column" field of the input config.
         config (dict): a dictionary specifying how to filter predictions
-        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object to update with prediction filters.
+        sankey (catlas.sankey.sankey_utils.Sankey): a Sankey object to update with
+            prediction filters.
 
     Returns:
-        Iterable[dict]: an updated version of the input Bag partition.
-            Contains an updated column "filter_reason" that has been modified to include rows filtered out according to the input config.
+        Iterable[dict]: an updated version of the input Bag partition. Contains an updated
+            column "filter_reason" that has been modified to include rows filtered out
+            according to the input config.
     """
     # Use either the provided hashes, or default to the surface atoms object
     hash_columns = config.get(

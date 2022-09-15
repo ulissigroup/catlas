@@ -24,8 +24,10 @@ def get_specific_smile_plot(
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
-    """Creates the pdf parity plot for a given smile and returns a dictionary
-    summarizing plot results"""
+    """
+    Creates the pdf parity plot for a given smile and returns a dictionary
+    summarizing plot results
+    """
     # Create the plot
     time_now = time.strftime("%Y%m%d-%H%M%S")
     plot_file_path = output_path + "/" + time_now + smile + ".pdf"
@@ -107,8 +109,10 @@ def get_general_plot(
     energy_key1="DFT_energy",
     energy_key2="ML_energy",
 ) -> dict:
-    """Creates the pdf parity plot for all smiles and returns a dictionary summarizing
-    plot results"""
+    """
+    Creates the pdf parity plot for all smiles and returns a dictionary summarizing
+    plot results.
+    """
     # Check to make sure some data exists
     if df.empty:
         warnings.warn("No matching validation data was found")
@@ -297,6 +301,9 @@ def get_parity_upfront(config, run_id):
 
 
 def make_parity_plots(df_filtered, config, output_path, number_steps_all):
+    """
+    Makes the general and smile specific parity plots for a given configuration.
+    """
     list_of_parity_info = []
     # Generate adsorbate specific plots
     for smile in config["adsorbate_filters"]["filter_by_smiles"]:

@@ -29,18 +29,21 @@ class CustomBulk(Bulk):
 
 
 def enumerate_slabs(bulk_dict, max_miller):
-    """Given a dictionary defining a material bulk, use pymatgen's SlabGenerator object
+    """
+    Given a dictionary defining a material bulk, use pymatgen's SlabGenerator object
     to enumerate all the slabs associated with the bulk object.
     Args:
-        bulk_dict (dict): A dictionary containing a key "bulk_structure" containing an pymatgen structure object corresponding to a bulk material.
+        bulk_dict (dict): A dictionary containing a key "bulk_structure" containing
+            an pymatgen structure object corresponding to a bulk material.
         max_miller (int, optional): The highest miller index to enumerate up to.
     Returns:
-        list[dict]: A list of dictionaries corresponding to the surfaces enumerated from the input bulk. Each dictionary has the following key-value pairs:
-        - slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
-        - slab_millers (tuple[int]): the miller index of the surface.
-        - slab_max_miller_index (int): the highest miller index of the surface.
-        - slab_shift (float): the shift of the termination of the surface.
-        - slab_top (bool): whether the termination is the top of the slab.
+        list[dict]: A list of dictionaries corresponding to the surfaces enumerated
+            from the input bulk. Each dictionary has the following key-value pairs:
+            -- slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
+            -- slab_millers (tuple[int]): the miller index of the surface.
+            -- slab_max_miller_index (int): the highest miller index of the surface.
+            -- slab_shift (float): the shift of the termination of the surface.
+            -- slab_top (bool): whether the termination is the top of the slab.
     """
     bulk_dict = copy.deepcopy(bulk_dict)
 
@@ -76,12 +79,15 @@ def enumerate_slabs(bulk_dict, max_miller):
 
 
 def enumerate_adslabs(surface_ads_combo):
-    """Generate adslabs from two dictionaries specifying a surface and an adsorbate.
-        The only difference between these adslabs is the surface site where the adsorbate  binds, allowing every adslab to be a shallow copy of the same object with updated  positions. Because of this, be careful about updating adslab properties!
-
+    """
+    Generate adslabs from two dictionaries specifying a surface and an adsorbate. The
+    only difference between these adslabs is the surface site where the adsorbate binds,
+    allowing every adslab to be a shallow copy of the same object with updated positions.
+    Because of this, be careful about updating adslab properties!
 
     Args:
-        surface_ads_combo ([dict, dict]): a list containing a surface dictionary and an adsorbate dictionary.
+        surface_ads_combo ([dict, dict]): a list containing a surface dictionary and an
+            adsorbate dictionary.
     Returns:
         list[ase.Atoms]: A list of Atoms objects of the adslab systems with constraints
             applied.
@@ -117,17 +123,21 @@ def enumerate_adslabs(surface_ads_combo):
 
 
 def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
-    """Turn ase.Atoms adslabs into graphs compatible with ocp models.
+    """
+    Turn ase.Atoms adslabs into graphs compatible with ocp models.
 
     Args:
-        adslab_result (ase.Atoms): an ase.Atoms object containing an adsorbate positioned on top of a surface.
-        max_neighbors (int, optional): The highest number of neighbors to be considered in a graph.
-            If a node ends up with more than this many neighbors, the furthest
-            neighbors will be ignored. Defaults to 50.
-        cutoff (int, optional): The maximum distance in Angstroms to look for neighbors. Defaults to 6.
+        adslab_result (ase.Atoms): an ase.Atoms object containing an adsorbate
+            positioned on top of a surface.
+        max_neighbors (int, optional): The highest number of neighbors to be
+            considered in a graph. If a node ends up with more than this many neighbors,
+            the furthest neighbors will be ignored. Defaults to 50.
+        cutoff (int, optional): The maximum distance in Angstroms to look for neighbors.
+            Defaults to 6.
 
     Returns:
-        graph_dict (dict): A dictionary containing a single key "adslab_graphs" which contains a list of torch_geometric.data.Data objects that can be used by OCP models.
+        graph_dict (dict): A dictionary containing a single key "adslab_graphs" which
+            contains a list of torch_geometric.data.Data objects that can be used by OCP models.
     """
     adslab_result = copy.deepcopy(adslab_result)
 
@@ -158,7 +168,8 @@ def convert_adslabs_to_graphs(adslab_result, max_neighbors=50, cutoff=6):
 
 
 def merge_surface_adsorbate_combo(surface_adsorbate_combo):
-    """Combines a surface dict and an adsorbate dict.
+    """
+    Combines a surface dict and an adsorbate dict.
 
     Args:
         surface_adsorbate_combo (Iterable[dict, dict]): a surface and an adsorbate.

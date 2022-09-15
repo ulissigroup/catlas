@@ -13,7 +13,8 @@ from graph_tool import topology
 
 def get_nuclearity(entry):
     """
-    Function to get the nuclearity for each element in a surface
+    Function to get the nuclearity for each element in a surface.
+    
     Args:
         entry (dict): a catlas-like entry object
 
@@ -63,9 +64,11 @@ def get_nuclearity(entry):
 
 def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix):
     """
-    Function that counts the like surface neighbors for surface atoms
+    Function that counts the like surface neighbors for surface atoms.
+    
     Args:
-        surface_atoms_of_element (list[bool]): list of all surface atoms which are of a specific element
+        surface_atoms_of_element (list[bool]): list of all surface atoms which
+            are of a specific element
         connectivity_matrix (numpy.ndarray[int8]): which atoms in the slab are connected
 
     Returns:
@@ -82,7 +85,9 @@ def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix
 
 def evaluate_infiniteness(hist, hist_rep):
     """
-    Function that compares the connected counts between the minimal slab and a repeated slab to classify the type of infiniteness.
+    Function that compares the connected counts between the minimal slab and a
+    repeated slab to classify the type of infiniteness.
+    
     Args:
         hist (list[int]): list of nuclearities observed in minimal slab
         hist_rep (list[int]): list of nuclearities observed in replicated slab
@@ -103,15 +108,13 @@ def evaluate_infiniteness(hist, hist_rep):
 def get_connectivity_matrix(slab_atoms):
     """
     Get connectivity matrix by looking at nearest neighbors.
+    
     Args:
         slab_atoms (ase.Atoms): a slab object
 
     Returns:
         numpy.ndarray[int8]: an array describing what atoms are connected
     """
-    # For initial atoms
-    # surface_indices = [idx for idx, tag in enumerate(slab_atoms.get_tags()) if tag ==
-    # 1]
     cutOff = natural_cutoffs(slab_atoms)
     neighborList = neighborlist.NeighborList(
         cutOff, self_interaction=False, bothways=True

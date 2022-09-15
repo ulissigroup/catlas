@@ -25,17 +25,15 @@ def enumerate_surfaces_for_saving(bulk_structure, max_miller):
     argument. Note that we also look at the bottoms of surfaces if they are
     distinct from the top. If they are distinct, we flip the surface so the bottom
     is pointing upwards.
+    
     Args:
-        bulk_atoms  `ase.Atoms` object of the bulk you want to enumerate
-                    surfaces from.
-        max_miller  An integer indicating the maximum Miller index of the surfaces
-                    you are willing to enumerate. Increasing this argument will
-                    increase the number of surfaces, but the surfaces will
-                    generally become larger.
+        bulk_atoms (ase.Atoms): object of the bulk you want to enumerate surfaces from.
+        max_miller (int) value indicating the maximum Miller index of the surfaces
+            to be enumerated.
+                    
     Returns:
-        all_slabs_info  A list of 4-tuples containing:  `pymatgen.Structure`
-                        objects for surfaces we have enumerated, the Miller
-                        indices, floats for the shifts, and Booleans for "top".
+        list[tuple]: pymatgen.structure.Structure objects for surfaces we have enumerated,
+            the Miller indices, floats for the shifts, and Booleans for "top".
     """
 
     all_slabs_info = []
@@ -81,11 +79,13 @@ def is_structure_invertible(structure):
     is the symmetric. i.e. structure_XYZ = structure_XYZ*M.
     In short:  If this function returns `False`, then the input structure can
     be flipped in the z-direction to create a new structure.
-    Arg:
-        structure   A `pymatgen.Structure` object.
-    Returns
-        A boolean indicating whether or not your `ase.Atoms` object is
-        symmetric in z-direction (i.e. symmetric with respect to x-y plane).
+    
+    Args:
+        structure (pymatgen.structure.Structure): surface pmg object.
+        
+    Returns:
+        bool: indicating whether or not the surface object is
+            symmetric in z-direction (i.e. symmetric with respect to x-y plane).
     """
     # If any of the operations involve a transformation in the z-direction,
     # then the structure is invertible.
@@ -102,10 +102,10 @@ def flip_struct(struct):
     """
     Flips an atoms object upside down. Normally used to flip surfaces.
     Arg:
-        struct   `pymatgen.Structure` object
+        struct (pymatgen.structure.Structure): surface object
     Returns:
-        flipped_struct  The same structure object that was fed as an
-                        argument, but flipped upside down.
+        (pymatgen.structure.Structure): The same structure object that was fed as an
+            argument, but flipped upside down.
     """
     atoms = AseAtomsAdaptor.get_atoms(struct)
     # This is black magic wizardry to me. Good look figuring it out.

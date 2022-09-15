@@ -26,8 +26,9 @@ def sizeof_python_list(l):
 
 
 def _rebalance_ddf(ddf):
-    """Repartition dask dataframe to ensure that partitions are roughly equal size.
-        Assumes `ddf.index` is already sorted.
+    """
+    Repartition dask dataframe to ensure that partitions are roughly equal size.
+    Assumes `ddf.index` is already sorted.
 
     Args:
         ddf (dask.core.frame.DataFrame): a dask DataFrame to repartition
@@ -49,7 +50,8 @@ def _rebalance_ddf(ddf):
 
 
 def split_balance_df_partitions(df, npartitions):
-    """repartition a dask dataframe.
+    """
+    Repartition a dask dataframe.
 
     Args:
         df (dask.core.frame.DataFrame): a dask DataFrame to repartition.
@@ -65,7 +67,8 @@ def split_balance_df_partitions(df, npartitions):
 
 
 def bag_split_individual_partitions(bag):
-    """Split a bag into as many partitions as possible.
+    """
+    Split a bag into as many partitions as possible.
 
     Args:
         bag (dask.bag.Bag): a dask Bag
@@ -76,8 +79,10 @@ def bag_split_individual_partitions(bag):
     new_name = "repartition-%s" % (tokenize(bag))
 
     def get_len(partition):
-        """Get the length of a partition.
-            If the bag is the result of bag.filter(), each partition is actually a `filter` object, which has no __len__. In that case, convert to a `list` first.
+        """
+        Get the length of a partition. If the bag is the result of bag.filter(), each
+        partition is actually a `filter` object, which has no __len__. In that case,
+        convert to a `list` first.
 
         Args:
             partition (Iterable[dict]): a partition of a dask Bag
@@ -114,15 +119,16 @@ def bag_split_individual_partitions(bag):
 
 
 def to_pickles(b, path, name_function=None, compute=True, **kwargs):
-    """Send a dask dataframe to a series of pickle files.
+    """
+    Send a dask dataframe to a series of pickle files.
 
     Args:
         b (dask.dataframe.core.DataFrame): Dataframe to pickle.
         path (str): Folder location where pickles are written to.
         name_function (function, optional): Function defining how pickle files are
-        named. Defaults to None.
+            named. Defaults to None.
         compute (bool, optional): Whether to compute the dataframe before pickling.
-        Defaults to True.
+            Defaults to True.
 
     Returns:
         _type_: _description_
@@ -148,7 +154,8 @@ def to_pickles(b, path, name_function=None, compute=True, **kwargs):
 
 
 def _to_pickle(data, lazy_file):
-    """Write data to a pickle file.
+    """
+    Write data to a pickle file.
 
     Args:
         data (Any): Object to pickle. Must be pickleable.
