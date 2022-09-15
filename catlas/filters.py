@@ -182,7 +182,7 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
 def slab_filter(bag_partition, config):
     """
     Filters a slab according to rules specified in a config.
-    
+
     Args:
         bag_partition (Iterable[dict]): unfiltered bag partition of enumerated slabs
         config (dict): dict containing slab filtering criteria
@@ -217,7 +217,7 @@ def slab_filter(bag_partition, config):
 def adsorbate_filter(config, dask_df, sankey):
     """
     Filters adsorbate structures according to rules specified in a config.
-    
+
     Args:
         config (dict): dictionary specifying what criteria to filter on
         dask_df (dask.dataframe.core.DataFrame): adsorbates to filter
@@ -268,7 +268,7 @@ def predictions_filter(bag_partition, config):
 
     Args:
         bag_partition (Iterable[dict]): a partition of a Dask Bag. Each partition should
-            contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top", 
+            contain columns "bulk_id", "slab_millers", "slab_shift", "slab_top",
             "adsorbate_smiles", "filter_reason", and a column whose name is the same as
             the value in the "filter_column" field of the input config.
         config (dict): a dictionary specifying how to filter predictions

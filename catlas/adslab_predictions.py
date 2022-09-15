@@ -152,7 +152,7 @@ class BatchOCPPredictor:
     def load_checkpoint(self, checkpoint_path):
         """
         Load existing trained model
-        
+
         Args:
             checkpoint_path (str): Path to trained model
         """

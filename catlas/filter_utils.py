@@ -410,7 +410,7 @@ def get_bulk_cn(ucell, neighbor_factor):
     Gets coordination number of each symmetrically distinct site in the unit cell and
     organizes it as a dictionary with the unique Wyckoff symbol as key and the coordination
     number as an int value.
-    
+
     Args:
         ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
         factor (float): buffer for the radius to look
@@ -433,7 +433,7 @@ def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
     """
     Calculates the total ratio of broken bonds to bulk coordination number.
     Often used as a factor in surface energy.
-    
+
     Args:
         ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
         slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
@@ -466,7 +466,7 @@ def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
 def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
     """
     Calculates the sum of nearest neighbors for each surface site.
-    
+
     Args:
         ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
         slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
@@ -499,7 +499,7 @@ def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
 def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
     """
     Estimates surface energy using a broken bond model.
-    
+
     Args:
         ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
         slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
@@ -520,7 +520,7 @@ def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
 def get_surface_density(row: dict, neighbor_factor: float) -> float:
     """
     Estimates surface density multiplied by cohesive energy.
-    
+
     Args:
         ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
         slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.

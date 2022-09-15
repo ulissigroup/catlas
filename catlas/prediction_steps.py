@@ -49,7 +49,7 @@ def parse_inputs():
         dask_cluster_script_path (str): a path to a script that connects to a dask
             cluster that executes calculations run during the main script.
 
-    
+
 
     Returns:
         dict: a config describing what adsorption predictions to run.
@@ -256,12 +256,12 @@ def enumerate_adslabs_wrapper(
 ):
     """
     Generate adslabs from all filtered surfaces and adsorbates.
-    
+
     Args:
         config (dict): A config file specifying what surfaces to filter.
         surface_bag (dask.bag.Bag): surfaces to enumerate
         adsorbate_bag (dask.bag.Bag): adsorbates to enumerate
-        
+
     Returns:
         dask.bag.Bag: a bag of metadata for the adslabs
         dask.bag.Bag: a bag of enumerated adslabs
@@ -287,12 +287,12 @@ def make_predictions(
     """
     Make predictions on enumerated adslabs. This may include a single inference step
     or multiple with optional intermediate filtering.
-    
+
     Args:
         config (dict): A config file specifying what surfaces to filter.
         results_bag (dask.bag.Bag): a bag of metadata for the adslabs
         adslab_atoms_bag (dask.bag.Bag): a bag of enumerated adslabs
-        
+
     Returns:
         dask.bag.Bag: a dask Bag containing adslabs and their predicted adsorption
             energies according to models specified in the config file.

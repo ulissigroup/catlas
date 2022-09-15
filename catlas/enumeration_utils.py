@@ -25,12 +25,12 @@ def enumerate_surfaces_for_saving(bulk_structure, max_miller):
     argument. Note that we also look at the bottoms of surfaces if they are
     distinct from the top. If they are distinct, we flip the surface so the bottom
     is pointing upwards.
-    
+
     Args:
         bulk_atoms (ase.Atoms): object of the bulk you want to enumerate surfaces from.
         max_miller (int) value indicating the maximum Miller index of the surfaces
             to be enumerated.
-                    
+
     Returns:
         list[tuple]: pymatgen.structure.Structure objects for surfaces we have enumerated,
             the Miller indices, floats for the shifts, and Booleans for "top".
@@ -79,10 +79,10 @@ def is_structure_invertible(structure):
     is the symmetric. i.e. structure_XYZ = structure_XYZ*M.
     In short:  If this function returns `False`, then the input structure can
     be flipped in the z-direction to create a new structure.
-    
+
     Args:
         structure (pymatgen.structure.Structure): surface pmg object.
-        
+
     Returns:
         bool: indicating whether or not the surface object is
             symmetric in z-direction (i.e. symmetric with respect to x-y plane).

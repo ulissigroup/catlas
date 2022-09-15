@@ -100,7 +100,7 @@ def hash_func(func):
 
 
 def check_cache(cached_func):
-    """checks if cached function is safe to call without overriding cache (adapted from 
+    """checks if cached function is safe to call without overriding cache (adapted from
         https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672)
 
     Inputs:
@@ -114,7 +114,7 @@ def check_cache(cached_func):
     """Here, we go through some effort to be robust to dynamically
     changing code and collision. We cannot inspect.getsource
     because it is not reliable when using IPython's magic "%run"."""
-    
+
     func_code, source_file, first_line = cached_func.func_code_info
     func_id = joblib.memory._build_func_identifier(cached_func.func)
 
