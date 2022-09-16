@@ -31,7 +31,8 @@ def pop_keys(adslab_dict, keys):
 
 
 class GraphsListDataset(Dataset):
-    """Make a list of graphs to feed into ocp dataloader object
+    """
+    Make a list of graphs to feed into ocp dataloader object
 
     Extends:
         torch.utils.data.Dataset: a torch Dataset
@@ -49,7 +50,8 @@ class GraphsListDataset(Dataset):
 
 
 class BatchOCPPredictor:
-    """Variable used to store the model used during predictions. Specifications are
+    """
+    Variable used to store the model used during predictions. Specifications are
     contained in the input config. This variable is globalized within a worker to
     avoid duplicate model loading.
     """
@@ -80,19 +82,19 @@ class BatchOCPPredictor:
             del config["dataset"]["src"]
             config["normalizer"] = config["dataset"]
 
-        if "scale_file" in config["model_attributes"]:
-            if config["model_attributes"]["scale_file"].startswith("config"):
-                config["model_attributes"]["scale_file"] = os.path.join(
-                    os.path.dirname(ocpmodels.__file__),
-                    os.pardir,
-                    config["model_attributes"]["scale_file"],
-                )
+        # if "scale_file" in config["model_attributes"]:
+        #     if config["model_attributes"]["scale_file"].startswith("config"):
+        #         config["model_attributes"]["scale_file"] = os.path.join(
+        #             os.path.dirname(ocpmodels.__file__),
+        #             os.pardir,
+        #             config["model_attributes"]["scale_file"],
+        #         )
 
-            else:
-                config["model_attributes"]["scale_file"] = os.path.join(
-                    os.path.dirname(checkpoint),
-                    config["model_attributes"]["scale_file"],
-                )
+        #     else:
+        #         config["model_attributes"]["scale_file"] = os.path.join(
+        #             os.path.dirname(checkpoint),
+        #             config["model_attributes"]["scale_file"],
+        #         )
 
         config["checkpoint"] = checkpoint
 
@@ -125,7 +127,8 @@ class BatchOCPPredictor:
             self.load_checkpoint(checkpoint)
 
     def make_dataloader(self, graphs_list):
-        """Make the dataloader used to feed graphs into the OCP model.
+        """
+        Make the dataloader used to feed graphs into the OCP model.
 
         Args:
             graphs_list (Iterable[torch_geometric.data.Data]): structures to run predictions on.
@@ -149,6 +152,7 @@ class BatchOCPPredictor:
     def load_checkpoint(self, checkpoint_path):
         """
         Load existing trained model
+
         Args:
             checkpoint_path (str): Path to trained model
         """
@@ -160,7 +164,8 @@ class BatchOCPPredictor:
             )  # `logging` defined by `setup_logging()`
 
     def direct_prediction(self, graphs_list):
-        """Run direct energy predictions on a list of graphs. Predict the relaxed
+        """
+        Run direct energy predictions on a list of graphs. Predict the relaxed
         energy without running ML relaxations.
 
         Args:
@@ -180,11 +185,12 @@ class BatchOCPPredictor:
         return predictions["energy"]
 
     def relaxation_prediction(self, graphs_list):
-        """Relax structures, then predict their energies.
+        """
+        Relax structures, then predict their energies.
 
         Args:
             graphs_list (Iterable[torch_geometric.data.Data]): structures to
-            run predictions on.
+                run predictions on.
 
         Returns:
             Iterable[float]: predicted energies
@@ -234,22 +240,34 @@ def energy_prediction(
     gpu_mem_per_sample=None,
     number_steps=200,
 ):
-    """Predict the energies of adslabs.
+    """
+    Predict the energies of adslabs.
 
     Args:
-        adslab_dict (dict): A view of the adslabs to predict that will be used to store results. Should be ignored during cache comparisons.
-        adslab_atoms (Iterable[ase.atoms.Atoms]): Adslabs containing the same adsorbate placed on different sites on the same surface. Should be ignored during cache comparisons.
-        hash_adslab_atoms (str): A hash specific to `adslab_atoms` used for cache comparisons.
-        hash_adslab_dict (str): A hash specific to `adslab_dict` used for cache comparisons
-        graphs_dict (dict): A view of the adslabs to predict that will be used to predict energies. Should be ignored during cache comparisons.
+        adslab_dict (dict): A view of the adslabs to predict that will be used
+            to store results. Should be ignored during cache comparisons.
+        adslab_atoms (Iterable[ase.atoms.Atoms]): Adslabs containing the same
+            adsorbate placed on different sites on the same surface. Should be
+            ignored during cache comparisons.
+        hash_adslab_atoms (str): A hash specific to `adslab_atoms` used for cache
+            comparisons.
+        hash_adslab_dict (str): A hash specific to `adslab_dict` used for cache
+            comparisons
+        graphs_dict (dict): A view of the adslabs to predict that will be used to
+            predict energies. Should be ignored during cache comparisons.
         checkpoint_path (str): The path where the OCP model checkpoint can be found.
         column_name (str): An arbitrary name used to define the model output field names.
-        batch_size (int, optional): The number of adslabs loaded onto a gpu at a single time during relaxations. Should be ignored during cache comparisons. Defaults to 8.
-        gpu_mem_per_sample (float, optional): The approximate memory used by a single adslab during relaxations, used to determine batch size. Defaults to None.
-        number_steps (int, optional): The number of steps used during relaxations. Should be determined using `bin/optimize_frame.py`. Defaults to 200.
+        batch_size (int, optional): The number of adslabs loaded onto a gpu at
+            a single time during relaxations. Should be ignored during cache comparisons.
+            Defaults to 8.
+        gpu_mem_per_sample (float, optional): The approximate memory used by a single
+            adslab during relaxations, used to determine batch size. Defaults to None.
+        number_steps (int, optional): The number of steps used during relaxations.
+            Should be determined using `bin/optimize_frame.py`. Defaults to 200.
 
     Returns:
-        dict: Energy predictions and metadata including associated structures and minimum predicted energy per surface.
+        dict: Energy predictions and metadata including associated structures
+            and minimum predicted energy per surface.
     """
     adslab_results = copy.copy(adslab_dict)
 

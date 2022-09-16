@@ -18,7 +18,7 @@ on:
 
 jobs:
   test_enumeration:
-    name: Test catlas with local scheduler
+    name: Test catlas enumeration with local scheduler
 
     runs-on: [self-hosted, linux]
 
@@ -52,6 +52,8 @@ jobs:
       uses: actions/checkout@v3
     - run: |
         (cd /home/jovyan/ocp && git pull) 
+        md5sum /home/jovyan/shared-scratch/ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt
+        (cd /home/jovyan/ocp/ocpmodels/modules && ls)
         ln -s /home/jovyan/shared-scratch/ocp_checkpoints
         ln -s /home/jovyan/shared-scratch/catlas/df_pkls ./catlas/parity/
         ln -s /home/jovyan/shared-scratch/catlas/pourbaix_diagrams ./catlas/

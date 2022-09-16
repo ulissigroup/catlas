@@ -42,8 +42,10 @@ class ProcessValNPZ:
 
     @staticmethod
     def _get_bulk_elements_and_num(stoichiometry):
-        """Get the unique bulk elements and number of unique bulk elements from
-        stoichiometry"""
+        """
+        Get the unique bulk elements and number of unique bulk elements from
+        stoichiometry
+        """
         return list(stoichiometry.keys()), len(list(stoichiometry.keys()))
 
     def process_data(self):
@@ -73,7 +75,7 @@ class ProcessValNPZ:
 class ProcessValTraj:
     def __init__(self, traj_path):
         """
-        Initialize class to handle trajectory analysis
+        Initialize class to handle trajectory analysis.
 
         Args:
             traj_path: the path to the trajectory to be considered
