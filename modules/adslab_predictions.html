@@ -430,9 +430,12 @@ inference on.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="catlas.adslab_predictions.BatchOCPPredictor.load_checkpoint">
 <span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.BatchOCPPredictor.load_checkpoint" title="Permalink to this definition">#</a></dt>
-<dd><p>Load existing trained model
-:param checkpoint_path: Path to trained model
-:type checkpoint_path: str</p>
+<dd><p>Load existing trained model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>checkpoint_path</strong> (<em>str</em>) – Path to trained model</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -458,10 +461,8 @@ inference on.</p>
 <dd><p>Relax structures, then predict their energies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – structures to</p></li>
-<li><p><strong>on.</strong> (<em>run predictions</em>) – </p></li>
-</ul>
+<dd class="field-odd"><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – structures to
+run predictions on.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>predicted energies
@@ -492,25 +493,123 @@ Iterable[torch_geometric.data.Data): relaxed structures</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adslab_dict</strong> (<em>dict</em>) – A view of the adslabs to predict that will be used to store results. Should be ignored during cache comparisons.</p></li>
-<li><p><strong>adslab_atoms</strong> (<em>Iterable</em><em>[</em><em>ase.atoms.Atoms</em><em>]</em>) – Adslabs containing the same adsorbate placed on different sites on the same surface. Should be ignored during cache comparisons.</p></li>
-<li><p><strong>hash_adslab_atoms</strong> (<em>str</em>) – A hash specific to <cite>adslab_atoms</cite> used for cache comparisons.</p></li>
-<li><p><strong>hash_adslab_dict</strong> (<em>str</em>) – A hash specific to <cite>adslab_dict</cite> used for cache comparisons</p></li>
-<li><p><strong>graphs_dict</strong> (<em>dict</em>) – A view of the adslabs to predict that will be used to predict energies. Should be ignored during cache comparisons.</p></li>
+<li><p><strong>adslab_dict</strong> (<em>dict</em>) – A view of the adslabs to predict that will be used
+to store results. Should be ignored during cache comparisons.</p></li>
+<li><p><strong>adslab_atoms</strong> (<em>Iterable</em><em>[</em><em>ase.atoms.Atoms</em><em>]</em>) – Adslabs containing the same
+adsorbate placed on different sites on the same surface. Should be
+ignored during cache comparisons.</p></li>
+<li><p><strong>hash_adslab_atoms</strong> (<em>str</em>) – A hash specific to <cite>adslab_atoms</cite> used for cache
+comparisons.</p></li>
+<li><p><strong>hash_adslab_dict</strong> (<em>str</em>) – A hash specific to <cite>adslab_dict</cite> used for cache
+comparisons</p></li>
+<li><p><strong>graphs_dict</strong> (<em>dict</em>) – A view of the adslabs to predict that will be used to
+predict energies. Should be ignored during cache comparisons.</p></li>
 <li><p><strong>checkpoint_path</strong> (<em>str</em>) – The path where the OCP model checkpoint can be found.</p></li>
 <li><p><strong>column_name</strong> (<em>str</em>) – An arbitrary name used to define the model output field names.</p></li>
-<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of adslabs loaded onto a gpu at a single time during relaxations. Should be ignored during cache comparisons. Defaults to 8.</p></li>
-<li><p><strong>gpu_mem_per_sample</strong> (<em>float</em><em>, </em><em>optional</em>) – The approximate memory used by a single adslab during relaxations, used to determine batch size. Defaults to None.</p></li>
-<li><p><strong>number_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of steps used during relaxations. Should be determined using <cite>bin/optimize_frame.py</cite>. Defaults to 200.</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of adslabs loaded onto a gpu at
+a single time during relaxations. Should be ignored during cache comparisons.
+Defaults to 8.</p></li>
+<li><p><strong>gpu_mem_per_sample</strong> (<em>float</em><em>, </em><em>optional</em>) – The approximate memory used by a single
+adslab during relaxations, used to determine batch size. Defaults to None.</p></li>
+<li><p><strong>number_steps</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of steps used during relaxations.
+Should be determined using <cite>bin/optimize_frame.py</cite>. Defaults to 200.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Energy predictions and metadata including associated structures and minimum predicted energy per surface.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>Energy predictions and metadata including associated structures</dt><dd><p>and minimum predicted energy per surface.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id0">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">GraphsListDataset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id0" title="Permalink to this definition">#</a></dt>
+<dd><p>Make a list of graphs to feed into ocp dataloader object</p>
+<dl class="simple">
+<dt>Extends:</dt><dd><p>torch.utils.data.Dataset: a torch Dataset</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="id1">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">BatchOCPPredictor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id1" title="Permalink to this definition">#</a></dt>
+<dd><p>Variable used to store the model used during predictions. Specifications are
+contained in the input config. This variable is globalized within a worker to
+avoid duplicate model loading.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">direct_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id2" title="Permalink to this definition">#</a></dt>
+<dd><p>Run direct energy predictions on a list of graphs. Predict the relaxed
+energy without running ML relaxations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – structures to run
+inference on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predicted energies of the input structures.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">load_checkpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id3" title="Permalink to this definition">#</a></dt>
+<dd><p>Load existing trained model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>checkpoint_path</strong> (<em>str</em>) – Path to trained model</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id4">
+<span class="sig-name descname"><span class="pre">make_dataloader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id4" title="Permalink to this definition">#</a></dt>
+<dd><p>Make the dataloader used to feed graphs into the OCP model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – structures to run predictions on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an object that feeds data into pytorch models.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>torch.utils.data.DataLoader</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="id5">
+<span class="sig-name descname"><span class="pre">relaxation_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graphs_list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#id5" title="Permalink to this definition">#</a></dt>
+<dd><p>Relax structures, then predict their energies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>graphs_list</strong> (<em>Iterable</em><em>[</em><em>torch_geometric.data.Data</em><em>]</em>) – structures to
+run predictions on.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>predicted energies
+Iterable[torch_geometric.data.Data): relaxed structures</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[float]</p>
+</dd>
+</dl>
+</dd></dl>
+
 </dd></dl>
 
 </section>

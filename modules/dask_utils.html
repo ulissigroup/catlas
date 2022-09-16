@@ -422,7 +422,7 @@ title="Print to PDF"
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.dask_utils.split_balance_df_partitions">
 <span class="sig-prename descclassname"><span class="pre">catlas.dask_utils.</span></span><span class="sig-name descname"><span class="pre">split_balance_df_partitions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">npartitions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.dask_utils.split_balance_df_partitions" title="Permalink to this definition">#</a></dt>
-<dd><p>repartition a dask dataframe.</p>
+<dd><p>Repartition a dask dataframe.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -448,10 +448,10 @@ title="Print to PDF"
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>b</strong> (<em>dask.dataframe.core.DataFrame</em>) – Dataframe to pickle.</p></li>
 <li><p><strong>path</strong> (<em>str</em>) – Folder location where pickles are written to.</p></li>
-<li><p><strong>name_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function defining how pickle files are</p></li>
-<li><p><strong>None.</strong> (<em>named. Defaults to</em>) – </p></li>
-<li><p><strong>compute</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the dataframe before pickling.</p></li>
-<li><p><strong>True.</strong> (<em>Defaults to</em>) – </p></li>
+<li><p><strong>name_function</strong> (<em>function</em><em>, </em><em>optional</em>) – Function defining how pickle files are
+named. Defaults to None.</p></li>
+<li><p><strong>compute</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to compute the dataframe before pickling.
+Defaults to True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

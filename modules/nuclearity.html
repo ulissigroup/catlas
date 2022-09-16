@@ -408,17 +408,20 @@ Original author: Unnatti Sharma</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.nuclearity.evaluate_infiniteness">
 <span class="sig-prename descclassname"><span class="pre">catlas.nuclearity.</span></span><span class="sig-name descname"><span class="pre">evaluate_infiniteness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hist</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hist_rep</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.nuclearity.evaluate_infiniteness" title="Permalink to this definition">#</a></dt>
-<dd><p>Function that compares the connected counts between the minimal slab and a repeated slab to classify the type of infiniteness.
-:param hist: list of nuclearities observed in minimal slab
-:type hist: list[int]
-:param hist_rep: list of nuclearities observed in replicated slab
-:type hist_rep: list[int]</p>
+<dd><p>Function that compares the connected counts between the minimal slab and a
+repeated slab to classify the type of infiniteness.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>the max nuclearity and all nuclearities for the element on that surface</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>hist</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – list of nuclearities observed in minimal slab</p></li>
+<li><p><strong>hist_rep</strong> (<em>list</em><em>[</em><em>int</em><em>]</em>) – list of nuclearities observed in replicated slab</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>nuclearity dict (dict)</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the max nuclearity and all nuclearities for the element on that surface</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>nuclearity dict (dict)</p>
 </dd>
 </dl>
 </dd></dl>
@@ -426,15 +429,16 @@ Original author: Unnatti Sharma</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.nuclearity.get_connectivity_matrix">
 <span class="sig-prename descclassname"><span class="pre">catlas.nuclearity.</span></span><span class="sig-name descname"><span class="pre">get_connectivity_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab_atoms</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.nuclearity.get_connectivity_matrix" title="Permalink to this definition">#</a></dt>
-<dd><p>Get connectivity matrix by looking at nearest neighbors.
-:param slab_atoms: a slab object
-:type slab_atoms: ase.Atoms</p>
+<dd><p>Get connectivity matrix by looking at nearest neighbors.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>an array describing what atoms are connected</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>slab_atoms</strong> (<em>ase.Atoms</em>) – a slab object</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>numpy.ndarray[int8]</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>an array describing what atoms are connected</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray[int8]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -442,15 +446,16 @@ Original author: Unnatti Sharma</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.nuclearity.get_nuclearity">
 <span class="sig-prename descclassname"><span class="pre">catlas.nuclearity.</span></span><span class="sig-name descname"><span class="pre">get_nuclearity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.nuclearity.get_nuclearity" title="Permalink to this definition">#</a></dt>
-<dd><p>Function to get the nuclearity for each element in a surface
-:param entry: a catlas-like entry object
-:type entry: dict</p>
+<dd><p>Function to get the nuclearity for each element in a surface.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>a catlas-like entry object with nuclearity info added</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>entry</strong> (<em>dict</em>) – a catlas-like entry object</p>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a catlas-like entry object with nuclearity info added</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
 </dd></dl>
@@ -458,17 +463,20 @@ Original author: Unnatti Sharma</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.nuclearity.get_nuclearity_neighbor_counts">
 <span class="sig-prename descclassname"><span class="pre">catlas.nuclearity.</span></span><span class="sig-name descname"><span class="pre">get_nuclearity_neighbor_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_atoms_of_element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity_matrix</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.nuclearity.get_nuclearity_neighbor_counts" title="Permalink to this definition">#</a></dt>
-<dd><p>Function that counts the like surface neighbors for surface atoms
-:param surface_atoms_of_element: list of all surface atoms which are of a specific element
-:type surface_atoms_of_element: list[bool]
-:param connectivity_matrix: which atoms in the slab are connected
-:type connectivity_matrix: numpy.ndarray[int8]</p>
+<dd><p>Function that counts the like surface neighbors for surface atoms.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>counts of neighbor groups</p>
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>surface_atoms_of_element</strong> (<em>list</em><em>[</em><em>bool</em><em>]</em>) – list of all surface atoms which
+are of a specific element</p></li>
+<li><p><strong>connectivity_matrix</strong> (<em>numpy.ndarray</em><em>[</em><em>int8</em><em>]</em>) – which atoms in the slab are connected</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>numpy.ndarray[int]</p>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>counts of neighbor groups</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray[int]</p>
 </dd>
 </dl>
 </dd></dl>

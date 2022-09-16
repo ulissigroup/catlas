@@ -870,11 +870,46 @@ title="Print to PDF"
 <section id="slab-filters">
 <h2>Slab Filters<a class="headerlink" href="#slab-filters" title="Permalink to this headline">#</a></h2>
 <p>Downselect slabs before performing adsorbate placement and inference.</p>
-<ol class="simple">
-<li><p>Object size: filters out any slabs with more atoms than the number specified here. This is useful to avoid need many calculations for very large surfaces.
-<code class="docutils literal notranslate"><span class="pre">filter_by_object_size:</span> <span class="pre">100</span></code></p></li>
-<li><p>Maximum miller index: will filter out any slab where the any miller index excedes the value specified. i.e. 2 will filter out (-2,1,0) and (2,1,1)
-<code class="docutils literal notranslate"><span class="pre">filter_by_max_miller_index:</span> <span class="pre">1</span></code></p></li>
+<ol>
+<li><p>Object size: filters out any slabs with more atoms than the number specified here. This is useful to avoid need many calculations for very large surfaces.</p>
+<p><code class="docutils literal notranslate"><span class="pre">filter_by_object_size:</span> <span class="pre">100</span></code></p>
+</li>
+<li><p>Maximum miller index: will enumerate all slabs up to the provided index. If not provided, this defaults to 2.</p>
+<p><code class="docutils literal notranslate"><span class="pre">filter_by_max_miller_index:</span> <span class="pre">1</span></code></p>
+</li>
+<li><p>Broken bond model / surface density: There are two ways of using the broken bond model to select which slabs to run inference:
+a. Selecting the best surfaces per bulk: here you select by two citeria:
+i. k: which is the number of surfaces per bulk you would like to consider (i.e. if <code class="docutils literal notranslate"><span class="pre">top_k</span> <span class="pre">=</span> <span class="pre">10</span></code> then the 10 surfaces with the lowest surface energy proxy values will be selected)
+ii. top proportion: a proportion of surfaces to choose (i.e. if <code class="docutils literal notranslate"><span class="pre">top_propostion</span> <span class="pre">=</span> <span class="pre">0.5</span></code> and 50 surfaces are enumerated, then 25 will be filtered out.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> ```
+ filter_by_broken_bonds:
+   top_k: 10
+   
+ OR
+ 
+ filter_by_surface_density:
+   top_proportion: 0.15        
+ ```
+</pre></div>
+</div>
+<p>b. Choosing the best shift(s) from a for a given miller index: you can specify a difference tolerance so surfaces with similar broken bond densities will still be considered (i.e. if <code class="docutils literal notranslate"><span class="pre">surface_now</span> <span class="pre">-</span> <span class="pre">best_surface</span> <span class="pre">&lt;=</span> <span class="pre">difference_threshold</span> <span class="pre">*</span> <span class="pre">best_surface</span></code> the surface will also be considered) otherwise this defaults to 0.1.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span> ```
+ filter_best_shift_by_broken_bonds:
+   difference_threshold: 0.2
+   
+ OR
+ 
+ filter_best_shift_by_surface_density:
+   difference_threshold: 0.2        
+ 
+ ```
+</pre></div>
+</div>
+<p>Optionally, you may specify a neighbor factor which is use to determine nearest neighbors by the models. This defaults to 1.1.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">neighbor_factor</span><span class="p">:</span> <span class="mf">1.1</span>
+</pre></div>
+</div>
+</li>
 </ol>
 </section>
 <section id="adslab-prediction-steps">

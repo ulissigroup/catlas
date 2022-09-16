@@ -421,15 +421,21 @@ title="Print to PDF"
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>adslab_result</strong> (<em>ase.Atoms</em>) – an ase.Atoms object containing an adsorbate positioned on top of a surface.</p></li>
-<li><p><strong>max_neighbors</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest number of neighbors to be considered in a graph.
-If a node ends up with more than this many neighbors, the furthest
-neighbors will be ignored. Defaults to 50.</p></li>
-<li><p><strong>cutoff</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum distance in Angstroms to look for neighbors. Defaults to 6.</p></li>
+<li><p><strong>adslab_result</strong> (<em>ase.Atoms</em>) – an ase.Atoms object containing an adsorbate
+positioned on top of a surface.</p></li>
+<li><p><strong>max_neighbors</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest number of neighbors to be
+considered in a graph. If a node ends up with more than this many neighbors,
+the furthest neighbors will be ignored. Defaults to 50.</p></li>
+<li><p><strong>cutoff</strong> (<em>int</em><em>, </em><em>optional</em>) – The maximum distance in Angstroms to look for neighbors.
+Defaults to 6.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A dictionary containing a single key “adslab_graphs” which contains a list of torch_geometric.data.Data objects that can be used by OCP models.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary containing a single key “adslab_graphs” which</dt><dd><p>contains a list of torch_geometric.data.Data objects that can be used by OCP models.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>graph_dict (dict)</p>
@@ -440,13 +446,14 @@ neighbors will be ignored. Defaults to 50.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.enumerate_adslabs">
 <span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">enumerate_adslabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">surface_ads_combo</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.enumerate_adslabs" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>Generate adslabs from two dictionaries specifying a surface and an adsorbate.</dt><dd><p>The only difference between these adslabs is the surface site where the adsorbate  binds, allowing every adslab to be a shallow copy of the same object with updated  positions. Because of this, be careful about updating adslab properties!</p>
-</dd>
-</dl>
+<dd><p>Generate adslabs from two dictionaries specifying a surface and an adsorbate. The
+only difference between these adslabs is the surface site where the adsorbate binds,
+allowing every adslab to be a shallow copy of the same object with updated positions.
+Because of this, be careful about updating adslab properties!</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>surface_ads_combo</strong> (<em>[</em><em>dict</em><em>, </em><em>dict</em><em>]</em>) – a list containing a surface dictionary and an adsorbate dictionary.</p>
+<dd class="field-odd"><p><strong>surface_ads_combo</strong> (<em>[</em><em>dict</em><em>, </em><em>dict</em><em>]</em>) – a list containing a surface dictionary and an
+adsorbate dictionary.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p><dl class="simple">
@@ -463,23 +470,28 @@ neighbors will be ignored. Defaults to 50.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.enumerate_slabs_adslabs.enumerate_slabs">
-<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">enumerate_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bulk_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_miller</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.enumerate_slabs" title="Permalink to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">catlas.enumerate_slabs_adslabs.</span></span><span class="sig-name descname"><span class="pre">enumerate_slabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bulk_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_miller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.enumerate_slabs_adslabs.enumerate_slabs" title="Permalink to this definition">#</a></dt>
 <dd><p>Given a dictionary defining a material bulk, use pymatgen’s SlabGenerator object
-to enumerate all the slabs associated with the bulk object.</p>
+to enumerate all the slabs associated with the bulk object.
+:param bulk_dict: A dictionary containing a key “bulk_structure” containing</p>
+<blockquote>
+<div><p>an pymatgen structure object corresponding to a bulk material.</p>
+</div></blockquote>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bulk_dict</strong> (<em>dict</em>) – A dictionary containing a key “bulk_atoms” containing an ase.Atoms object corresponding to a bulk material.</p></li>
-<li><p><strong>max_miller</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest miller index to enumerate up to. Defaults to 2.</p></li>
-</ul>
+<dd class="field-odd"><p><strong>max_miller</strong> (<em>int</em><em>, </em><em>optional</em>) – The highest miller index to enumerate up to.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list of dictionaries corresponding to the surfaces enumerated from the input bulk. Each dictionary has the following key-value pairs:
-- slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
-- slab_millers (tuple[int]): the miller index of the surface.
-- slab_max_miller_index (int): the highest miller index of the surface.
-- slab_shift (float): the shift of the termination of the surface.
-- slab_top (bool): whether the termination is the top of the slab.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of dictionaries corresponding to the surfaces enumerated</dt><dd><p>from the input bulk. Each dictionary has the following key-value pairs:
+– slab_surface_object (ocdata.surfaces.Surface): the ocdata surface object.
+– slab_millers (tuple[int]): the miller index of the surface.
+– slab_max_miller_index (int): the highest miller index of the surface.
+– slab_shift (float): the shift of the termination of the surface.
+– slab_top (bool): whether the termination is the top of the slab.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>list[dict]</p>

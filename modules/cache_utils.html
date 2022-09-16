@@ -405,10 +405,8 @@ title="Print to PDF"
 <dl class="py class">
 <dt class="sig sig-object py" id="catlas.cache_utils.SqliteSingleThreadDict">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">SqliteSingleThreadDict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tablename='unnamed'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">journal_mode='PERSIST'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encode=&lt;function</span> <span class="pre">dumps&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decode=&lt;built-in</span> <span class="pre">function</span> <span class="pre">loads&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.SqliteSingleThreadDict" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>A dictionary connected to a sqlite database.</dt><dd><p>Acts like a dictionary, but is actually a file that opens file connections when items are accessed or set.</p>
-</dd>
-</dl>
+<dd><p>A dictionary connected to a sqlite database. Acts like a dictionary, but is actually
+a file that opens file connections when items are accessed or set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Raises</dt>
 <dd class="field-odd"><p><strong>KeyError</strong> – an accessed key didn’t exist in the dictionary.</p>
@@ -443,8 +441,9 @@ location in the import hierarchy</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.check_cache">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">check_cache</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cached_func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.check_cache" title="Permalink to this definition">#</a></dt>
-<dd><p>checks if cached function is safe to call without overriding cache (adapted from <a class="reference external" href="https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672">https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672</a>)</p>
-<dl class="simple">
+<dd><dl class="simple">
+<dt>checks if cached function is safe to call without overriding cache (adapted from</dt><dd><p><a class="reference external" href="https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672">https://github.com/joblib/joblib/blob/7742f5882273889f7aaf1d483a8a1c72a97d57e3/joblib/memory.py#L672</a>)</p>
+</dd>
 <dt>Inputs:</dt><dd><p>cached_func (Callable): Function to check cache for</p>
 </dd>
 </dl>
@@ -497,7 +496,7 @@ codebase.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.naive_func_identifier">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">naive_func_identifier</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.naive_func_identifier" title="Permalink to this definition">#</a></dt>
-<dd><p>Build simple identifier based on function name</p>
+<dd><p>Build simple identifier based on function name.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>func</strong> (<em>Callable</em>) – a function to cache</p>
@@ -515,15 +514,18 @@ import hierarchy</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.cache_utils.sqlitedict_memoize">
 <span class="sig-prename descclassname"><span class="pre">catlas.cache_utils.</span></span><span class="sig-name descname"><span class="pre">sqlitedict_memoize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">folder</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coerce_mmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shard_digits</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.cache_utils.sqlitedict_memoize" title="Permalink to this definition">#</a></dt>
-<dd><p>cache functions in a way that splits cached functions between many folders.</p>
+<dd><p>Cache functions in a way that splits cached functions between many folders.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>folder</strong> (<em>str</em>) – file location where cache shoud be created</p></li>
 <li><p><strong>func</strong> (<em>Callable</em>) – function to cache</p></li>
-<li><p><strong>ignore</strong> (<em>tuple</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of arguments that will be ignored when determining whether to start a new cache. Defaults to ().</p></li>
-<li><p><strong>coerce_mmap</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True, don’t distinguish between numpy ndarrays and numpy memmaps. Defaults to False.</p></li>
-<li><p><strong>shard_digits</strong> (<em>int</em><em>, </em><em>optional</em>) – Generate 16^(shard digits) different folders to store functions in. Defaults to 2.</p></li>
+<li><p><strong>ignore</strong> (<em>tuple</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – List of arguments that will be ignored when
+determining whether to start a new cache. Defaults to ().</p></li>
+<li><p><strong>coerce_mmap</strong> (<em>bool</em><em>, </em><em>optional</em>) – if True, don’t distinguish between numpy ndarrays
+and numpy memmaps. Defaults to False.</p></li>
+<li><p><strong>shard_digits</strong> (<em>int</em><em>, </em><em>optional</em>) – Generate 16^(shard digits) different folders to
+store functions in. Defaults to 2.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>

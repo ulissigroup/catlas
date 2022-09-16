@@ -403,6 +403,138 @@ title="Print to PDF"
   <section id="module-catlas.filter_utils">
 <span id="filter-utils"></span><h1>filter_utils<a class="headerlink" href="#module-catlas.filter_utils" title="Permalink to this headline">#</a></h1>
 <dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.filter_best_facet_by_surface_property">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">filter_best_facet_by_surface_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bag_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.filter_best_facet_by_surface_property" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse each facet and pick the one that should be the lowest energy
+by the broken bond model or the surface density model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bag_partition</strong> (<em>Iterable</em><em>[</em><em>dict</em><em>]</em>) – a partition of a dask bag containing
+enumerated surfaces</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – filter name to be applied (comes from the main catlas config)</p></li>
+<li><p><strong>val</strong> (<em>dict</em>) – values associated with name from the config yaml file, which futher
+specify how the filter should be applied</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the bag partition with undesired slabs filtered out</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.filter_by_surface_property">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">filter_by_surface_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bag_partition</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.filter_by_surface_property" title="Permalink to this definition">#</a></dt>
+<dd><p>Parse all miller facets per material and pick those that should be lower energy
+by the broken bond model or the surface density model</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bag_partition</strong> (<em>Iterable</em><em>[</em><em>dict</em><em>]</em>) – a partition of a dask bag containing enumerated surfaces</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – filter name to be applied (comes from the main catlas config)</p></li>
+<li><p><strong>val</strong> (<em>dict</em>) – values associated with name from the config yaml file, which futher
+specify how the filter should be applied</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the bag partition with undesired slabs filtered out</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>Iterable[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_bond_length">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_bond_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_bond_length" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets all bond lengths of all symmetrically distinct sites and organizes it as a dictionary
+with the unique Wyckoff symbol as key and the bondlegnth as float value.
+:param ucell: PMG Structure representation of a bulk unit cell.
+:type ucell: pymatgen.structure.Structure
+:param factor: buffer for the radius to look</p>
+<blockquote>
+<div><p>for neighbors in order to calculate bond length</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>{wyckoff symbol (str): bondlength (float)}</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_broken_bonds">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_broken_bonds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_broken_bonds" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimates surface energy using a broken bond model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucell</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a bulk unit cell.</p></li>
+<li><p><strong>slab</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a slab cell.</p></li>
+<li><p><strong>ecoh</strong> (<em>float</em>) – Cohesive energy which correlates to the surface energy</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – buffer for the radius to look
+for neighbors in order to calculate bond length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rough estimate of surface energy</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_bulk_cn">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_bulk_cn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_bulk_cn" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets coordination number of each symmetrically distinct site in the unit cell and
+organizes it as a dictionary with the unique Wyckoff symbol as key and the coordination
+number as an int value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucell</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a bulk unit cell.</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – buffer for the radius to look
+for neighbors in order to calculate bond length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>{wyckoff symbol (str): coordination number (int)}</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_center_of_mass">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_center_of_mass</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pmg_struct</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_center_of_mass" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates the center of mass of a pmg structure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pmg_struct</strong> (<em>pymatgen.core.structure.Structure</em>) – pymatgen structure to be
+considered.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the center of mass</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_decomposition_bools_from_list">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_decomposition_bools_from_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pbx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pbx_entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_decomposition_bools_from_list" title="Permalink to this definition">#</a></dt>
 <dd><p>Evaluates decomposition energies at regular pH and voltage windows at specified
@@ -410,8 +542,10 @@ pH and voltage points.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – an electrochemical stability diagram for the reference system.</p></li>
-<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry specific to the material we want to calculate the decomposition energy of.</p></li>
+<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – an electrochemical
+stability diagram for the reference system.</p></li>
+<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry
+specific to the material we want to calculate the decomposition energy of.</p></li>
 <li><p><strong>conditions</strong> (<em>list</em><em>[</em><em>dict</em><em>]</em>) – Conditions to evaluate the decomposition energy at.
 Each dictionary contains a pH and a voltage, both expressed as floats.</p></li>
 </ul>
@@ -433,13 +567,20 @@ specified intervals.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – a pourbaix diagram object containing information about the reference chemical system.</p></li>
-<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry specific to the material we want to calculate the decomposition energy of.</p></li>
-<li><p><strong>conditions</strong> (<em>dict</em>) – A dictionary specifying what condition or sets of conditions to evaluate the decomposition energy at.</p></li>
+<li><p><strong>pbx</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixDiagram</em>) – a pourbaix diagram
+object containing information about the reference chemical system.</p></li>
+<li><p><strong>pbx_entry</strong> (<em>pymatgen.analysis.pourbaix_diagram.PourbaixEntry</em>) – a pourbaix entry
+specific to the material we want to calculate the decomposition energy of.</p></li>
+<li><p><strong>conditions</strong> (<em>dict</em>) – A dictionary specifying what condition or sets of conditions
+to evaluate the decomposition energy at.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p>A list corresponding to whether the input entry is stable under each set of conditions.</p>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list corresponding to whether the input entry is stable under</dt><dd><p>each set of conditions.</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>Iterable[bool]</p>
@@ -450,11 +591,11 @@ specified intervals.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_elements_in_groups">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_elements_in_groups</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_elements_in_groups" title="Permalink to this definition">#</a></dt>
-<dd><p>Grabs the element symbols of all elements in the specified groups</p>
+<dd><p>Grabs the element symbols of all elements in the specified groups.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>groups</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Names of groups to include in the output.
-Any element in any group will be included. Valid groups are listed in the <cite>implemented_groups</cite> variable.</p>
+<dd class="field-odd"><p><strong>groups</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – Names of groups to include in the output. Any element in any
+group will be included. Valid groups are listed in the <cite>implemented_groups</cite> variable.</p>
 </dd>
 <dt class="field-even">Returns</dt>
 <dd class="field-even"><p>Elements included in the input groups.</p>
@@ -468,10 +609,9 @@ Any element in any group will be included. Valid groups are listed in the <cite>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_first_type">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_first_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_first_type" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>Get the type of the input, unpacking lists first if necessary.</dt><dd><p>This is used to discard large objects from the output df of catlas if they are specified as unnecessary in the config yaml by examining the type of objects in a list where applicable.</p>
-</dd>
-</dl>
+<dd><p>Get the type of the input, unpacking lists first if necessary. This is used to discard
+large objects from the output df of catlas if they are specified as unnecessary
+in the config yaml by examining the type of objects in a list where applicable.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>x</strong> (<em>Any</em>) – An object to get the type of</p>
@@ -488,13 +628,11 @@ Any element in any group will be included. Valid groups are listed in the <cite>
 <dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_pourbaix_info">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_pourbaix_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_pourbaix_info" title="Permalink to this definition">#</a></dt>
-<dd><dl class="simple">
-<dt>Construct a Pourbaix diagram for a material.</dt><dd><p>This currently only supports MP inputs.</p>
-</dd>
-</dl>
+<dd><p>Construct a Pourbaix diagram for a material. This currently only supports MP inputs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>entry</strong> – bulk structure entry as constructed by catlas.load_bulk_structures.load_bulks_from_db</p>
+<dd class="field-odd"><p><strong>entry</strong> – bulk structure entry as constructed by
+catlas.load_bulk_structures.load_bulks_from_db</p>
 </dd>
 <dt class="field-even">Raises</dt>
 <dd class="field-even"><p><strong>ValueError</strong> – The bulk id provided in the entry is not a materials project id</p>
@@ -523,15 +661,99 @@ Any element in any group will be included. Valid groups are listed in the <cite>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_surface_density">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_surface_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_surface_density" title="Permalink to this definition">#</a></dt>
+<dd><p>Estimates surface density multiplied by cohesive energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucell</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a bulk unit cell.</p></li>
+<li><p><strong>slab</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a slab cell.</p></li>
+<li><p><strong>ecoh</strong> (<em>float</em>) – Cohesive energy which correlates to the surface energy</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – buffer for the radius to look
+for neighbors in order to calculate bond length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Rough estimate of cohesive energy x surface density</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_total_bb">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_total_bb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_total_bb" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates the total ratio of broken bonds to bulk coordination number.
+Often used as a factor in surface energy.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucell</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a bulk unit cell.</p></li>
+<li><p><strong>slab</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a slab cell.</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – buffer for the radius to look
+for neighbors in order to calculate bond length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sum of undercoordination/full bulk coordination for each surface site</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(float)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.get_total_nn">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_total_nn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slab</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#catlas.filter_utils.get_total_nn" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates the sum of nearest neighbors for each surface site.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ucell</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a bulk unit cell.</p></li>
+<li><p><strong>slab</strong> (<em>pymatgen.structure.Structure</em>) – PMG Structure representation of a slab cell.</p></li>
+<li><p><strong>factor</strong> (<em>float</em>) – buffer for the radius to look
+for neighbors in order to calculate bond length</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Sum of surface coordination number</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>(int)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.pb_query_and_write">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">pb_query_and_write</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lmdb_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.pb_query_and_write" title="Permalink to this definition">#</a></dt>
-<dd><p>Pull pourbaix info from MP and write it to the lmdb</p>
+<dd><p>Pull pourbaix info from MP and write it to the lmdb.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>entry</strong> (<em>dict</em>) – entry to query</p></li>
 <li><p><strong>lmdb_path</strong> (<em>str</em>) – path of lmdb to write to</p></li>
 </ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.surface_area">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">surface_area</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slab</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.surface_area" title="Permalink to this definition">#</a></dt>
+<dd><p>Gets cross section surface area of the slab.
+:param slab: PMG Structure representation of a slab.
+:type slab: pymatgen.structure.Structure</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>surface area</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>(float)</p>
 </dd>
 </dl>
 </dd></dl>
