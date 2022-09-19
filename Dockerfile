@@ -69,6 +69,7 @@ RUN mamba install --quiet --yes \
     'pympler' \
     'backoff' \
     'pymatgen>=2022.0.17' \
+    'setuptools=59.5.0' \
     'ase>=3.22.1' && \
     mamba clean --all -f -y && \
     fix-permissions $CONDA_DIR && \
