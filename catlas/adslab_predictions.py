@@ -82,20 +82,6 @@ class BatchOCPPredictor:
             del config["dataset"]["src"]
             config["normalizer"] = config["dataset"]
 
-        # if "scale_file" in config["model_attributes"]:
-        #     if config["model_attributes"]["scale_file"].startswith("config"):
-        #         config["model_attributes"]["scale_file"] = os.path.join(
-        #             os.path.dirname(ocpmodels.__file__),
-        #             os.pardir,
-        #             config["model_attributes"]["scale_file"],
-        #         )
-
-        #     else:
-        #         config["model_attributes"]["scale_file"] = os.path.join(
-        #             os.path.dirname(checkpoint),
-        #             config["model_attributes"]["scale_file"],
-        #         )
-
         config["checkpoint"] = checkpoint
 
         # Turn off parallel data loading since this doesn't place nicely
