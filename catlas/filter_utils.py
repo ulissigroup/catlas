@@ -10,15 +10,17 @@ import catlas
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.core.structure import Structure
+from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
 def get_pourbaix_info(entry: dict) -> dict:
     """
-    Construct a Pourbaix diagram for a material.
-        This currently only supports MP inputs.
+    Construct a Pourbaix diagram for a material. This currently only supports MP inputs.
 
     Args:
-        entry: bulk structure entry as constructed by catlas.load_bulk_structures.load_bulks_from_db
+        entry: bulk structure entry as constructed by
+            catlas.load_bulk_structures.load_bulks_from_db
 
     Raises:
         ValueError: The bulk id provided in the entry is not a materials project id
@@ -38,7 +40,7 @@ def get_pourbaix_info(entry: dict) -> dict:
     output = {"mpid": mpid}
 
     # Get the composition information
-    pmg_entry = AseAtomsAdaptor.get_structure(entry["bulk_atoms"])
+    pmg_entry = entry["bulk_struc"]
     comp_dict = pmg_entry.composition.fractional_composition.as_dict()
     comp_dict.pop("H", None)
     comp_dict.pop("O", None)
@@ -117,7 +119,8 @@ def write_pourbaix_info(pbx_entry: dict, lmdb_path):
 
 
 def pb_query_and_write(entry: dict, lmdb_path: str):
-    """Pull pourbaix info from MP and write it to the lmdb
+    """
+    Pull pourbaix info from MP and write it to the lmdb.
 
     Args:
         entry (dict): entry to query
@@ -128,11 +131,12 @@ def pb_query_and_write(entry: dict, lmdb_path: str):
 
 
 def get_elements_in_groups(groups: list) -> list:
-    """Grabs the element symbols of all elements in the specified groups
+    """
+    Grabs the element symbols of all elements in the specified groups.
 
     Args:
-        groups (list[str]): Names of groups to include in the output.
-            Any element in any group will be included. Valid groups are listed in the `implemented_groups` variable.
+        groups (list[str]): Names of groups to include in the output. Any element in any
+            group will be included. Valid groups are listed in the `implemented_groups` variable.
 
     Returns:
         list[str]: Elements included in the input groups.
@@ -265,16 +269,21 @@ def get_pourbaix_stability(entry: dict, conditions: dict) -> list:
 
 
 def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
-    """Evaluates decomposition energies at regular pH and voltage windows within
+    """
+    Evaluates decomposition energies at regular pH and voltage windows within
     specified intervals.
 
     Args:
-        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram object containing information about the reference chemical system.
-        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry specific to the material we want to calculate the decomposition energy of.
-        conditions (dict): A dictionary specifying what condition or sets of conditions to evaluate the decomposition energy at.
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): a pourbaix diagram
+            object containing information about the reference chemical system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+            specific to the material we want to calculate the decomposition energy of.
+        conditions (dict): A dictionary specifying what condition or sets of conditions
+            to evaluate the decomposition energy at.
 
     Returns:
-        Iterable[bool]: A list corresponding to whether the input entry is stable under each set of conditions.
+        Iterable[bool]: A list corresponding to whether the input entry is stable under
+            each set of conditions.
     """
     list_of_bools = []
 
@@ -310,12 +319,15 @@ def get_decomposition_bools_from_range(pbx, pbx_entry, conditions):
 
 
 def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
-    """Evaluates decomposition energies at regular pH and voltage windows at specified
+    """
+    Evaluates decomposition energies at regular pH and voltage windows at specified
     pH and voltage points.
 
     Args:
-        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): an electrochemical stability diagram for the reference system.
-        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry specific to the material we want to calculate the decomposition energy of.
+        pbx (pymatgen.analysis.pourbaix_diagram.PourbaixDiagram): an electrochemical
+            stability diagram for the reference system.
+        pbx_entry (pymatgen.analysis.pourbaix_diagram.PourbaixEntry): a pourbaix entry
+            specific to the material we want to calculate the decomposition energy of.
         conditions (list[dict]): Conditions to evaluate the decomposition energy at.
             Each dictionary contains a pH and a voltage, both expressed as floats.
 
@@ -335,8 +347,10 @@ def get_decomposition_bools_from_list(pbx, pbx_entry, conditions):
 
 
 def get_first_type(x):
-    """Get the type of the input, unpacking lists first if necessary.
-        This is used to discard large objects from the output df of catlas if they are specified as unnecessary in the config yaml by examining the type of objects in a list where applicable.
+    """
+    Get the type of the input, unpacking lists first if necessary. This is used to discard
+    large objects from the output df of catlas if they are specified as unnecessary
+    in the config yaml by examining the type of objects in a list where applicable.
 
     Args:
         x (Any): An object to get the type of
@@ -348,3 +362,307 @@ def get_first_type(x):
         return type(x[0])
     else:
         return type(x)
+
+
+def surface_area(slab):
+    """
+    Gets cross section surface area of the slab.
+    Args:
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab.
+
+    Returns:
+        (float): surface area
+
+    """
+    m = slab.lattice.matrix
+    return np.linalg.norm(np.cross(m[0], m[1]))
+
+
+def get_bond_length(ucell, neighbor_factor):
+    """
+    Gets all bond lengths of all symmetrically distinct sites and organizes it as a dictionary
+    with the unique Wyckoff symbol as key and the bondlegnth as float value.
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        dict: {wyckoff symbol (str): bondlength (float)}
+    """
+    bond_lengths_dict = {}
+    for site in ucell:
+        if site.full_wyckoff in bond_lengths_dict.keys():
+            continue
+        r, neighbors = 2, []
+        while len(neighbors) == 0:
+            neighbors = ucell.get_neighbors(site, r)
+            r += 1
+        neighbors = sorted(neighbors, key=lambda n: n[1])
+        d = neighbors[0]
+        bond_lengths_dict[site.full_wyckoff] = d[1] * neighbor_factor
+
+    return bond_lengths_dict
+
+
+def get_bulk_cn(ucell, neighbor_factor):
+    """
+    Gets coordination number of each symmetrically distinct site in the unit cell and
+    organizes it as a dictionary with the unique Wyckoff symbol as key and the coordination
+    number as an int value.
+
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (dict): {wyckoff symbol (str): coordination number (int)}
+    """
+    bond_lengths_dict = get_bond_length(ucell, neighbor_factor)
+    bulk_cn_dict = {}
+    for site in ucell:
+        k = site.full_wyckoff
+        if k in bulk_cn_dict.keys():
+            continue
+        bulk_cn_dict[k] = len(ucell.get_neighbors(site, bond_lengths_dict[k]))
+    return bulk_cn_dict
+
+
+def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
+    """
+    Calculates the total ratio of broken bonds to bulk coordination number.
+    Often used as a factor in surface energy.
+
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Sum of undercoordination/full bulk coordination for each surface site
+    """
+    bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
+    bind_length_dict = get_bond_length(ucell, neighbor_factor)
+    tot_bb = 0
+    center_of_mass = get_center_of_mass(slab)
+    for site in slab:
+        if site.frac_coords[2] < center_of_mass[2]:
+            # analyze the top surface only
+            continue
+        neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
+        bulk_cn = bulk_cn_dict[site.full_wyckoff]
+        if len(neighbors) == bulk_cn:
+            continue
+        if len(neighbors) > bulk_cn:
+            warnings.warn(
+                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
+            )
+        tot_bb += (bulk_cn - len(neighbors)) / bulk_cn
+    return tot_bb
+
+
+def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
+    """
+    Calculates the sum of nearest neighbors for each surface site.
+
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (int): Sum of surface coordination number
+    """
+    bulk_cn_dict = get_bulk_cn(ucell, neighbor_factor)
+    bind_length_dict = get_bond_length(ucell, neighbor_factor)
+    tot_nn = 0
+    center_of_mass = get_center_of_mass(slab)
+    for site in slab:
+        if site.frac_coords[2] < center_of_mass[2]:
+            # analyze the top surface only
+            continue
+        neighbors = slab.get_neighbors(site, bind_length_dict[site.full_wyckoff])
+        bulk_cn = bulk_cn_dict[site.full_wyckoff]
+        if len(neighbors) == bulk_cn:
+            continue
+        if len(neighbors) > bulk_cn:
+            warnings.warn(
+                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
+            )
+        tot_nn += len(neighbors)
+    return tot_nn
+
+
+def get_broken_bonds(row: dict, neighbor_factor: float) -> float:
+    """
+    Estimates surface energy using a broken bond model.
+
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
+        ecoh (float): Cohesive energy which correlates to the surface energy
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Rough estimate of surface energy
+    """
+    slab = row["slab_structure"]
+    ucell = row["bulk_structure"]
+    a = surface_area(slab)
+    cns = get_total_bb(ucell, slab, neighbor_factor)
+    return cns * (1 / (2 * a))
+
+
+def get_surface_density(row: dict, neighbor_factor: float) -> float:
+    """
+    Estimates surface density multiplied by cohesive energy.
+
+    Args:
+        ucell (pymatgen.structure.Structure): PMG Structure representation of a bulk unit cell.
+        slab (pymatgen.structure.Structure): PMG Structure representation of a slab cell.
+        ecoh (float): Cohesive energy which correlates to the surface energy
+        factor (float): buffer for the radius to look
+            for neighbors in order to calculate bond length
+
+    Returns:
+        (float): Rough estimate of cohesive energy x surface density
+    """
+    slab = row["slab_structure"]
+    ucell = row["bulk_structure"]
+    a = surface_area(slab)
+    cns = get_total_nn(ucell, slab, neighbor_factor)
+    return cns * (1 / (2 * a))
+
+
+def filter_by_surface_property(bag_partition, name: str, val: dict):
+    """
+    Parse all miller facets per material and pick those that should be lower energy
+    by the broken bond model or the surface density model
+
+    Args:
+        bag_partition (Iterable[dict]): a partition of a dask bag containing enumerated surfaces
+        name (str): filter name to be applied (comes from the main catlas config)
+        val (dict): values associated with name from the config yaml file, which futher
+            specify how the filter should be applied
+    Returns:
+        Iterable[dict]: the bag partition with undesired slabs filtered out
+    """
+    # Use either the provided hashes, or default to the surface atoms object
+    hash_column = "bulk_id"
+
+    neighbor_factor = val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = row[hash_column]
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    # Iterate over all unique hashes
+    filtered_bag_partition = []
+    for key, value in hash_dict.items():
+        if name == "filter_by_broken_bonds":
+            surface_model_values = [
+                get_broken_bonds(row, neighbor_factor) for row in value
+            ]
+        elif name == "filter_by_surface_density":
+            surface_model_values = [
+                get_surface_density(row, neighbor_factor) for row in value
+            ]
+
+        if "top_k" in val:
+            select_indices = np.argpartition(surface_model_values, val["top_k"])[
+                : val["top_k"]
+            ]
+
+        elif "top_proportion" in val:
+            k = int(np.ceil(val["top_proportion"] * len(surface_model_values)))
+            select_indices = np.argpartition(surface_model_values, k)[:k]
+
+        filtered_bag_partition.extend(
+            [row for idx, row in enumerate(value) if idx in select_indices]
+        )
+
+    return filtered_bag_partition
+
+
+def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
+    """
+    Parse each facet and pick the one that should be the lowest energy
+    by the broken bond model or the surface density model
+
+    Args:
+        bag_partition (Iterable[dict]): a partition of a dask bag containing
+            enumerated surfaces
+        name (str): filter name to be applied (comes from the main catlas config)
+        val (dict): values associated with name from the config yaml file, which futher
+            specify how the filter should be applied
+    Returns:
+        Iterable[dict]: the bag partition with undesired slabs filtered out
+    """
+    hash_column = ["bulk_id", "slab_millers"]
+
+    neighbor_factor = val["neighbor_factor"] if "neighbor_factor" in val else 1.1
+
+    difference_threshold = (
+        val["difference_threshold"] if "difference_threshold" in val else 0.1
+    )
+
+    # Hash all entries by the desired columns
+    hash_dict = {}
+    for row in bag_partition:
+        key = tuple([row[hash_column[0]], row[hash_column[1]]])
+        if key in hash_dict:
+            hash_dict[key].append(row)
+        else:
+            hash_dict[key] = [row]
+
+    # Iterate over all unique hashes
+    filtered_bag_partition = []
+    for key, value in hash_dict.items():
+        if name == "filter_best_shift_by_broken_bonds":
+            surface_model_values = [
+                get_broken_bonds(row, neighbor_factor) for row in value
+            ]
+        elif name == "filter_best_shift_by_surface_density":
+            surface_model_values = [
+                get_surface_density(row, neighbor_factor) for row in value
+            ]
+        sorted_indices = np.argsort(surface_model_values)
+
+        best_surface = surface_model_values[sorted_indices[0]]
+        selected_indices = []
+        for idx in sorted_indices:
+            if (
+                surface_model_values[idx] - best_surface
+            ) <= difference_threshold * best_surface:
+                selected_indices.append(idx)
+            else:
+                break
+        filtered_bag_partition.extend(
+            [row for idx, row in enumerate(value) if idx in selected_indices]
+        )
+    return filtered_bag_partition
+
+
+def get_center_of_mass(pmg_struct):
+    """
+    Calculates the center of mass of a pmg structure.
+
+    Args:
+        pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be
+            considered.
+
+    Returns:
+        numpy.ndarray: the center of mass
+    """
+    weights = [s.species.weight for s in pmg_struct]
+    center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)
+    return center_of_mass

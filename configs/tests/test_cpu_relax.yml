@@ -8,7 +8,7 @@ output_options:
   verbose: False
 
 input_options:
-  bulk_file: 'catlas/bulk_structures/ocp_bulks_w_properties.db'
+  bulk_file: 'catlas/bulk_structures/ocp_bulks20220812.pkl'
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 bulk_filters:
@@ -26,7 +26,7 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/private_checkpoints/gemnet-is2re-finetuned-11-01.pt'
+    checkpoint_path: 'ocp_checkpoints/for_catlas/gemnet-is2re-finetuned-11-01.pt'
   - step_type: filter_by_adsorption_energy_target
     adsorbate_smiles: '*H'
     target_value: 0.0
@@ -41,6 +41,6 @@ adslab_prediction_steps:
     gpu: false
     batch_size: 4
     label: 'dE_gemnet_relax'
-    checkpoint_path: 'ocp_checkpoints/public_checkpoints/gemnet_t_direct_h512_all.pt'
+    checkpoint_path: 'ocp_checkpoints/for_catlas/gemnet_t_direct_h512_all.pt'
     number_steps: 10
 

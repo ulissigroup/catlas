@@ -162,9 +162,47 @@ adsorbate_filters:
 ## Slab Filters
 Downselect slabs before performing adsorbate placement and inference.
 1. Object size: filters out any slabs with more atoms than the number specified here. This is useful to avoid need many calculations for very large surfaces.
-```filter_by_object_size: 100```
-2. Maximum miller index: will filter out any slab where the any miller index excedes the value specified. i.e. 2 will filter out (-2,1,0) and (2,1,1)
-```filter_by_max_miller_index: 1```
+
+    ```filter_by_object_size: 100```
+    
+2. Maximum miller index: will enumerate all slabs up to the provided index. If not provided, this defaults to 2.
+    
+    ```filter_by_max_miller_index: 1```
+    
+3. Broken bond model / surface density: There are two ways of using the broken bond model to select which slabs to run inference:
+    a. Selecting the best surfaces per bulk: here you select by two citeria:
+        i. k: which is the number of surfaces per bulk you would like to consider (i.e. if `top_k = 10` then the 10 surfaces with the lowest surface energy proxy values will be selected)
+        ii. top proportion: a proportion of surfaces to choose (i.e. if `top_propostion = 0.5` and 50 surfaces are enumerated, then 25 will be filtered out.
+       
+        
+        ```
+        filter_by_broken_bonds:
+          top_k: 10
+          
+        OR
+        
+        filter_by_surface_density:
+          top_proportion: 0.15        
+        ```
+        
+    b. Choosing the best shift(s) from a for a given miller index: you can specify a difference tolerance so surfaces with similar broken bond densities will still be considered (i.e. if `surface_now - best_surface <= difference_threshold * best_surface` the surface will also be considered) otherwise this defaults to 0.1.  
+    
+        ```
+        filter_best_shift_by_broken_bonds:
+          difference_threshold: 0.2
+          
+        OR
+        
+        filter_best_shift_by_surface_density:
+          difference_threshold: 0.2        
+        
+        ```
+        
+    Optionally, you may specify a neighbor factor which is use to determine nearest neighbors by the models. This defaults to 1.1.
+    
+    ```
+    neighbor_factor: 1.1
+    ```
 
 ## Adslab Prediction Steps
 Runs may be set up so that inference is performed sequentially. The idea here is that you may want to use a cheap, less accurate model to downselect first, and then perform more expensive, accurate inference. If you would not like to do this, simply use one step instead.

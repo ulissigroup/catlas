@@ -69,6 +69,7 @@ RUN mamba install --quiet --yes \
     'pympler' \
     'backoff' \
     'pymatgen>=2022.0.17' \
+    'setuptools=59.5.0' \
     'ase>=3.22.1' && \
     mamba clean --all -f -y && \
     fix-permissions $CONDA_DIR && \
@@ -87,6 +88,6 @@ RUN pip install pymatgen-analysis-alloys
 # Add OCP
 WORKDIR /home/jovyan
 RUN git clone https://github.com/Open-Catalyst-Project/ocp.git && \
-    python ocp/setup.py develop
+    cd ocp && python setup.py develop
 CMD ["sh","-c", "jupyter notebook --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
-ENV PYTHONPATH=/home/jovyan/ocp/:/home/jovyan/catlas/
+ENV PYTHONPATH=/home/jovyan/ocp/

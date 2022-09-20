@@ -17,7 +17,8 @@ valid_element_groups = [
 
 
 def validate_element(field, value, error):
-    """Check if the input in a given field is an element according to Pymatgen.
+    """
+    Check if the input in a given field is an element according to Pymatgen.
 
     Args:
         field (tuple): a Cerberus field
@@ -35,7 +36,8 @@ def validate_element(field, value, error):
 
 
 def validate_path_exists(field, value, error):
-    """Check if the filepath in a given field exists.
+    """
+    Check if the filepath in a given field exists.
 
     Args:
         field (tuple): a Cerberus field
@@ -47,7 +49,8 @@ def validate_path_exists(field, value, error):
 
 
 def validate_folder_exists(field, value, error):
-    """Check if the filepath in a given field has a valid enclosing folder, regardless
+    """
+    Check if the filepath in a given field has a valid enclosing folder, regardless
     of whether the file exists.
 
     Args:
@@ -185,6 +188,62 @@ config_schema = {
         "schema": {
             "filter_by_object_size": {"type": "integer"},
             "filter_by_max_miller_index": {"type": "integer"},
+            "filter_by_broken_bonds": {
+                "type": "dict",
+                "schema": {
+                    "top_k": {
+                        "type": "integer",
+                        "required": True,
+                        "excludes": "top_proportion",
+                    },
+                    "top_proportion": {
+                        "type": "float",
+                        "required": True,
+                        "excludes": "top_k",
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
+                },
+            },
+            "filter_by_surface_density": {
+                "type": "dict",
+                "schema": {
+                    "top_k": {
+                        "type": "integer",
+                        "required": True,
+                        "excludes": "top_proportion",
+                    },
+                    "top_proportion": {
+                        "type": "float",
+                        "required": True,
+                        "excludes": "top_k",
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
+                },
+            },
+            "filter_best_shift_by_broken_bonds": {
+                "type": "dict",
+                "schema": {
+                    "difference_threshold": {
+                        "type": "float",
+                        "required": False,
+                        "min": 0,
+                        "max": 0.5,
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
+                },
+            },
+            "filter_best_shift_by_surface_density": {
+                "type": "dict",
+                "schema": {
+                    "difference_threshold": {
+                        "type": "float",
+                        "required": False,
+                        "min": 0,
+                        "max": 0.5,
+                    },
+                    "neighbor_threshold": {"type": "float", "required": False},
+                },
+            },
         },
     },
     "output_options": {
