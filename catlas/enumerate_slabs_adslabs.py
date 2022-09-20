@@ -46,13 +46,13 @@ def enumerate_slabs(bulk_dict, max_miller):
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface
-        surface_object = Surface(bulk_dict["bulk_structure"], surface, np.nan, np.nan)
+        surface_object = Surface(bulk_dict["bulk_structure"], surface)
 
         # Make the surface dict by extending a copy of the bulk dict
         surface_result = copy.deepcopy(bulk_dict)
         surface_result.update(
             {
-                "slab_atoms": surface_object.contrained_surface,
+                "slab_atoms": surface_object.constrained_surface,
                 "slab_surface_object": surface_object,
                 "slab_millers": millers,
                 "slab_max_miller_index": np.max(millers),

@@ -7,11 +7,14 @@ import numpy as np
 from mp_api.client import MPRester
 
 import catlas
+from catlas.general_utils import get_center_of_mass
+
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
 from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+
 
 
 def get_pourbaix_info(entry: dict) -> dict:
@@ -643,18 +646,3 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
         )
     return filtered_bag_partition
 
-
-def get_center_of_mass(pmg_struct):
-    """
-    Calculates the center of mass of a pmg structure.
-
-    Args:
-        pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be
-            considered.
-
-    Returns:
-        numpy.ndarray: the center of mass
-    """
-    weights = [s.species.weight for s in pmg_struct]
-    center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)
-    return center_of_mass
