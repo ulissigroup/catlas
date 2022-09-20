@@ -403,7 +403,7 @@ def generate_outputs(
 
     if not inference:
         inference_list = [{"label": "no inference", "counts": 0}]
-        num_adslabs = results_bag["adslab_atoms"].map(len).sum().compute()
+        num_adslabs = results_bag.map(len).sum().compute()
         num_filtered_slabs = results_bag.count().compute()
 
     if output_options["pickle_intermediate_outputs"]:
