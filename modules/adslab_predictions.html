@@ -487,6 +487,27 @@ Iterable[torch_geometric.data.Data): relaxed structures</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="catlas.adslab_predictions.count_steps">
+<span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">count_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_results</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.count_steps" title="Permalink to this definition">#</a></dt>
+<dd><p>Count the number of adslabs remaining at each filtering step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>dict</em>) – a catlas config</p></li>
+<li><p><strong>df_results</strong> (<em>pd.core.frame.DataFrame</em>) – the output of a catlas run</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a list of steps and the number of adslabs remaining at that step
+int: the original number of adslabs before filtering</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list[dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="catlas.adslab_predictions.energy_prediction">
 <span class="sig-prename descclassname"><span class="pre">catlas.adslab_predictions.</span></span><span class="sig-name descname"><span class="pre">energy_prediction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adslab_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adslab_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_adslab_atoms</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hash_adslab_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graphs_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">column_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gpu_mem_per_sample</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number_steps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.adslab_predictions.energy_prediction" title="Permalink to this definition">#</a></dt>
 <dd><p>Predict the energies of adslabs.</p>

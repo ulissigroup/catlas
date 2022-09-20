@@ -450,6 +450,30 @@ specify how the filter should be applied</p></li>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="catlas.filter_utils.filter_columns_by_type">
+<span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">filter_columns_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_kws</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.filter_columns_by_type" title="Permalink to this definition">#</a></dt>
+<dd><dl>
+<dt>Filter columns of a dataframe based on what datatype they contain.</dt><dd><p>If any element of the provided list is present in the string representation of the <cite>type</cite> of the first non-None element of the column, that column name will be included in the list of returned columns.</p>
+<p>Example: if type_kws=[‘ocp’, ‘ocdata’], you will filter out any column whose first valid element is an <cite>ocp.ocpmodels.preprocessing.atoms_to_graphs.AtomsToGraphs</cite> object, or an <cite>ocdata.surfaces.Surface</cite> object, or a <cite>pydocparser.Parser</cite> object.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pd.core.frame.DataFrame</em>) – a pandas DataFrame</p></li>
+<li><p><strong>column_kws</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – If any element of this list is present in the <cite>type</cite> of</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the index corresponds to the column name, the value is True if the column contains a type corresponding to the filtering criteria.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pd.core.series.Series[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="catlas.filter_utils.get_bond_length">
 <span class="sig-prename descclassname"><span class="pre">catlas.filter_utils.</span></span><span class="sig-name descname"><span class="pre">get_bond_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ucell</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbor_factor</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#catlas.filter_utils.get_bond_length" title="Permalink to this definition">#</a></dt>
 <dd><p>Gets all bond lengths of all symmetrically distinct sites and organizes it as a dictionary
