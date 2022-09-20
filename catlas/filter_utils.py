@@ -7,7 +7,7 @@ import numpy as np
 from mp_api.client import MPRester
 
 import catlas
-from catlas.general_utils import get_center_of_mass
+from catlas.general_utils import get_center_of_mass, surface_area
 
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
@@ -365,20 +365,6 @@ def get_first_type(x):
         return type(x[0])
     else:
         return type(x)
-
-
-def surface_area(slab):
-    """
-    Gets cross section surface area of the slab.
-    Args:
-        slab (pymatgen.structure.Structure): PMG Structure representation of a slab.
-
-    Returns:
-        (float): surface area
-
-    """
-    m = slab.lattice.matrix
-    return np.linalg.norm(np.cross(m[0], m[1]))
 
 
 def get_bond_length(ucell, neighbor_factor):
