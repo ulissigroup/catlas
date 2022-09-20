@@ -455,10 +455,6 @@ def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
         bulk_cn = bulk_cn_dict[site.full_wyckoff]
         if len(neighbors) == bulk_cn:
             continue
-        if len(neighbors) > bulk_cn:
-            warnings.warn(
-                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
-            )
         tot_bb += (bulk_cn - len(neighbors)) / bulk_cn
     return tot_bb
 
@@ -488,10 +484,6 @@ def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
         bulk_cn = bulk_cn_dict[site.full_wyckoff]
         if len(neighbors) == bulk_cn:
             continue
-        if len(neighbors) > bulk_cn:
-            warnings.warn(
-                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
-            )
         tot_nn += len(neighbors)
     return tot_nn
 

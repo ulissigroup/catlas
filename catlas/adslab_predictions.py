@@ -23,13 +23,6 @@ BOCPP_dict = {}
 relax_calc = None
 
 
-def pop_keys(adslab_dict, keys):
-    adslab_dict = copy.deepcopy(adslab_dict)
-    for key in keys:
-        adslab_dict.pop(key)
-    return adslab_dict
-
-
 class GraphsListDataset(Dataset):
     """
     Make a list of graphs to feed into ocp dataloader object

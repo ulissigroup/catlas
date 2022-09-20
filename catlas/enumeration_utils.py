@@ -6,9 +6,6 @@ Note that some of these scripts were taken from
 [GASpy](https://github.com/ulissigroup/GASpy) with permission of author.
 """
 
-__authors__ = ["Kevin Tran", "Aini Palizhati", "Siddharth Goyal", "Zachary Ulissi"]
-__email__ = ["ktran@andrew.cmu.edu"]
-
 import numpy as np
 import math
 import os
@@ -24,8 +21,8 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ase import neighborlist
 from ase.constraints import FixAtoms
-from collections import defaultdict
 from pymatgen.core import Composition
+from pymatgen.analysis.local_env import VoronoiNN
 MIN_XY = 8.
 
 
@@ -189,7 +186,7 @@ class Surface():
         returns a dict containing info about the surface
     '''
 
-    def __init__(self, bulk_object, surface_info, surface_index, total_surfaces_possible):
+    def __init__(self, bulk_struct, surface_info, surface_index, total_surfaces_possible):
         '''
         Initialize the surface object, tag atoms, and constrain the surface.
         Args:
@@ -198,7 +195,7 @@ class Surface():
             surface_index: index of surface out of all possible ones for the bulk
             total_surfaces_possible: number of possible surfaces from this bulk
         '''
-        self.bulk_object = bulk_object
+        self.bulk_struct = bulk_struct
         surface_struct, self.millers, self.shift, self.top = surface_info
         self.surface_sampling_str = str(surface_index) + "/" + str(total_surfaces_possible)
 
@@ -207,13 +204,13 @@ class Surface():
 
         # verify that the bulk and surface elements and stoichiometry match:
         assert (Composition(self.surface_atoms.get_chemical_formula()).reduced_formula ==
-            Composition(bulk_object.bulk_atoms.get_chemical_formula()).reduced_formula), \
+            Composition(AseAtomsAdaptor.get_atoms(bulk_struct).get_chemical_formula()).reduced_formula), \
             'Mismatched bulk and surface'
 
-        self.tag_surface_atoms(self.bulk_object.bulk_atoms, self.surface_struct)
+        self.tag_surface_atoms(self.bulk_struct, self.surface_struct)
         self.constrained_surface = constrain_surface(self.surface_atoms)
 
-    def tile_structure(structure):
+    def tile_structure(self, structure):
         '''
         This function will repeat an atoms structure in the x and y direction until
         the x and y dimensions are at least as wide as the MIN_XY constant.
@@ -230,7 +227,7 @@ class Surface():
         structure.make_supercell([[nx,0,0],[0,ny,0],[0,0,1]])
         return structure
 
-    def tag_surface_atoms(self, bulk_atoms, surface_struct):
+    def tag_surface_atoms(self, bulk_struct, surface_struct):
         '''
         Sets the tags of an `ase.Atoms` object. Any atom that we consider a "bulk"
         atom will have a tag of 0, and any atom that we consider a "surface" atom
@@ -242,7 +239,7 @@ class Surface():
             surface_atoms   The surface where you are trying to find surface sites in
                             `ase.Atoms` format
         '''
-        voronoi_tags = self._find_surface_atoms_with_voronoi(bulk_atoms, surface_struct)
+        voronoi_tags = self._find_surface_atoms_with_voronoi(bulk_struct, surface_struct)
         self.surface_atoms.set_tags(voronoi_tags)
 
     def _find_surface_atoms_with_voronoi(self, bulk_struct, surface_struct):
@@ -268,7 +265,7 @@ class Surface():
         '''
         # Initializations
         center_of_mass = self.calculate_center_of_mass(surface_struct)
-        bulk_cn_dict = self.calculate_coordination_of_bulk_atoms(bulk_struct)
+        bulk_cn_dict = self.calculate_coordination_of_bulk_struct(bulk_struct)
         voronoi_nn = VoronoiNN(tol=0.1)  # 0.1 chosen for better detection
 
         tags = []
@@ -316,7 +313,7 @@ class Surface():
         Arg:
             bulk_atoms  An `ase.Atoms` object of the bulk structure.
         Returns:
-            bulk_cn_dict    A defaultdict whose keys are the elements within
+            bulk_cn_dict    A dict whose keys are the elements within
                             `bulk_atoms` and whose values are a set of integers of the
                             coordination numbers of that element.
         '''
@@ -326,10 +323,10 @@ class Surface():
         sga = SpacegroupAnalyzer(bulk_struct)
 
         # We'll only loop over the symmetrically distinct sites for speed's sake
-        bulk_cn_dict = defaultdict(set)
+        bulk_cn_dict = {}
         for idx, site in enumerate(bulk_struct):
             if site.full_wyckoff not in bulk_cn_dict:
                 cn = voronoi_nn.get_cn(bulk_struct, idx, use_weights=True)
                 cn = round(cn, 5)
-                bulk_cn_dict[site.full_wyckoff].add(cn)
+                bulk_cn_dict[site.full_wyckoff] = cn
         return bulk_cn_dict
