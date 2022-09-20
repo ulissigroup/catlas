@@ -8,7 +8,8 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 def load_ocdata_adsorbates(adsorbate_path):
-    """Load in a list of adsorbates.
+    """
+    Load in a list of adsorbates.
 
     Args:
         adsorbate_path (str): file path to adsorbate pickle file
