@@ -16,7 +16,6 @@ from pymatgen.core.structure import Structure
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 
-
 def get_pourbaix_info(entry: dict) -> dict:
     """
     Construct a Pourbaix diagram for a material. This currently only supports MP inputs.
@@ -631,4 +630,3 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
             [row for idx, row in enumerate(value) if idx in selected_indices]
         )
     return filtered_bag_partition
-

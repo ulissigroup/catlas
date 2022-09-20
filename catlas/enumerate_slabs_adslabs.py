@@ -20,6 +20,7 @@ class CustomAdsorbate(Adsorbate):
         self.bond_indices = bond_indices
         self.smiles = smiles
 
+
 def enumerate_slabs(bulk_dict, max_miller):
     """
     Given a dictionary defining a material bulk, use pymatgen's SlabGenerator object

@@ -20,10 +20,10 @@ from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
 
 from ase.constraints import FixAtoms
 from pymatgen.analysis.local_env import VoronoiNN
-MIN_XY = 8.
+
+MIN_XY = 8.0
 
 from catlas.general_utils import get_center_of_mass
-
 
 
 def enumerate_surfaces_for_saving(bulk_structure, max_miller):
@@ -110,10 +110,10 @@ def is_structure_invertible(structure):
 def flip_struct(struct):
     """
     Flips an atoms object upside down. Normally used to flip surfaces.
-    
+
     Args:
         struct (pymatgen.structure.Structure): surface object
-        
+
     Returns:
         (pymatgen.structure.Structure): The same structure object that was fed as an
             argument, but flipped upside down.
@@ -143,12 +143,12 @@ def constrain_surface(atoms):
     `0`, surface atoms are tagged with `1`, and the adsorbate atoms are tagged
     with `2` or above. This function is used for both surface atoms and the combined
     surface+adsorbate
-    
+
     Args:
         atoms (ase.Atoms): class of the surface system. The tags of these atoms must
             be set such that any bulk/surface atoms are tagged with `0` or `1`,
             resectively, and any adsorbate atom is tagged with a 2 or above.
-            
+
     Returns:
         (ase.Atoms): A copy of the `atoms` argument, but where the appropriate
             atoms are constrained.
@@ -164,11 +164,11 @@ def constrain_surface(atoms):
     return atoms
 
 
-class Surface():
+class Surface:
     """
     This class handles all things with a surface.
     Create one with a bulk and one of its selected surfaces
-    
+
     Attributes
     ----------
     bulk_struct : pymatgen.structure.Structure
@@ -190,7 +190,7 @@ class Surface():
     def __init__(self, bulk_struct, surface_info):
         """
         Initialize the surface object, tag atoms, and constrain the surface.
-        
+
         Args:
             bulk_struct (pymatgen.structure.Structure):  An object of the bulk structure.
             surface_info: tuple containing atoms, millers, shift, top
@@ -208,18 +208,18 @@ class Surface():
         """
         This function will repeat an atoms structure in the x and y direction until
         the x and y dimensions are at least as wide as the MIN_XY constant.
-        
+
         Args:
             structure (pymatgen.structure.Structure):  An object of the structure to tile.
-            
+
         Returns:
              (pymatgen.structure.Structure):  An object of the structure post-tile.
         """
         x_length = structure.lattice.abc[0]
         y_length = structure.lattice.abc[1]
-        nx = int(math.ceil(8./x_length))
-        ny = int(math.ceil(8./y_length))
-        structure.make_supercell([[nx,0,0],[0,ny,0],[0,0,1]])
+        nx = int(math.ceil(8.0 / x_length))
+        ny = int(math.ceil(8.0 / y_length))
+        structure.make_supercell([[nx, 0, 0], [0, ny, 0], [0, 0, 1]])
         return structure
 
     def tag_surface_atoms(self, bulk_struct, surface_struct):
@@ -227,12 +227,14 @@ class Surface():
         Sets the tags of an `ase.Atoms` object. Any atom that we consider a "bulk"
         atom will have a tag of 0, and any atom that we consider a "surface" atom
         will have a tag of 1.
-        
+
         Args:
             bulk_struct (pymatgen.structure.Structure):  An object of the bulk structure.
             surface_struct (pymatgen.structure.Structure):  An object of the surface structure.
         """
-        voronoi_tags = self._find_surface_atoms_with_voronoi(bulk_struct, surface_struct)
+        voronoi_tags = self._find_surface_atoms_with_voronoi(
+            bulk_struct, surface_struct
+        )
         self.surface_atoms.set_tags(voronoi_tags)
 
     def _find_surface_atoms_with_voronoi(self, bulk_struct, surface_struct):
@@ -241,11 +243,11 @@ class Surface():
         relative to their bulk structure. If an atom's coordination is less than it
         normally is in a bulk, then we consider it a surface atom. We calculate the
         coordination using pymatgen's Voronoi algorithms.
-        
+
         Args:
             bulk_struct (pymatgen.structure.Structure):  An object of the bulk structure.
             surface_struct (pymatgen.structure.Structure):  An object of the surface structure.
-            
+
         Returns:
             (list): A list of 0's and 1's whose indices align with the atoms in
                 surface_struct. 0's indicate a subsurface atom and 1 indicates a surface atom.
@@ -278,7 +280,7 @@ class Surface():
             else:
                 tags.append(0)
         return tags
-    
+
     def calculate_coordination_of_bulk_struct(self, bulk_struct):
         """
         Finds all unique sites in a bulk structure and then determines their
@@ -286,10 +288,10 @@ class Surface():
         dictionary whose keys are the elements of the atoms and whose values are
         their possible coordination numbers.
         For example: `bulk_cns = {'Pt': {3., 12.}, 'Pd': {12.}}`
-        
+
         Args:
             bulk_struct (pymatgen.structure.Structure):  An object of the bulk structure.
-            
+
         Returns:
             (dict): A dict whose keys are the wyckoff values in the bulk_struct
                 and whose values are the coordination numbers of that site.

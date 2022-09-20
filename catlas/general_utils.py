@@ -18,6 +18,7 @@ def get_center_of_mass(pmg_struct):
     center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)
     return center_of_mass
 
+
 def surface_area(slab):
     """
     Gets cross section surface area of the slab.
