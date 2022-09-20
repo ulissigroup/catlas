@@ -12,7 +12,7 @@ from jinja2 import Template
 import argparse
 
 import catlas.dask_utils
-from catlas.adslab_predictions import energy_prediction
+from catlas.adslab_predictions import energy_prediction, count_steps
 from catlas.config_validation import config_validator
 from catlas.dask_utils import to_pickles
 from catlas.enumerate_slabs_adslabs import (
@@ -21,7 +21,7 @@ from catlas.enumerate_slabs_adslabs import (
     enumerate_slabs,
     merge_surface_adsorbate_combo,
 )
-from catlas.filter_utils import pb_query_and_write, get_first_type
+from catlas.filter_utils import pb_query_and_write, filter_columns_by_type
 from catlas.filters import (
     adsorbate_filter,
     bulk_filter,
@@ -396,12 +396,17 @@ def generate_outputs(
         int: the number of adslabs that inference was run on
         int: the number of adslabs remaining after all inference
     """
-    verbose = (
-        "verbose" in config["output_options"] and config["output_options"]["verbose"]
-    )
-
+    output_options = config["output_options"]
+    verbose = output_options["verbose"]
+    compute = verbose or output_options["pickle_final_output"]
     num_adslabs = None
-    if config["output_options"]["pickle_intermediate_outputs"]:
+
+    if not inference:
+        inference_list = [{"label": "no inference", "counts": 0}]
+        num_adslabs = results_bag.map(len).sum().compute()
+        num_filtered_slabs = results_bag.count().compute()
+
+    if output_options["pickle_intermediate_outputs"]:
         os.makedirs(f"outputs/{run_id}/intermediate_pkls/")
         to_pickles(
             results_bag,
@@ -409,24 +414,13 @@ def generate_outputs(
             optimize_graph=False,
         )
 
-    if verbose or config["output_options"]["pickle_final_output"]:
+    if compute:
         results = results_bag.compute(optimize_graph=False)
         df_results = pd.DataFrame(results)
         if inference:
-            inference_list = []
-            for step in config["adslab_prediction_steps"]:
-                if step["step_type"] == "inference":
-                    counts = sum(
-                        df_results[~df_results["min_" + step["label"]].isnull()][
-                            step["label"]
-                        ].apply(len)
-                    )
-                    label = step["label"]
-                    inference_list.append({"counts": counts, "label": label})
-            num_adslabs = sum(df_results[inference_list[0]["label"]].apply(len))
+            inference_list, num_adslabs = count_steps(config, df_results)
         num_filtered_slabs = len(df_results)
-        if verbose and inference:
-
+        if verbose:
             print(
                 df_results[
                     [
@@ -435,58 +429,31 @@ def generate_outputs(
                         "bulk_data_source",
                         "slab_millers",
                         "adsorbate_smiles",
-                        most_recent_step,
-                    ]
-                ]
-            )
-        elif verbose:
-            print(
-                df_results[
-                    [
-                        "bulk_elements",
-                        "bulk_id",
-                        "bulk_data_source",
-                        "slab_millers",
-                        "adsorbate_smiles",
+                        *[c for c in df_results.columns if c == most_recent_step],
                     ]
                 ]
             )
 
     else:
-        # Important to use optimize_grap=False so that the information
+        # Important to use optimize_graph=False so that the information
         # on only running GPU inference on GPUs is saved
         results = results_bag.persist(optimize_graph=False)
         wait(results)
-        num_filtered_slabs = results.count().compute()
 
-    if config["output_options"]["pickle_final_output"]:
+    if output_options["pickle_final_output"]:
         pickle_path = f"outputs/{run_id}/results_df.pkl"
 
         if (
-            "output_all_structures" in config["output_options"]
-            and config["output_options"]["output_all_structures"]
+            "output_all_structures" in output_options
+            and output_options["output_all_structures"]
         ):
             adslab_atoms = adslab_atoms_bag.compute(optimize_graph=False)
             df_results["adslab_atoms"] = adslab_atoms
             df_results.to_pickle(pickle_path)
-            if not inference:
-                num_adslabs = sum(df_results["adslab_atoms"].apply(len))
-                num_filtered_slabs = len(df_results)
-                inference_list = [{"label": "no inference", "counts": 0}]
+
         else:
-            # screen classes from custom packages
-            class_mask = (
-                df_results.columns.to_series()
-                .apply(
-                    lambda x: str(
-                        get_first_type(
-                            df_results[x].iloc[df_results[x].first_valid_index()]
-                        )
-                    )
-                    if type(df_results[x].first_valid_index()) == int
-                    else str(type(df_results[x].iloc[0]))
-                )
-                .apply(lambda x: "catkit" in x or "ocp" in x or "ocdata" in x)
+            class_mask = filter_columns_by_type(
+                df_results, type_kws=["catkit", "ocp", "ocdata"]
             )
             df_results[class_mask[~class_mask].index].to_pickle(pickle_path)
 
