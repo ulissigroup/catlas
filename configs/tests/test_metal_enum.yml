@@ -20,7 +20,6 @@ adsorbate_filters:
 
 slab_filters:
     filter_by_object_size: 100
-    filter_by_max_miller_index: 2
     filter_best_shift_by_broken_bonds:
       difference_threshold: 0.05
 
