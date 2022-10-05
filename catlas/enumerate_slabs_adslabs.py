@@ -3,7 +3,7 @@ import logging
 import numpy as np
 
 import torch
-from catlas.enumeration_utils import enumerate_surfaces_for_saving
+from catlas.enumeration_utils import enumerate_surfaces_for_saving, enumerate_custom_surfaces_for_saving
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 from ocdata.combined import Combined
@@ -28,7 +28,7 @@ class CustomBulk(Bulk):
         self.bulk_atoms = bulk_atoms
 
 
-def enumerate_slabs(bulk_dict, max_miller):
+def enumerate_slabs(bulk_dict, max_miller, config):
     """
     Given a dictionary defining a material bulk, use pymatgen's SlabGenerator object
     to enumerate all the slabs associated with the bulk object.
@@ -52,7 +52,10 @@ def enumerate_slabs(bulk_dict, max_miller):
 
     bulk_obj = CustomBulk(AseAtomsAdaptor.get_atoms(bulk_dict["bulk_structure"]))
 
-    surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_structure"], max_miller)
+    if "custom_slab_file" in config["input_options"]:
+        surfaces = enumerate_custom_surfaces_for_saving(bulk_dict["bulk_structure"], config)
+    else:    
+        surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_structure"], max_miller)
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface

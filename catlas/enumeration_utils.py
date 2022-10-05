@@ -10,7 +10,10 @@ __authors__ = ["Kevin Tran", "Aini Palizhati", "Siddharth Goyal", "Zachary Uliss
 __email__ = ["ktran@andrew.cmu.edu"]
 
 import numpy as np
+import pickle
+import pandas as pd
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.ext.matproj import MPRester
 from pymatgen.core.surface import (
     SlabGenerator,
     get_symmetrically_distinct_miller_indices,
@@ -123,3 +126,33 @@ def flip_struct(struct):
     wyckoffs = [site.full_wyckoff for site in struct]
     flipped_struct.add_site_property("full_wyckoff", wyckoffs)
     return flipped_struct
+
+def enumerate_custom_surfaces_for_saving(bulk_structure, config):
+    with open(config["input_options"]["custom_slab_file"], 'rb') as f:
+        custom_slab_file = pickle.load(f)
+    custom_slab_file = pd.DataFrame(custom_slab_file)
+    
+    slabs=[]
+    for r in range(0,len(custom_slab_file)):
+        with MPRester("MGOdX3P4nI18eKvE") as mpr:
+            test_structure = mpr.get_structure_by_material_id(custom_slab_file.bulk_id[r],
+                                                            final=True, 
+                                                            conventional_unit_cell
+                                                            =True)
+        if test_structure == bulk_structure:
+            slab_gen = SlabGenerator(
+            initial_structure=bulk_structure,
+            miller_index=custom_slab_file.miller_index[r],
+            min_slab_size=7.0,
+            min_vacuum_size=20.0,
+            lll_reduce=False,
+            center_slab=True,
+            primitive=True,
+            max_normal_search=1,
+        )
+        slab = slab_gen.get_slab(shift = custom_slab_file.shift[r],
+            tol=0.3, energy=None,
+        )
+        slabs.append(slab)
+    all_slabs_info = [(slab, slab.miller_index, slab.shift, True) for slab in slabs]
+    return all_slabs_info
