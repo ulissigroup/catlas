@@ -1,6 +1,8 @@
 import warnings
 
 import numpy as np
+import pickle
+import pandas as pd
 
 import catlas.cache_utils
 import catlas.dask_utils
@@ -34,12 +36,18 @@ def bulk_filter(config, dask_df, sankey=None, initial_bulks=None):
     if sankey is not None:
         sankey_idx = 2
         sankey.info_dict["label"][1] = f"Bulks from db ({initial_bulks})"
+        
+    if "custom_slab_file" in config["input_options"]:
+        with open(config["input_options"]["custom_slab_file"], 'rb') as f:
+            custom_slab_file = pickle.load(f)
+        custom_slab_file = pd.DataFrame(custom_slab_file)
+        dask_df = dask_df[dask_df.bulk_id.isin(custom_slab_file.bulk_id.to_list())]
 
     for name, val in bulk_filters.items():
         if (
             str(val) != "None"
-        ):  # depending on how yaml is specified, val may either be "None" or NoneType
-            if name == "filter_by_bulk_ids" and "bulk_id" in columns:
+        ):  # depending on how yaml is specified, val may either be "None" or NoneType             
+            if "custom_slab_file" not in config["input_options"] and name == "filter_by_bulk_ids" and "bulk_id" in columns:
                 dask_df = dask_df[dask_df.bulk_id.isin(val)]
             elif name == "filter_ignore_bulk_ids":
                 dask_df = dask_df[~dask_df.bulk_id.isin(val)]

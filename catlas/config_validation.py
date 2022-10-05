@@ -81,6 +81,11 @@ config_schema = {
                 "type": "string",
                 "check_with": validate_path_exists,
             },
+            "custom_slab_file": {
+                "required": False,
+                "type": "string",
+                "check_with": validate_path_exists,
+            },
         },
     },
     "adsorbate_filters": {
