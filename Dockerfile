@@ -2,7 +2,7 @@
 FROM ulissigroup/kubeflow:extras-notebook
 
 # Add channels for pytorch geometric requirements, pytorch, etc
-# RUN conda config --add channels pytorch
+RUN conda config --add channels pytorch
 RUN conda config --add channels pyg
 RUN conda config --add channels nvidia
 
