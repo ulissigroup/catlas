@@ -46,15 +46,15 @@ def enumerate_slabs(bulk_dict, max_miller, config):
             -- slab_top (bool): whether the termination is the top of the slab.
     """
     bulk_dict = copy.deepcopy(bulk_dict)
-
+    
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
     bulk_obj = CustomBulk(AseAtomsAdaptor.get_atoms(bulk_dict["bulk_structure"]))
 
     if "custom_slab_file" in config["input_options"]:
-        surfaces = enumerate_custom_surfaces_for_saving(bulk_dict["bulk_structure"], config)
-    else:    
+        surfaces = enumerate_custom_surfaces_for_saving(bulk_dict, config)
+    else:  
         surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_structure"], max_miller)
     surface_list = []
     for surface in surfaces:

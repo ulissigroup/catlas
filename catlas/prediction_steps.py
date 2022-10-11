@@ -232,7 +232,7 @@ def enumerate_surfaces_and_filter(config, filtered_catalyst_bag, bulk_num):
     unfiltered_surface_bag = (
         filtered_catalyst_bag.map(
             catlas.cache_utils.sqlitedict_memoize(
-                config["memory_cache_location"], enumerate_slabs, ignore=("config")
+                config["memory_cache_location"], enumerate_slabs, ignore=["config"]
             ),
             max_miller=max_miller,
             config = config,
