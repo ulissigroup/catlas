@@ -9,6 +9,8 @@ import numpy as np
 from ase import neighborlist
 from ase.neighborlist import natural_cutoffs
 from graph_tool import topology
+import glob
+import re
 
 
 def get_nuclearity(entry):
@@ -48,16 +50,17 @@ def get_nuclearity(entry):
         ]
 
         if sum(surface_atoms_of_element) == 0:
-            output_dict[element] = {"nuclearity": 0, "nuclearities": []}
+            output_dict[element] = {"nuclearity": 0, "nuclearities": [], "shape_detected": None}
 
         else:
-            hist = get_nuclearity_neighbor_counts(
+            hist, shape_detected = get_nuclearity_neighbor_counts(
                 surface_atoms_of_element, overall_connectivity_matrix
             )
-            hist_rep = get_nuclearity_neighbor_counts(
+            hist_rep, shape_detected_rep = get_nuclearity_neighbor_counts(
                 surface_atoms_of_element_rep, overall_connectivity_matrix_rep
             )
             output_dict[element] = evaluate_infiniteness(hist, hist_rep)
+            output_dict[element]['shape_detected'] = shape_detected
     entry["nuclearity_info"] = output_dict
     return entry
 
@@ -80,7 +83,21 @@ def get_nuclearity_neighbor_counts(surface_atoms_of_element, connectivity_matrix
     graph.add_vertex(n=connectivity_matrix.shape[0])
     graph.add_edge_list(np.transpose(connectivity_matrix.nonzero()))
     labels, hist = topology.label_components(graph, directed=False)
-    return hist
+    site_shape_graphs = glob.glob('/home/jovyan/shared-scratch/usharma/site_shape_graphs/*')
+    shape_detected = []
+    c = gt.topology.label_components(graph)[0]
+    for a in range(0,len(hist)):
+        u = gt.GraphView(graph, vfilt=c.a == a)
+        u = gt.Graph(u, prune=True)
+        if u.num_vertices() == 1:
+                shape_detected.append('1')
+        else:
+            for ssg in site_shape_graphs:
+                if gt.topology.isomorphism(gt.load_graph(ssg),u):
+                    shape_detected.append(re.findall('/home/jovyan/shared-scratch/usharma/site_shape_graphs/m(.*).xml.gz',ssg)[0])
+                    break
+
+    return hist, shape_detected
 
 
 def evaluate_infiniteness(hist, hist_rep):
