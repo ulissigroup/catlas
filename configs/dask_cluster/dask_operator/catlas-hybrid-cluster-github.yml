@@ -9,7 +9,7 @@ spec:
         containers:
           - image: ulissigroup/catlas:latest
             imagePullPolicy: Always
-            args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
+            args: [dask-worker, --nthreads, '1',--nworkers,'1', --no-dashboard, --memory-limit,'6 GiB',--death-timeout, '600',--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
             name: dask-worker
             env: 
             - name: OMP_NUM_THREADS
@@ -118,7 +118,7 @@ spec:
       containers:
       - image: ulissigroup/catlas:latest
         imagePullPolicy: Always
-        args: [dask-worker, --nthreads, '1',--nprocs,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
+        args: [dask-worker, --nthreads, '1',--nworkers,'1', --no-dashboard, --memory-limit,'16 GiB',--death-timeout, '600',--resources,"GPU=1",--name,'$(DASK_WORKER_NAME)',--preload,'catlas.dask_utils']
         name: dask-worker
         env:
         - name: OMP_NUM_THREADS

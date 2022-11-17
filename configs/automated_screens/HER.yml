@@ -1,7 +1,7 @@
 memory_cache_location: '/home/jovyan/shared-scratch/catlas/cache/'
 
 input_options:
-  bulk_file: 'catlas/bulk_structures/ocp_bulks20220812.pkl'
+  bulk_file: 'catlas/bulk_structures/ocp_bulks20221117.json'
   adsorbate_file: 'catlas/adsorbate_structures/adsorbates.pkl'
 
 output_options:
