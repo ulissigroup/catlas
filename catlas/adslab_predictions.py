@@ -5,7 +5,7 @@ import numpy as np
 import ocpmodels
 import torch
 from ase.calculators.singlepoint import SinglePointCalculator
-from ocdata.flag_anomaly import DetectTrajAnomaly
+from catlas.flag_systems import DetectTrajAnomaly
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
