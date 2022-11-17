@@ -105,7 +105,7 @@ class DetectTrajAnomaly:
         Returns:
             (np.ndarray): The connectivity matrix of the atoms object.
         """
-        cutoff = natural_cutoffs(atoms, mult = cutoff_multiplier)
+        cutoff = natural_cutoffs(atoms, mult=cutoff_multiplier)
         neighbor_list = neighborlist.NeighborList(
             cutoff, self_interaction=False, bothways=True
         )
