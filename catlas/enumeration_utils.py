@@ -217,8 +217,8 @@ class Surface:
         """
         x_length = structure.lattice.abc[0]
         y_length = structure.lattice.abc[1]
-        nx = int(math.ceil(8.0 / x_length))
-        ny = int(math.ceil(8.0 / y_length))
+        nx = int(math.ceil(MIN_XY / x_length))
+        ny = int(math.ceil(MIN_XY / y_length))
         structure.make_supercell([[nx, 0, 0], [0, ny, 0], [0, 0, 1]])
         return structure
 
