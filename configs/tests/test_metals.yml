@@ -27,10 +27,10 @@ slab_filters:
     filter_by_object_size: 100
     filter_by_max_miller_index: 1
 
-adslab_prediction_steps:
-  - step_type: inference
-    gpu: false
-    batch_size: 4
-    label: 'dE_gemnet_is2re_finetuned'
-    checkpoint_path: 'ocp_checkpoints/for_catlas/gemnet-is2re-finetuned-11-01.pt'
+# adslab_prediction_steps:
+#   - step_type: inference
+#     gpu: false
+#     batch_size: 4
+#     label: 'dE_gemnet_is2re_finetuned'
+#     checkpoint_path: 'ocp_checkpoints/for_catlas/gemnet-is2re-finetuned-11-01.pt'
 
