@@ -1,5 +1,6 @@
 import os.path
-import pickle
+import json
+from monty.json import MontyDecoder
 
 import catlas
 
@@ -34,6 +35,6 @@ def load_bulks(bulk_path):
     db_name = path_name.split("/")[-1]
 
     with open(path, "rb") as f:
-        bulk_list = pickle.load(f)
+        bulk_list = json.load(f, cls=MontyDecoder)
 
     return bulk_list
