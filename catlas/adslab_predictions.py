@@ -5,7 +5,7 @@ import numpy as np
 import ocpmodels
 import torch
 from ase.calculators.singlepoint import SinglePointCalculator
-from ocdata.flag_anomaly import DetectTrajAnomaly
+from catlas.flag_systems import DetectTrajAnomaly
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
@@ -309,7 +309,7 @@ def energy_prediction(
                 status = {}
                 status["dissociation"] = detector.is_adsorbate_dissociated()
                 status["desorption"] = detector.is_adsorbate_desorbed()
-                status["reconstruction"] = detector.is_surface_reconstructed()
+                status["reconstruction"] = detector.has_surface_changed()
                 anomaly_tests.append(status)
                 idx += 1
             adslab_results["relaxed_atoms_" + column_name] = adslab_atoms_copy
