@@ -54,7 +54,7 @@ class DetectTrajAnomaly:
     def has_surface_changed(self):
         """
         Tests bond breaking / forming events within a tolerance on the surface so
-        that systems with significant adsorbate induces surface changes may be discarded
+        that systems with significant adsorbate induced surface changes may be discarded
         since the reference to the relaxed slab may no longer be valid.
         Returns:
             (bool): True if the surface is reconstructed, otherwise False
@@ -65,13 +65,13 @@ class DetectTrajAnomaly:
         slab_connectivity_w_cushion = self._get_connectivity(
             self.final_slab_atoms, self.surface_change_cutoff_multiplier
         )
-        slab_test = 1 in adslab_connectivity - slab_connectivity_w_cushion
+        slab_test = 1 in (adslab_connectivity - slab_connectivity_w_cushion)
 
         adslab_connectivity_w_cushion = self._get_connectivity(
             self.final_atoms[surf_idx], self.surface_change_cutoff_multiplier
         )
         slab_connectivity = self._get_connectivity(self.final_slab_atoms)
-        adslab_test = 1 in slab_connectivity - adslab_connectivity_w_cushion
+        adslab_test = 1 in (slab_connectivity - adslab_connectivity_w_cushion)
 
         return any([slab_test, adslab_test])
 
@@ -85,13 +85,13 @@ class DetectTrajAnomaly:
         adsorbate_atoms_idx = [
             idx for idx, tag in enumerate(self.atoms_tag) if tag == 2
         ]
-        surface_atoms_idx = [idx for idx, tag in enumerate(self.atoms_tag) if tag != 2]
+        slab_atoms_idx = [idx for idx, tag in enumerate(self.atoms_tag) if tag != 2]
         final_connectivity = self._get_connectivity(
             self.final_atoms, self.desorption_cutoff_multiplier
         )
 
         for idx in adsorbate_atoms_idx:
-            if sum(final_connectivity[idx][surface_atoms_idx]) >= 1:
+            if sum(final_connectivity[idx][slab_atoms_idx]) >= 1:
                 return False
         return True
 
