@@ -7,6 +7,8 @@ import numpy as np
 from mp_api.client import MPRester
 
 import catlas
+from catlas.general_utils import get_center_of_mass, surface_area
+
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram
 from pymatgen.core.periodic_table import Element
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -391,20 +393,6 @@ def filter_columns_by_type(
     )
 
 
-def surface_area(slab):
-    """
-    Gets cross section surface area of the slab.
-    Args:
-        slab (pymatgen.structure.Structure): PMG Structure representation of a slab.
-
-    Returns:
-        (float): surface area
-
-    """
-    m = slab.lattice.matrix
-    return np.linalg.norm(np.cross(m[0], m[1]))
-
-
 def get_bond_length(ucell, neighbor_factor):
     """
     Gets all bond lengths of all symmetrically distinct sites and organizes it as a dictionary
@@ -482,10 +470,6 @@ def get_total_bb(ucell, slab, neighbor_factor: float) -> float:
         bulk_cn = bulk_cn_dict[site.full_wyckoff]
         if len(neighbors) == bulk_cn:
             continue
-        if len(neighbors) > bulk_cn:
-            warnings.warn(
-                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
-            )
         tot_bb += (bulk_cn - len(neighbors)) / bulk_cn
     return tot_bb
 
@@ -515,10 +499,6 @@ def get_total_nn(ucell, slab, neighbor_factor: float) -> int:
         bulk_cn = bulk_cn_dict[site.full_wyckoff]
         if len(neighbors) == bulk_cn:
             continue
-        if len(neighbors) > bulk_cn:
-            warnings.warn(
-                f"For {dask_dict['bulk_id']} {dask_dict['slab_millers']} {dask_dict['slab_shift']} the slab cn was observed to be larger than the bulk"
-            )
         tot_nn += len(neighbors)
     return tot_nn
 
@@ -677,19 +657,3 @@ def filter_best_facet_by_surface_property(bag_partition, name: str, val: dict):
             [row for idx, row in enumerate(value) if idx in selected_indices]
         )
     return filtered_bag_partition
-
-
-def get_center_of_mass(pmg_struct):
-    """
-    Calculates the center of mass of a pmg structure.
-
-    Args:
-        pmg_struct (pymatgen.core.structure.Structure): pymatgen structure to be
-            considered.
-
-    Returns:
-        numpy.ndarray: the center of mass
-    """
-    weights = [s.species.weight for s in pmg_struct]
-    center_of_mass = np.average(pmg_struct.frac_coords, weights=weights, axis=0)
-    return center_of_mass

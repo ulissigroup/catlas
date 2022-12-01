@@ -7,7 +7,7 @@ from catlas.enumeration_utils import enumerate_surfaces_for_saving
 from ocdata.adsorbates import Adsorbate
 from ocdata.bulk_obj import Bulk
 from ocdata.combined import Combined
-from ocdata.surfaces import Surface
+from catlas.enumeration_utils import Surface
 from ocpmodels.preprocessing import AtomsToGraphs
 from pymatgen.io.ase import AseAtomsAdaptor
 
@@ -19,13 +19,6 @@ class CustomAdsorbate(Adsorbate):
         self.atoms = ads_atoms
         self.bond_indices = bond_indices
         self.smiles = smiles
-
-
-class CustomBulk(Bulk):
-    """A custom bulk object for ocdata compatability."""
-
-    def __init__(self, bulk_atoms):
-        self.bulk_atoms = bulk_atoms
 
 
 def enumerate_slabs(bulk_dict, max_miller):
@@ -50,18 +43,17 @@ def enumerate_slabs(bulk_dict, max_miller):
     logger = logging.getLogger("distributed.worker")
     logger.info("enumerate_slabs_started: %s" % str(bulk_dict))
 
-    bulk_obj = CustomBulk(AseAtomsAdaptor.get_atoms(bulk_dict["bulk_structure"]))
-
     surfaces = enumerate_surfaces_for_saving(bulk_dict["bulk_structure"], max_miller)
     surface_list = []
     for surface in surfaces:
         surface_struct, millers, shift, top = surface
-        surface_object = Surface(bulk_obj, surface, np.nan, np.nan)
+        surface_object = Surface(bulk_dict["bulk_structure"], surface)
 
         # Make the surface dict by extending a copy of the bulk dict
         surface_result = copy.deepcopy(bulk_dict)
         surface_result.update(
             {
+                "slab_atoms": surface_object.constrained_surface,
                 "slab_surface_object": surface_object,
                 "slab_millers": millers,
                 "slab_max_miller_index": np.max(millers),
@@ -183,5 +175,7 @@ def merge_surface_adsorbate_combo(surface_adsorbate_combo):
     adslab_result = {}
     adslab_result.update(surface_dict)
     adslab_result.update(ads_dict)
+    adslab_result.pop("slab_structure")
+    adslab_result.pop("slab_surface_object")
 
     return adslab_result
