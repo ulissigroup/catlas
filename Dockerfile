@@ -18,8 +18,9 @@ RUN mamba install --quiet --yes \
 
 # Install dask/dask-kubernetes, and necessary pytorch_geometric requirements along with updated CUDA
 RUN mamba install --quiet --yes \
-    'pytorch=1.10' \
-    'pyg' && \
+    'pytorch=1.11' \
+    'cudatoolkit=11.3' \
+    'pyg=2.1.0' && \
     mamba clean --all -f -y && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
@@ -86,8 +87,8 @@ RUN pip install pymatgen-analysis-alloys
 
 
 # Add OCP
-WORKDIR /home/jovyan
-RUN git clone https://github.com/Open-Catalyst-Project/ocp.git && \
-    cd ocp && python setup.py develop
+# WORKDIR /home/jovyan
+# RUN git clone https://github.com/Open-Catalyst-Project/ocp.git && \
+#     cd ocp && python setup.py develop
+# ENV PYTHONPATH=/home/jovyan/ocp/
 CMD ["sh","-c", "jupyter notebook --notebook-dir=/home/jovyan --ip=0.0.0.0 --no-browser --allow-root --port=8888 --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.base_url=${NB_PREFIX}"]
-ENV PYTHONPATH=/home/jovyan/ocp/
