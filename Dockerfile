@@ -32,7 +32,7 @@ RUN mamba install --quiet --yes \
     'joblib' \
     'numba' \
     'pynvml' \
-    'dask' \
+    'dask>=2023.2.0' \
     'dask-cuda' \
     'jupyter-server-proxy' \
     'networkx' \
